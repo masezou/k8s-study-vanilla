@@ -38,4 +38,6 @@ If your environment is vSphere with vCenter 6.7U3 above. ./5-csi-vsphere.sh
 
 # Note
 
+* If you want to add storage, you can mount extra volume to /disk.
+
 * Windows environment is not supported
