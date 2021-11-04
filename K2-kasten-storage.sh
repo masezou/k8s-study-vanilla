@@ -17,7 +17,7 @@ fi
 echo ${LOCALIPADDR}
 
 
-MINIOIPi=${LOCALIPADDR}
+MINIOIP=${LOCALIPADDR}
 MINIO_ROOT_USER=minioadminuser
 MINIO_ROOT_PASSWORD=minioadminuser
 BUCKETNAME=`hostname`

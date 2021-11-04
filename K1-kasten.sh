@@ -66,7 +66,7 @@ PERSISTENTCHK=1
 fi
 
 if [ ${PERSISTENTCHK} -eq 1 ]; then
-echo "Install to single node environment"
+echo "Install to volumePermissions.enabled node environment"
 helm install k10 kasten/k10 --namespace=kasten-io \
 --set gateway.insecureDisableSSLVerify=true \
 --set global.persistence.size=40G \
@@ -82,7 +82,7 @@ helm install k10 kasten/k10 --namespace=kasten-io \
 --set prometheus.server.securityContext.fsGroup=0
 #--set injectKanisterSidecar.enabled=true
 else
-echo "Install to multi node environment"
+echo "Install to usual node environment"
 helm install k10 kasten/k10 --namespace=kasten-io \
 --set gateway.insecureDisableSSLVerify=true \
 --set global.persistence.size=40G \
@@ -103,6 +103,7 @@ fi
 kubectl get sc | grep nfs-csi
 retval9=$?
 if [ ${retval9} -eq 0 ]; then
+KASTENNFSPVC=kastenbackup-pvc
 cat <<EOF | kubectl apply -n kasten-io -f -
 apiVersion: v1
 kind: PersistentVolumeClaim
