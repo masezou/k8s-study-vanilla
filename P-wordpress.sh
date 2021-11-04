@@ -18,7 +18,7 @@ else
 fi
 
 NAMESPACE=wordpress-sample
-SC=csi-hostpath-sc
+SC=vsphere-sc
 
 kubectl create namespace ${NAMESPACE}
 mkdir ${NAMESPACE}
@@ -100,7 +100,11 @@ spec:
 EOF
 
 helm repo add bitnami https://charts.bitnami.com/bitnami
+if [ ${SC} = csi-hostpath-sc ]; then
+helm install mysql-release bitnami/mysql -n ${NAMESPACE} --set volumePermissions.enabled=true --set global.storageClass=${SC}
+else
 helm install mysql-release bitnami/mysql -n ${NAMESPACE} --set global.storageClass=${SC}
+fi
 while [ "$(kubectl get pod -n ${NAMESPACE} mysql-release-0 --output="jsonpath={.status.containerStatuses[*].ready}" | cut -d' ' -f2)" != "true" ]; do
 	echo "Deploying Stateful MySQL, Please wait...."
 	sleep 30

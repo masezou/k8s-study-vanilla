@@ -17,16 +17,15 @@ else
     exit 255
 fi
 
-PGNAMESPACE=postgresql-lb
+PGNAMESPACE=postgresql-app
 SC=vsphere-sc
 
 helm repo add bitnami https://charts.bitnami.com/bitnami
-helm repo update
 kubectl create namespace ${PGNAMESPACE}
 if [ ${SC} = csi-hostpath-sc ]; then
-helm install --namespace ${PGNAMESPACE} postgres bitnami/postgresql --version 9.1.1 --set volumePermissions.enabled=true --set global.storageClass=${SC}
+helm install --namespace ${PGNAMESPACE} postgres bitnami/postgresql --set volumePermissions.enabled=true --set global.storageClass=${SC}
 else
-helm install --namespace ${PGNAMESPACE} postgres bitnami/postgresql --version 9.1.1 --set global.storageClass=${SC}
+helm install --namespace ${PGNAMESPACE} postgres bitnami/postgresql --set global.storageClass=${SC}
 fi
-kubectl --namespace ${PGNAMESPACE} annotate statefulset/postgres-postgresql \
-    kanister.kasten.io/blueprint=postgres-bp
+kubectl annotate statefulset postgres-postgresql kanister.kasten.io/blueprint='postgresql-postgres-hooks' \
+     --namespace=${PGNAMESPACE}
