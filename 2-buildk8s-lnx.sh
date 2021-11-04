@@ -180,7 +180,7 @@ echo "source <(crictl completion bash) " >> /etc/profile.d/crictl.sh
 curl https://raw.githubusercontent.com/containerd/containerd/main/contrib/autocomplete/ctr  -o /etc/bash_completion.d/ctr
 
 #Network filesystem client
-apt -y install nfs-common smbclient cifs-utils
+apt -y install nfs-common
 
 #Create Single node Cluster
 CLUSTERNAME=`hostname`-cl

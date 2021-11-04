@@ -129,21 +129,8 @@ echo "complete -C /usr/local/bin/mc mc" > /etc/bash_completion.d/mc.sh
 fi
 
 
-# Install Velero
-if [ ! -f /usr/local/bin/velero ]; then
-VELEROVER=1.7.0
-curl -OL https://github.com/vmware-tanzu/velero/releases/download/v${VELEROVER}/velero-v${VELEROVER}-linux-${ARCH}.tar.gz
-tar xfz velero-v${VELEROVER}-linux-${ARCH}.tar.gz
-rm velero-v${VELEROVER}-linux-${ARCH}.tar.gz
-ln -s velero-v${VELEROVER}-linux-${ARCH} velero
-cd velero
-cp velero /usr/local/bin/
-/usr/local/bin/velero completion bash > /etc/bash_completion.d/velero
-source /etc/bash_completion.d/velero
-fi
-
 # Misc
-apt -y install postgresql-contrib postgresql-client mysql-client jq apache2-utils mongodb-clients lynx scsitools
+apt -y install postgresql-client mysql-client jq apache2-utils mongodb-clients lynx scsitools
 systemctl stop postgresql
 systemctl disable postgresql
 
