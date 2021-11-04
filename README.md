@@ -17,6 +17,12 @@ This script will create only 1 node which the server is control-plane and worker
 
 Configure your clone with ssh key then git clone this.
 
+Before execute script, please change following
+
+* 3-configk8s.sh:IPRANGE: loadbalancer will be assigned, thus you need to set unused IP subnet.
+
+* 5-csi-vsphere.sh/K3-kasten-vsphere.sh: vCenter configuration in CSI driver and Kasten Storage setting.
+
 
 # Usage (Linux)
 
