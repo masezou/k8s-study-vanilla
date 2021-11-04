@@ -23,8 +23,8 @@ Configure your clone with ssh key then git clone this.
 * Linux
 ```bash
 sudo -i
-git clone https://github.com/masezou/k8s-study2
-cd k8s-study2
+git clone https://github.com/masezou/k8s-study-vanilla
+cd k8s-study-vanilla
 ./0-minio.sh ; ./1-tools.sh ; ./2-buildk8s-lnx.sh ; ./3-configk8s.sh; ./4-csi-storage.sh
 
 If your environment is vSphere with vCenter 6.7U3 above. ./5-csi-vsphere.sh
