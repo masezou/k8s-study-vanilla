@@ -52,6 +52,7 @@ mv csi-driver-host-path csi-driver-host-path-`date "+%Y%m%d_%H%M%S"`
 
 ##Install NFS-CSI driver
 apt -y install nfs-kernel-server
+apt clean
 mkdir -p /disk/k8s_share
 chmod -R 1777 /disk/k8s_share
 cat << EOF >> /etc/exports
