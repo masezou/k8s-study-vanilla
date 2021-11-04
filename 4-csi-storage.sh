@@ -58,11 +58,12 @@ cat << EOF >> /etc/exports
 /disk/k8s_share 192.168.0.0/16(rw,async,no_root_squash)
 /disk/k8s_share 172.16.0.0/12(rw,async,no_root_squash)
 /disk/k8s_share 10.0.0.0/8(rw,async,no_root_squash)
+/disk/k8s_share 127.0.0.1/8(rw,async,no_root_squash)
 EOF
 systemctl restart nfs-server
 systemctl enable nfs-server
 showmount -e
-NFSPATH=/k8s_sharedyn/`hostname`
+NFSPATH=/disk/k8s_share
 curl -skSL https://raw.githubusercontent.com/kubernetes-csi/csi-driver-nfs/master/deploy/install-driver.sh | bash -s master --
 curl -OL  https://raw.githubusercontent.com/kubernetes-csi/csi-driver-nfs/master/deploy/example/storageclass-nfs.yaml
 sed -i -e "s/nfs-server.default.svc.cluster.local/${LOCALIPADDR}/g" storageclass-nfs.yaml
