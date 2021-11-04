@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 
 VSPHEREUSERNAME="administrator@vsphere.local"
-VSPHEREPASSWORD="Password00!"
-VSPHERESERVER="vc2.local.cloudshift.tech"
+VSPHEREPASSWORD="PASSWORD"
+VSPHERESERVER="YOUR_VCENTER_FQDN"
 
 kubectl get sc | grep csi.vsphere
 retval1=$?
