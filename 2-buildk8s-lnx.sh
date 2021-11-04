@@ -94,7 +94,7 @@ cat <<EOF | sudo tee /etc/docker/daemon.json
     "max-size": "100m"
   },
   "storage-driver": "overlay2",
-  "insecure-registries":["${LOCALIPADDR}"] 
+  "insecure-registries":["${LOCALIPADDR}:5000"] 
 }
 EOF
 mkdir -p /etc/docker/certs.d
@@ -105,7 +105,7 @@ systemctl restart docker
 mkdir -p ~/.docker
 cat << EOF > ~/.docker/config.json
 {
-  "insecure-registries":["${LOCALIPADDR}"]
+  "insecure-registries":["${LOCALIPADDR}:5000"]
 }
 EOF
 
@@ -142,8 +142,8 @@ containerd config default | sudo tee /etc/containerd/config.toml
 sed -i -e "/^          \[plugins\.\"io\.containerd\.grpc\.v1\.cri\"\.containerd\.runtimes\.runc\.options\]$/a\            SystemdCgroup \= true" /etc/containerd/config.toml
 
 cat << EOF > insert.txt
-        [plugins."io.containerd.grpc.v1.cri".registry.mirrors."${LOCALIPADDR}"]
-          endpoint = ["http://${LOCALIPADDR}"]
+        [plugins."io.containerd.grpc.v1.cri".registry.mirrors."${LOCALIPADDR}:5000"]
+          endpoint = ["http://${LOCALIPADDR}:5000"]
 EOF
 sed -i -e "/^          endpoint \= \[\"https\:\/\/registry-1.docker.io\"\]$/r insert.txt" /etc/containerd/config.toml
 rm -rf insert.txt
