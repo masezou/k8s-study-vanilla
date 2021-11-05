@@ -134,9 +134,15 @@ rm -rf components.yaml
 EXTERNALIP=`kubectl -n kubernetes-dashboard get service dashboard-service-lb| awk '{print $4}' | tail -n 1`
 
 echo "*************************************************************************************"
-echo "Next Step"
-echo "you can access Kubernetes dashboard"
+echo "CNI/Loadbaancer and Dashboard was installed."
+echo "Please check kubectl get pod -A, I recommend to wait until all pod is running"
+echo ""
+echo "You can access Kubernetes dashboard"
 echo "https://${EXTERNALIP}/#/login"
+echo ""
+echo "Next Step"
+echo ""
+echo "Run ./4-csi-storage.sh"
 echo ""
 
 chmod -x ./3-configk8s.sh

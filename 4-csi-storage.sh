@@ -90,7 +90,12 @@ EOF
 
 echo ""
 echo "*************************************************************************************"
-echo "There is no more action. following your current storage class"
+echo "CSI storage was created"
+echo "kubectl get sc"
+echo ""
+echo "If your won't use vSphere CSI Driver, This was final step."
+echo ""
+echo "If you want to use vSphere CSI Driver, run ./5-csi-vsphere.sh"
 echo ""
 
 cd ${BASEPWD}

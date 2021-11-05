@@ -227,7 +227,7 @@ echo ""
 echo "*************************************************************************************"
 echo "Next Step"
 echo ""
-echo -e "\e[31m Master - Change default cluster name before run next script \e[m"
+echo "Run ./3-configk8s.sh."
 echo ""
 
 chmod -x ./2-buildk8s-lnx.sh

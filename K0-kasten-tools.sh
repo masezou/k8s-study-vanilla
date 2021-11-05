@@ -70,7 +70,7 @@ fi
 
 echo ""
 echo "*************************************************************************************"
-echo "Next Step"
+echo "K10tool/K10multicluster/kubestr were installed"
 echo ""
 
 chmod -x ./K0-kasten-tools.sh

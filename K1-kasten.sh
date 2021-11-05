@@ -139,5 +139,7 @@ echo "Next Step"
 echo "Confirm wordpress kasten is running with kubectl get pods --namespace kasten-io"
 echo "Open your browser http://${EXTERNALIP}/k10/"
 echo "then input login token"
+echo ""
+echo "If you want to setup automatically, run ./K2-kasten-storage.sh ; ./K3-kasten-vsphere.sh"
 
 chmod -x ./K1-kasten.sh
