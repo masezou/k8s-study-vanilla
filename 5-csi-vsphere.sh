@@ -198,7 +198,7 @@ kubectl patch storageclass csi-hostpath-sc \
 
 echo ""
 echo "*************************************************************************************"
-echo "vSphere CSI Driver installation and Storage Class creation is done.
+echo "vSphere CSI Driver installation and Storage Class creation is done."
 echo ""
 
 cd ${BASEPWD}
