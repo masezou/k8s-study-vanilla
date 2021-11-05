@@ -9,11 +9,19 @@ This single k8s node includes local repository, minio, nfs server for nfs-csi dr
 
 Storage class: hostpath-csi/nfs-csi/vSphere CSI. 
 
+![Diagram1](https://user-images.githubusercontent.com/624501/140580948-258eb6a8-dbc4-42ff-8337-0e044d416a42.jpeg)
+
+![Diagram2](https://user-images.githubusercontent.com/624501/140580983-f7159c78-b2d1-40cf-96b6-bf8047e6bb52.jpeg)   
+
 # Requirement
 
 -Ubuntu Linux Server 20.04.3 amd64 4vCPU 16GB RAM 100GB. (ARM is experimental)
 
 -If you want to use vSphre CSI Driver, You need to have vCenter 6.7U3 above and any VM need to be set DISKUUID in option. At least 1 vCenter and 1 ESX. vCenter cluster is option.
+
+![vsphere](https://user-images.githubusercontent.com/624501/140580806-104d5fb6-3c94-40fe-8f9c-1af4c85f9af1.png)
+
+![DiskUUID](https://user-images.githubusercontent.com/624501/140580848-8a36ba87-3fa8-4ae2-b41d-9abfe690216c.png)
 
 -Network segment 24bit is required
 
