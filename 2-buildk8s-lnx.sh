@@ -216,6 +216,14 @@ echo "install private registry"
 mkdir -p /disk/registry
 docker run -e REGISTRY_STORAGE_DELETE_ENABLED=true -v /disk/registry:/var/lib/registry -d -p 5000:5000 --restart always --name registry registry
 
+# Registry FrontEnd
+docker run \
+  -d \
+  -e ENV_DOCKER_REGISTRY_HOST=${LOCALIPADDR} \
+  -e ENV_DOCKER_REGISTRY_PORT=5000 \
+  -p 18080:80 \
+  konradkleine/docker-registry-frontend:v2
+
 # Expoert kubeconfig
 KUBECONFIGNAME=${CLUSTERNAME}-`hostname`
 kubectl config view --raw > ${KUBECONFIGNAME}_kubeconfig
@@ -225,6 +233,10 @@ echo ""
 
 echo ""
 echo "*************************************************************************************"
+echo ""
+echo "Registry Frontend is"
+echo "http://${LOCALIPADDR}:18080"
+echo ""
 echo "Next Step"
 echo ""
 echo "Run ./3-configk8s.sh."
