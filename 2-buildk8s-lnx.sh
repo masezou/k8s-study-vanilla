@@ -228,12 +228,12 @@ docker run \
 # Expoert kubeconfig
 KUBECONFIGNAME=${CLUSTERNAME}-`hostname`
 kubectl config view --raw > ${KUBECONFIGNAME}_kubeconfig
-cp  ${KUBECONFIGNAME}_kubeconfig /tmp
-echo "" >>${KUBECONFIGNAME}_kubeconfig
-echo ""
 
 echo ""
 echo "*************************************************************************************"
+echo ""
+echo "Kubeconfig was copied ${KUBECONFIGNAME}_kubeconfig"
+echo ""
 echo ""
 echo "Registry Frontend is"
 echo "http://${LOCALIPADDR}:18080"
