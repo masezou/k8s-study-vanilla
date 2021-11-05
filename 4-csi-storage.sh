@@ -93,7 +93,7 @@ echo "**************************************************************************
 echo "CSI storage was created"
 echo "kubectl get sc"
 echo ""
-echo "If your won't use vSphere CSI Driver, This was final step."
+echo "kubernetes deployment  without vSphere CSI driver was successfully. The environment will be fully functional."
 echo ""
 echo "If you want to use vSphere CSI Driver, run ./5-csi-vsphere.sh"
 echo ""
