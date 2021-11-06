@@ -173,7 +173,12 @@ echo ""
 echo "*************************************************************************************"
 echo "Next Step"
 echo ""
-echo "Create token in Master node, then join this server"
+echo "Master node:"
+echo "kubeadm token create"
+echo 'openssl x509 -pubkey -in /etc/kubernetes/pki/ca.crt | openssl rsa -pubin -outform der 2>/dev/null | \'
+echo 'openssl dgst -sha256 -hex | sed 's/^.* //''
 echo ""
-
+echo "Worker node:"
+echo "kubeadm join --token <token> <control-plane-host>:<control-plane-port> --discovery-token-ca-cert-hash sha256:<hash>   --cri-socket=/run/containerd/containerd.sock"
+echo ""
 chmod -x ./buildk8s-worker.sh
