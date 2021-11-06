@@ -27,5 +27,5 @@ helm install --namespace ${PGNAMESPACE} postgres bitnami/postgresql --set volume
 else
 helm install --namespace ${PGNAMESPACE} postgres bitnami/postgresql --set global.storageClass=${SC}
 fi
-kubectl annotate statefulset postgres-postgresql kanister.kasten.io/blueprint='postgresql-postgres-hooks' \
+kubectl annotate statefulset postgres-postgresql kanister.kasten.io/blueprint='postgresql-hooks' \
      --namespace=${PGNAMESPACE}
