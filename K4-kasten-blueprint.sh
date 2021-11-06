@@ -11,8 +11,8 @@ kubectl --namespace kasten-io apply -f \
     https://raw.githubusercontent.com/kanisterio/kanister/master/examples/stable/elasticsearch/blueprint-v2/elasticsearch-blueprint.yaml
 kubectl --namespace kasten-io apply -f \
     https://raw.githubusercontent.com/kanisterio/kanister/master/examples/etcd/etcd-in-cluster/k8s/etcd-incluster-blueprint.yaml
-kubectl --namespace kafka-test apply -f \
-     https://raw.githubusercontent.com/kanisterio/kanister/master/examples/kafka/adobe-s3-connector/kafka-blueprint.yaml
+#kubectl --namespace kafka-test apply -f \
+#     https://raw.githubusercontent.com/kanisterio/kanister/master/examples/kafka/adobe-s3-connector/kafka-blueprint.yaml
 
 # Application-Consistent Backups
 
