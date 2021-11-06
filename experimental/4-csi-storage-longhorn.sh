@@ -158,4 +158,4 @@ echo "If you want to use vSphere CSI Driver, run ./5-csi-vsphere.sh"
 echo ""
 
 cd ${BASEPWD}
-chmod -x ./4-csi-storage.sh
+#chmod -x ./4-csi-storage.sh
