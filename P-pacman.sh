@@ -23,4 +23,4 @@ echo "kubectl -n pacman get svc"
 echo "http://EXTERNAL-IP/"
 echo ""
 
-chmod -x P4-pacman.sh
+chmod -x P-pacman.sh
