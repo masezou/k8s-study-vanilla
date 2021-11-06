@@ -9,8 +9,8 @@
 #For vSphere CSI/Tanzu
 VSPHEREUSERNAME="administrator@vsphere.local"
 VSPHEREPASSWORD="PASSWORD"
-VSPHERESERVER="YOUR_vCENTER_FQDN"
-VSPHERESERVERIP="YOUR_vCENTE_IP"
+VSPHERESERVER="YOUR_VCENTER_FQDN"
+VSPHERESERVERIP="YOUR_VCENTER_IP"
 VSPPHEREDATASTORE="YOUR_DATASTORE"
 
 VSPHERECSI=2.3.0
@@ -32,6 +32,13 @@ else
 fi
 
 BASEPWD=`pwd`
+
+# Forget trap!
+if [ ${VSPHERESERVER} = "YOUR_VCENTER_FQDN" ]; then
+echo "You haven't set environment value"
+echo "end...."
+exit 255
+fi
 
 # Configure vsphere-cloud-controller-manager
 cat << EOF >  /etc/kubernetes/vsphere.conf

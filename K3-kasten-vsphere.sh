@@ -4,6 +4,13 @@ VSPHEREUSERNAME="administrator@vsphere.local"
 VSPHEREPASSWORD="PASSWORD"
 VSPHERESERVER="YOUR_VCENTER_FQDN"
 
+# Forget trap!
+if [ ${VSPHERESERVER} = "YOUR_VCENTER_FQDN" ]; then
+echo "You haven't set environment value."
+echo "end...."
+exit 255
+fi
+
 kubectl get sc | grep csi.vsphere
 retval1=$?
 if [ ${retval1} -eq 0 ]; then
