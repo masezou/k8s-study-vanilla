@@ -48,6 +48,13 @@ kubectl annotate volumesnapshotclass csi-hostpath-snapclass \
     k10.kasten.io/is-snapshot-class=true
 fi
 
+kubectl get volumesnapshotclass | grep longhorn
+retval4=$?
+if [ ${retval4} -eq 0 ]; then
+kubectl annotate volumesnapshotclass longhorn \
+    k10.kasten.io/is-snapshot-class=true
+fi
+
 curl https://docs.kasten.io/tools/k10_primer.sh | bash
 rm k10primer.yaml
 
