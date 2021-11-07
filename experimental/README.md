@@ -1,5 +1,10 @@
 # Experimental File
 
+## Caution
+Longhorn single node doesn't work volumesnapshot. (Deploy application was OK.)
+
+## Diagram
+
 Longhorn deployment
 
 ![Singlenode](https://user-images.githubusercontent.com/624501/140608524-71338149-8783-4f71-95f7-2bbf98601aec.jpeg)
