@@ -48,6 +48,20 @@ kubectl annotate volumesnapshotclass csi-hostpath-snapclass \
     k10.kasten.io/is-snapshot-class=true
 fi
 
+kubectl get volumesnapshotclass | grep csi-rbdplugin-snapclass
+retval2=$?
+if [ ${retval2} -eq 0 ]; then
+kubectl annotate volumesnapshotclass csi-rbdplugin-snapclass \
+    k10.kasten.io/is-snapshot-class=true
+fi
+
+kubectl get volumesnapshotclass | grep csi-cephfsplugin-snapclass
+retval3=$?
+if [ ${retval3} -eq 0 ]; then
+kubectl annotate volumesnapshotclass csi-cephfsplugin-snapclass \
+    k10.kasten.io/is-snapshot-class=true
+fi
+
 kubectl get volumesnapshotclass | grep longhorn
 retval4=$?
 if [ ${retval4} -eq 0 ]; then
