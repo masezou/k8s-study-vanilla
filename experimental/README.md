@@ -1,22 +1,24 @@
 # Experimental File
 
 ## Caution
-Longhorn single node doesn't work volumesnapshot. (Deploy application was OK.)
+Longhorn single node doesn't work volumesnapshot. (Deploy application was OK.)　--> Give up orz...
+
+Alternetive approach, Rook Ceph. I have replaced from Longhorn to Ceph. 
 
 ## Diagram
 
-Longhorn deployment
+Rook Ceph deployment
 
-![Singlenode](https://user-images.githubusercontent.com/624501/140608524-71338149-8783-4f71-95f7-2bbf98601aec.jpeg)
+![Slide5](https://user-images.githubusercontent.com/624501/140750370-5fd5f89b-d2b7-4943-a0ab-333f222aac89.jpeg)
 
-![Multinode](https://user-images.githubusercontent.com/624501/140608527-963febc4-7165-4591-b235-54a7f79a9abf.jpeg)
+![Slide8](https://user-images.githubusercontent.com/624501/140750397-390323f0-2d32-4767-982f-b3e84d02ceca.jpeg)
 
 ## Files
 
-* 4-csi-storage-longhorn.sh : csi-hostpath driver only supports single node. Longhorn supports single and multi node. But longhorn will consume huge CPU resource. If you want to use Longhorn, You should use vCPU 8 core or add another worker node.
+* 4-csi-storage-ceph.sh : csi-hostpath driver only supports single node. Longhorn supports single and multi node. You need to addtional block device. ex /dev/sdb with no parition.
 
 * buildk8s-worker.sh : Adding worker node. Once install Ubuntu VM, then run this script, next, create token in Master node, then join the worker node.
 
 ## Instruction.
 
-replace 4-csi-storage.sh to 4-csi-storage-longhorn.sh.
+replace 4-csi-storage.sh to 4-csi-storage-ceph.sh.
