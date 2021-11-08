@@ -148,6 +148,7 @@ EOF
 sed -i -e "/^          endpoint \= \[\"https\:\/\/registry-1.docker.io\"\]$/r insert.txt" /etc/containerd/config.toml
 rm -rf insert.txt
 systemctl restart containerd
+echo 0 > /proc/sys/kernel/hung_task_timeout_secs
 
 # Setup required sysctl params, these persist across reboots.
 cat <<EOF | sudo tee /etc/sysctl.d/99-kubernetes-cri.conf
