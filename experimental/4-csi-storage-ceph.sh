@@ -57,57 +57,18 @@ kubectl apply -f https://raw.githubusercontent.com/kubernetes-csi/external-snaps
 kubectl -n kube-system apply -f https://raw.githubusercontent.com/kubernetes-csi/external-snapshotter/${SNAPSHOTTER_VERSION}/deploy/kubernetes/snapshot-controller/rbac-snapshot-controller.yaml
 kubectl -n kube-system apply -f https://raw.githubusercontent.com/kubernetes-csi/external-snapshotter/${SNAPSHOTTER_VERSION}/deploy/kubernetes/snapshot-controller/setup-snapshot-controller.yaml
 
-#Install longhorn
-LONGHORNVER="1.2.2"
-#Pre-flight check
-apt -y install open-iscsi nfs-common
-curl -sSfL https://raw.githubusercontent.com/longhorn/longhorn/v${LONGHORNVER}/scripts/environment_check.sh | bash
-
-kubectl apply -f https://raw.githubusercontent.com/longhorn/longhorn/v${LONGHORNVER}/deploy/longhorn.yaml
-
-sleep 120
-
-USER=admin; PASSWORD=Password00; echo "${USER}:$(openssl passwd -stdin -apr1 <<< ${PASSWORD})" >> auth
-kubectl -n longhorn-system create secret generic basic-auth --from-file=auth
-cat <<EOF | kubectl -n longhorn-system apply  -f -
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: longhorn-ingress
-  namespace: longhorn-system
-  annotations:
-    # type of authentication
-    nginx.ingress.kubernetes.io/auth-type: basic
-    # prevent the controller from redirecting (308) to HTTPS
-    nginx.ingress.kubernetes.io/ssl-redirect: 'false'
-    # name of the secret that contains the user/password definitions
-    nginx.ingress.kubernetes.io/auth-secret: basic-auth
-    # message to display with an appropriate context why the authentication is required
-    nginx.ingress.kubernetes.io/auth-realm: 'Authentication Required '
-    # custom max body size for file uploading like backing image uploading
-    nginx.ingress.kubernetes.io/proxy-body-size: 10000m
-spec:
-  rules:
-  - http:
-      paths:
-      - pathType: Prefix
-        path: "/"
-        backend:
-          service:
-            name: longhorn-frontend
-            port:
-              number: 80
-EOF
-kubectl -n longhorn-system  get ingress
-
-cat <<EOF | kubectl apply  -f -
-kind: VolumeSnapshotClass
-apiVersion: snapshot.storage.k8s.io/v1
-metadata:
-  name: longhorn
-driver: driver.longhorn.io
-deletionPolicy: Delete
-EOF
+#Install Ceph
+# detect disk
+echo "- - -" > /sys/class/scsi_host/host0/scan
+git clone --depth 1 --single-branch --branch master https://github.com/rook/rook.git
+cd rook/cluster/examples/kubernetes/ceph
+kubectl create -f crds.yaml -f common.yaml -f operator.yaml -f toolbox.yaml -f cluster-test.yaml -f filesystem-test.yaml
+cd ../../../../
+kubectl create -f cluster/examples/kubernetes/ceph/csi/rbd/storageclass-test.yaml
+sed -e 's|NodePort|LoadBalancer|g' ./cluster/examples/kubernetes/ceph/dashboard-external-http.yaml | kubectl apply -f -
+kubectl create -f cluster/examples/kubernetes/ceph/csi/rbd/snapshotclass.yaml
+kubectl create -f cluster/examples/kubernetes/ceph/csi/cephfs/snapshotclass.yaml
+kubectl create -f cluster/examples/kubernetes/ceph/csi/cephfs/storageclass.yaml
 
 ##Install NFS-CSI driver
 apt -y install nfs-kernel-server
@@ -152,10 +113,13 @@ echo "**************************************************************************
 echo "CSI storage was created"
 echo "kubectl get sc"
 echo ""
+echo "Ceph Dashboard URL is:"
+echo "Access https://${LOCALIPADDR}:7000/"
+echo ""
 echo "kubernetes deployment  without vSphere CSI driver was successfully. The environment will be fully functional."
 echo ""
 echo "If you want to use vSphere CSI Driver, run ./5-csi-vsphere.sh"
 echo ""
 
 cd ${BASEPWD}
-#chmod -x ./4-csi-storage.sh
+#chmod -x ./4-csi-storage.sh ./experimental/4-csi-storage-ceph.sh
