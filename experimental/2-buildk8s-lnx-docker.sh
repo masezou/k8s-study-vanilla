@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 
+DOCKERVER="5:20.10.10~3-0~ubuntu-focal"
 KUBECTLVER=1.21.6-00
+
+#If you want to docker-shim, nodify this file.
 
 if [ ${EUID:-${UID}} != 0 ]; then
     echo "This script must be run as root"
@@ -59,7 +62,7 @@ update-alternatives --set ip6tables /usr/sbin/ip6tables-legacy
 update-alternatives --set arptables /usr/sbin/arptables-legacy
 update-alternatives --set ebtables /usr/sbin/ebtables-legacy
 
-# Install containerd
+# Install Docker
 apt -y install apt-transport-https ca-certificates curl gnupg-agent software-properties-common
 curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
 apt-key fingerprint 0EBFCD88
@@ -72,8 +75,39 @@ else
   exit 1
 fi
 apt update
-apt -y purge docker.io docker-ce-cli docker-ce docker-ce-rootless-extras
-apt -y install containerd.io
+apt -y purge docker.io
+apt -y install docker-ce-cli=${DOCKERVER} docker-ce=${DOCKERVER} docker-ce-rootless-extras=${DOCKERVER}
+apt-mark hold docker-ce-cli docker-ce docker-ce-rootless-extras
+groupadd docker
+
+for DOCKERUSER in `ls -1 /home | grep -v linuxbrew`; do
+     echo ${DOCKERUSER}
+     gpasswd -a ${DOCKERUSER} docker
+done
+
+mkdir /etc/docker
+cat <<EOF | sudo tee /etc/docker/daemon.json
+{
+  "exec-opts": ["native.cgroupdriver=systemd"],
+  "log-driver": "json-file",
+  "log-opts": {
+    "max-size": "100m"
+  },
+  "storage-driver": "overlay2",
+  "insecure-registries":["${LOCALIPADDR}:5000"] 
+}
+EOF
+mkdir -p /etc/docker/certs.d
+systemctl enable docker
+systemctl daemon-reload
+systemctl restart docker
+
+mkdir -p ~/.docker
+cat << EOF > ~/.docker/config.json
+{
+  "insecure-registries":["${LOCALIPADDR}:5000"]
+}
+EOF
 
 dpkg -l kubectl
 retval=$?
@@ -84,6 +118,7 @@ apt update
 fi
 
 ## for containerd
+# avoid to showing docker-shim error messages in containerd environment
 mkdir -p /etc/systemd/system/kubelet.service.d
 cat << EOF | sudo tee  /etc/systemd/system/kubelet.service.d/0-containerd.conf
 [Service]
@@ -180,22 +215,23 @@ kubectl get node
 # Install Registry
 echo "install private registry"
 mkdir -p /disk/registry
-ln -s /disk/registry /var/lib/docker-registry 
-apt -y install docker-registry
-sed -i -e "s/  htpasswd/#  htpasswd/g" /etc/docker/registry/config.yml
-sed -i -e "s/    realm/#    realm/g" /etc/docker/registry/config.yml
-sed -i -e "s/    path/#    path/g" /etc/docker/registry/config.yml
-systemctl restart docker-registry
+docker run -e REGISTRY_STORAGE_DELETE_ENABLED=true -v /disk/registry:/var/lib/registry -d -p 5000:5000 --restart always --name registry registry
+#ln -s /disk/registry /var/lib/docker-registry
+#apt -y install docker-registry
+#sed -i -e "s/  htpasswd/#  htpasswd/g" /etc/docker/registry/config.yml
+#sed -i -e "s/    realm/#    realm/g" /etc/docker/registry/config.yml
+#sed -i -e "s/    path/#    path/g" /etc/docker/registry/config.yml
+#systemctl restart docker-registry
 
 # Registry FrontEnd
-#docker run \
-#  -d \
-#  -e ENV_DOCKER_REGISTRY_HOST=${LOCALIPADDR} \
-#  -e ENV_DOCKER_REGISTRY_PORT=5000 \
-#  --restart always \
-#  --name registry-frontend \
-#  -p 18080:80 \
-#  konradkleine/docker-registry-frontend:v2
+docker run \
+  -d \
+  -e ENV_DOCKER_REGISTRY_HOST=${LOCALIPADDR} \
+  -e ENV_DOCKER_REGISTRY_PORT=5000 \
+  --restart always \
+  --name registry-frontend \
+  -p 18080:80 \
+  konradkleine/docker-registry-frontend:v2
 
 # Expoert kubeconfig
 KUBECONFIGNAME=${CLUSTERNAME}-`hostname`
