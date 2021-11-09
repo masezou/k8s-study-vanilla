@@ -15,7 +15,7 @@ Storage class: hostpath-csi/nfs-csi/vSphere CSI.
 
 # Requirement
 
--Ubuntu Linux Server 20.04.3 amd64 4vCPU 16GB RAM 100GB. (ARM is experimental)
+-Ubuntu Linux Server 20.04.3 amd64 4vCPU minimum 8GB RAM Recommend 16GB RAM 100GB. (ARM is experimental)
 
 -If you want to use vSphre CSI Driver, You need to have vCenter 6.7U3 above and any VM need to be set DISKUUID in option. At least 1 vCenter and 1 ESX. vCenter cluster is option.
 
