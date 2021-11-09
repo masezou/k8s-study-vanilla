@@ -216,6 +216,12 @@ kubectl get node
 echo "install private registry"
 mkdir -p /disk/registry
 docker run -e REGISTRY_STORAGE_DELETE_ENABLED=true -v /disk/registry:/var/lib/registry -d -p 5000:5000 --restart always --name registry registry
+#ln -s /disk/registry /var/lib/docker-registry
+#apt -y install docker-registry
+#sed -i -e "s/  htpasswd/#  htpasswd/g" /etc/docker/registry/config.yml
+#sed -i -e "s/    realm/#    realm/g" /etc/docker/registry/config.yml
+#sed -i -e "s/    path/#    path/g" /etc/docker/registry/config.yml
+#systemctl restart docker-registry
 
 # Registry FrontEnd
 docker run \
