@@ -8,7 +8,7 @@ By using the vSphere CSI driver, you can also experience using the Disk object c
 
 What consists of this script
 Container environment
-   Kubernetes 1.21.06/Docker 20.10.10/containerd.io 1.4.11 (1node)
+   Kubernetes 1.21.06/containerd.io 1.4.11 (1node)
     CNI: Metallb
     CSI: Hostpath-CSI/NFS-CSI/vSphere-CSI
 
@@ -21,7 +21,7 @@ Additional Environment
 Requirement
 vSphere
   vSphere 6.7U3 (1vCenter and at least 1 ESXi Server and datastore. Any datastore will do)
-  VM Resource 4vCPU 16GB 100GB HDD minimum
+  VM Resource 4vCPU 8-16GB RAM 100GB HDD minimum
   vSphere Cluster and vSAN is option. (It is not mandatory)
   There is no special setting. (Script will create storage policy for vSphere CSI driver)
 
@@ -38,7 +38,7 @@ VM Configuration
  OS: Ubuntu Server 20.04.3 x 1
  VM configuration
    CPU:  4vCPU above 
-   RAM: 16GB above
+   RAM: 8GB above
    HDD: 100GB above (At least 50GB)
    Advanced Configuration: Set "disk.enableUUID=true"  (It is very imoortant!!!)
 
