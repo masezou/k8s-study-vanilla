@@ -9,9 +9,9 @@ Alternetive approach, Rook Ceph. I have replaced from Longhorn to Ceph.
 
 Rook Ceph deployment
 
-![Slide5](https://user-images.githubusercontent.com/624501/140750370-5fd5f89b-d2b7-4943-a0ab-333f222aac89.jpeg)
+![containerd2](https://user-images.githubusercontent.com/624501/141034286-7468198b-b267-4107-b91e-da186dc2b80f.jpeg)
 
-![Slide8](https://user-images.githubusercontent.com/624501/140750397-390323f0-2d32-4767-982f-b3e84d02ceca.jpeg)
+![containerd3](https://user-images.githubusercontent.com/624501/141034298-91f53b80-1ed1-4e7d-9c94-4d37e4c369d0.jpeg)
 
 ## Files
 
