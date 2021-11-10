@@ -1,9 +1,6 @@
 #!/usr/bin/env bash
 
-DOCKERVER="5:20.10.10~3-0~ubuntu-focal"
 KUBECTLVER=1.21.6-00
-PRIVATEREGISTRY="192.168.133.19:5000"
-
 
 if [ ${EUID:-${UID}} != 0 ]; then
     echo "This script must be run as root"
@@ -35,6 +32,23 @@ else
   exit 1
 fi
 
+#### LOCALIP #########
+ip address show ens160 >/dev/null
+retval=$?
+if [ ${retval} -eq 0 ]; then
+        LOCALIPADDR=`ip -f inet -o addr show ens160 |cut -d\  -f 7 | cut -d/ -f 1`
+else
+  ip address show ens192 >/dev/null
+  retval2=$?
+  if [ ${retval2} -eq 0 ]; then
+        LOCALIPADDR=`ip -f inet -o addr show ens192 |cut -d\  -f 7 | cut -d/ -f 1`
+  else
+        LOCALIPADDR=`ip -f inet -o addr show eth0 |cut -d\  -f 7 | cut -d/ -f 1`
+  fi
+fi
+echo ${LOCALIPADDR}
+
+
 # Base setting
 sed -i -e 's@/swap.img@#/swap.img@g' /etc/fstab
 swapoff -a
@@ -45,7 +59,7 @@ update-alternatives --set ip6tables /usr/sbin/ip6tables-legacy
 update-alternatives --set arptables /usr/sbin/arptables-legacy
 update-alternatives --set ebtables /usr/sbin/ebtables-legacy
 
-# Install Docker
+# Install containerd
 apt -y install apt-transport-https ca-certificates curl gnupg-agent software-properties-common
 curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
 apt-key fingerprint 0EBFCD88
@@ -58,39 +72,8 @@ else
   exit 1
 fi
 apt update
-apt -y purge docker.io
-apt -y install docker-ce-cli=${DOCKERVER} docker-ce=${DOCKERVER} docker-ce-rootless-extras=${DOCKERVER}
-apt-mark hold docker-ce-cli docker-ce docker-ce-rootless-extras
-groupadd docker
-
-for DOCKERUSER in `ls -1 /home | grep -v linuxbrew`; do
-     echo ${DOCKERUSER}
-     gpasswd -a ${DOCKERUSER} docker
-done
-
-mkdir /etc/docker
-cat <<EOF | sudo tee /etc/docker/daemon.json
-{
-  "exec-opts": ["native.cgroupdriver=systemd"],
-  "log-driver": "json-file",
-  "log-opts": {
-    "max-size": "100m"
-  },
-  "storage-driver": "overlay2",
-  "insecure-registries":["${PRIVATEREGISTRY}"] 
-}
-EOF
-mkdir -p /etc/docker/certs.d
-systemctl enable docker
-systemctl daemon-reload
-systemctl restart docker
-
-mkdir -p ~/.docker
-cat << EOF > ~/.docker/config.json
-{
-  "insecure-registries":["${PRIVATEREGISTRY}"]
-}
-EOF
+apt -y purge docker.io docker-ce-cli docker-ce docker-ce-rootless-extras
+apt -y install containerd.io
 
 dpkg -l kubectl
 retval=$?
@@ -101,7 +84,6 @@ apt update
 fi
 
 ## for containerd
-# avoid to showing docker-shim error messages in containerd environment
 mkdir -p /etc/systemd/system/kubelet.service.d
 cat << EOF | sudo tee  /etc/systemd/system/kubelet.service.d/0-containerd.conf
 [Service]
@@ -120,18 +102,18 @@ EOF
 modprobe overlay
 modprobe br_netfilter
 
-# Containerd commin settings
+# Containerd settings
 containerd config default | sudo tee /etc/containerd/config.toml
 sed -i -e "/^          \[plugins\.\"io\.containerd\.grpc\.v1\.cri\"\.containerd\.runtimes\.runc\.options\]$/a\            SystemdCgroup \= true" /etc/containerd/config.toml
-cat << EOF > insert.txt
-        [plugins."io.containerd.grpc.v1.cri".registry.mirrors."${PRIVATEREGISTRY}"]
-          endpoint = ["http://${PRIVATEREGISTRY}"]
-EOF
 
+cat << EOF > insert.txt
+        [plugins."io.containerd.grpc.v1.cri".registry.mirrors."${LOCALIPADDR}:5000"]
+          endpoint = ["http://${LOCALIPADDR}:5000"]
+EOF
 sed -i -e "/^          endpoint \= \[\"https\:\/\/registry-1.docker.io\"\]$/r insert.txt" /etc/containerd/config.toml
 rm -rf insert.txt
-
 systemctl restart containerd
+echo 0 > /proc/sys/kernel/hung_task_timeout_secs
 
 # Setup required sysctl params, these persist across reboots.
 cat <<EOF | sudo tee /etc/sysctl.d/99-kubernetes-cri.conf
@@ -164,7 +146,7 @@ echo "source <(crictl completion bash) " >> /etc/profile.d/crictl.sh
 curl https://raw.githubusercontent.com/containerd/containerd/main/contrib/autocomplete/ctr  -o /etc/bash_completion.d/ctr
 
 #Network filesystem client
-apt -y install nfs-common smbclient cifs-utils
+apt -y install nfs-common
 
 # clean apt
 apt clean
