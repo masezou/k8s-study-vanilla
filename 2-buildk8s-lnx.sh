@@ -187,16 +187,6 @@ sed -i -e "s/    realm/#    realm/g" /etc/docker/registry/config.yml
 sed -i -e "s/    path/#    path/g" /etc/docker/registry/config.yml
 systemctl restart docker-registry
 
-# Registry FrontEnd
-#docker run \
-#  -d \
-#  -e ENV_DOCKER_REGISTRY_HOST=${LOCALIPADDR} \
-#  -e ENV_DOCKER_REGISTRY_PORT=5000 \
-#  --restart always \
-#  --name registry-frontend \
-#  -p 18080:80 \
-#  konradkleine/docker-registry-frontend:v2
-
 # Expoert kubeconfig
 KUBECONFIGNAME=${CLUSTERNAME}-`hostname`
 kubectl config view --raw > ${KUBECONFIGNAME}_kubeconfig
@@ -205,10 +195,6 @@ echo ""
 echo "*************************************************************************************"
 echo ""
 echo "Kubeconfig was copied ${KUBECONFIGNAME}_kubeconfig"
-echo ""
-echo ""
-echo "Registry Frontend is"
-echo "http://${LOCALIPADDR}:18080"
 echo ""
 echo "Next Step"
 echo ""
