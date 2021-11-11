@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
-IPRANGE="192.168.133.208/28"
+# Sample "192.168.133.208/28" or "192.168.133.200-205"
+IPRANGE="fixme"
 
 ### Install command check ####
 if type "kubectl" > /dev/null 2>&1
@@ -10,6 +11,13 @@ else
     echo "kubectl was not found. Please install kubectl and re-run"
     exit 255
 fi
+
+# forget trap!
+if [ ${IPRANGE} = "fixme" ]; then
+echo "Please input your ip range in this script"
+exit 255
+fi
+echo "Load balanacer IP range is ${IPRANGE}"
 
 
 export KUBECONFIG=$HOME/.kube/config
