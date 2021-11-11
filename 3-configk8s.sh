@@ -19,6 +19,13 @@ exit 255
 fi
 echo "Load balanacer IP range is ${IPRANGE}"
 
+kubectl get pod 
+retavalcluser=$?
+if [ ${retavalcluser} -ne 0 ]; then
+echo -e "\e[31m Kubernetes cluster is not found. \e[m"
+exit 255
+fi
+
 
 export KUBECONFIG=$HOME/.kube/config
 
