@@ -31,6 +31,14 @@ else
     exit 255
 fi
 
+### Install command check ####
+kubectl get pod 
+retavalcluser=$?
+if [ ${retavalcluser} -ne 0 ]; then
+echo -e "\e[31m Kubernetes cluster is not found. \e[m"
+exit 255
+fi
+
 BASEPWD=`pwd`
 
 # Forget trap!
