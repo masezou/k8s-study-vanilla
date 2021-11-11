@@ -5,6 +5,8 @@ Longhorn single node doesn't work volumesnapshot. (Deploy application was OK.)ã€
 
 Alternetive approach, Rook Ceph. I have replaced from Longhorn to Ceph. 
 
+I recommend to set vCPU 8 above. Ceph spends much cpu resource on node.
+
 ## Diagram
 
 Rook Ceph deployment
