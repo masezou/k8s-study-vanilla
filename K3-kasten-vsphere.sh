@@ -6,8 +6,8 @@ VSPHERESERVER="YOUR_VCENTER_FQDN"
 
 # Forget trap!
 if [ ${VSPHERESERVER} = "YOUR_VCENTER_FQDN" ]; then
-echo "You haven't set environment value."
-echo "end...."
+echo -e "\e[31m You haven't set environment value.  \e[m"
+echo -e "\e[31m please set vCenter setting.  \e[m"
 exit 255
 fi
 
