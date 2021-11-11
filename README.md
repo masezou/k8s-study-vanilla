@@ -11,7 +11,8 @@ Storage class: hostpath-csi/nfs-csi/vSphere CSI.
 
 ![Diagram1](https://user-images.githubusercontent.com/624501/140580948-258eb6a8-dbc4-42ff-8337-0e044d416a42.jpeg)
 
-![Slide4](https://user-images.githubusercontent.com/624501/140749680-3cb3b45a-9ca3-468b-ae79-f013f9d2a231.jpeg)
+![4-single vm hostpath](https://user-images.githubusercontent.com/624501/141036168-128533ff-bb1c-4c19-a608-0fe67dc98868.jpeg)
+
 
 # Requirement
 
