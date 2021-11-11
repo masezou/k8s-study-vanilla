@@ -113,7 +113,7 @@ echo "kubectl get sc"
 echo ""
 echo "kubernetes deployment  without vSphere CSI driver was successfully. The environment will be fully functional."
 echo ""
-echo "If you want to use vSphere CSI Driver, run ./5-csi-vsphere.sh"
+echo -e "\e[31m If you want to use vSphere CSI Driver, run ./5-csi-vsphere.sh \e[m"
 echo ""
 
 cd ${BASEPWD}

@@ -138,7 +138,7 @@ echo ""
 echo "*************************************************************************************"
 echo "Next Step"
 echo "Kubernetes tools was installed in Ubuntu"
-echo "please re-login again"
+echo -e "\e[31m please re-login again \e[m"
 
 cd ${BASEPWD}
 chmod -x ./1-tools.sh
