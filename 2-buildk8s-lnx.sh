@@ -188,26 +188,25 @@ sed -i -e "s/    path/#    path/g" /etc/docker/registry/config.yml
 systemctl restart docker-registry
 
 # pull/push images
-#ctr images pull docker.io/bitnami/bitnami-shell:10-debian-10-r158 
-#ctr images push --plain-http 192.168.17.6:5000/bitnami-shell:10-debian-10-r158  docker.io/bitnami/bitnami-shell:10-debian-10-r158
-#ctr images rm docker.io/bitnami/bitnami-shell:10-debian-10-r158
+ctr images pull docker.io/bitnami/bitnami-shell:10-debian-10-r158 
+ctr images push --plain-http ${LOCALIPADDR}:5000/bitnami-shell:10-debian-10-r158  docker.io/bitnami/bitnami-shell:10-debian-10-r158
+ctr images rm docker.io/bitnami/bitnami-shell:10-debian-10-r158
 
-#ctr images pull docker.io/bitnami/mongodb:4.4.8
-#ctr images push --plain-http 192.168.17.6:5000/mongodb:4.4.8 docker.io/bitnami/mongodb:4.4.8
-#ctr images rm docker.io/bitnami/mongodb:4.4.8
+ctr images pull docker.io/bitnami/mongodb:4.4.8
+ctr images push --plain-http ${LOCALIPADDR}:5000/mongodb:4.4.8 docker.io/bitnami/mongodb:4.4.8
+ctr images rm docker.io/bitnami/mongodb:4.4.8
 
-#ctr images pull docker.io/bitnami/mysql:8.0.27-debian-10-r8 
-#ctr images push --plain-http 192.168.17.6:5000/mysql:8.0.27-debian-10-r8   docker.io/bitnami/mysql:8.0.27-debian-10-r8 
-#ctr images rm docker.io/bitnami/mysql:8.0.27-debian-10-r8 
+ctr images pull docker.io/bitnami/mysql:8.0.27-debian-10-r8 
+ctr images push --plain-http ${LOCALIPADDR}:5000/mysql:8.0.27-debian-10-r8   docker.io/bitnami/mysql:8.0.27-debian-10-r8 
+ctr images rm docker.io/bitnami/mysql:8.0.27-debian-10-r8 
 
-#ctr images pull docker.io/bitnami/postgresql:11.13.0-debian-10-r89
-#ctr images push --plain-http 192.168.17.6:5000/postgresql:11.13.0-debian-10-r89 docker.io/bitnami/postgresql:11.13.0-debian-10-r89
-#ctr images rm docker.io/bitnami/postgresql:11.13.0-debian-10-r89
+ctr images pull docker.io/bitnami/postgresql:11.13.0-debian-10-r89
+ctr images push --plain-http ${LOCALIPADDR}:5000/postgresql:11.13.0-debian-10-r89 docker.io/bitnami/postgresql:11.13.0-debian-10-r89
+ctr images rm docker.io/bitnami/postgresql:11.13.0-debian-10-r89
 
-#ctr images pull docker.io/library/wordpress:4.8-apache
-#ctr images push --plain-http 192.168.17.6:5000/wordpress:4.8-apache docker.io/library/wordpress:4.8-apache
-#ctr images rm docker.io/library/wordpress:4.8-apache
-
+ctr images pull docker.io/library/wordpress:4.8-apache
+ctr images push --plain-http ${LOCALIPADDR}:5000/wordpress:4.8-apache docker.io/library/wordpress:4.8-apache
+ctr images rm docker.io/library/wordpress:4.8-apache
 
 # Expoert kubeconfig
 KUBECONFIGNAME=${CLUSTERNAME}-`hostname`
