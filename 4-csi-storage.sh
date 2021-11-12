@@ -74,7 +74,8 @@ kubectl patch storageclass csi-hostpath-sc \
     -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"true"}}}'
 cd ..
 mv csi-driver-host-path csi-driver-host-path-`date "+%Y%m%d_%H%M%S"`
-
+# Permission fix
+chmod -R 1777 /var/lib/docker/volumes/
 
 ##Install NFS-CSI driver
 apt -y install nfs-kernel-server
@@ -113,6 +114,8 @@ spec:
   fsGroupPolicy: File
 EOF
 
+# Rancher local driver (Not CSI Storage)
+kubectl apply -f https://raw.githubusercontent.com/rancher/local-path-provisioner/master/deploy/local-path-storage.yaml
 
 echo ""
 echo "*************************************************************************************"
