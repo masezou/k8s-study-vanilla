@@ -208,6 +208,10 @@ ctr images pull docker.io/library/wordpress:4.8-apache
 ctr images push --plain-http ${LOCALIPADDR}:5000/wordpress:4.8-apache docker.io/library/wordpress:4.8-apache
 ctr images rm docker.io/library/wordpress:4.8-apache
 
+echo "Registry result"
+curl -X GET http://${LOCALIPADDR}:5000/v2/_catalog
+ctr images ls
+
 # Expoert kubeconfig
 KUBECONFIGNAME=${CLUSTERNAME}-`hostname`
 kubectl config view --raw > ${KUBECONFIGNAME}_kubeconfig
