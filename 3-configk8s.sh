@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# Sample "192.168.133.208/28" or "192.168.133.200-205"
+# Sample "192.168.133.208/28"
 IPRANGE="fixme"
 
 ### Install command check ####
