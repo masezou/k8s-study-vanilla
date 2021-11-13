@@ -54,6 +54,10 @@ echo ${LOCALIPADDR}
 
 BASEPWD=`pwd`
 
+# Rancher local driver (Not CSI Storage)
+kubectl apply -f https://raw.githubusercontent.com/rancher/local-path-provisioner/master/deploy/local-path-storage.yaml
+
+
 SNAPSHOTTER_VERSION=v4.2.1
 
 # Apply VolumeSnapshot CRDs
@@ -114,17 +118,16 @@ spec:
   fsGroupPolicy: File
 EOF
 
-# Rancher local driver (Not CSI Storage)
-kubectl apply -f https://raw.githubusercontent.com/rancher/local-path-provisioner/master/deploy/local-path-storage.yaml
-
 echo ""
 echo "*************************************************************************************"
 echo "CSI storage was created"
 echo "kubectl get sc"
 echo ""
-echo "kubernetes deployment  without vSphere CSI driver was successfully. The environment will be fully functional."
+echo "kubernetes deployment without vSphere CSI driver was successfully. The environment will be functional."
 echo ""
-echo -e "\e[32m If you want to use vSphere CSI Driver, run ./5-csi-vsphere.sh \e[m"
+echo "I recommend to verify CNI/CSI function in this phese"
+echo ""
+echo -e "\e[32m If you want to use vSphere CSI Driver on ESX/vCenter environment, run ./5-csi-vsphere.sh \e[m"
 echo ""
 
 cd ${BASEPWD}
