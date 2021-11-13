@@ -62,7 +62,7 @@ options {
         recursion yes;
 };
 EOF
-tsig-keygen -a hmac-sha256 externaldns > /etc/bind/external.key
+tsig-keygen -a hmac-sha256 externaldns-key > /etc/bind/external.key
 cat /etc/bind/external.key>> /etc/bind/named.conf.options
 chown root:bind /etc/bind/named.conf.options
 cat << EOF > /etc/bind/named.conf.internal-zones
