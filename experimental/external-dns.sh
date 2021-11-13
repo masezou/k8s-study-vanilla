@@ -65,10 +65,13 @@ EOF
 tsig-keygen -a hmac-sha256 externaldns-key > /etc/bind/external.key
 cat /etc/bind/external.key>> /etc/bind/named.conf.options
 chown root:bind /etc/bind/named.conf.options
+mkdir -p /etc/bind/pri/
+chown root:bind /etc/bind/pri/
+chmod g+wx /etc/bind/pri/
 cat << EOF > /etc/bind/named.conf.internal-zones
 zone "${DNSDOMAINNAME}" IN {
         type master;
-        file "/etc/bind/${DNSDOMAINNAME}.lan";
+        file "/etc/bind/pri/${DNSDOMAINNAME}.lan";
         allow-transfer {
           key "externaldns-key";
         };
@@ -168,10 +171,10 @@ zone "0.168.192.in-addr.arpa" IN {
 };
 EOF
 sed -i -e 's/bind/bind -4/g' /etc/default/named
-cat << 'EOF' >/etc/bind/${DNSDOMAINNAME}.lan
+cat << 'EOF' >/etc/bind/pri/${DNSDOMAINNAME}.lan
 $TTL 86400
 EOF
-cat << EOF >>/etc/bind/${DNSDOMAINNAME}.lan
+cat << EOF >>/etc/bind/pri/${DNSDOMAINNAME}.lan
 @   IN  SOA     ${DNSHOSTNAME}.${DNSDOMAINNAME}. root.${DNSDOMAINNAME}. (
         2020050301  ;Serial
         3600        ;Refresh
@@ -185,6 +188,8 @@ ${DNSHOSTNAME}     IN  A       ${DNSHOSTIP}
 api       IN  A   ${OS_API}
 *.apps  IN  A   ${OS_APPS}
 EOF
+chown root:bind /etc/bind/pri/${DNSDOMAINNAME}.lan
+chmod g+w /etc/bind/pri/${DNSDOMAINNAME}.lan
 systemctl restart named
 systemctl status named -l --no-pager 
 sleep 5
