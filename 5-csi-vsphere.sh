@@ -31,7 +31,14 @@ else
     exit 255
 fi
 
-### Install command check ####
+# Forget trap!
+if [ ${VSPHERESERVER} = "YOUR_VCENTER_FQDN" ]; then
+echo -e "\e[31m You haven't set environment value.  \e[m"
+echo -e "\e[31m please set vCenter setting in this script.  \e[m"
+exit 255
+fi
+
+### Cluster check ####
 kubectl get pod 
 retavalcluser=$?
 if [ ${retavalcluser} -ne 0 ]; then
@@ -39,14 +46,24 @@ echo -e "\e[31m Kubernetes cluster is not found. \e[m"
 exit 255
 fi
 
-BASEPWD=`pwd`
+# vSphere environment check
+lspci -tv | grep VMware
+retavalvm=$?
+if [ ${retavalvm} -ne 0 ];then
+   echo "This is not VMware environment. exit."
+   exit 255
+fi
 
-# Forget trap!
-if [ ${VSPHERESERVER} = "YOUR_VCENTER_FQDN" ]; then
-echo -e "\e[31m You haven't set environment value.  \e[m"
-echo -e "\e[31m please set vCenter setting.  \e[m"
+ls /dev/disk/by-id/scsi-*
+retvaluuid=$?
+if [ ${retvaluuid} -ne 0 ];then
+echo "It seemed DISKUUID is not set. Please set DISKUUID then re-try."
 exit 255
 fi
+
+BASEPWD=`pwd`
+apt -y install open-vm-tools
+
 
 # Configure vsphere-cloud-controller-manager
 cat << EOF >  /etc/kubernetes/vsphere.conf

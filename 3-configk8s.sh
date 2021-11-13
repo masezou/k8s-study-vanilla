@@ -14,7 +14,7 @@ fi
 
 # forget trap!
 if [ ${IPRANGE} = "fixme" ]; then
-echo -e "\e[31m Please input your ip range in this script!  \e[m"
+echo -e "\e[31m Please input your IPRANGE in this script!  \e[m"
 exit 255
 fi
 echo "Load balanacer IP range is ${IPRANGE}"
