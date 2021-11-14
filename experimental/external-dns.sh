@@ -228,7 +228,7 @@ echo ""
 echo "DNS Key is ${TSIG_SECRET}"
 echo ""
 
-cat <<EOF | kubectl apply -f -
+cat <<EOF > external-dns.yaml
 apiVersion: v1
 kind: Namespace
 metadata:
@@ -315,6 +315,7 @@ spec:
         - --domain-filter=${DNSDOMAINNAME}
         - --log-level=debug
 EOF
+kubectl create -f external-dns.yaml
 
 echo "************************"
 echo "external-dns was configured"
