@@ -236,7 +236,7 @@ metadata:
   labels:
     name: external-dns
 ---
-apiVersion: rbac.authorization.k8s.io/v1
+apiVersion: rbac.authorization.k8s.io/v1beta1
 kind: ClusterRole
 metadata:
   name: external-dns
@@ -252,7 +252,6 @@ rules:
   - list
 - apiGroups:
   - extensions
-  - networking.k8s.io
   resources:
   - ingresses
   verbs:
@@ -266,7 +265,7 @@ metadata:
   name: external-dns
   namespace: external-dns
 ---
-apiVersion: rbac.authorization.k8s.io/v1
+apiVersion: rbac.authorization.k8s.io/v1beta1
 kind: ClusterRoleBinding
 metadata:
   name: external-dns-viewer
@@ -297,12 +296,14 @@ spec:
       serviceAccountName: external-dns
       containers:
       - name: external-dns
-        image: k8s.gcr.io/external-dns/external-dns:v0.10.1
+        image: registry.opensource.zalan.do/teapot/external-dns:v0.5.17
         args:
-        - --registry=txt
-        - --txt-prefix=external-dns-
-        - --txt-owner-id=k8s
         - --provider=rfc2136
+        - --registry=txt
+        - --txt-owner-id=k8s
+        - --source=service
+        - --source=ingress
+        - --domain-filter=${DNSDOMAINNAME}
         - --rfc2136-host=${DNSHOSTIP}
         - --rfc2136-port=53
         - --rfc2136-zone=${DNSDOMAINNAME}
@@ -310,10 +311,8 @@ spec:
         - --rfc2136-tsig-secret-alg=hmac-sha256
         - --rfc2136-tsig-keyname=externaldns-key
         - --rfc2136-tsig-axfr
-        - --source=ingress
-        - --source=service
-        - --domain-filter=${DNSDOMAINNAME}
-        - --log-level=debug
+        #- --interval=10s
+        #- --log-level=debug
 EOF
 kubectl create -f external-dns.yaml
 
