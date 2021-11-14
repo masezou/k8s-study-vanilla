@@ -229,9 +229,6 @@ rules:
   - ""
   resources:
   - services
-  - endpoints
-  - pods
-  - nodes
   verbs:
   - get
   - watch
@@ -297,8 +294,9 @@ spec:
         - --rfc2136-tsig-keyname=externaldns-key
         - --rfc2136-tsig-axfr
         - --source=ingress
+        - --source=service
         - --domain-filter=${DNSDOMAINNAME}
-       - --log-level=debug
+        - --log-level=debug
 EOF
 
 echo "************************"
