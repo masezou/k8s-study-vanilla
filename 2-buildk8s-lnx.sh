@@ -143,7 +143,9 @@ timeout: 2
 debug: true
 EOF
 echo "source <(crictl completion bash) " >> /etc/profile.d/crictl.sh
+# For 1.5
 #curl https://raw.githubusercontent.com/containerd/containerd/main/contrib/autocomplete/ctr -o /etc/bash_completion.d/ctr
+# For 1.4
 curl https://raw.githubusercontent.com/containerd/containerd/v1.4.11/contrib/autocomplete/ctr -o /etc/bash_completion.d/ctr
 
 #Network filesystem client
