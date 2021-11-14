@@ -1,8 +1,6 @@
 #!/usr/bin/env bash
-DNSHOSTIP=192.168.134.2
 OS_API=192.168.134.49
 OS_APPS=192.168.134.48
-DNSHOSTNAME=ent17-dns
 DNSDOMAINNAME=ent17.cloudshift.corp
 
 #########################################################
@@ -23,6 +21,25 @@ if [ ${DISTVER} = 1 ]; then
 else
     echo "Ubuntu 20.04=OK"
 fi
+
+#### LOCALIP #########
+ip address show ens160 >/dev/null
+retval=$?
+if [ ${retval} -eq 0 ]; then
+        LOCALIPADDR=`ip -f inet -o addr show ens160 |cut -d\  -f 7 | cut -d/ -f 1`
+else
+  ip address show ens192 >/dev/null
+  retval2=$?
+  if [ ${retval2} -eq 0 ]; then
+        LOCALIPADDR=`ip -f inet -o addr show ens192 |cut -d\  -f 7 | cut -d/ -f 1`
+  else
+        LOCALIPADDR=`ip -f inet -o addr show eth0 |cut -d\  -f 7 | cut -d/ -f 1`
+  fi
+fi
+echo ${LOCALIPADDR}
+
+DNSHOSTIP=${LOCALIPADDR}
+DNSHOSTNAME=`hostname`
 
 # DNS Server
 apt -y install bind9 bind9utils
