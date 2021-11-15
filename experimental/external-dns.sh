@@ -240,6 +240,25 @@ echo ""
 echo "DNS Key is ${TSIG_SECRET}"
 echo ""
 
+# Check K8s cluster
+kubectl get pod
+retavalcluser=$?
+if [ ${retavalcluser} -ne 0 ]; then
+echo -e "\e[31m Kubernetes cluster is not found. \e[m"
+echo ""
+echo "Dynamic DNS for Kubernetes was configured."
+echo ""
+echo "DNS Domain Name is ${DNSDOMAINNAME}"
+echo "DNS DNS IP address is ${DNSHOSTIP}"
+echo "DNS Key is ${TSIG_SECRET}"
+echo ""
+echo "If you want to use for OpenShift. Please modify zone file.(api and apps)"
+echo ""
+exit 0
+fi
+
+
+# Install external-dns
 cat <<EOF > external-dns.yaml
 apiVersion: v1
 kind: Namespace
