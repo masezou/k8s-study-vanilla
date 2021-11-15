@@ -55,12 +55,13 @@ kubectl annotate volumesnapshotclass csi-rbdplugin-snapclass \
     k10.kasten.io/is-snapshot-class=true
 fi
 
-kubectl get volumesnapshotclass | grep csi-cephfsplugin-snapclass
-retval3=$?
-if [ ${retval3} -eq 0 ]; then
-kubectl annotate volumesnapshotclass csi-cephfsplugin-snapclass \
-    k10.kasten.io/is-snapshot-class=true
-fi
+# Ceph fs is not supportet yet.
+#kubectl get volumesnapshotclass | grep csi-cephfsplugin-snapclass
+#retval3=$?
+#if [ ${retval3} -eq 0 ]; then
+#kubectl annotate volumesnapshotclass csi-cephfsplugin-snapclass \
+#    k10.kasten.io/is-snapshot-class=true
+#fi
 
 kubectl get volumesnapshotclass | grep longhorn
 retval4=$?
