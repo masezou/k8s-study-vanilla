@@ -96,7 +96,17 @@ systemctl restart nfs-server
 systemctl enable nfs-server
 showmount -e
 NFSPATH=/disk/k8s_share
-curl -skSL https://raw.githubusercontent.com/kubernetes-csi/csi-driver-nfs/master/deploy/install-driver.sh | bash -s master --
+
+# Install NFS-CSI driver for single node
+#curl -skSL https://raw.githubusercontent.com/kubernetes-csi/csi-driver-nfs/master/deploy/install-driver.sh | bash -s master --
+kubectl apply -f https://raw.githubusercontent.com/kubernetes-csi/csi-driver-nfs/master/deploy/rbac-csi-nfs-controller.yaml
+kubectl apply -f https://raw.githubusercontent.com/kubernetes-csi/csi-driver-nfs/master/deploy/csi-nfs-driverinfo.yaml
+curl -OL https://raw.githubusercontent.com/kubernetes-csi/csi-driver-nfs/master/deploy/csi-nfs-controller.yaml
+sed -i -e "s/replicas: 2/replicas: 1/g" csi-nfs-controller.yaml
+kubectl apply -f csi-nfs-controller.yaml
+rm -rf csi-nfs-controller.yaml
+kubectl apply -f https://raw.githubusercontent.com/kubernetes-csi/csi-driver-nfs/master/deploy/csi-nfs-node.yaml
+
 curl -OL  https://raw.githubusercontent.com/kubernetes-csi/csi-driver-nfs/master/deploy/example/storageclass-nfs.yaml
 sed -i -e "s/nfs-server.default.svc.cluster.local/${LOCALIPADDR}/g" storageclass-nfs.yaml
 sed -i -e "s@share: /@share: ${NFSPATH}@g" storageclass-nfs.yaml
