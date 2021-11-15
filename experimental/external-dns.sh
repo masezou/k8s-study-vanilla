@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 OS_API=192.168.134.49
 OS_APPS=192.168.134.48
-DNSDOMAINNAME=ent17.cloudshift.corp
+DNSDOMAINNAME=YOURDOMAIN.CORP
 
 #########################################################
 ### UID Check ###
@@ -21,6 +21,14 @@ if [ ${DISTVER} = 1 ]; then
 else
     echo "Ubuntu 20.04=OK"
 fi
+
+# forget trap!
+if [ ${DNSDOMAINNAME} = "YOURDOMAIN.CORP" ]; then
+echo -e "\e[31m Please input your DNSDOMAINNAME in this script!  \e[m"
+exit 255
+fi
+echo "Your domainname is ${DNSDOMAINNAME}"
+
 
 #### LOCALIP #########
 ip address show ens160 >/dev/null
@@ -316,7 +324,12 @@ spec:
 EOF
 kubectl create -f external-dns.yaml
 
-echo "************************"
+echo ""
+echo "*************************************************************************************"
 echo "external-dns was configured"
-
+echo "DNS Domain Name is ${DNSDOMAINNAME}"
+echo "DNS DNS IP address is ${DNSHOSTIP}"
+echo ""
+echo "If you want to use external-dns, please add annotation in Kind: Service which sets loadbalancer"
+echo "    external-dns.alpha.kubernetes.io/hostname: YOUR_HOSTNAME.${DNSDOMAINNAME}"
 chmod -x ./external-dns.sh
