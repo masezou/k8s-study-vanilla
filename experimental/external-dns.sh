@@ -1,7 +1,11 @@
 #!/usr/bin/env bash
+
+DNSDOMAINNAME=YOURDOMAIN.CORP
+
+# It is for OpenShift setting, If you want to use OpenShift.
 OS_API=192.168.134.49
 OS_APPS=192.168.134.48
-DNSDOMAINNAME=YOURDOMAIN.CORP
+
 
 #########################################################
 ### UID Check ###
