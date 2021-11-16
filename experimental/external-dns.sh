@@ -259,7 +259,7 @@ fi
 
 
 # Install external-dns
-cat <<EOF > external-dns.yaml
+cat <<EOF | kubectl apply -f -
 apiVersion: v1
 kind: Namespace
 metadata:
@@ -350,7 +350,6 @@ spec:
         #- --interval=10s
         #- --log-level=debug
 EOF
-kubectl create -f external-dns.yaml
 
 echo ""
 echo "*************************************************************************************"
