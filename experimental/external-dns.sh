@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-DNSDOMAINNAME=YOURDOMAIN.CORP
+DNSDOMAINNAME=k8slab.internal
 
 # It is for OpenShift setting, If you want to use OpenShift.
 OS_API=192.168.134.49
@@ -25,14 +25,6 @@ if [ ${DISTVER} = 1 ]; then
 else
     echo "Ubuntu 20.04=OK"
 fi
-
-# forget trap!
-if [ ${DNSDOMAINNAME} = "YOURDOMAIN.CORP" ]; then
-echo -e "\e[31m Please input your DNSDOMAINNAME in this script!  \e[m"
-exit 255
-fi
-echo "Your domainname is ${DNSDOMAINNAME}"
-
 
 #### LOCALIP #########
 ip address show ens160 >/dev/null
