@@ -351,11 +351,21 @@ spec:
         #- --log-level=debug
 EOF
 
+# Dashboard FQDN
+kubectl -n kubernetes-dashboard annotate service dashboard-service-lb \
+    external-dns.alpha.kubernetes.io/hostname=dashboard.${DNSDOMAINNAME}
+
+sleep 10
+
+host dashboard.${DNSDOMAINNAME}. ${DNSHOSTIP}
+
 echo ""
 echo "*************************************************************************************"
 echo "external-dns was configured"
 echo "DNS Domain Name is ${DNSDOMAINNAME}"
 echo "DNS DNS IP address is ${DNSHOSTIP}"
+echo ""
+echo "You can access Kubernetes Dashboard with dashboard.${DNSDOMAINNAME}"
 echo ""
 echo "If you want to use external-dns, please add annotation in Kind: Service which sets loadbalancer"
 echo "    external-dns.alpha.kubernetes.io/hostname: YOUR_HOSTNAME.${DNSDOMAINNAME}"
