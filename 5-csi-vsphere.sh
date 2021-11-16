@@ -13,7 +13,7 @@ VSPHERESERVER="YOUR_VCENTER_FQDN"
 VSPHERESERVERIP="YOUR_VCENTER_IP"
 VSPPHEREDATASTORE="YOUR_DATASTORE"
 
-VSPHERECSI=2.3.0
+VSPHERECSI=2.4.0
 
 if [ ${EUID:-${UID}} != 0 ]; then
     echo "This script must be run as root"
@@ -162,7 +162,12 @@ cd
 kubectl get secret vsphere-config-secret --namespace=vmware-system-csi
 rm /etc/kubernetes/csi-vsphere.conf
 
-kubectl apply -f https://raw.githubusercontent.com/kubernetes-sigs/vsphere-csi-driver/v${VSPHERECSI}/manifests/vanilla/vsphere-csi-driver.yaml
+#kubectl apply -f https://raw.githubusercontent.com/kubernetes-sigs/vsphere-csi-driver/v${VSPHERECSI}/manifests/vanilla/vsphere-csi-driver.yaml
+# v2.4.0 fix
+curl -OL https://raw.githubusercontent.com/kubernetes-sigs/vsphere-csi-driver/v${VSPHERECSI}/manifests/vanilla/vsphere-csi-driver.yaml
+sed -i -e "s/replicas: 3/replicas: 1/g" vsphere-csi-driver.yaml
+kubectl apply -f vsphere-csi-driver.yaml
+rm -rf vsphere-csi-driver.yaml
 
 # Setup Govc
 cat << EOF > ~/govc-vcenter.sh
