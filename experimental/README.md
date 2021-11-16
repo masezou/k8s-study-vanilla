@@ -17,8 +17,6 @@ Rook Ceph deployment
 
 * buildk8s-worker.sh : Adding worker node. Once install Ubuntu VM, then run this script, next, create token in Master node, then join the worker node.
 
-* external-dns.sh : external-dns. Create loadbalancer DNS entry.
-
 ## Instruction.
 
 replace 4-csi-storage.sh to 4-csi-storage-ceph.sh.
