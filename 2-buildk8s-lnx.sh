@@ -172,6 +172,7 @@ cgroupDriver: "systemd"
 protectKernelDefaults: true
 EOF
 kubeadm init --config k8sconfig.yaml
+rm -rf k8sconfig.yaml
 mkdir -p $HOME/.kube
 cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
 chown $(id -u):$(id -g) $HOME/.kube/config
