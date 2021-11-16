@@ -32,7 +32,7 @@ Configure your clone. Before execute script, please change following.
 
 * 3-configk8s.sh:IPRANGE: loadbalancer will be assigned this subnet, thus you need to set unused IP subnet.
 
-* 5-csi-vsphere.sh/K3-kasten-vsphere.sh: vCenter configuration in vSphere  CSI driver and Kasten Storage setting.
+* 6-csi-vsphere.sh/K3-kasten-vsphere.sh: vCenter configuration in vSphere  CSI driver and Kasten Storage setting.
 
 Please see 00-Detailed_Instruction-En.txt
 
