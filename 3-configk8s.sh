@@ -88,7 +88,7 @@ openssl x509 -in dashboard.crt -text -noout| grep IP
 kubectl create secret generic kubernetes-dashboard-certs --from-file=dashboard.key --from-file=dashboard.crt -n kubernetes-dashboard
 cd ..
 
-kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.3.1/aio/deploy/recommended.yaml
+kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.4.0/aio/deploy/recommended.yaml
 cat <<EOF | kubectl apply -f -
 apiVersion: v1
 kind: ServiceAccount
