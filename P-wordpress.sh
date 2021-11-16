@@ -19,6 +19,8 @@ fi
 
 NAMESPACE=wordpress-sample
 SC=vsphere-sc
+WPHOST=blog-sample
+DNSDOMAINNAME=k8slab.internal
 
 kubectl create namespace ${NAMESPACE}
 mkdir ${NAMESPACE}
@@ -122,6 +124,9 @@ cd ..
 
 mv ${NAMESPACE} ${NAMESPACE}-`date "+%Y%m%d_%H%M%S"`
 EXTERNALIP=`kubectl -n ${NAMESPACE} get service wordpress |awk '{print $4}' | tail -n 1`
+
+kubectl -n ${NAMESPACE} annotate service wordpress \
+    external-dns.alpha.kubernetes.io/hostname=${WPHOST}.${DNSDOMAINNAME}
 
 echo ""
 echo "*************************************************************************************"

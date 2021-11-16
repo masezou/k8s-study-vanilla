@@ -159,7 +159,7 @@ echo -e "\e[32m login token is cat dashboard.token  \e[m"
 echo ""
 echo "Next Step"
 echo ""
-echo -e "\e[32m Run ./4-csi-storage.sh \e[m"
+echo -e "\e[32m Run ./4-dns.sh \e[m"
 echo ""
 
 chmod -x ./3-configk8s.sh

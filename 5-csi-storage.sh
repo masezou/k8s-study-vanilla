@@ -137,8 +137,8 @@ echo "kubernetes deployment without vSphere CSI driver was successfully. The env
 echo ""
 echo "I recommend to verify CNI/CSI function in this phese"
 echo ""
-echo -e "\e[32m If you want to use vSphere CSI Driver on ESX/vCenter environment, run ./5-csi-vsphere.sh \e[m"
+echo -e "\e[32m If you want to use vSphere CSI Driver on ESX/vCenter environment, run ./6-csi-vsphere.sh \e[m"
 echo ""
 
 cd ${BASEPWD}
-chmod -x ./4-csi-storage.sh
+chmod -x ./5-csi-storage.sh

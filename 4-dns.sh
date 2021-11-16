@@ -364,6 +364,10 @@ echo "    external-dns.alpha.kubernetes.io/hostname: YOUR_HOSTNAME.${DNSDOMAINNA
 echo " or "
 echo " kubectl -n <Namespace> annotate service <service> \ "
 echo "    external-dns.alpha.kubernetes.io/hostname=${DNSDOMAINNAME}"
+echo "Next Step"
+echo ""
+echo -e "\e[32m Run ./5-csi-storage.sh \e[m"
 echo ""
 echo ""
-chmod -x ./6-dns.sh
+echo ""
+chmod -x ./4-dns.sh
