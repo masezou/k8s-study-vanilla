@@ -133,4 +133,8 @@ echo "**************************************************************************
 echo "Next Step"
 echo "Confirm wordpress pod and mysql pod are running with kubectl get pod -A"
 echo "Open http://${EXTERNALIP}"
+echo "or"
+echo "Open http://${WPHOST}.${DNSDOMAINNAME}"
+echo ""
+
 
