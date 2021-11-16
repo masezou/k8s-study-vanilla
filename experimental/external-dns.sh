@@ -267,7 +267,7 @@ metadata:
   labels:
     name: external-dns
 ---
-apiVersion: rbac.authorization.k8s.io/v1beta1
+apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
   name: external-dns
@@ -277,12 +277,16 @@ rules:
   - ""
   resources:
   - services
+  - endpoints
+  - pods
+  - nodes
   verbs:
   - get
   - watch
   - list
 - apiGroups:
   - extensions
+  - networking.k8s.io
   resources:
   - ingresses
   verbs:
@@ -296,7 +300,7 @@ metadata:
   name: external-dns
   namespace: external-dns
 ---
-apiVersion: rbac.authorization.k8s.io/v1beta1
+apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
   name: external-dns-viewer
@@ -327,11 +331,12 @@ spec:
       serviceAccountName: external-dns
       containers:
       - name: external-dns
-        image: registry.opensource.zalan.do/teapot/external-dns:v0.5.17
+        image: k8s.gcr.io/external-dns/external-dns:v0.10.1
         args:
         - --provider=rfc2136
         - --registry=txt
         - --txt-owner-id=k8s
+        - --txt-prefix=external-dns-
         - --source=service
         - --source=ingress
         - --domain-filter=${DNSDOMAINNAME}
