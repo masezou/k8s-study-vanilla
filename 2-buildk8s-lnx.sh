@@ -93,6 +93,7 @@ EOF
 # Install Kubernetes
 apt -y install -qy kubelet=${KUBECTLVER} kubectl=${KUBECTLVER} kubeadm=${KUBECTLVER}
 apt-mark hold kubectl kubelet kubeadm
+kubeadm completion bash > /etc/bash_completion.d/kubeadm.sh
 
 apt -y install keepalived
 cat <<EOF | sudo tee /etc/modules-load.d/containerd.conf
