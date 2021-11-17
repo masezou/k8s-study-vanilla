@@ -114,7 +114,7 @@ kubectl -n kube-system get pod -o wide -l app=csi-nfs-controller
 kubectl -n kube-system get pod -o wide -l app=csi-nfs-node
 kubectl delete CSIDriver nfs.csi.k8s.io
 cat <<EOF | kubectl create -f -
-apiVersion: storage.k8s.io/v1beta1
+apiVersion: storage.k8s.io/v1
 kind: CSIDriver
 metadata:
   name: nfs.csi.k8s.io
