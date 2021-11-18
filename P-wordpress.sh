@@ -19,8 +19,8 @@ fi
 
 NAMESPACE=wordpress-sample
 SC=vsphere-sc
-WPHOST=blog-sample
 DNSDOMAINNAME=k8slab.internal
+WPHOST=${NAMESPACE}
 
 kubectl create namespace ${NAMESPACE}
 mkdir ${NAMESPACE}
