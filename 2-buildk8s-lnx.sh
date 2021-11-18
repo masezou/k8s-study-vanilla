@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-KUBECTLVER=1.21.6-00
+KUBECTLVER=1.21.7-00
 
 if [ ${EUID:-${UID}} != 0 ]; then
     echo "This script must be run as root"
