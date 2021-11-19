@@ -70,8 +70,9 @@ kubectl annotate volumesnapshotclass longhorn \
     k10.kasten.io/is-snapshot-class=true
 fi
 
-curl https://docs.kasten.io/tools/k10_primer.sh | bash
-rm k10primer.yaml
+#curl https://docs.kasten.io/tools/k10_primer.sh | bash
+#rm k10primer.yaml
+k10tools primer
 
 # Install Kasten
 kubectl create namespace kasten-io
