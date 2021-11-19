@@ -21,6 +21,8 @@ MINIOIP=${LOCALIPADDR}
 MINIO_ROOT_USER=minioadminuser
 MINIO_ROOT_PASSWORD=minioadminuser
 BUCKETNAME=`hostname`
+MINIOLOCK_BUCKET_NAME=`hostname`-lock
+PROTECTION_PERIOD=240h
 KASTENNFSPVC=kastenbackup-pvc
 
 
@@ -68,6 +70,36 @@ spec:
       region: us-east-1
 EOF
 
+# Immutable setting
+mc mb --with-lock --region=us-east1 local/${MINIOLOCK_BUCKET_NAME}
+mc retention set --default compliance ${MINIOLOCK_PERIOD} local/${MINIOLOCK_BUCKET_NAME}
+cat <<EOF | kubectl -n kasten-io create -f -
+apiVersion: config.kio.kasten.io/v1alpha1
+kind: Profile
+metadata:
+  name: miniolock-profile
+  namespace: kasten-io
+spec:
+  type: Location
+  locationSpec:
+    credential:
+      secretType: AwsAccessKey
+      secret:
+        apiVersion: v1
+        kind: Secret
+        name: k10-s3-secret
+        namespace: kasten-io
+    type: ObjectStore
+    objectStore:
+      name: ${MINIOLOCK_BUCKET_NAME}
+      objectStoreType: S3
+      endpoint: '${MINIO_ENDPOINT}'
+      skipSSLVerify: true
+      region: us-east-1
+      protectionPeriod: ${PROTECTION_PERIOD}
+EOF
+
+# NFS Server
 kubectl -n kasten-io get pvc | grep ${KASTENNFSPVC}
 retval1=$?
 if [ ${retval1} -eq 0 ]; then
