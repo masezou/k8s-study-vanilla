@@ -93,6 +93,7 @@ echo "Install to volumePermissions.enabled node environment"
 helm install k10 kasten/k10 --namespace=kasten-io \
 --set gateway.insecureDisableSSLVerify=true \
 --set global.persistence.size=40G \
+--set global.persistence.storageClass=nfs-csi \
 --set auth.tokenAuth.enabled=true \
 --set externalGateway.create=true \
 --set vmWare.taskTimeoutMin=200 \
@@ -110,6 +111,7 @@ echo "Install to usual node environment"
 helm install k10 kasten/k10 --namespace=kasten-io \
 --set gateway.insecureDisableSSLVerify=true \
 --set global.persistence.size=40G \
+--set global.persistence.storageClass=nfs-csi \
 --set auth.tokenAuth.enabled=true \
 --set externalGateway.create=true \
 --set vmWare.taskTimeoutMin=200 \
