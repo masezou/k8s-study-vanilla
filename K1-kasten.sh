@@ -88,35 +88,35 @@ if [ ${retval8} -eq 0 ]; then
 PERSISTENTCHK=1
 fi
 
-if [ ${PERSISTENTCHK} -eq 1 ]; then
-echo "Install to volumePermissions.enabled node environment"
+#if [ ${PERSISTENTCHK} -eq 1 ]; then
+#echo "Install to volumePermissions.enabled node environment"
+#helm install k10 kasten/k10 --namespace=kasten-io \
+#--set global.persistence.size=40G \
+#--set global.persistence.storageClass=nfs-csi \
+#--set grafana.enabled=true \
+#--set vmWare.taskTimeoutMin=200 \
+#--set auth.tokenAuth.enabled=true \
+#--set externalGateway.create=true \
+#--set gateway.insecureDisableSSLVerify=true \
+#--set ingress.create=true \
+#--set services.securityContext.runAsUser=0 \
+#--set services.securityContext.fsGroup=0 \
+#--set prometheus.server.securityContext.runAsUser=0 \
+#--set prometheus.server.securityContext.runAsGroup=0 \
+#--set prometheus.server.securityContext.runAsNonRoot=false \
+#--set prometheus.server.securityContext.fsGroup=0
+##--set injectKanisterSidecar.enabled=true
+#else
+#echo "Install to usual node environment"
 helm install k10 kasten/k10 --namespace=kasten-io \
---set gateway.insecureDisableSSLVerify=true \
 --set global.persistence.size=40G \
 --set global.persistence.storageClass=nfs-csi \
---set auth.tokenAuth.enabled=true \
---set externalGateway.create=true \
---set vmWare.taskTimeoutMin=200 \
---set ingress.create=true \
---set grafana.enabled=true \
---set services.securityContext.runAsUser=0 \
---set services.securityContext.fsGroup=0 \
---set prometheus.server.securityContext.runAsUser=0 \
---set prometheus.server.securityContext.runAsGroup=0 \
---set prometheus.server.securityContext.runAsNonRoot=false \
---set prometheus.server.securityContext.fsGroup=0
-#--set injectKanisterSidecar.enabled=true
-else
-echo "Install to usual node environment"
-helm install k10 kasten/k10 --namespace=kasten-io \
---set gateway.insecureDisableSSLVerify=true \
---set global.persistence.size=40G \
---set global.persistence.storageClass=nfs-csi \
---set auth.tokenAuth.enabled=true \
---set externalGateway.create=true \
---set vmWare.taskTimeoutMin=200 \
---set ingress.create=true \
 --set grafana.enabled=true
+--set vmWare.taskTimeoutMin=200 \
+--set auth.tokenAuth.enabled=true \
+--set externalGateway.create=true \
+--set gateway.insecureDisableSSLVerify=true \
+--set ingress.create=true \
 #--set services.securityContext.runAsUser=0 \
 #--set services.securityContext.fsGroup=0 \
 #--set prometheus.server.securityContext.runAsUser=0 \
@@ -124,7 +124,7 @@ helm install k10 kasten/k10 --namespace=kasten-io \
 #--set prometheus.server.securityContext.runAsNonRoot=false \
 #--set prometheus.server.securityContext.fsGroup=0 \
 #--set injectKanisterSidecar.enabled=true
-fi
+#fi
 
 # define NFS storage
 kubectl get sc | grep nfs-csi
