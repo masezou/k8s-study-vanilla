@@ -111,12 +111,12 @@ fi
 helm install k10 kasten/k10 --namespace=kasten-io \
 --set global.persistence.size=40G \
 --set global.persistence.storageClass=nfs-csi \
---set grafana.enabled=true
+--set grafana.enabled=true \
 --set vmWare.taskTimeoutMin=200 \
 --set auth.tokenAuth.enabled=true \
 --set externalGateway.create=true \
 --set gateway.insecureDisableSSLVerify=true \
---set ingress.create=true \
+--set ingress.create=true 
 #--set services.securityContext.runAsUser=0 \
 #--set services.securityContext.fsGroup=0 \
 #--set prometheus.server.securityContext.runAsUser=0 \
