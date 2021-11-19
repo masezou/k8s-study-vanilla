@@ -37,7 +37,7 @@ fi
 
 
 # Install K10-tools
-KASTENVER=4.5.2
+KASTENVER=4.5.3
 rm -rf /usr/local/bin/k10tools
 if [ ! -f /usr/local/bin/k10tools ]; then
 curl -OL https://github.com/kastenhq/external-tools/releases/download/${KASTENVER}/k10tools_${KASTENVER}_linux_${ARCH}.tar.gz
