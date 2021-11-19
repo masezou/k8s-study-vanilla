@@ -86,9 +86,6 @@ EOF
 tsig-keygen -a hmac-sha256 externaldns-key > /etc/bind/external.key
 cat /etc/bind/external.key>> /etc/bind/named.conf.options
 chown root:bind /etc/bind/named.conf.options
-#mkdir -p /etc/bind/pri/
-#chown root:bind /etc/bind/pri/
-#chmod g+wx /etc/bind/pri/
 cat << EOF > /etc/bind/named.conf.internal-zones
 zone "${DNSDOMAINNAME}" IN {
         type master;
@@ -227,10 +224,6 @@ host www.yahoo.co.jp. ${DNSHOSTIP}
 echo ""
 
 TSIG_SECRET=`grep secret /etc/bind/external.key | cut -d '"' -f 2`
-echo ""
-echo ""
-echo "DNS Key is ${TSIG_SECRET}"
-echo ""
 
 # Check K8s cluster
 kubectl get pod
@@ -367,7 +360,5 @@ echo "    external-dns.alpha.kubernetes.io/hostname=${DNSDOMAINNAME}"
 echo "Next Step"
 echo ""
 echo -e "\e[32m Run ./5-csi-storage.sh \e[m"
-echo ""
-echo ""
 echo ""
 chmod -x ./4-dns.sh

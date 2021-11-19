@@ -67,10 +67,7 @@ mkdir -p ~/.minio/certs
 curl -OL https://dl.min.io/server/minio/release/linux-${ARCH}/minio
 mv minio  /usr/local/bin/
 chmod +x /usr/local/bin/minio
-# minio sysctl tuning
-#curl -OL https://raw.githubusercontent.com/minio/minio/master/docs/deployment/kernel-tuning/sysctl.sh | bash
 fi
-
 if [ ! -f /usr/local/bin/mc ]; then
 curl -OL https://dl.min.io/client/mc/release/linux-${ARCH}/mc
 mv mc /usr/local/bin/
@@ -78,7 +75,6 @@ chmod +x /usr/local/bin/mc
 echo "complete -C /usr/local/bin/mc mc" > /etc/bash_completion.d/mc.sh
 /usr/local/bin/mc >/dev/null
 fi
-
 if [ ! -f /root/.minio/certs/public.crt ]; then
 cd /root/.minio/certs/
 LOCALHOSTNAME=`hostname`
@@ -111,8 +107,6 @@ openssl x509 -in public.crt -text -noout| grep IP
 cp public.crt ~/.mc/certs/CAs/
 cd || exit
 fi
-
-### add minio to systemctl
 if [ ! -f /etc/systemd/system/minio.service ]; then
 
 if [ ! -f /etc/default/minio ]; then
