@@ -22,6 +22,7 @@ MINIO_ROOT_USER=minioadminuser
 MINIO_ROOT_PASSWORD=minioadminuser
 BUCKETNAME=`hostname`
 MINIOLOCK_BUCKET_NAME=`hostname`-lock
+MINIOLOCK_PERIOD=30d
 PROTECTION_PERIOD=240h
 KASTENNFSPVC=kastenbackup-pvc
 
