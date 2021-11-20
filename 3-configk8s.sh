@@ -57,6 +57,11 @@ data:
 EOF
 kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/cloud/deploy.yaml
 
+while [ "$(kubectl get deployment -n ingress-nginx ingress-nginx-controller --output="jsonpath={.status.conditions[*].status}" | cut -d' ' -f1)" != "True" ]; do
+	echo "Deploying Ingress-nginx controller Please wait...."
+	sleep 30
+done
+
 # Configure Kubernetes Dashboard
 kubectl create namespace kubernetes-dashboard
 mkdir certs
