@@ -77,7 +77,8 @@ kubectl apply -f ./examples/csi-storageclass.yaml
 kubectl patch storageclass csi-hostpath-sc \
     -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"true"}}}'
 cd ..
-mv csi-driver-host-path csi-driver-host-path-`date "+%Y%m%d_%H%M%S"`
+#mv csi-driver-host-path csi-driver-host-path-`date "+%Y%m%d_%H%M%S"`
+rm -rf csi-driver-host-path
 # Permission fix
 chmod -R 1777 /var/lib/docker/volumes/
 
