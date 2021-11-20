@@ -217,9 +217,7 @@ echo "Sanity Test"
 echo ""
 host ${DNSHOSTNAME}.${DNSDOMAINNAME}. ${DNSHOSTIP}
 echo ""
-host api.${DNSDOMAINNAME}. ${DNSHOSTIP}
-echo ""
-host abcd.apps.${DNSDOMAINNAME}. ${DNSHOSTIP}
+host minio.${DNSDOMAINNAME}. ${DNSHOSTIP}
 echo ""
 host www.yahoo.co.jp. ${DNSHOSTIP}
 echo ""
