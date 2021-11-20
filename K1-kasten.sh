@@ -65,6 +65,7 @@ fi
 k10tools primer
 
 # Install Kasten
+kubectl create ns kasten-io
 helm install k10 kasten/k10 --namespace=kasten-io \
 --set global.persistence.size=40G \
 --set global.persistence.storageClass=nfs-csi \
