@@ -135,6 +135,7 @@ spec:
   selector:
     k8s-app: kubernetes-dashboard
 EOF
+rm -rf certs
 
 kubectl -n kubernetes-dashboard get secret $(kubectl -n kubernetes-dashboard get sa/admin-user -o jsonpath="{.secrets[0].name}") -o go-template="{{.data.token | base64decode}}" > dashboard.token
 echo "" >> dashboard.token
