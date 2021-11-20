@@ -18,6 +18,7 @@ else
 fi
 
 PGNAMESPACE=postgresql-app
+# SC = csi-hostpath-sc / local-path / nfs-csi / vsphere-sc
 SC=vsphere-sc
 
 helm repo add bitnami https://charts.bitnami.com/bitnami

@@ -17,7 +17,8 @@ else
     exit 255
 fi
 
-NAMESPACE=wordpress-sample
+NAMESPACE=blog1
+# SC = csi-hostpath-sc / local-path / nfs-csi / vsphere-sc
 SC=vsphere-sc
 DNSDOMAINNAME=k8slab.internal
 WPHOST=${NAMESPACE}

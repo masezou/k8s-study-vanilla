@@ -2,11 +2,6 @@
 
 DNSDOMAINNAME=k8slab.internal
 
-# It is for OpenShift setting, If you want to use OpenShift.
-OS_API=192.168.134.49
-OS_APPS=192.168.134.48
-
-
 #########################################################
 ### UID Check ###
 if [ ${EUID:-${UID}} != 0 ]; then
@@ -204,8 +199,6 @@ cat << EOF >>/var/cache/bind/${DNSDOMAINNAME}.lan
         IN  A       ${DNSHOSTIP}
 ${DNSHOSTNAME}     IN  A       ${DNSHOSTIP}
 minio IN A ${DNSHOSTIP}
-api       IN  A   ${OS_API}
-*.apps  IN  A   ${OS_APPS}
 EOF
 chown bind:bind /var/cache/bind/${DNSDOMAINNAME}.lan
 chmod g+w /var/cache/bind/${DNSDOMAINNAME}.lan
