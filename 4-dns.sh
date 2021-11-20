@@ -203,6 +203,7 @@ cat << EOF >>/var/cache/bind/${DNSDOMAINNAME}.lan
         IN  NS      ${DNSDOMAINNAME}.
         IN  A       ${DNSHOSTIP}
 ${DNSHOSTNAME}     IN  A       ${DNSHOSTIP}
+minio IN A ${DNSHOSTIP}
 api       IN  A   ${OS_API}
 *.apps  IN  A   ${OS_APPS}
 EOF
