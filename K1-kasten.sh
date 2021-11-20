@@ -96,6 +96,11 @@ spec:
 EOF
 fi
 
+while [ "$(kubectl get deployment -n kasten-io gateway --output="jsonpath={.status.conditions[*].status}" | cut -d' ' -f1)" != "True" ]; do
+        echo "Deploying Kasten Please wait...."
+        sleep 30
+done
+
 echo "Following is login token"
 sa_secret=$(kubectl get serviceaccount k10-k10 -o jsonpath="{.secrets[0].name}" --namespace kasten-io)
 kubectl get secret $sa_secret --namespace kasten-io -ojsonpath="{.data.token}{'\n'}" | base64 --decode > k10-k10.token
@@ -108,8 +113,8 @@ kubectl get pvc -n kasten-io
 
 helm -n kasten-io get values k10
 
-EXTERNALIP=`kubectl -n kasten-io get ingress | awk '{print $4}' | tail -n 1`
-
+#EXTERNALIP=`kubectl -n kasten-io get ingress | awk '{print $4}' | tail -n 1`
+EXTERNALIP=`kubectl -n kasten-io get svc gateway-ext | awk '{print $4}' | tail -n 1`
 echo ""
 echo "*************************************************************************************"
 echo "Next Step"
