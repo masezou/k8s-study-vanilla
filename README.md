@@ -38,7 +38,7 @@ Please see 00-Detailed_Instruction-En.txt
 
 
 
-# Usage (Linux)
+# Usage (deploy kubernetes)
 
 ```bash
 sudo -i
@@ -56,7 +56,7 @@ or execute each step.
 ./0-minio.sh ; ./1-tools.sh ; ./2-buildk8s-lnx.sh ; ./3-configk8s.sh ; ./4-dns.sh ; ./5-csi-storage.sh
 ```
 
-If your environment is vSphere with vCenter 6.7U3 above. 
+Then if your Ubuntu VM is on vSphere with vCenter 6.7U3 above. 
 ```bash
 ./6-csi-vsphere.sh
 ```
