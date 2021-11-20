@@ -6,4 +6,3 @@
 ./3-configk8s.sh
 ./4-dns.sh
 ./5-csi-storage.sh
-./K0-kasten-tools.sh
