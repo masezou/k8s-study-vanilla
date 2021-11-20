@@ -110,6 +110,7 @@ helm install mysql-release bitnami/mysql -n ${NAMESPACE} --set global.storageCla
 fi
 while [ "$(kubectl get pod -n ${NAMESPACE} mysql-release-0 --output="jsonpath={.status.containerStatuses[*].ready}" | cut -d' ' -f2)" != "true" ]; do
 	echo "Deploying Stateful MySQL, Please wait...."
+    kubectl get pod -n ${NAMESPACE} mysql-release-0
 	sleep 30
 done
 kubectl create -f wordpress-pvc.yaml -n ${NAMESPACE}
