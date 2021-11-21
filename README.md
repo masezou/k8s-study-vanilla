@@ -53,12 +53,12 @@ Following is fully automation. It is easy.
 
 or execute each step.
 ```bash
-./0-minio.sh ; ./1-tools.sh ; ./2-buildk8s-lnx.sh ; ./3-configk8s.sh ; ./4-dns.sh ; ./5-csi-storage.sh
+./0-minio.sh ; ./1-tools.sh ; ./2-buildk8s-lnx.sh ; ./3-configk8s.sh ; ./4-csi-storage.sh
 ```
 
 Then if your Ubuntu VM is on vSphere with vCenter 6.7U3 above. 
 ```bash
-./6-csi-vsphere.sh
+./5-csi-vsphere.sh
 ```
 
 # Note
