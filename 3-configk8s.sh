@@ -474,13 +474,13 @@ rm -rf components.yaml
 
 
 # Install Reigstory Frontend
-kubectl create namespace registry-fe
-cat <<EOF | kubectl apply -n registry-fe -f -
+kubectl create namespace registry
+cat <<EOF | kubectl apply -n registry -f -
 apiVersion: v1
 kind: ConfigMap
 metadata:
   name: pregistry-configmap
-  namespace: registry-fe
+  namespace: registry
 data:
   pregistry_host: ${LOCALIPADDR}
   pregistry_port: "5000"
@@ -489,7 +489,7 @@ kind: Service
 apiVersion: v1
 metadata:
   name: pregistry-frontend-clusterip
-  namespace: registry-fe
+  namespace: registry
 spec:
   selector:
     app: pregistry-frontend
@@ -504,7 +504,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: pregistry-frontend-deployment
-  namespace: registry-fe
+  namespace: registry
 spec:
   replicas: 1
   selector:
