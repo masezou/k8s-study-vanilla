@@ -458,7 +458,6 @@ host dashboard.${DNSDOMAINNAME}. ${DNSHOSTIP}
 
 kubectl -n kubernetes-dashboard get secret $(kubectl -n kubernetes-dashboard get sa/admin-user -o jsonpath="{.secrets[0].name}") -o go-template="{{.data.token | base64decode}}" > dashboard.token
 echo "" >> dashboard.token
-cat dashboard.token
 
 # Installing metric server
 curl -OL https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
@@ -472,9 +471,6 @@ kubectl apply -f components.yaml
 rm -rf components.yaml
 
 EXTERNALIP=`kubectl -n kubernetes-dashboard get service dashboard-service-lb| awk '{print $4}' | tail -n 1`
-
-
-
 
 echo "*************************************************************************************"
 echo "Here is cluster context"
@@ -499,7 +495,8 @@ echo -e "\e[32m https://${EXTERNALIP}/#/login  \e[m"
 echo "or"
 echo -e "\e[32m https://dashboard.${DNSDOMAINNAME}/#/login \e[m"
 echo ""
-echo -e "\e[32m login token is cat dashboard.token  \e[m"
+echo -e "\e[32m login token is cat ./dashboard.token  \e[m"
+cat ./dashboard.token
 echo ""
 echo "You can access minio dashboard"
 echo -e "\e[32m https://${LOCALIPADDR}:9001  \e[m"
@@ -507,6 +504,9 @@ echo "or"
 echo -e "\e[32m https://minio.${DNSDOMAINNAME}:9001 \e[m"
 echo ""
 echo -e "\e[32m login credential minioadminuser/minioadminuser  \e[m"
+echo ""
+echo "Registry server"
+echo -e "\e[32m http://${LOCALIPADDR}:5000  \e[m"
 echo ""
 echo "Next Step"
 echo ""

@@ -28,8 +28,6 @@ EOF
 sa_secret=$(kubectl get serviceaccount backupbasic -o jsonpath="{.secrets[0].name}")
 kubectl get secret $sa_secret  -ojsonpath="{.data.token}{'\n'}" | base64 --decode > backupbasic.token
 echo "" >> backupbasic.token
-kubectl get serviceaccounts
-kubectl get serviceaccounts backupbasic -o yaml
 
 kubectl create clusterrolebinding backupbasic-rolebinding --clusterrole=k10-basic  --serviceaccount=default:backupbasic
 
@@ -44,8 +42,6 @@ EOF
 sa_secret=$(kubectl get serviceaccount backupview -o jsonpath="{.secrets[0].name}")
 kubectl get secret $sa_secret  -ojsonpath="{.data.token}{'\n'}" | base64 --decode > backupview.token
 echo "" >> backupview.token
-kubectl get serviceaccounts
-kubectl get serviceaccounts backupview -o yaml
 
 kubectl create clusterrolebinding backupview-rolebinding --clusterrole=k10-config-view  --serviceaccount=default:backupview
 
@@ -60,12 +56,8 @@ EOF
 sa_secret=$(kubectl get serviceaccount nsadmin -o jsonpath="{.secrets[0].name}")
 kubectl get secret $sa_secret  -ojsonpath="{.data.token}{'\n'}" | base64 --decode > nsadmin.token
 echo "" >> nsadmin.token
-kubectl get serviceaccounts
-kubectl get serviceaccounts nsadmin -o yaml
 
 kubectl create clusterrolebinding nsadmin-rolebinding --clusterrole=k10-ns-admin  --serviceaccount=default:nsadmin --namespace wordpress-sample
-
-
 
 echo ""
 echo "k10 accounts were configured"

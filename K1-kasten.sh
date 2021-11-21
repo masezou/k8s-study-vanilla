@@ -101,19 +101,10 @@ while [ "$(kubectl get deployment -n kasten-io gateway --output="jsonpath={.stat
         sleep 30
 done
 
-echo "Following is login token"
 sa_secret=$(kubectl get serviceaccount k10-k10 -o jsonpath="{.secrets[0].name}" --namespace kasten-io)
 kubectl get secret $sa_secret --namespace kasten-io -ojsonpath="{.data.token}{'\n'}" | base64 --decode > k10-k10.token
 echo "" >> k10-k10.token
-cat k10-k10.token
-echo
-kubectl get svc gateway-ext --namespace kasten-io -o wide
-kubectl -n kasten-io get ingress
-kubectl get pvc -n kasten-io
 
-helm -n kasten-io get values k10
-
-#EXTERNALIP=`kubectl -n kasten-io get ingress | awk '{print $4}' | tail -n 1`
 EXTERNALIP=`kubectl -n kasten-io get svc gateway-ext | awk '{print $4}' | tail -n 1`
 echo ""
 echo "*************************************************************************************"
@@ -121,7 +112,8 @@ echo "Next Step"
 echo "Confirm wordpress kasten is running with kubectl get pods --namespace kasten-io"
 echo -e "\e[32m Open your browser http://${EXTERNALIP}/k10/ \e[m"
 echo "then input login token"
-echo -e "\e[32m cat k10-k10.token \e[m"
+echo -e "\e[32m cat ./k10-k10.token \e[m"
+cat ./k10-k10.token
 echo ""
 echo "If you want to setup automatically, run ./K2-kasten-storage.sh ; ./K3-kasten-vsphere.sh"
 
