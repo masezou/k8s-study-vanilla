@@ -74,7 +74,9 @@ helm install k10 kasten/k10 --namespace=kasten-io \
 --set auth.tokenAuth.enabled=true \
 --set externalGateway.create=true \
 --set gateway.insecureDisableSSLVerify=true \
---set ingress.create=true 
+--set ingress.create=true \
+--set injectKanisterSidecar.enabled=true \
+--set-string injectKanisterSidecar.namespaceSelector.matchLabels.k10/injectKanisterSidecar=true 
 
 # define NFS storage
 kubectl get sc | grep nfs-csi
