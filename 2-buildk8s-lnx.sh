@@ -144,7 +144,7 @@ timeout: 2
 debug: true
 EOF
 echo "source <(crictl completion bash) " >> /etc/profile.d/crictl.sh
-curl https://raw.githubusercontent.com/containerd/containerd/v1.4.11/contrib/autocomplete/ctr -o /etc/bash_completion.d/ctr
+curl https://raw.githubusercontent.com/containerd/containerd/v1.4.12/contrib/autocomplete/ctr -o /etc/bash_completion.d/ctr
 
 #Network filesystem client
 apt -y install nfs-common
