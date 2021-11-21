@@ -129,7 +129,7 @@ fi
 
 
 # Misc
-apt -y install postgresql-client mysql-client jq apache2-utils mongodb-clients lynx scsitools
+apt -y install postgresql-client postgresql-contrib mysql-client jq apache2-utils mongodb-clients lynx scsitools
 systemctl stop postgresql
 systemctl disable postgresql
 
