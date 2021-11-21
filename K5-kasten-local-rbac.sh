@@ -53,8 +53,12 @@ kubectl get secret $sa_secret  -ojsonpath="{.data.token}{'\n'}" | base64 --decod
 echo "" >> nsadmin.token
 kubectl create clusterrolebinding nsadmin-rolebinding --clusterrole=k10-ns-admin  --serviceaccount=default:nsadmin --namespace wordpress-sample
 
-echo ""
+echo "*************************************************************************************"
 echo "k10 accounts were configured"
+echo " backupadmin"
+echo " backupbasic"
+echo " backupview"
+echo " nsadmin"
 echo ""
 
 chmod -x ./K5-kasten-local-rbac.sh

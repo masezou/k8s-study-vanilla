@@ -115,7 +115,7 @@ actions:
 EOF
 
 
-echo ""
+echo "*************************************************************************************"
 echo "Pre-defined blueprints were configured"
 echo ""
 

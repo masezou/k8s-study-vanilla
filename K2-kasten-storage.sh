@@ -121,7 +121,7 @@ fi
 
 sleep 10
 
-echo ""
+echo "*************************************************************************************"
 echo "Kasten Backup storages were configured"
 echo ""
 

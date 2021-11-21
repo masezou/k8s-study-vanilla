@@ -68,7 +68,6 @@ cd ..
 rm -rf temp
 fi
 
-echo ""
 echo "*************************************************************************************"
 echo "K10tool/K10multicluster/kubestr were installed"
 echo ""

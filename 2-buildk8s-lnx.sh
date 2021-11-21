@@ -220,7 +220,6 @@ kubectl config view --raw > ${KUBECONFIGNAME}_kubeconfig
 
 echo ""
 echo "*************************************************************************************"
-echo ""
 echo "Kubeconfig was copied ${KUBECONFIGNAME}_kubeconfig"
 echo ""
 echo "Next Step"

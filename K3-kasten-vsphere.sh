@@ -59,8 +59,10 @@ spec:
         name: k10-vsphere-infra-secret
         namespace: kasten-io
 EOF
+echo "*************************************************************************************"
 echo "Kasten Infrastructure was configured"
 else
+echo "*************************************************************************************"
 echo "vSphere CSI Driver was not found"
 fi
 
