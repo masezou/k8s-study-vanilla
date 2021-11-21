@@ -26,6 +26,8 @@ WPHOST=${NAMESPACE}
 kubectl create namespace ${NAMESPACE}
 mkdir ${NAMESPACE}
 cd  ${NAMESPACE}
+#helm fetch bitnami/mysql
+#MYSQLCHART=`ls mysql-*.tgz`
 
 cat << EOF > wordpress-pvc.yaml
 apiVersion: v1
@@ -66,6 +68,8 @@ spec:
       containers:
       - image: wordpress:4.8-apache
         imagePullPolicy: IfNotPresent
+#      - image: 192.168.17.2:5000/library/wordpress:4.8-apache
+#        imagePullPolicy: Always
         name: wordpress
         env:
         - name: WORDPRESS_DB_HOST
@@ -106,8 +110,10 @@ EOF
 helm repo add bitnami https://charts.bitnami.com/bitnami
 if [ ${SC} = csi-hostpath-sc ]; then
 helm install mysql-release bitnami/mysql -n ${NAMESPACE} --set volumePermissions.enabled=true --set global.storageClass=${SC}
+#helm install mysql-release ${MYSQLCHART}  -n ${NAMESPACE} --set volumePermissions.enabled=true --set global.storageClass=${SC} --set global.imageRegistry=192.168.17.2:5000
 else
 helm install mysql-release bitnami/mysql -n ${NAMESPACE} --set global.storageClass=${SC}
+#helm install mysql-release ${MYSQLCHART}  -n ${NAMESPACE} --set global.storageClass=${SC} --set global.imageRegistry=192.168.17.2:5000
 fi
 while [ "$(kubectl get pod -n ${NAMESPACE} mysql-release-0 --output="jsonpath={.status.containerStatuses[*].ready}" | cut -d' ' -f2)" != "true" ]; do
 	echo "Deploying Stateful MySQL, Please wait...."
