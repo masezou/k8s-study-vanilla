@@ -1,29 +1,45 @@
-Summary
-Build Kubernetes environment with most smallest vSphere and build Backup environment
+TL;DR
+```
+sudo -i
+git clone https://github.com/masezou/k8s-study-vanilla --depth 1
+cd k8s-study-vanilla
+vi 3-configk8s.sh
+ -> Specify IP range
+./0-minio.sh ; ./1-tools.sh ; ./2-buildk8s-lnx.sh ; ./3-configk8s.sh ; ./4-csi-storage.sh
+vi 5-csi-vsphere.sh
+ ->Input vSphere configuration.
+./5-csi-vsphere.sh
+vi K3-kasten-vsphere.sh
+ ->Input vSphere configuration.
+./K1-kasten.sh ; ./K3-kasten-vsphere.sh
+```
 
-Less impact to already exist vSphere environment and consume less vSphere resource
+Summary
+Build Kubernetes environment with most smallest vSphere and build Backup environment.
+
+Less impact to already exist vSphere environment and consume less vSphere resource.
 By setting up a loadbalancer environment, you can access without port forwarding and improve the portability of the deployment used in the public cloud.
 By using the vSphere CSI driver, you can also experience using the Disk object called FCD supported from vSphere 6.7 U3.
 
-
 What consists of this script
 Container environment
-   Kubernetes 1.21.06/containerd.io 1.4.11 (1node)
-    CNI: Metallb
+   Kubernetes 1.21.7/containerd.io 1.4.12 (1node)
+    CNI: Metallb/Ingress
     CSI: Hostpath-CSI/NFS-CSI/vSphere-CSI
 
 Additional Environment
     Minio Object Storage
     NFS Server for NFS-CSI
     Docker Registry for Airgap image
+    Dynamic DNS (External-DNS)
     
 --------
 Requirement
 vSphere
-  vSphere 6.7U3 (1vCenter and at least 1 ESXi Server and datastore. Any datastore will do)
+  vSphere 6.7U3 (1vCenter and　1 ESXi Server and datastore. Any datastore will do.)
   VM Resource 4vCPU 8-16GB RAM 100GB HDD minimum
-  vSphere Cluster and vSAN is option. (It is not mandatory)
-  There is no special setting. (Script will create storage policy for vSphere CSI driver)
+  vSphere Cluster and vSAN is option. (It is not mandatory.)
+  There is no special setting in vCenter. (The script will create storage policy for vSphere CSI driver.)
 
 Network
   Internet connection
@@ -32,7 +48,7 @@ Network
       ex. 192.168.133.83
     for Loadbalancer
        ex. 192.168.133.208/28
-Standard vSwitch and port group will worked. (any switch will work!)
+Standard vSwitch and port group will worked. (Any switch will work!)
 
 VM Configuration
  OS: Ubuntu Server 20.04.3 x 1
@@ -47,7 +63,7 @@ Ubuntu Install
     But I recommend to 
        use xfs.
        IP address will be work with DHCP and Static IP address.
-       install only OpenSSH server. (No distribution's docker package)
+       Install only OpenSSH server. (No distribution's docker package)
 
 -----
 Script execution
@@ -58,7 +74,7 @@ sudo -i
 git clone https://github.com/masezou/k8s-study-vanilla
 cd k8s-study-vanilla
 
-3. Edit Script file
+3. Edit Script files
     vi 3-configk8s.sh
          Change  IPRANGE="192.168.133.208/28" to your subnet.
          
@@ -82,7 +98,7 @@ cd k8s-study-vanilla
   kubectl get nodes
     1 node only appeared
    kubectl get pod -A
-    All pod is running exclude  csi-nfs-controller. ( csi-nfs-controller will be Pending. but it is ok and it will work)
+    All pod are running/Complete
   kubectl get svc -A
    You can see dashboard-service-lb has Loadbalancer IP address. You can access Kubernetes Dashboard.
   kubectl get sc
@@ -94,34 +110,9 @@ cd k8s-study-vanilla
 7. Verify for vSphere CSI Driver
   kubectl get sc
    You can see csi-hostpath-sc, nfs-csi, vsphere-sc(default)
-   Also you can create pvc with yaml. or execute ./P-wordpress.sh
-
+   
    Trouble Shooting
        Check Storage Policy in vCenter.
-         k8s-policy will be created and the policy point to datastore
+         k8s-policy will be created and the policy point to datastore.
        ls -l /dev/disk/by-id/wwn-*
-         If there is no device, you may forget to set DISKUUID
-
----
-How to use demo script
-vi P-Wordpress.sh
-
-Change following
-NAMESPACE=wordpress-sample
-SC=vsphere-sc
- 
----
-Building Backup Environment.
-1. Install Kasten
-./K0-kasten-tools.sh ; ./K1-kasten.sh
-kubectl -n kasten-io get pod
-Wait untill all pod is running. then
-./K2-kasten-storage.sh ; ./K3-kasten-vsphere.sh
-
-kubectl -n kasten-io get svc | grep gateway-ext
-You can see loadbalancer assigned IP address. the access
-http://<The IP Address>/k10/
-
-How to get login token.
-cat k10-k10.token
-
+         If there is no device, you may forget to set DISKUUID.

@@ -1,0 +1,123 @@
+TL;DR
+vCenter/ESX上に4vCPU 16GB RAM 100GB HDDVMを作成してUbuntu 20.04.3 Server (amd64) をクリーンインストール。その後、以下を実行。
+```
+sudo -i
+git clone https://github.com/masezou/k8s-study-vanilla --depth 1
+cd k8s-study-vanilla
+vi 3-configk8s.sh
+ -> IPレンジを設定
+./0-minio.sh ; ./1-tools.sh ; ./2-buildk8s-lnx.sh ; ./3-configk8s.sh ; ./4-csi-storage.sh
+vi 5-csi-vsphere.sh
+ ->vSphereの情報を入力
+./5-csi-vsphere.sh
+vi K3-kasten-vsphere.sh
+ ->vSphereの情報を入力
+./K1-kasten.sh ; ./K3-kasten-vsphere.sh
+```
+
+サマリー
+最小のリソースでvSphere上にKubernetes環境とそのバックアップ環境を作成。
+
+既存のvSphere環境に影響なしに、最小のリソースで構築が可能
+ロードバランサーによって、ポートフォーワードを使うことなく、パブリッククラウドと同じようにアプリケーションにアクセスが可能
+vSphere CSIドライバーによって、vSphere 6.7U3からサポートされたvSphereのディスクオブジェクトであるFCD環境を構築
+
+このスクリプトでできるもの
+コンテナ環境
+   Kubernetes 1.21.7/containerd.io 1.4.12 (1ノード)
+    CNI: Metallb/Ingress
+    CSI: Hostpath-CSI/NFS-CSI/vSphere-CSI
+
+追加環境
+   Minio Object Storage
+   NFS Server for NFS-CSI
+   プライベートDocker Registry
+   Dynamic DNS (External-DNS)
+ 
+--------
+要件
+vSphere
+  vSphere 6.7U3 (1vCenterと１台のESXサーバ。データストアはなんでも構わない)
+  VMリソース 最低4vCPU 8-16GB RAM 100GB HDD
+  vSphereクラスタやvSANはオプション（必須ではない。）
+  vCenterなどに特別な設定は不要 (スクリプトが自動でやってくれる)
+
+ ネットワーク
+   インターネット接続
+   1つのネットワークセグメント
+    Ubuntu VM
+      例 192.168.133.83
+    ロードバランサーのIPレンジ
+     例 192.168.133.208/28
+   vSphereのネットワークは、標準スイッチでも分散仮想スイッチでも構わない。
+   
+VM構成
+ OS: Ubuntu Server 20.04.3  1VM
+ VM設定
+   CPU:  4vCPU以上 
+   RAM: 8GB以上
+   HDD: 100GB以上 (最低でも50GB)
+   必ず、"disk.enableUUID=true" を設定する。 (すごく重要!!!)
+
+Ubuntuのインストール
+  特別な設定は不要。 
+    推奨は、ファイルシステムはxfsにしておく
+       IPアドレスはDHCPでも構わないが、ロードバランサーのIPレンジと被らないようにする。
+       OSでインストールするパッケージは、OpenSSHのみ。 (ディストリビューションのDockerはインストールしてはならない。)
+
+-----
+スクリプトの実行
+1. Root ユーザになる。
+sudo -i
+
+2. クローン
+git clone https://github.com/masezou/k8s-study-vanilla
+cd k8s-study-vanilla
+
+3. スクリプトファイルの修正
+    vi 3-configk8s.sh
+         IPRANGEにサブネットあるいはIP範囲を入れる
+         
+   vi 5-csi-vsphere.sh
+       以下にvSphereの設定を入力
+       #For vSphere CSI/Tanzu
+       VSPHEREUSERNAME="administrator@vsphere.local"
+       VSPHEREPASSWORD="PASSWORD"
+       VSPHERESERVER="YOUR_vCENTER_FQDN"
+       VSPHERESERVERIP="YOUR_vCENTE_IP"
+       VSPPHEREDATASTORE="YOUR_DATASTORE"
+
+   vi K3-kasten-vsphere.sh
+       以下にvSphereの設定を入力
+      VSPHEREUSERNAME="administrator@vsphere.local"
+      VSPHEREPASSWORD="PASSWORD"
+      VSPHERESERVER="YOUR_VCENTER_FQDN"
+
+ 4. スクリプトを実行して、 Kubernetes環境を構築
+ ./0-minio.sh ; ./1-tools.sh ; ./2-buildk8s-lnx.sh ; ./3-configk8s.sh ; ./4-csi-storage.sh
+
+ 5. Kubernetes環境の確認
+   kubectl get nodes
+      1ノードのみ存在
+   kubectl get pod -A
+      全てのPodがRunning/Completeになっていること
+   kubectl get svc -A
+      Kubernetes DashboardにIPアドレスが付与され、アクセスできること
+   kubectl get sc
+     csi-hostpath-sc (default) と nfs-csiが表示されること
+   
+6. vSphere CSI Driverドライバーのインストール
+./5-csi-vsphere.sh
+
+7. vSphere CSI Driverの確認
+   kubectl get sc
+      csi-hostpath-sc  と nfs-csi、vsphere-sc(default)が表示されること
+   
+   トラブルシューティング
+       vCenterのStorage Policy確認
+         k8s-policyがStorage Policyに設定されているかを確認。
+       ls -l /dev/disk/by-id/wwn-*
+         ファイルがない場合は、DISKUUIDの設定がVMにされていない。
+         
+ これでKubernetes環境の構築が完了
+ 
