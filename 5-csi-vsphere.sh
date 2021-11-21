@@ -238,4 +238,4 @@ echo -e "\e[32m vSphere CSI Driver installation and Storage Class creation is do
 echo ""
 
 cd ${BASEPWD}
-chmod -x ./6-csi-vsphere.sh
+chmod -x ./5-csi-vsphere.sh

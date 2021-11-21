@@ -4,5 +4,4 @@
 ./1-tools.sh
 ./2-buildk8s-lnx.sh
 ./3-configk8s.sh
-./4-dns.sh
-./5-csi-storage.sh
+./4-csi-storage.sh

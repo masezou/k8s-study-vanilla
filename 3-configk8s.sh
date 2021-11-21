@@ -2,8 +2,9 @@
 
 # Sample "192.168.133.208/28" or "192.168.133.51-192.168.133.62"
 IPRANGE="fixme"
+
 # If you want to change DNS domain name, you can chage it.
-DNSDOMAINNAME=k8slab.internal
+DNSDOMAINNAME="k8slab.internal"
 
 #########################################################
 ### UID Check ###
@@ -476,9 +477,13 @@ EXTERNALIP=`kubectl -n kubernetes-dashboard get service dashboard-service-lb| aw
 
 
 echo "*************************************************************************************"
-echo "CNI/Loadbaancer/external-dns and Dashboard was installed."
-echo "Please check kubectl get pod -A, I recommend to wait until all pod is running"
+echo "Here is cluster context"
+kubectl config get-contexts`
 echo ""
+echo "CNI/Loadbaancer/external-dns and Dashboard was installed."
+echo "Please check kubectl get pod -A"
+echo ""
+echo "DNS Server was configured."
 echo "DNS Domain Name is ${DNSDOMAINNAME}"
 echo "DNS DNS IP address is ${DNSHOSTIP}"
 echo "If you want to use external-dns, please add annotation in Kind: Service which sets loadbalancer"
@@ -487,16 +492,26 @@ echo " or "
 echo " kubectl -n <Namespace> annotate service <service> \ "
 echo "    external-dns.alpha.kubernetes.io/hostname=${DNSDOMAINNAME}"
 echo ""
+echo ""
 echo "You can access Kubernetes dashboard"
 echo -e "\e[32m https://${EXTERNALIP}/#/login  \e[m"
 echo "or"
-echo -e "\e[32mhttps://dashboard.${DNSDOMAINNAME}/#/login \e[m"
+echo -e "\e[32m https://dashboard.${DNSDOMAINNAME}/#/login \e[m"
 echo ""
 echo -e "\e[32m login token is cat dashboard.token  \e[m"
 echo ""
+echo "You can access minio dashboard"
+echo -e "\e[32m https://${LOCALIPADDR}:9001  \e[m"
+echo "or"
+echo -e "\e[32m https://minio.${DNSDOMAINNAME}:9001 \e[m"
+echo ""
+echo -e "\e[32m login credential minioadminuser/minioadminuser  \e[m"
+echo ""
 echo "Next Step"
 echo ""
-echo -e "\e[32m Run ./4-dns.sh \e[m"
+echo -e "\e[32m Run source /etc/profile \e[m"
+echo "then,"
+echo -e "\e[32m Run ./4-csi-storage.sh \e[m"
 echo ""
 
 chmod -x ./3-configk8s.sh
