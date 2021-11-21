@@ -449,6 +449,8 @@ spec:
 EOF
 rm -rf certs
 
+DASHBOARD_EXTERNALIP=`kubectl -n kubernetes-dashboard get service dashboard-service-lb| awk '{print $4}' | tail -n 1`
+
 # Dashboard FQDN
 kubectl -n kubernetes-dashboard annotate service dashboard-service-lb \
     external-dns.alpha.kubernetes.io/hostname=dashboard.${DNSDOMAINNAME}
@@ -470,7 +472,73 @@ EOF
 kubectl apply -f components.yaml
 rm -rf components.yaml
 
-EXTERNALIP=`kubectl -n kubernetes-dashboard get service dashboard-service-lb| awk '{print $4}' | tail -n 1`
+
+# Install Reigstory Frontend
+kubectl create namespace registry
+cat <<EOF | kubectl apply -n registry -f -
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: pregistry-configmap
+  namespace: registry
+data:
+  pregistry_host: ${LOCALIPADDR}
+  pregistry_port: "5000"
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: pregistry-frontend-clusterip
+  namespace: registry
+spec:
+  selector:
+    app: pregistry-frontend
+  type: LoadBalancer
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 80
+    name: registry-http-frontend
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pregistry-frontend-deployment
+  namespace: registry
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pregistry-frontend
+  template:
+    metadata:
+      labels:
+        app: pregistry-frontend
+    spec:
+      containers:
+      - name: pregistry-frontend-container
+        image: konradkleine/docker-registry-frontend:v2
+        ports:
+        - containerPort: 80
+        env:
+        - name: ENV_DOCKER_REGISTRY_HOST
+          valueFrom:
+              configMapKeyRef:
+                name: pregistry-configmap
+                key: pregistry_host
+        - name: ENV_DOCKER_REGISTRY_PORT
+          valueFrom:
+              configMapKeyRef:
+                name: pregistry-configmap
+                key: pregistry_port
+EOF
+REGISTRY_EXTERNALIP=`kubectl -n registry get service pregistry-frontend-clusterip | awk '{print $4}' | tail -n 1`
+# Registry FQDN
+kubectl -n registry annotate service pregistry-frontend-clusterip \
+    external-dns.alpha.kubernetes.io/hostname=registryfe.${DNSDOMAINNAME}
+sleep 10
+
+host registryfe.${DNSDOMAINNAME}. ${DNSHOSTIP}
 
 echo "*************************************************************************************"
 echo "Here is cluster context"
@@ -491,7 +559,7 @@ echo "    external-dns.alpha.kubernetes.io/hostname=${DNSDOMAINNAME}"
 echo ""
 echo ""
 echo "You can access Kubernetes dashboard"
-echo -e "\e[32m https://${EXTERNALIP}/#/login  \e[m"
+echo -e "\e[32m https://${DASHBOARD_EXTERNALIP}/#/login  \e[m"
 echo "or"
 echo -e "\e[32m https://dashboard.${DNSDOMAINNAME}/#/login \e[m"
 echo ""
@@ -507,7 +575,11 @@ echo -e "\e[32m login credential minioadminuser/minioadminuser  \e[m"
 echo ""
 echo "Registry server"
 echo -e "\e[32m http://${LOCALIPADDR}:5000  \e[m"
-echo "You may need to set insecure-registry in your client side docker setting."
+echo "You need to set insecure-registry in your client side docker setting."
+echo "You can access Registry frontend UI."
+echo -e "\e[32m https://${REGISTRY_EXTERNALIP}  \e[m"
+echo "or"
+echo -e "\e[32m https://registryfe.${DNSDOMAINNAME} \e[m"
 echo ""
 KUBECONFIG=`ls *_kubeconfig`
 echo "kubeconfig is ${KUBECONFIG}"
