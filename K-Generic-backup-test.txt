@@ -1,0 +1,66 @@
+kubectl create namespace genericbackup-test
+kubectl label namespace genericbackup-test k10/injectKanisterSidecar=true
+cat <<EOF | kubectl apply -n genericbackup-test -f -
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: demo-pvc
+  labels:
+    app: demo
+    pvc: demo
+spec:
+  storageClassName: local-path
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: demo-app
+  labels:
+    app: demo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: demo
+  template:
+    metadata:
+      labels:
+        app: demo
+    spec:
+      containers:
+      - name: demo-container
+        image: alpine:3.7
+        resources:
+            requests:
+              memory: 256Mi
+              cpu: 100m
+        command: ["tail"]
+        args: ["-f", "/dev/null"]
+        volumeMounts:
+        - name: data
+          mountPath: /data
+      volumes:
+      - name: data
+        persistentVolumeClaim:
+          claimName: demo-pvc
+EOF
+kubectl get pods --namespace=genericbackup-test | grep demo-app
+cp 3-configk8s.sh demodata
+kubectl cp demodata genericbackup-test/demo-app-696f676d47-csnjs:/data/
+kubectl exec --namespace=genericbackup-test demo-app-696f676d47-csnjs -- ls -l /data
+
+#Backup in Kasten Dashboard
+
+#Delete data
+kubectl exec --namespace=genericbackup-test demo-app-696f676d47-csnjs -- rm -rf /data/3-configk8s.sh
+
+#Verify
+md5sum demodata
+kubectl get pods --namespace=genericbackup-test | grep demo-app
+kubectl cp genericbackup-test/<pod>:/data/demodata demodata_restored
+md5sum  demodata_restored
