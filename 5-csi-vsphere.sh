@@ -236,6 +236,9 @@ echo ""
 echo "*************************************************************************************"
 echo -e "\e[32m vSphere CSI Driver installation and Storage Class creation is done. \e[m"
 echo ""
+echo "kubectl get sc"
+kubectl get sc
+echo ""
 
 cd ${BASEPWD}
 chmod -x ./5-csi-vsphere.sh

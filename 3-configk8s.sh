@@ -478,6 +478,7 @@ EXTERNALIP=`kubectl -n kubernetes-dashboard get service dashboard-service-lb| aw
 
 echo "*************************************************************************************"
 echo "Here is cluster context"
+echo "kubectl config get-contexts"
 kubectl config get-contexts
 echo ""
 echo "CNI/Loadbaancer/external-dns and Dashboard was installed."
