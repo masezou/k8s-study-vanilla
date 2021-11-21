@@ -190,7 +190,35 @@ sed -i -e "s/    path/#    path/g" /etc/docker/registry/config.yml
 systemctl restart docker-registry
 
 # pull/push images
-# removed temporary
+ctr images pull --platform linux/amd64 docker.io/bitnami/bitnami-shell:10-debian-10-r158
+ctr images tag docker.io/bitnami/bitnami-shell:10-debian-10-r158 ${LOCALIPADDR}:5000/bitnami/bitnami-shell:10-debian-10-r158
+ctr images push --platform linux/amd64 --plain-http ${LOCALIPADDR}:5000/bitnami/bitnami-shell:10-debian-10-r158
+ctr images rm docker.io/bitnami/bitnami-shell:10-debian-10-r158
+ctr images rm ${LOCALIPADDR}:5000/bitnami/bitnami-shell:10-debian-10-r158
+
+ctr images pull --platform linux/amd64 docker.io/bitnami/mongodb:4.4.8
+ctr images tag docker.io/bitnami/mongodb:4.4.8 ${LOCALIPADDR}:5000/bitnami/mongodb:4.4.8
+ctr images push --platform linux/amd64 --plain-http ${LOCALIPADDR}:5000/bitnami/mongodb:4.4.8
+ctr images rm docker.io/bitnami/mongodb:4.4.8
+ctr images rm ${LOCALIPADDR}:5000/bitnami/mongodb:4.4.8
+
+ctr images pull --platform linux/amd64 docker.io/bitnami/mysql:8.0.27-debian-10-r8
+ctr images tag docker.io/bitnami/mysql:8.0.27-debian-10-r8 ${LOCALIPADDR}:5000/bitnami/mysql:8.0.27-debian-10-r8
+ctr images push --platform linux/amd64 --plain-http ${LOCALIPADDR}:5000/bitnami/mysql:8.0.27-debian-10-r8
+ctr images rm docker.io/bitnami/mysql:8.0.27-debian-10-r8
+ctr images rm ${LOCALIPADDR}:5000/bitnami/mysql:8.0.27-debian-10-r8
+
+ctr images pull --platform linux/amd64 docker.io/bitnami/postgresql:11.13.0-debian-10-r89
+ctr images tag docker.io/bitnami/postgresql:11.13.0-debian-10-r89 ${LOCALIPADDR}:5000/bitnami/postgresql:11.13.0-debian-10-r89
+ctr images push --platform linux/amd64 --plain-http ${LOCALIPADDR}:5000/bitnami/postgresql:11.13.0-debian-10-r89
+ctr images rm docker.io/bitnami/postgresql:11.13.0-debian-10-r89
+ctr images rm ${LOCALIPADDR}:5000/bitnami/postgresql:11.13.0-debian-10-r89
+
+ctr images pull --platform linux/amd64 docker.io/library/wordpress:4.8-apache
+ctr images tag docker.io/library/wordpress:4.8-apache ${LOCALIPADDR}:5000/library/wordpress:4.8-apache
+ctr images push --platform linux/amd64 --plain-http ${LOCALIPADDR}:5000/library/wordpress:4.8-apache
+ctr images rm docker.io/library/wordpress:4.8-apache
+ctr images rm ${LOCALIPADDR}:5000/library/wordpress:4.8-apache
 
 echo "Registry result"
 curl -X GET http://${LOCALIPADDR}:5000/v2/_catalog
