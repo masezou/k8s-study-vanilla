@@ -279,6 +279,46 @@ echo ""
 host www.yahoo.co.jp. ${DNSHOSTIP}
 echo ""
 
+#minio cert update
+cd /root/.minio/certs/
+mv private.key private.key.orig
+mv public.crt public.crt.orig
+mv openssl.conf openssl.conf.orig
+LOCALHOSTNAME=minio.${DNSDOMAINNAME}
+openssl genrsa -out private.key 2048
+cat <<EOF> openssl.conf
+[req]
+distinguished_name = req_distinguished_name
+x509_extensions = v3_req
+prompt = no
+
+[req_distinguished_name]
+C = US
+ST = VA
+L = Somewhere
+O = MyOrg
+OU = MyOU
+CN = MyServerName
+
+[v3_req]
+subjectAltName = @alt_names
+
+[alt_names]
+IP.1 = ${LOCALIPADDR}
+DNS.1 = ${LOCALHOSTNAME}
+EOF
+openssl req -new -x509 -nodes -days 730 -key private.key -out public.crt -config openssl.conf
+chmod 600 private.key
+chmod 600 public.crt
+openssl x509 -in public.crt -text -noout| grep IP
+cp public.crt ~/.mc/certs/CAs/
+cp /root/.minio/certs/public.crt /usr/share/ca-certificates/minio-dns.crt
+echo "minio-dns.crt">>/etc/ca-certificates.conf
+update-ca-certificates 
+systemctl restart minio.service
+
+
+
 TSIG_SECRET=`grep secret /etc/bind/external.key | cut -d '"' -f 2`
 
 # Install external-dns
