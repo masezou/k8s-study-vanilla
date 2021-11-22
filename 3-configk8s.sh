@@ -280,11 +280,11 @@ host www.yahoo.co.jp. ${DNSHOSTIP}
 echo ""
 
 #minio cert update
+if [ -f /root/.minio/certs/private.key ]; then
 cd /root/.minio/certs/
 mv private.key private.key.orig
 mv public.crt public.crt.orig
 mv openssl.conf openssl.conf.orig
-LOCALHOSTNAME=minio.${DNSDOMAINNAME}
 openssl genrsa -out private.key 2048
 cat <<EOF> openssl.conf
 [req]
@@ -305,7 +305,7 @@ subjectAltName = @alt_names
 
 [alt_names]
 IP.1 = ${LOCALIPADDR}
-DNS.1 = ${LOCALHOSTNAME}
+DNS.1 = minio.${DNSDOMAINNAME}
 EOF
 openssl req -new -x509 -nodes -days 730 -key private.key -out public.crt -config openssl.conf
 chmod 600 private.key
@@ -316,12 +316,10 @@ cp /root/.minio/certs/public.crt /usr/share/ca-certificates/minio-dns.crt
 echo "minio-dns.crt">>/etc/ca-certificates.conf
 update-ca-certificates 
 systemctl restart minio.service
-
-
-
-TSIG_SECRET=`grep secret /etc/bind/external.key | cut -d '"' -f 2`
+fi
 
 # Install external-dns
+TSIG_SECRET=`grep secret /etc/bind/external.key | cut -d '"' -f 2`
 cat <<EOF | kubectl apply -f -
 apiVersion: v1
 kind: Namespace
@@ -458,7 +456,7 @@ metadata:
   namespace: sandbox
 spec:
   ca:
-    secretName: selfsigned-ca
+    secretName: selfsigned-ca-cert
 EOF
 
 # Configure Kubernetes Dashboard
@@ -485,12 +483,13 @@ subjectAltName = @alt_names
 
 [alt_names]
 IP.1 = 127.0.0.1
-DNS.1 = localhost
+DNS.1 = dashboard.${DNSDOMAINNAME}
 EOF
 openssl req -new -x509 -nodes -days 365 -key dashboard.key -out dashboard.crt -config openssl.conf
 openssl x509 -in dashboard.crt -text -noout| grep IP
 kubectl create secret generic kubernetes-dashboard-certs --from-file=dashboard.key --from-file=dashboard.crt -n kubernetes-dashboard
 cd ..
+rm -rf certs
 
 kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.4.0/aio/deploy/recommended.yaml
 cat <<EOF | kubectl apply -f -
@@ -534,15 +533,10 @@ spec:
   selector:
     k8s-app: kubernetes-dashboard
 EOF
-rm -rf certs
-
 DASHBOARD_EXTERNALIP=`kubectl -n kubernetes-dashboard get service dashboard-service-lb| awk '{print $4}' | tail -n 1`
-
-# Dashboard FQDN
 kubectl -n kubernetes-dashboard annotate service dashboard-service-lb \
     external-dns.alpha.kubernetes.io/hostname=dashboard.${DNSDOMAINNAME}
 sleep 10
-
 host dashboard.${DNSDOMAINNAME}. ${DNSHOSTIP}
 
 kubectl -n kubernetes-dashboard get secret $(kubectl -n kubernetes-dashboard get sa/admin-user -o jsonpath="{.secrets[0].name}") -o go-template="{{.data.token | base64decode}}" > dashboard.token
@@ -558,7 +552,6 @@ cat << EOF | sed -i -e "/        imagePullPolicy: IfNotPresent$/r /dev/stdin" co
 EOF
 kubectl apply -f components.yaml
 rm -rf components.yaml
-
 
 # Install Reigstory Frontend
 kubectl create namespace registry
@@ -620,11 +613,9 @@ spec:
                 key: pregistry_port
 EOF
 REGISTRY_EXTERNALIP=`kubectl -n registry get service pregistry-frontend-clusterip | awk '{print $4}' | tail -n 1`
-# Registry FQDN
 kubectl -n registry annotate service pregistry-frontend-clusterip \
     external-dns.alpha.kubernetes.io/hostname=registryfe.${DNSDOMAINNAME}
 sleep 10
-
 host registryfe.${DNSDOMAINNAME}. ${DNSHOSTIP}
 
 echo "*************************************************************************************"
