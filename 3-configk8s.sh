@@ -374,6 +374,53 @@ spec:
         #- --log-level=debug
 EOF
 
+# Install CertManager
+git clone https://github.com/jetstack/cert-manager.git -b v1.4.0 --depth 1
+cd cert-manager/deploy/charts/cert-manager/
+cp -p Chart{.template,}.yaml
+sed -i -e "s/appVersion: v0.1.0/appVersion: v1.4.0/g" Chart.yaml
+kubectl create ns cert-manager
+kubectl apply -f https://github.com/jetstack/cert-manager/releases/download/v1.4.0/cert-manager.crds.yaml
+helm install cert-manager . -n cert-manager
+cd ../../../../
+rm -rf cert-manager
+kubectl create ns sandbox
+cat <<EOF | kubectl apply -f -
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: selfsigned-issuer
+spec:
+  selfSigned: {}
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: selfsigned-ca
+  namespace: sandbox
+spec:
+  isCA: true
+  commonName: selfsigned-ca
+  duration: 438000h
+  secretName: selfsigned-ca-cert
+  privateKey:
+    algorithm: RSA
+    size: 2048
+  issuerRef:
+    name: selfsigned-issuer
+    kind: ClusterIssuer
+    group: cert-manager.io
+---
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: ca-issuer
+  namespace: sandbox
+spec:
+  ca:
+    secretName: selfsigned-ca
+EOF
+
 # Configure Kubernetes Dashboard
 kubectl create namespace kubernetes-dashboard
 mkdir certs
