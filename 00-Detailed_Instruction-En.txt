@@ -116,3 +116,7 @@ cd k8s-study-vanilla
          k8s-policy will be created and the policy point to datastore.
        ls -l /dev/disk/by-id/wwn-*
          If there is no device, you may forget to set DISKUUID.
+
+
+If you want to check installation summary again, run
+bash ./result.sh
