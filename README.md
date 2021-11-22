@@ -61,6 +61,12 @@ Then if your Ubuntu VM is on vSphere with vCenter 6.7U3 above.
 ./5-csi-vsphere.sh
 ```
 
+After Installation, you can review installation result.
+```bash
+bash ./result.sh
+```
+
+
 # Note
 
 * If you want to add separate storage volume, you can mount extra volume to /disk.
