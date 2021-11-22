@@ -105,6 +105,9 @@ chmod 600 private.key
 chmod 600 public.crt
 openssl x509 -in public.crt -text -noout| grep IP
 cp public.crt ~/.mc/certs/CAs/
+cp /root/.minio/certs/public.crt /usr/share/ca-certificates/minio.crt
+echo "minio.crt">>/etc/ca-certificates.conf
+update-ca-certificates
 cd || exit
 fi
 if [ ! -f /etc/systemd/system/minio.service ]; then
