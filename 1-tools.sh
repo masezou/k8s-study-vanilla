@@ -135,6 +135,7 @@ systemctl disable postgresql
 #I want to use only pgbench!
 cp /usr/lib/postgresql/12/bin/pgbench /tmp
 apt -y remove postgresql-12
+apt -y autoremove
 mv /tmp/pgbench /usr/lib/postgresql/12/bin/
 
 echo ""
