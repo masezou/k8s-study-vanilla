@@ -132,6 +132,10 @@ fi
 apt -y install postgresql-client postgresql-contrib mysql-client jq apache2-utils mongodb-clients lynx scsitools
 systemctl stop postgresql
 systemctl disable postgresql
+#I want to use only pgbench!
+cp /usr/lib/postgresql/12/bin/pgbench /tmp
+apt -y remove postgresql-12
+mv /tmp/pgbench /usr/lib/postgresql/12/bin/
 
 echo ""
 echo "*************************************************************************************"
