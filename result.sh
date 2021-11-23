@@ -55,7 +55,7 @@ echo "You need to set insecure-registry in your client side docker setting."
 echo -e "\e[1mRegistry frontend UI \e[m"
 echo -e "\e[32m https://${REGISTRY_EXTERNALIP}  \e[m"
 echo "or"
-echo -e "\e[32m https://registryfe.${DNSDOMAINNAME} \e[m"
+echo -e "\e[32m http://registryfe.${DNSDOMAINNAME} \e[m"
 echo ""
 KUBECONFIG=`ls *_kubeconfig`
 echo -e "\e[1mKubeconfig \e[m"
