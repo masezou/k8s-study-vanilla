@@ -282,9 +282,9 @@ echo ""
 #minio cert update
 if [ -f /root/.minio/certs/private.key ]; then
 cd /root/.minio/certs/
-mv private.key private.key.orig
-mv public.crt public.crt.orig
-mv openssl.conf openssl.conf.orig
+rm private.key
+rm public.crt
+rm openssl.conf
 openssl genrsa -out private.key 2048
 cat <<EOF> openssl.conf
 [req]
@@ -307,7 +307,7 @@ subjectAltName = @alt_names
 IP.1 = ${LOCALIPADDR}
 DNS.1 = minio.${DNSDOMAINNAME}
 EOF
-openssl req -new -x509 -nodes -days 730 -key private.key -out public.crt -config openssl.conf
+openssl req -new -x509 -nodes -days 365 -key private.key -out public.crt -config openssl.conf
 chmod 600 private.key
 chmod 600 public.crt
 openssl x509 -in public.crt -text -noout| grep IP
