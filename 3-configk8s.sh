@@ -25,6 +25,8 @@ else
     echo "Ubuntu 20.04=OK"
 fi
 
+BASEPWD=`pwd`
+
 #### LOCALIP #########
 ip address show ens160 >/dev/null
 retval=$?
@@ -661,4 +663,5 @@ echo "then,"
 echo -e "\e[32m Run ./4-csi-storage.sh \e[m"
 echo ""
 
+cd ${BASEPWD}
 chmod -x ./3-configk8s.sh
