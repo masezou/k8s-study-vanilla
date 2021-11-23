@@ -100,7 +100,7 @@ subjectAltName = @alt_names
 IP.1 = ${LOCALIPADDR}
 DNS.1 = ${LOCALHOSTNAME}
 EOF
-openssl req -new -x509 -nodes -days 730 -key private.key -out public.crt -config openssl.conf
+openssl req -new -x509 -nodes -days 365 -key private.key -out public.crt -config openssl.conf
 chmod 600 private.key
 chmod 600 public.crt
 openssl x509 -in public.crt -text -noout| grep IP
