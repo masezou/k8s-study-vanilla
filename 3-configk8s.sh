@@ -282,34 +282,25 @@ echo ""
 #minio cert update
 if [ -f /root/.minio/certs/private.key ]; then
 cd /root/.minio/certs/
-rm private.key
-rm public.crt
-rm openssl.conf
+rm -rf cert.csr
+rm -rf extfile.conf
+rm -rf private.key
+rm -rf public.crt
+rm -rf rootCA*
+rm -rf CAs/rootCA.pem
+openssl genrsa -out rootCA.key 4096
+openssl req -x509 -new -nodes -key rootCA.key -sha256 -days 1825 -out rootCA.pem -subj "/C=JP/ST=Tokyo/L=Shibuya/O=cloudshift.corp/OU=development/CN=exmaple CA"
 openssl genrsa -out private.key 2048
-cat <<EOF> openssl.conf
-[req]
-distinguished_name = req_distinguished_name
-x509_extensions = v3_req
-prompt = no
-
-[req_distinguished_name]
-C = US
-ST = VA
-L = Somewhere
-O = MyOrg
-OU = MyOU
-CN = MyServerName
-
-[v3_req]
-subjectAltName = @alt_names
-
-[alt_names]
-IP.1 = ${LOCALIPADDR}
-DNS.1 = minio.${DNSDOMAINNAME}
+openssl req -subj "/CN=${LOCALIPADDR}" -sha256 -new -key private.key -out cert.csr
+cat << EOF > extfile.conf
+subjectAltName = DNS:minio.${DNSDOMAINNAME}, IP:${LOCALIPADDR}
 EOF
-openssl req -new -x509 -nodes -days 365 -key private.key -out public.crt -config openssl.conf
-chmod 600 private.key
-chmod 600 public.crt
+openssl x509 -req -days 365 -sha256 -in cert.csr -CA rootCA.pem -CAkey rootCA.key -CAcreateserial -out public.crt -extfile extfile.conf
+chmod 600 ./private.key
+chmod 600 ./public.crt
+chmod 600 ./rootCA.pem
+mkdir -p /root/.minio/certs/CAs
+cp ./rootCA.pem /root/.minio/certs/CAs
 openssl x509 -in public.crt -text -noout| grep IP
 cp public.crt ~/.mc/certs/CAs/
 cp /root/.minio/certs/public.crt /usr/share/ca-certificates/minio-dns.crt
