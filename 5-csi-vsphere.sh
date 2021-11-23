@@ -63,6 +63,7 @@ fi
 
 BASEPWD=`pwd`
 apt -y install open-vm-tools
+apt clean
 
 
 # Configure vsphere-cloud-controller-manager
