@@ -62,6 +62,12 @@ kubectl annotate volumesnapshotclass longhorn \
     k10.kasten.io/is-snapshot-class=true
 fi
 
+kubectl get volumesnapshotclass | grep csi-cstor-snapshotclass
+retval7=$?
+if [ ${retval7} -eq 0 ]; then
+kubectl annotate volumesnapshotclass csi-cstor-snapshotclass \
+    k10.kasten.io/is-snapshot-class=true
+fi
 k10tools primer
 
 # Install Kasten
@@ -81,8 +87,8 @@ helm install k10 kasten/k10 --namespace=kasten-io \
 
 # define NFS storage
 kubectl get sc | grep nfs-csi
-retval9=$?
-if [ ${retval9} -eq 0 ]; then
+retval12=$?
+if [ ${retval12} -eq 0 ]; then
 KASTENNFSPVC=kastenbackup-pvc
 cat <<EOF | kubectl apply -n kasten-io -f -
 apiVersion: v1
