@@ -1,10 +1,45 @@
 #!/usr/bin/env bash
 
+#########################################################
+### UID Check ###
+if [ ${EUID:-${UID}} != 0 ]; then
+    echo "This script must be run as root"
+    exit 1
+else
+    echo "I am root user."
+fi
+
+### Distribution Check ###
+lsb_release -d | grep Ubuntu | grep 20.04
+DISTVER=$?
+if [ ${DISTVER} = 1 ]; then
+    echo "only supports Ubuntu 20.04 server"
+    exit 1
+else
+    echo "Ubuntu 20.04=OK"
+fi
+
+### Install command check ####
+if type "kubectl" > /dev/null 2>&1
+then
+    echo "kubectl was already installed"
+else
+    echo "kubectl was not found. Please install kubectl and re-run"
+    exit 255
+fi
+
+if type "helm" > /dev/null 2>&1
+then
+    echo "helm was already installed"
+else
+    echo "helm was not found. Please install helm and re-run"
+    exit 255
+fi
+
 apt install -y open-iscsi
 systemctl enable iscsid && systemctl start iscsid
 kubectl -n kube-system create serviceaccount tiller
 kubectl create clusterrolebinding tiller --clusterrole cluster-admin --serviceaccount=kube-system:tiller
-
 for WORKERNODES in `kubectl get node |grep -v NAME| grep worker | cut -d " " -f 1`; do
 echo ${WORKERNODES}
 kubectl label nodes ${WORKERNODES} node=openebs
@@ -44,3 +79,6 @@ parameters:
   # replicaCount should be <= no. of CSPI created in the selected CSPC
   replicaCount: "1"
 EOF
+
+chmod +x openebs.sh
+
