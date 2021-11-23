@@ -75,6 +75,7 @@ helm install k10 kasten/k10 --namespace=kasten-io \
 --set externalGateway.create=true \
 --set gateway.insecureDisableSSLVerify=true \
 --set ingress.create=true \
+--set ingress.class=nginx \
 --set injectKanisterSidecar.enabled=true \
 --set-string injectKanisterSidecar.namespaceSelector.matchLabels.k10/injectKanisterSidecar=true 
 
