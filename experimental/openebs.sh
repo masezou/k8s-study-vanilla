@@ -47,6 +47,8 @@ done
 helm repo add openebs https://openebs.github.io/charts
 helm repo update
 helm install openebs --namespace openebs openebs/openebs --create-namespace --set cstor.enabled=true
+echo "wait 120s-temporary"
+sleep 120
 WORKERNAME=`hostname`
 BLOCKDEVICENAME=`kubectl get bd -n openebs | grep ${WORKERNAME}| cut -d " " -f1`
 cat <<EOF | kubectl create -f -
