@@ -55,6 +55,22 @@ else
     exit 255
 fi
 
+if type "helm" > /dev/null 2>&1
+then
+    echo "helm was already installed"
+else
+if [ ! -f /usr/local/bin/helm ]; then
+curl -s -O https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3
+bash ./get-helm-3
+helm version
+rm get-helm-3
+helm completion bash > /etc/bash_completion.d/helm
+source /etc/bash_completion.d/helm
+helm repo add bitnami https://charts.bitnami.com/bitnami
+helm repo update
+fi
+fi
+
 # forget trap!
 if [ ${IPRANGE} = "fixme" ]; then
 echo -e "\e[31m Please input your IPRANGE in this script!  \e[m"

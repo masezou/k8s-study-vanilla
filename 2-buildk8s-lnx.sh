@@ -94,6 +94,12 @@ EOF
 apt -y install -qy kubelet=${KUBECTLVER} kubectl=${KUBECTLVER} kubeadm=${KUBECTLVER}
 apt-mark hold kubectl kubelet kubeadm
 kubeadm completion bash > /etc/bash_completion.d/kubeadm.sh
+if [ ! -f /etc/bash_completion.d/kubectl ]; then
+kubectl completion bash >/etc/bash_completion.d/kubectl
+source /etc/bash_completion.d/kubectl
+echo 'export KUBE_EDITOR=vi' >>~/.bashrc
+fi
+
 
 apt -y install keepalived
 cat <<EOF | sudo tee /etc/modules-load.d/containerd.conf
