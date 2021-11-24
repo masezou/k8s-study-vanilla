@@ -48,7 +48,7 @@ helm repo add openebs https://openebs.github.io/charts
 helm repo update
 helm install openebs --namespace openebs openebs/openebs --create-namespace --set cstor.enabled=true
 WORKERNAME=`hostname`
-BLOCKDEVICENAME=`kubectl get bd -n openebs | grep `hostname` | cut -d " " -f1`
+BLOCKDEVICENAME=`kubectl get bd -n openebs | grep ${WORKERNAME}| cut -d " " -f1`
 cat <<EOF | kubectl create -f -
 apiVersion: cstor.openebs.io/v1
 kind: CStorPoolCluster
@@ -61,7 +61,7 @@ spec:
        kubernetes.io/hostname: "${WORKERNAME}"
      dataRaidGroups:
        - blockDevices:
-           - blockDeviceName: "${BLOCKDEVICENAME}
+           - blockDeviceName: "${BLOCKDEVICENAME}"
      poolConfig:
        dataRaidGroupType: "stripe"
 EOF
