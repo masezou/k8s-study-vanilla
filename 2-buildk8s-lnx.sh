@@ -149,6 +149,10 @@ curl https://raw.githubusercontent.com/containerd/containerd/v1.4.12/contrib/aut
 #Network filesystem client
 apt -y install nfs-common
 
+#iscsi initiater setting
+sed -i -e "s/debian/debian.`hostname`/g" /etc/iscsi/initiatorname.iscsi
+systemctl restart iscsid.service
+
 #Create Single node Cluster
 CLUSTERNAME=`hostname`-cl
 cat << EOF > k8sconfig.yaml
