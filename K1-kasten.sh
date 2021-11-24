@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 
+SC=nfs-csi
 
 ### Install command check ####
 if type "kubectl" > /dev/null 2>&1
@@ -14,8 +15,16 @@ if type "helm" > /dev/null 2>&1
 then
     echo "helm was already installed"
 else
-    echo "helm was not found. Please install helm and re-run"
-    exit 255
+if [ ! -f /usr/local/bin/helm ]; then
+curl -s -O https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3
+bash ./get-helm-3
+helm version
+rm get-helm-3
+helm completion bash > /etc/bash_completion.d/helm
+source /etc/bash_completion.d/helm
+helm repo add bitnami https://charts.bitnami.com/bitnami
+helm repo update
+fi
 fi
 
 ### ARCH Check ###
@@ -74,7 +83,7 @@ k10tools primer
 kubectl create ns kasten-io
 helm install k10 kasten/k10 --namespace=kasten-io \
 --set global.persistence.size=40G \
---set global.persistence.storageClass=nfs-csi \
+--set global.persistence.storageClass=${SC} \
 --set grafana.enabled=true \
 --set vmWare.taskTimeoutMin=200 \
 --set auth.tokenAuth.enabled=true \

@@ -1,5 +1,11 @@
 #!/usr/bin/env bash
 
+NAMESPACE=blog1
+# SC = csi-hostpath-sc / local-path / nfs-csi / vsphere-sc / cstor-csi-disk
+SC=vsphere-sc
+DNSDOMAINNAME=k8slab.internal
+WPHOST=${NAMESPACE}
+
 ### Install command check ####
 if type "kubectl" > /dev/null 2>&1
 then
@@ -13,15 +19,17 @@ if type "helm" > /dev/null 2>&1
 then
     echo "helm was already installed"
 else
-    echo "helm was not found. Please install helm and re-run"
-    exit 255
+if [ ! -f /usr/local/bin/helm ]; then
+curl -s -O https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3
+bash ./get-helm-3
+helm version
+rm get-helm-3
+helm completion bash > /etc/bash_completion.d/helm
+source /etc/bash_completion.d/helm
+helm repo add bitnami https://charts.bitnami.com/bitnami
+helm repo update
 fi
-
-NAMESPACE=blog1
-# SC = csi-hostpath-sc / local-path / nfs-csi / vsphere-sc / cstor-csi-disk
-SC=vsphere-sc
-DNSDOMAINNAME=k8slab.internal
-WPHOST=${NAMESPACE}
+fi
 
 kubectl create namespace ${NAMESPACE}
 mkdir ${NAMESPACE}
