@@ -37,22 +37,18 @@ fi
 
 
 # Install K10-tools
-KASTENVER=4.5.3
+KASTENVER=4.5.4
 rm -rf /usr/local/bin/k10tools
-if [ ! -f /usr/local/bin/k10tools ]; then
 curl -OL https://github.com/kastenhq/external-tools/releases/download/${KASTENVER}/k10tools_${KASTENVER}_linux_${ARCH}.tar.gz
 tar xfz k10tools_${KASTENVER}_linux_${ARCH}.tar.gz -C /usr/local/bin
 rm -rf k10tools_${KASTENVER}_linux_${ARCH}.tar.gz
 chmod +x /usr/local/bin/k10tools
-fi
 
 rm -rf /usr/local/bin/k10multicluster
-if [ ! -f /usr/local/bin/k10multicluster ]; then
 curl -OL https://github.com/kastenhq/external-tools/releases/download/${KASTENVER}/k10multicluster_${KASTENVER}_linux_${ARCH}.tar.gz
 tar xfz k10multicluster_${KASTENVER}_linux_${ARCH}.tar.gz -C /usr/local/bin
 rm -rf k10multicluster_${KASTENVER}_linux_${ARCH}.tar.gz
 chmod +x /usr/local/bin/k10multicluster
-fi
 
 KUBESTRVER=0.4.31
 if [ ! -f /usr/local/bin/kubestr ]; then
