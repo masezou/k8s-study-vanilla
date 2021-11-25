@@ -51,14 +51,10 @@ echo "Initial wait 30s"
 sleep 30
 while [ "$(kubectl -n openebs get pod openebs-cstor-csi-controller-0 --output="jsonpath={.status.conditions[*].status}" | cut -d' ' -f3)" != "True" ]; do
         echo "Deploying OpenEBS Please wait...."
-   kubectl -n openebs get pod
-   kubectl -n openebs get bd
         sleep 30
 done
-echo "sleep more 10s"
-sleep 10
-WORKERNODES=`hostname`
-BLOCKDEVICENAME=`kubectl get bd -n openebs | grep Unclaimed | cut -d " " -f1`
+WORKERNODES=`kubectl get bd -n openebs | grep -i Unclaimed | cut -d " " -f4`
+BLOCKDEVICENAME=`kubectl get bd -n openebs | grep -i Unclaimed | cut -d " " -f1`
 cat <<EOF | kubectl create -f -
 apiVersion: cstor.openebs.io/v1
 kind: CStorPoolCluster
