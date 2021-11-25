@@ -55,6 +55,8 @@ while [ "$(kubectl -n openebs get pod openebs-cstor-csi-controller-0 --output="j
    kubectl -n openebs get bd
         sleep 30
 done
+echo "sleep more 10s"
+sleep 10
 WORKERNODES=`hostname`
 BLOCKDEVICENAME=`kubectl get bd -n openebs | grep Unclaimed | cut -d " " -f1`
 cat <<EOF | kubectl create -f -
