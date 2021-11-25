@@ -92,7 +92,6 @@ spec:
      poolConfig:
        dataRaidGroupType: "stripe"
 EOF
-kubectl -n openebs get bd
 cat <<EOF | kubectl create -f -
 kind: StorageClass
 apiVersion: storage.k8s.io/v1
@@ -107,6 +106,7 @@ parameters:
   # replicaCount should be <= no. of CSPI created in the selected CSPC
   replicaCount: "1"
 EOF
+kubectl patch storageclass cstor-csi-disk -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"true"}}}'
 else
 echo "hostpath installing..."
 # Rancher local driver (Not CSI Storage)
