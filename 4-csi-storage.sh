@@ -59,6 +59,7 @@ if [  -b /dev/sdb ]; then
 echo "openebs installing..."
 apt install -y open-iscsi
 systemctl enable iscsid && systemctl start iscsid
+mkdir -p /var/openebs/local
 kubectl -n kube-system create serviceaccount tiller
 kubectl create clusterrolebinding tiller --clusterrole cluster-admin --serviceaccount=kube-system:tiller
 for WORKERNODES in `kubectl get node |grep -v NAME| grep worker | cut -d " " -f 1`; do
@@ -106,6 +107,7 @@ parameters:
   # replicaCount should be <= no. of CSPI created in the selected CSPC
   replicaCount: "1"
 EOF
+kubectl delete sc openebs-device
 kubectl patch storageclass cstor-csi-disk -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"true"}}}'
 else
 echo "hostpath installing..."
