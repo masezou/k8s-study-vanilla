@@ -54,17 +54,19 @@ echo ${LOCALIPADDR}
 
 BASEPWD=`pwd`
 
+# Device /dev/sdb check
+if [  -b /dev/sdb ]; then
+echo "openebs installing..."
+./experimental/openebs.sh
+else
+echo "hostpath installing..."
 # Rancher local driver (Not CSI Storage)
 kubectl apply -f https://raw.githubusercontent.com/rancher/local-path-provisioner/master/deploy/local-path-storage.yaml
-
-
 SNAPSHOTTER_VERSION=v4.2.1
-
 # Apply VolumeSnapshot CRDs
 kubectl apply -f https://raw.githubusercontent.com/kubernetes-csi/external-snapshotter/${SNAPSHOTTER_VERSION}/client/config/crd/snapshot.storage.k8s.io_volumesnapshotclasses.yaml
 kubectl apply -f https://raw.githubusercontent.com/kubernetes-csi/external-snapshotter/${SNAPSHOTTER_VERSION}/client/config/crd/snapshot.storage.k8s.io_volumesnapshotcontents.yaml
 kubectl apply -f https://raw.githubusercontent.com/kubernetes-csi/external-snapshotter/${SNAPSHOTTER_VERSION}/client/config/crd/snapshot.storage.k8s.io_volumesnapshots.yaml
-
 # Create Snapshot Controller
 kubectl -n kube-system apply -f https://raw.githubusercontent.com/kubernetes-csi/external-snapshotter/${SNAPSHOTTER_VERSION}/deploy/kubernetes/snapshot-controller/rbac-snapshot-controller.yaml
 kubectl -n kube-system apply -f https://raw.githubusercontent.com/kubernetes-csi/external-snapshotter/${SNAPSHOTTER_VERSION}/deploy/kubernetes/snapshot-controller/setup-snapshot-controller.yaml
@@ -77,10 +79,10 @@ kubectl apply -f ./examples/csi-storageclass.yaml
 kubectl patch storageclass csi-hostpath-sc \
     -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"true"}}}'
 cd ..
-#mv csi-driver-host-path csi-driver-host-path-`date "+%Y%m%d_%H%M%S"`
 rm -rf csi-driver-host-path
 # Permission fix
 chmod -R 1777 /var/lib/docker/volumes/
+fi
 
 ##Install NFS-CSI driver
 apt -y install nfs-kernel-server
