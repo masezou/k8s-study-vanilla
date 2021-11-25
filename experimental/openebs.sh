@@ -52,9 +52,10 @@ sleep 30
 while [ "$(kubectl -n openebs get pod openebs-cstor-csi-controller-0 --output="jsonpath={.status.conditions[*].status}" | cut -d' ' -f3)" != "True" ]; do
         echo "Deploying OpenEBS Please wait...."
    kubectl -n openebs get pod
+   kubectl -n openebs get bd
         sleep 30
 done
-#WORKERNAME=`hostname`
+WORKERNODES=`hostname`
 BLOCKDEVICENAME=`kubectl get bd -n openebs | grep ${WORKERNODES}| cut -d " " -f1`
 cat <<EOF | kubectl create -f -
 apiVersion: cstor.openebs.io/v1
@@ -72,6 +73,7 @@ spec:
      poolConfig:
        dataRaidGroupType: "stripe"
 EOF
+kubectl -n openebs get bd
 cat <<EOF | kubectl create -f -
 kind: StorageClass
 apiVersion: storage.k8s.io/v1
@@ -87,5 +89,5 @@ parameters:
   replicaCount: "1"
 EOF
 
-chmod +x openebs.sh
+chmod -x openebs.sh
 
