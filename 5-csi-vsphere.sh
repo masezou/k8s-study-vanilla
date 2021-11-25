@@ -232,6 +232,8 @@ kubectl label node `hostname` node-role.kubernetes.io/worker=worker
 
 kubectl patch storageclass csi-hostpath-sc \
     -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"false"}}}'
+kubectl patch storageclass cstor-csi-disk \
+    -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"false"}}}'
 
 echo ""
 echo "*************************************************************************************"
