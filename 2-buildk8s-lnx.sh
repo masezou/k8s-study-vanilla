@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 KUBECTLVER=1.21.7-00
+IMAGEDL=1
 
 if [ ${EUID:-${UID}} != 0 ]; then
     echo "This script must be run as root"
@@ -199,6 +200,7 @@ sed -i -e "s/    realm/#    realm/g" /etc/docker/registry/config.yml
 sed -i -e "s/    path/#    path/g" /etc/docker/registry/config.yml
 systemctl restart docker-registry
 
+if [ ${IMAGEDL} = 1 ]; then
 # pull/push images
 ctr images pull --platform linux/amd64 docker.io/bitnami/bitnami-shell:10-debian-10-r158
 ctr images tag docker.io/bitnami/bitnami-shell:10-debian-10-r158 ${LOCALIPADDR}:5000/bitnami/bitnami-shell:10-debian-10-r158
@@ -229,6 +231,7 @@ ctr images tag docker.io/library/wordpress:4.8-apache ${LOCALIPADDR}:5000/librar
 ctr images push --platform linux/amd64 --plain-http ${LOCALIPADDR}:5000/library/wordpress:4.8-apache
 ctr images rm docker.io/library/wordpress:4.8-apache
 ctr images rm ${LOCALIPADDR}:5000/library/wordpress:4.8-apache
+fi
 
 echo "Registry result"
 curl -X GET http://${LOCALIPADDR}:5000/v2/_catalog
