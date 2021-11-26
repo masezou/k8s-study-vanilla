@@ -123,7 +123,33 @@ provisioner: openebs.io/local
 reclaimPolicy: Delete
 volumeBindingMode: WaitForFirstConsumer
 EOF
-kubectl delete sc openebs-device
+#kubectl delete sc openebs-device
+mkdir -p /disk/openebs
+cat <<EOF | kubectl create -f -
+apiVersion: openebs.io/v1alpha1
+kind: StoragePool
+  metadata:
+      name: localpool
+      type: hostdir
+  spec:
+      path: "/disk/openebs"
+EOF
+kubectl get storagepool
+cat <<EOF | kubectl create -f -
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: openebs-jiva
+  annotations:
+    openebs.io/cas-type: jiva
+    cas.openebs.io/config: |
+      - name: ReplicaCount
+        value: "1"
+      - name: StoragePool
+        value: localpool
+provisioner: openebs.io/provisioner-iscsi
+EOF
+kubectl get sc
 kubectl patch storageclass cstor-csi-disk -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"true"}}}'
 else
 echo "hostpath installing..."
