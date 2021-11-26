@@ -3,8 +3,12 @@
 # Sample "192.168.133.208/28" or "192.168.133.51-192.168.133.62"
 IPRANGE="fixme"
 
+####Option####
 # If you want to change DNS domain name, you can chage it.
 DNSDOMAINNAME="k8slab.internal"
+
+# For Wildcard entry - *.apps.domainname
+HOSTSWILDCARDIP="192.168.133.100"
 
 #########################################################
 ### UID Check ###
@@ -281,6 +285,7 @@ cat << EOF >>/var/cache/bind/${DNSDOMAINNAME}.lan
         IN  A       ${DNSHOSTIP}
 ${DNSHOSTNAME}     IN  A       ${DNSHOSTIP}
 minio IN A ${DNSHOSTIP}
+*.apps IN A ${HOSTSWILDCARDIP}
 EOF
 chown bind:bind /var/cache/bind/${DNSDOMAINNAME}.lan
 chmod g+w /var/cache/bind/${DNSDOMAINNAME}.lan
