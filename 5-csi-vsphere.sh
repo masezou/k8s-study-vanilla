@@ -15,6 +15,7 @@ VSPPHEREDATASTORE="YOUR_DATASTORE"
 #VSPHERESERVERIP="YOUR_VCENTER_IP"
 VSPHERESERVERIP=`ping -c 1 ${VSPHERESERVER} | grep icmp_seq | cut -d "(" -f2 | cut -d ")" -f1`
 #VSPHERESERVERIP=`dig +short ${VSPHERESERVER}`
+
 VSPHERECSI=2.4.0
 
 if [ ${EUID:-${UID}} != 0 ]; then
@@ -208,6 +209,10 @@ fi
 
 # Assign datastore
 govc tags.attach -c k8s-zone k8s-zone /Datacenter/datastore/${VSPPHEREDATASTORE}
+retvalds=$?
+if [ ${retvalds} -ne 0 ]; then
+echo -e "\e[31m It seemed ${VSPPHEREDATASTORE} was wrong. Please set Datastore tag manually in vCenter.  \e[m"
+fi
 
 # Create Storage policy
 govc storage.policy.ls | grep k8s-policy
