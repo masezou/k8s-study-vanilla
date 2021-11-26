@@ -1,8 +1,20 @@
 #!/usr/bin/env bash
 
-VSPHEREUSERNAME="administrator@vsphere.local"
-VSPHEREPASSWORD="PASSWORD"
-VSPHERESERVER="YOUR_VCENTER_FQDN"
+ls ./5-csi-vsphere.sh
+retvalvs=$?
+if [ ${retvalvs} -ne 0 ]; then
+echo "There is no ./5-csi-vsphere.sh in same directory!!! Exit..."
+exit 255
+fi
+
+VSPHEREUSERNAME=`grep "VSPHEREUSERNAME=" 5-csi-vsphere.sh | cut -d "\"" -f2`
+VSPHEREPASSWORD=`grep "VSPHEREPASSWORD=" 5-csi-vsphere.sh | cut -d "\"" -f2`
+VSPHERESERVER=`grep "VSPHERESERVER=" 5-csi-vsphere.sh | cut -d "\"" -f2`
+
+echo "Here is vSphere information"
+echo $VSPHEREUSERNAME
+echo $VSPHEREPASSWORD
+echo $VSPHERESERVER
 
 # Forget trap!
 if [ ${VSPHERESERVER} = "YOUR_VCENTER_FQDN" ]; then
