@@ -187,7 +187,8 @@ cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
 chown $(id -u):$(id -g) $HOME/.kube/config
 export KUBECONFIG=$HOME/.kube/config
 kubectl taint nodes --all node-role.kubernetes.io/master-
-kubectl label node `hostname` node-role.kubernetes.io/worker=worker
+KBHOSTNAME=`hostname`
+kubectl label node ${KBHOSTNAME,,} node-role.kubernetes.io/worker=worker
 kubectl get node
 
 # Install Registry
