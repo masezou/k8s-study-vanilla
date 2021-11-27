@@ -68,40 +68,6 @@ BASEPWD=`pwd`
 apt -y install open-vm-tools
 apt clean
 
-# Setup Govc
-cat << EOF > ~/govc-vcenter.sh
-export GOVC_INSECURE=1 # Don't verify SSL certs on vCenter
-export GOVC_URL=${VSPHERESERVER} # vCenter IP/FQDN
-export GOVC_USERNAME=${VSPHEREUSERNAME} # vCenter username
-export GOVC_PASSWORD=${VSPHEREPASSWORD} # vCenter password
-export GOVC_DATASTORE=${VSPPHEREDATASTORE} # Default datastore to deploy to
-export GOVC_NETWORK="${VSPPHERENETWORK}" # Default network to deploy to
-#export GOVC_RESOURCE_POOL='*/Resources' # Default resource pool to deploy to
-# check govc find / -type p
-export GOVC_RESOURCE_POOL='${VSPHERERESOURCEPOOL}' # Default resource pool to deploy to
-EOF
-if [ ! -f /usr/local/bin/govc ]; then
-GOVCVER=v0.27.2
-curl -OL https://github.com/vmware/govmomi/releases/download/${GOVCVER}/govc_Linux_x86_64.tar.gz
-mkdir govcbin
-tar xfz govc_Linux_x86_64.tar.gz -C govcbin
-rm govc_Linux_x86_64.tar.gz
-mv govcbin/govc /usr/local/bin
-rm -rf govcbin
-curl -OL https://raw.githubusercontent.com/vmware/govmomi/master/scripts/govc_bash_completion
-mv govc_bash_completion /etc/bash_completion.d/
-fi
-source ~/govc-vcenter.sh
-
-# Verify vCenter connectivity
-govc datacenter.info
-retvalvcconnect=$?
-if [ ${retvalvcconnect} -ne 0 ]; then
-echo -e "\e[31m It seemed ${VSPHERESERVER} was not able to connect from tis node. Please check vCenter connectivity and re-run.  \e[m"
-rm ~/govc-vcenter.sh
-exit 255
-fi
-
 
 # Configure vsphere-cloud-controller-manager
 cat << EOF >  /etc/kubernetes/vsphere.conf
@@ -207,6 +173,42 @@ sed -i -e "s/replicas: 3/replicas: 1/g" vsphere-csi-driver.yaml
 fi
 kubectl apply -f vsphere-csi-driver.yaml
 rm -rf vsphere-csi-driver.yaml
+
+# Setup Govc
+cat << EOF > ~/govc-vcenter.sh
+export GOVC_INSECURE=1 # Don't verify SSL certs on vCenter
+export GOVC_URL=${VSPHERESERVER} # vCenter IP/FQDN
+export GOVC_USERNAME=${VSPHEREUSERNAME} # vCenter username
+export GOVC_PASSWORD=${VSPHEREPASSWORD} # vCenter password
+export GOVC_DATASTORE=${VSPPHEREDATASTORE} # Default datastore to deploy to
+export GOVC_NETWORK="${VSPPHERENETWORK}" # Default network to deploy to
+#export GOVC_RESOURCE_POOL='*/Resources' # Default resource pool to deploy to
+# check govc find / -type p
+export GOVC_RESOURCE_POOL='${VSPHERERESOURCEPOOL}' # Default resource pool to deploy to
+EOF
+
+if [ ! -f /usr/local/bin/govc ]; then
+GOVCVER=v0.27.2
+curl -OL https://github.com/vmware/govmomi/releases/download/${GOVCVER}/govc_Linux_x86_64.tar.gz
+mkdir govcbin
+tar xfz govc_Linux_x86_64.tar.gz -C govcbin
+rm govc_Linux_x86_64.tar.gz
+mv govcbin/govc /usr/local/bin
+rm -rf govcbin
+curl -OL https://raw.githubusercontent.com/vmware/govmomi/master/scripts/govc_bash_completion
+mv govc_bash_completion /etc/bash_completion.d/
+fi
+source ~/govc-vcenter.sh
+
+# Verify vCenter connectivity
+govc datacenter.info
+retvalvcconnect=$?
+if [ ${retvalvcconnect} -ne 0 ]; then
+echo -e "\e[31m It seemed ${VSPHERESERVER} was not able to connect from tis node. Please check vCenter connectivity and re-run.  \e[m"
+exit 255
+fi
+
+
 
 # Add Tag to vCenter
 govc tags.ls | grep k8s-zone
