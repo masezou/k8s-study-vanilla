@@ -166,9 +166,11 @@ cd
 kubectl get secret vsphere-config-secret --namespace=vmware-system-csi
 rm /etc/kubernetes/csi-vsphere.conf
 
-# v2.4.0 fix
 curl -OL https://raw.githubusercontent.com/kubernetes-sigs/vsphere-csi-driver/v${VSPHERECSI}/manifests/vanilla/vsphere-csi-driver.yaml
+# v2.4.0 fix
+if [ ${VSPHERECSI}="2.4.0" ]; then 
 sed -i -e "s/replicas: 3/replicas: 1/g" vsphere-csi-driver.yaml
+fi
 kubectl apply -f vsphere-csi-driver.yaml
 rm -rf vsphere-csi-driver.yaml
 
