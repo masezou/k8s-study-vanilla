@@ -188,7 +188,7 @@ export GOVC_RESOURCE_POOL='${VSPHERERESOURCEPOOL}' # Default resource pool to de
 EOF
 
 if [ ! -f /usr/local/bin/govc ]; then
-GOVCVER=v0.27.1
+GOVCVER=v0.27.2
 curl -OL https://github.com/vmware/govmomi/releases/download/${GOVCVER}/govc_Linux_x86_64.tar.gz
 mkdir govcbin
 tar xfz govc_Linux_x86_64.tar.gz -C govcbin
