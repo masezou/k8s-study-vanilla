@@ -69,10 +69,7 @@ done
 helm repo add openebs https://openebs.github.io/charts
 helm repo update
 helm install openebs --namespace openebs openebs/openebs --create-namespace \
---set legacy.enabled=false \
---set cstor.enabled=true \
---set jiva.enabled=true \
---set localpv-provisioner.enabled=true
+--set cstor.enabled=true 
 echo "Initial wait 30s"
 sleep 30
 while [ "$(kubectl -n openebs get pod openebs-cstor-csi-controller-0 --output="jsonpath={.status.conditions[*].status}" | cut -d' ' -f3)" != "True" ]; do
