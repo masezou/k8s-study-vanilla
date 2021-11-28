@@ -56,6 +56,7 @@ BASEPWD=`pwd`
 
 # Device /dev/sdb check
 if [  -b /dev/sdb ]; then
+sgdisk -Z /dev/sdb
 echo "openebs installing..."
 apt install -y open-iscsi
 systemctl enable iscsid && systemctl start iscsid
