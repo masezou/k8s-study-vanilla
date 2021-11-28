@@ -550,6 +550,11 @@ spec:
   selector:
     k8s-app: kubernetes-dashboard
 EOF
+while [ "$(kubectl -n kubernetes-dashboard get deployments --output="jsonpath={.items[*].status.conditions[*].status}" | cut -d' ' -f1)" != "True" ]; do
+        echo "Deploying Kubernetes Dashboard Please wait...."
+    kubectl -n kubernetes-dashboard get deployments
+        sleep 30
+done
 DASHBOARD_EXTERNALIP=`kubectl -n kubernetes-dashboard get service dashboard-service-lb| awk '{print $4}' | tail -n 1`
 kubectl -n kubernetes-dashboard annotate service dashboard-service-lb \
     external-dns.alpha.kubernetes.io/hostname=dashboard.${DNSDOMAINNAME}
