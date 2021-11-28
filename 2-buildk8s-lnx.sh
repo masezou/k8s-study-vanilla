@@ -3,6 +3,8 @@
 KUBECTLVER=1.21.7-00
 IMAGEDL=1
 
+#########################################################
+
 if [ ${EUID:-${UID}} != 0 ]; then
     echo "This script must be run as root"
     exit 1

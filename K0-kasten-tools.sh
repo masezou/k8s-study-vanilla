@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+KASTENVER=4.5.4
+
 #########################################################
 ### UID Check ###
 if [ ${EUID:-${UID}} != 0 ]; then
@@ -37,7 +39,6 @@ fi
 
 
 # Install K10-tools
-KASTENVER=4.5.4
 rm -rf /usr/local/bin/k10tools
 curl -OL https://github.com/kastenhq/external-tools/releases/download/${KASTENVER}/k10tools_${KASTENVER}_linux_${ARCH}.tar.gz
 tar xfz k10tools_${KASTENVER}_linux_${ARCH}.tar.gz -C /usr/local/bin
