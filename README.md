@@ -34,7 +34,7 @@ Configure your clone. Before execute script, please change following.
 
 * 6-csi-vsphere.sh/K3-kasten-vsphere.sh: vCenter configuration in vSphere  CSI driver and Kasten Storage setting.
 
-Please see 00-Detailed_Instruction-En.txt
+Please read 00-Detailed_Instruction-En.txt (English) / 00-Detailed_Instruction-Ja.txt (Japanese) also.
 
 
 
@@ -65,7 +65,6 @@ After Installation, you can review installation result.
 ```bash
 bash ./result.sh
 ```
-
 
 # Note
 

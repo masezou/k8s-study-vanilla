@@ -36,7 +36,7 @@ Additional Environment
 --------
 Requirement
 vSphere
-  vSphere 6.7U3 (1vCenter and　1 ESXi Server and datastore. Any datastore will do.)
+  vSphere 6.7U3 (1vCenter and 1 ESXi Server and datastore. Any datastore will do.)
   VM Resource 4vCPU 8-16GB RAM 100GB HDD minimum
   vSphere Cluster and vSAN is option. (It is not mandatory.)
   There is no special setting in vCenter. (The script will create storage policy for vSphere CSI driver.)
@@ -59,6 +59,7 @@ VM Configuration
    Advanced Configuration: Set "disk.enableUUID=true"  (It is very imoortant!!!)
 
 Ubuntu Install
+  HOSTNAME should be lower case and single hostname. Example: k8s-demo1
   There is no special setting. 
     But I recommend to 
        use xfs.
