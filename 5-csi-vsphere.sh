@@ -13,10 +13,6 @@ VSPHERESERVER="YOUR_VCENTER_FQDN"
 VSPHERESERVERIP="YOUR_VCENTER_IP"
 VSPPHEREDATASTORE="YOUR_DATASTORE"
 
-#VSPHERESERVERIP="YOUR_VCENTER_IP"
-#VSPHERESERVERIP=`ping -c 1 ${VSPHERESERVER} | grep icmp_seq | cut -d "(" -f2 | cut -d ")" -f1`
-#VSPHERESERVERIP=`dig +short ${VSPHERESERVER}`
-
 VSPHERECSI=2.4.0
 
 if [ ${EUID:-${UID}} != 0 ]; then
@@ -42,6 +38,8 @@ echo -e "\e[31m please set vCenter setting in this script.  \e[m"
 exit 255
 fi
 
+BASEPWD=`pwd`
+
 ### Cluster check ####
 kubectl get pod 
 retavalcluser=$?
@@ -65,7 +63,6 @@ echo "It seemed DISKUUID is not set. Please set DISKUUID then re-try."
 exit 255
 fi
 
-BASEPWD=`pwd`
 apt -y install open-vm-tools
 apt clean
 
@@ -103,7 +100,6 @@ rm ~/govc-vcenter.sh
 exit 255
 fi
 
-
 # Configure vsphere-cloud-controller-manager
 cat << EOF >  /etc/kubernetes/vsphere.conf
 # Global properties in this section will be used for all specified vCenters unless overriden in VirtualCenter section.
@@ -131,8 +127,8 @@ vcenter:
 EOF
 cd /etc/kubernetes
 kubectl create configmap cloud-config --from-file=vsphere.conf --namespace=kube-system
-cd
 kubectl get cm cloud-config --namespace=kube-system
+cd
 
 cat <<EOF | kubectl apply -f -
 apiVersion: v1
@@ -145,7 +141,6 @@ stringData:
   ${VSPHERESERVERIP}.password: "${VSPHEREPASSWORD}"
 EOF
 kubectl get secret cpi-global-secret --namespace=kube-system
-
 
 #########################################################################################
 # Set your all node.(Master/Worker)
@@ -176,9 +171,7 @@ echo ${MASTERNODES}
 kubectl taint nodes ${MASTERNODES} node-role.kubernetes.io/master=:NoSchedule
 done
 #########################################################################################
-
 kubectl describe nodes | egrep "Taints:|Name:"
-
 kubectl apply -f https://raw.githubusercontent.com/kubernetes-sigs/vsphere-csi-driver/v${VSPHERECSI}/manifests/vanilla/namespace.yaml
 
 # Install CSI Driver
@@ -197,9 +190,9 @@ EOF
 
 cd /etc/kubernetes
 kubectl create secret generic vsphere-config-secret --from-file=csi-vsphere.conf --namespace=vmware-system-csi
-cd
-kubectl get secret vsphere-config-secret --namespace=vmware-system-csi
 rm /etc/kubernetes/csi-vsphere.conf
+kubectl get secret vsphere-config-secret --namespace=vmware-system-csi
+cd
 
 curl -OL https://raw.githubusercontent.com/kubernetes-sigs/vsphere-csi-driver/v${VSPHERECSI}/manifests/vanilla/vsphere-csi-driver.yaml
 # v2.4.0 fix
