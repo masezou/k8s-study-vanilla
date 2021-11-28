@@ -246,8 +246,7 @@ parameters:
 EOF
 
 kubectl taint nodes --all node-role.kubernetes.io/master-
-KBHOSTNAME=`hostname`
-kubectl label node ${KBHOSTNAME,,} node-role.kubernetes.io/worker=worker
+kubectl label node `hostname` node-role.kubernetes.io/worker=worker
 
 kubectl patch storageclass csi-hostpath-sc \
     -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"false"}}}'

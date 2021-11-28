@@ -49,6 +49,9 @@ else
 fi
 echo ${LOCALIPADDR}
 
+## Hostname uppercase workaround
+KBHOSTNAME=`hostname`
+hostnamectl set-hostname ${KBHOSTNAME,,} 
 
 # Base setting
 sed -i -e 's@/swap.img@#/swap.img@g' /etc/fstab
@@ -187,8 +190,7 @@ cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
 chown $(id -u):$(id -g) $HOME/.kube/config
 export KUBECONFIG=$HOME/.kube/config
 kubectl taint nodes --all node-role.kubernetes.io/master-
-KBHOSTNAME=`hostname`
-kubectl label node ${KBHOSTNAME,,} node-role.kubernetes.io/worker=worker
+kubectl label node `hostname` node-role.kubernetes.io/worker=worker
 kubectl get node
 
 # Install Registry
