@@ -9,8 +9,6 @@ vi 3-configk8s.sh
 vi 5-csi-vsphere.sh
  ->Input vSphere configuration.
 ./5-csi-vsphere.sh
-vi K3-kasten-vsphere.sh
- ->Input vSphere configuration.
 ./K1-kasten.sh ; ./K3-kasten-vsphere.sh
 ```
 
@@ -55,7 +53,8 @@ VM Configuration
  VM configuration
    CPU:  4vCPU above 
    RAM: 8GB above
-   HDD: 100GB above (At least 50GB)
+   HDD1: 100GB above (At least 50GB)
+   HDD2(Option): 100GB above (At least 50GB) for openebs csi driver.
    Advanced Configuration: Set "disk.enableUUID=true"  (It is very imoortant!!!)
 
 Ubuntu Install
@@ -65,6 +64,7 @@ Ubuntu Install
        use xfs.
        IP address will be work with DHCP and Static IP address.
        Install only OpenSSH server. (No distribution's docker package)
+   If you added HDD2 for openebs, The hdd need to be unused state (No partition table and filesystem).
 
 -----
 Script execution
@@ -76,10 +76,10 @@ git clone https://github.com/masezou/k8s-study-vanilla
 cd k8s-study-vanilla
 
 3. Edit Script files
-    vi 3-configk8s.sh
-         Change  IPRANGE="192.168.133.208/28" to your subnet.
+  vi 3-configk8s.sh
+       Change  IPRANGE="192.168.133.208/28" to your subnet.
          
-   vi 5-csi-vsphere.sh
+  vi 5-csi-vsphere.sh
        #For vSphere CSI/Tanzu
        VSPHEREUSERNAME="administrator@vsphere.local"
        VSPHEREPASSWORD="PASSWORD"
@@ -87,15 +87,10 @@ cd k8s-study-vanilla
        VSPHERESERVERIP="YOUR_vCENTE_IP"
        VSPPHEREDATASTORE="YOUR_DATASTORE"
 
-   vi K3-kasten-vsphere.sh
-      VSPHEREUSERNAME="administrator@vsphere.local"
-      VSPHEREPASSWORD="PASSWORD"
-      VSPHERESERVER="YOUR_VCENTER_FQDN"
+4. Execute script for building Kubernetes
+  ./0-minio.sh ; ./1-tools.sh ; ./2-buildk8s-lnx.sh ; ./3-configk8s.sh ; ./4-csi-storage.sh
 
- 4. Execute script for building Kubernetes
- ./0-minio.sh ; ./1-tools.sh ; ./2-buildk8s-lnx.sh ; ./3-configk8s.sh ; ./4-csi-storage.sh
-
- 5. Verify for Kubernetes
+5. Verify for Kubernetes
   kubectl get nodes
     1 node only appeared
    kubectl get pod -A
@@ -106,11 +101,11 @@ cd k8s-study-vanilla
    You can see csi-hostpath-sc (default) and nfs-csi
    
 6. Install vSphere CSI Driver
-./5-csi-vsphere.sh
+   ./5-csi-vsphere.sh
 
 7. Verify for vSphere CSI Driver
   kubectl get sc
-   You can see csi-hostpath-sc, nfs-csi, vsphere-sc(default)
+   You can see csi-hostpath-sc or cstor-csi-disk, nfs-csi, vsphere-sc(default)
    
    Trouble Shooting
        Check Storage Policy in vCenter.

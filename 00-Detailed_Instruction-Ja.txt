@@ -10,8 +10,7 @@ vi 3-configk8s.sh
 vi 5-csi-vsphere.sh
  ->vSphereの情報を入力
 ./5-csi-vsphere.sh
-vi K3-kasten-vsphere.sh
- ->vSphereの情報を入力
+
 ./K1-kasten.sh ; ./K3-kasten-vsphere.sh
 ```
 
@@ -56,7 +55,8 @@ VM構成
  VM設定
    CPU:  4vCPU以上 
    RAM: 8GB以上
-   HDD: 100GB以上 (最低でも50GB)
+   HDD1: 100GB以上 (最低でも50GB)
+   HDD2(オプション): openebs用で100GB以上 (最低でも50GB)
    必ず、"disk.enableUUID=true" を設定する。 (すごく重要!!!)
 
 Ubuntuのインストール
@@ -65,6 +65,7 @@ Ubuntuのインストール
     推奨は、ファイルシステムはxfsにしておく
        IPアドレスはDHCPでも構わないが、ロードバランサーのIPレンジと被らないようにする。
        OSでインストールするパッケージは、OpenSSHのみ。 (ディストリビューションのDockerはインストールしてはならない。)
+    HDD2を追加した場合は、未使用状態（パーティションテーブルもファイルシステムもない状態にしておく）
 
 -----
 スクリプトの実行
@@ -76,8 +77,8 @@ git clone https://github.com/masezou/k8s-study-vanilla
 cd k8s-study-vanilla
 
 3. スクリプトファイルの修正
-    vi 3-configk8s.sh
-         IPRANGEにサブネットあるいはIP範囲を入れる
+   vi 3-configk8s.sh
+       IPRANGEにサブネットあるいはIP範囲を入れる
          
    vi 5-csi-vsphere.sh
        以下にvSphereの設定を入力
@@ -88,14 +89,8 @@ cd k8s-study-vanilla
        VSPHERESERVERIP="YOUR_vCENTE_IP"
        VSPPHEREDATASTORE="YOUR_DATASTORE"
 
-   vi K3-kasten-vsphere.sh
-       以下にvSphereの設定を入力
-      VSPHEREUSERNAME="administrator@vsphere.local"
-      VSPHEREPASSWORD="PASSWORD"
-      VSPHERESERVER="YOUR_VCENTER_FQDN"
-
  4. スクリプトを実行して、 Kubernetes環境を構築
- ./0-minio.sh ; ./1-tools.sh ; ./2-buildk8s-lnx.sh ; ./3-configk8s.sh ; ./4-csi-storage.sh
+    ./0-minio.sh ; ./1-tools.sh ; ./2-buildk8s-lnx.sh ; ./3-configk8s.sh ; ./4-csi-storage.sh
 
  5. Kubernetes環境の確認
    kubectl get nodes
@@ -108,11 +103,11 @@ cd k8s-study-vanilla
      csi-hostpath-sc (default) と nfs-csiが表示されること
    
 6. vSphere CSI Driverドライバーのインストール
-./5-csi-vsphere.sh
+   ./5-csi-vsphere.sh
 
 7. vSphere CSI Driverの確認
    kubectl get sc
-      csi-hostpath-sc  と nfs-csi、vsphere-sc(default)が表示されること
+      csi-hostpath-sc あるいは、cstor-csi-disk と nfs-csi、vsphere-sc(default)が表示されること
    
    トラブルシューティング
        vCenterのStorage Policy確認
