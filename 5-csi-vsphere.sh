@@ -1,9 +1,12 @@
 #!/usr/bin/env bash
 
-#####################
+#########################################################
+# Edit this section
+
+####################
 # Pre-requirement
-# vCenter is 6.7U3 above
-# Each VM need to have set DISKUUID
+# vCenter need to be 6.7U3 above
+# The VM need to be set DISKUUID
 ####################
 
 #For vSphere CSI/Tanzu
@@ -13,6 +16,7 @@ VSPHERESERVER="YOUR_VCENTER_FQDN"
 VSPHERESERVERIP="YOUR_VCENTER_IP"
 VSPPHEREDATASTORE="YOUR_DATASTORE"
 
+#########################################################
 VSPHERECSI=2.4.0
 
 if [ ${EUID:-${UID}} != 0 ]; then
@@ -40,7 +44,7 @@ fi
 
 BASEPWD=`pwd`
 
-### Cluster check ####
+# Cluster check ####
 kubectl get pod 
 retavalcluser=$?
 if [ ${retavalcluser} -ne 0 ]; then

@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+#########################################################
+# Edit this section
+
 # Sample "192.168.133.208/28" or "192.168.133.51-192.168.133.62"
 IPRANGE="fixme"
 
@@ -302,7 +305,7 @@ echo ""
 host www.yahoo.co.jp. ${DNSHOSTIP}
 echo ""
 
-#minio cert update
+# minio cert update
 if [ -f /root/.minio/certs/private.key ]; then
 cd /root/.minio/certs/
 rm -rf cert.csr
@@ -556,7 +559,7 @@ host dashboard.${DNSDOMAINNAME}. ${DNSHOSTIP}
 kubectl -n kubernetes-dashboard get secret $(kubectl -n kubernetes-dashboard get sa/admin-user -o jsonpath="{.secrets[0].name}") -o go-template="{{.data.token | base64decode}}" > dashboard.token
 echo "" >> dashboard.token
 
-# Installing metric server
+# Install metric server
 curl -OL https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
 cat << EOF | sed -i -e "/        imagePullPolicy: IfNotPresent$/r /dev/stdin" components.yaml
         command:

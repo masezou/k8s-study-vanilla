@@ -104,7 +104,6 @@ source /etc/bash_completion.d/kubectl
 echo 'export KUBE_EDITOR=vi' >>~/.bashrc
 fi
 
-
 apt -y install keepalived
 cat <<EOF | sudo tee /etc/modules-load.d/containerd.conf
 overlay
@@ -156,14 +155,14 @@ EOF
 echo "source <(crictl completion bash) " >> /etc/profile.d/crictl.sh
 curl https://raw.githubusercontent.com/containerd/containerd/v1.4.12/contrib/autocomplete/ctr -o /etc/bash_completion.d/ctr
 
-#Network filesystem client
+# Network filesystem client
 apt -y install nfs-common
 
-#iscsi initiater setting
+# iscsi initiator setting
 sed -i -e "s/debian/debian.`hostname`/g" /etc/iscsi/initiatorname.iscsi
 systemctl restart iscsid.service
 
-#Create Single node Cluster
+# Create Single node Cluster
 CLUSTERNAME=`hostname`-cl
 cat << EOF > k8sconfig.yaml
 apiVersion: kubeadm.k8s.io/v1beta2
