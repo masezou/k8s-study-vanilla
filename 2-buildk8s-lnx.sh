@@ -191,7 +191,6 @@ chown $(id -u):$(id -g) $HOME/.kube/config
 export KUBECONFIG=$HOME/.kube/config
 kubectl taint nodes --all node-role.kubernetes.io/master-
 kubectl label node `hostname` node-role.kubernetes.io/worker=worker
-kubectl get node
 
 # Install Registry
 echo "install private registry"

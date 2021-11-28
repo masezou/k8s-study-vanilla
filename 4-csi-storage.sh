@@ -125,7 +125,6 @@ provisioner: openebs.io/local
 reclaimPolicy: Delete
 volumeBindingMode: WaitForFirstConsumer
 EOF
-kubectl get sc
 kubectl patch storageclass cstor-csi-disk -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"true"}}}'
 else
 echo "hostpath installing..."
@@ -184,8 +183,6 @@ sed -i -e "s@share: /@share: ${NFSPATH}@g" storageclass-nfs.yaml
 kubectl create -f storageclass-nfs.yaml
 rm -rf storageclass-nfs.yaml
 kubectl patch storageclass nfs-csi -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"false"}}}'
-kubectl -n kube-system get pod -o wide -l app=csi-nfs-controller
-kubectl -n kube-system get pod -o wide -l app=csi-nfs-node
 kubectl delete CSIDriver nfs.csi.k8s.io
 cat <<EOF | kubectl create -f -
 apiVersion: storage.k8s.io/v1
