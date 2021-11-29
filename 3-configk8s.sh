@@ -4,15 +4,15 @@
 # Edit this section
 
 # Sample "192.168.133.208/28" or "192.168.133.51-192.168.133.62"
-IPRANGE="192.168.18.16/28"
+IPRANGE="fixme"
 
 #### Option ####
 # For Wildcard entry - *.apps.domainame. Basically you can set  1st IP in IPRANGE
 # Ex. IPRANGE is "192.168.133.208/28", 1st entry is 192.168.133.208.
-HOSTSWILDCARDIP="192.168.18.100"
+HOSTSWILDCARDIP="192.168.133.208"
 
 # If you want to change DNS domain name, you can chage it.
-DNSDOMAINNAME="k8slab2.internal"
+DNSDOMAINNAME="k8slab.internal"
 
 #########################################################
 ### UID Check ###
