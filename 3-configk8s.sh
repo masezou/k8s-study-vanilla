@@ -122,13 +122,16 @@ data:
       addresses:
       - ${IPRANGE}
 EOF
-kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/cloud/deploy.yaml
-
-while [ "$(kubectl get deployment -n ingress-nginx ingress-nginx-controller --output="jsonpath={.status.conditions[*].status}" | cut -d' ' -f1)" != "True" ]; do
-	echo "Deploying Ingress-nginx controller Please wait...."
-    kubectl get deployment -n ingress-nginx ingress-nginx-controller
-	sleep 30
-done
+#kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/cloud/deploy.yaml
+#while [ "$(kubectl get deployment -n ingress-nginx ingress-nginx-controller --output="jsonpath={.status.conditions[*].status}" | cut -d' ' -f1)" != "True" ]; do
+#	echo "Deploying Ingress-nginx controller Please wait...."
+#    kubectl get deployment -n ingress-nginx ingress-nginx-controller
+#	sleep 30
+#done
+helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
+helm repo update
+kubectl create ns ingress-system
+helm install ingress-nginx ingress-nginx/ingress-nginx  -n ingress-system
 
 # Configutr local DNS Server
 apt -y install bind9 bind9utils
