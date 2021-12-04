@@ -599,6 +599,11 @@ cat << EOF | sed -i -e "/        imagePullPolicy: IfNotPresent$/r /dev/stdin" co
 EOF
 kubectl apply -f components.yaml
 rm -rf components.yaml
+while [ "$(kubectl -n kube-system get deployments.apps metrics-server --output="jsonpath={.status.conditions[*].status}" | cut -d' ' -f1)" != "True" ]; do
+        echo "Deploying Kubernetes metrics-server  Please wait...."
+    kubectl -n kube-system get deployments.apps metrics-server
+        sleep 30
+done
 
 # Install Reigstory Frontend
 kubectl create namespace registry
@@ -659,6 +664,11 @@ spec:
                 name: pregistry-configmap
                 key: pregistry_port
 EOF
+while [ "$(kubectl -n registry get deployments.apps pregistry-frontend-deployment  --output="jsonpath={.status.conditions[*].status}" | cut -d' ' -f1)" != "True" ]; do
+        echo "Deploying registry frontend  Please wait...."
+    kubectl -n registry get deployments.apps pregistry-frontend-deployment
+        sleep 30
+done
 REGISTRY_EXTERNALIP=`kubectl -n registry get service pregistry-frontend-clusterip | awk '{print $4}' | tail -n 1`
 kubectl -n registry annotate service pregistry-frontend-clusterip \
     external-dns.alpha.kubernetes.io/hostname=registryfe.${DNSDOMAINNAME}
