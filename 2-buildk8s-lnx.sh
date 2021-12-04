@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
 
 KUBECTLVER=1.21.7-00
+ENABLEREG=1
 IMAGEDL=1
+ENABLEK8SMASTER=1
 
 #########################################################
 
@@ -81,16 +83,6 @@ apt update
 apt -y purge docker.io docker-ce-cli docker-ce docker-ce-rootless-extras
 apt -y install containerd.io
 
-# CRICTL setting
-cat << EOF >>  /etc/crictl.yaml
-runtime-endpoint: unix:///run/containerd/containerd.sock
-image-endpoint: unix:///run/containerd/containerd.sock
-timeout: 2
-debug: true
-EOF
-echo "source <(crictl completion bash) " >> /etc/profile.d/crictl.sh
-curl https://raw.githubusercontent.com/containerd/containerd/v1.4.12/contrib/autocomplete/ctr -o /etc/bash_completion.d/ctr
-
 # Containerd settings
 containerd config default | sudo tee /etc/containerd/config.toml
 sed -i -e "/^          \[plugins\.\"io\.containerd\.grpc\.v1\.cri\"\.containerd\.runtimes\.runc\.options\]$/a\            SystemdCgroup \= true" /etc/containerd/config.toml
@@ -104,7 +96,18 @@ rm -rf insert.txt
 systemctl restart containerd
 echo 0 > /proc/sys/kernel/hung_task_timeout_secs
 
+# CRICTL setting
+cat << EOF >>  /etc/crictl.yaml
+runtime-endpoint: unix:///run/containerd/containerd.sock
+image-endpoint: unix:///run/containerd/containerd.sock
+timeout: 2
+debug: true
+EOF
+echo "source <(crictl completion bash) " >> /etc/profile.d/crictl.sh
+curl https://raw.githubusercontent.com/containerd/containerd/v1.4.12/contrib/autocomplete/ctr -o /etc/bash_completion.d/ctr
+
 # Install Registry
+if [ ${ENABLEREG} = 1 ]; then
 echo "install private registry"
 mkdir -p /disk/registry
 ln -s /disk/registry /var/lib/docker-registry
@@ -113,9 +116,10 @@ sed -i -e "s/  htpasswd/#  htpasswd/g" /etc/docker/registry/config.yml
 sed -i -e "s/    realm/#    realm/g" /etc/docker/registry/config.yml
 sed -i -e "s/    path/#    path/g" /etc/docker/registry/config.yml
 systemctl restart docker-registry
+fi
 
-if [ ${IMAGEDL} = 1 ]; then
 # pull/push images
+if [ ${IMAGEDL} = 1 ]; then
 ctr images pull --platform linux/amd64 docker.io/bitnami/bitnami-shell:10-debian-10-r158
 ctr images tag docker.io/bitnami/bitnami-shell:10-debian-10-r158 ${LOCALIPADDR}:5000/bitnami/bitnami-shell:10-debian-10-r158
 ctr images push --platform linux/amd64 --plain-http ${LOCALIPADDR}:5000/bitnami/bitnami-shell:10-debian-10-r158
@@ -150,6 +154,9 @@ curl -X GET http://${LOCALIPADDR}:5000/v2/_catalog
 ctr images ls
 fi
 
+
+# Install Kubernetes
+
 ## for containerd
 mkdir -p /etc/systemd/system/kubelet.service.d
 cat << EOF | sudo tee  /etc/systemd/system/kubelet.service.d/0-containerd.conf
@@ -157,7 +164,6 @@ cat << EOF | sudo tee  /etc/systemd/system/kubelet.service.d/0-containerd.conf
 Environment="KUBELET_EXTRA_ARGS=--container-runtime=remote --runtime-request-timeout=15m --container-runtime-endpoint=unix:///run/containerd/containerd.sock"
 EOF
 
-# Install Kubernetes
 dpkg -l kubectl
 retval=$?
 if [ ${retval} -ne 0 ]; then
@@ -183,7 +189,7 @@ modprobe overlay
 modprobe br_netfilter
 
 # Setup required sysctl params, these persist across reboots.
-cat <<EOF | sudo tee /etc/sysctl.d/99-kubernetes-cri.conf
+cat <<EOF | tee /etc/sysctl.d/99-kubernetes-cri.conf
 net.bridge.bridge-nf-call-iptables  = 1
 net.ipv4.ip_forward                 = 1
 net.bridge.bridge-nf-call-ip6tables = 1
@@ -202,7 +208,15 @@ kernel.keys.root_maxbytes = 25000000
 EOF
 sysctl --system
 
+# Network filesystem client
+apt -y install nfs-common
+
+# iscsi initiator setting
+sed -i -e "s/debian/debian.`hostname`/g" /etc/iscsi/initiatorname.iscsi
+systemctl restart iscsid.service
+
 # Create Single node Cluster
+if [ ${ENABLEK8SMASTER} = 1 ]; then
 CLUSTERNAME=`hostname`-cl
 cat << EOF > k8sconfig.yaml
 apiVersion: kubeadm.k8s.io/v1beta2
@@ -234,13 +248,8 @@ kubectl label node `hostname` node-role.kubernetes.io/worker=worker
 # Expoert kubeconfig
 KUBECONFIGNAME=${CLUSTERNAME}-`hostname`
 kubectl config view --raw > ${KUBECONFIGNAME}_kubeconfig
+fi
 
-# Network filesystem client
-apt -y install nfs-common
-
-# iscsi initiator setting
-sed -i -e "s/debian/debian.`hostname`/g" /etc/iscsi/initiatorname.iscsi
-systemctl restart iscsid.service
 
 echo ""
 echo "*************************************************************************************"
