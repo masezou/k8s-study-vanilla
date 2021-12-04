@@ -247,15 +247,11 @@ export KUBECONFIG=$HOME/.kube/config
 kubectl taint nodes --all node-role.kubernetes.io/master-
 kubectl label node `hostname` node-role.kubernetes.io/worker=worker
 
-# Expoert kubeconfig
-KUBECONFIGNAME=${CLUSTERNAME}-`hostname`
-kubectl config view --raw > ${KUBECONFIGNAME}_kubeconfig
-
 if [ -z $SUDO_USER ]; then
   echo "there is no sudo login"
 else
  mkdir -p /home/${SUDO_USER}/.kube
- cp ${KUBECONFIGNAME}_kubeconfig /home/${SUDO_USER}/.kube/config
+ cp ~/.kube/config /home/${SUDO_USER}/.kube/
  chown -R ${SUDO_USER}:${SUDO_USER} /home/${SUDO_USER}/.kube/
  chmod 600 /home/${SUDO_USER}/.kube/config
  
