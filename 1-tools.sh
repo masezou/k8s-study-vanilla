@@ -93,7 +93,15 @@ export PATH=$PATH:/usr/lib/go/bin:$GOPATH/bin
 fi
 if [ ! -f /root/go/bin/kubecolor ]; then
 go get github.com/dty1er/kubecolor/cmd/kubecolor
-echo "alias kubectl=kubecolor" >> /etc/profile
+cat << EOF >> /etc/profile
+if type "kubecolor" > /dev/null 2>&1
+then
+    echo "kubectl was already installed"
+else
+    go get github.com/dty1er/kubecolor/cmd/kubecolor
+fi
+command -v kubecolor >/dev/null 2>&1 && alias kubectl="kubecolor"
+EOF
 alias kubectl=kubecolor
 fi
 
