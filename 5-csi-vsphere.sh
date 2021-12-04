@@ -17,7 +17,7 @@ VSPHERESERVERIP="YOUR_VCENTER_IP"
 VSPPHEREDATASTORE="YOUR_DATASTORE"
 
 #########################################################
-VSPHERECSI=2.4.0
+VSPHERECSI=2.3.0
 
 if [ ${EUID:-${UID}} != 0 ]; then
     echo "This script must be run as root"
