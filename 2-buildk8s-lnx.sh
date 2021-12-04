@@ -82,6 +82,7 @@ fi
 apt update
 apt -y purge docker.io docker-ce-cli docker-ce docker-ce-rootless-extras
 apt -y install containerd.io
+curl https://raw.githubusercontent.com/containerd/containerd/v1.4.12/contrib/autocomplete/ctr -o /etc/bash_completion.d/ctr
 
 # Containerd settings
 containerd config default | sudo tee /etc/containerd/config.toml
@@ -96,15 +97,6 @@ rm -rf insert.txt
 systemctl restart containerd
 echo 0 > /proc/sys/kernel/hung_task_timeout_secs
 
-# CRICTL setting
-cat << EOF >>  /etc/crictl.yaml
-runtime-endpoint: unix:///run/containerd/containerd.sock
-image-endpoint: unix:///run/containerd/containerd.sock
-timeout: 2
-debug: true
-EOF
-echo "source <(crictl completion bash) " >> /etc/profile.d/crictl.sh
-curl https://raw.githubusercontent.com/containerd/containerd/v1.4.12/contrib/autocomplete/ctr -o /etc/bash_completion.d/ctr
 
 # Install Registry
 if [ ${ENABLEREG} = 1 ]; then
@@ -178,6 +170,14 @@ if [ ! -f /etc/bash_completion.d/kubectl ]; then
 kubectl completion bash >/etc/bash_completion.d/kubectl
 source /etc/bash_completion.d/kubectl
 echo 'export KUBE_EDITOR=vi' >>~/.bashrc
+# CRICTL setting
+cat << EOF >>  /etc/crictl.yaml
+runtime-endpoint: unix:///run/containerd/containerd.sock
+image-endpoint: unix:///run/containerd/containerd.sock
+timeout: 2
+debug: true
+EOF
+echo "source <(crictl completion bash) " >> /etc/profile.d/crictl.sh
 fi
 
 apt -y install keepalived
