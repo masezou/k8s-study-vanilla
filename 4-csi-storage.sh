@@ -54,6 +54,14 @@ echo ${LOCALIPADDR}
 
 BASEPWD=`pwd`
 
+kubectl get node | grep "NotReady"
+retvalstatus=$?
+if [ ${retvalstatus} -eq 0 ]; then
+echo -e "\e[31m CNI is not configured. exit. \e[m"
+exit 255
+fi
+
+
 # Device /dev/sdb check
 if [  -b /dev/sdb ]; then
 sgdisk -Z /dev/sdb

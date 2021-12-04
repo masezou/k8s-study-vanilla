@@ -44,6 +44,18 @@ fi
 
 BASEPWD=`pwd`
 
+# vSphere environment check
+lspci -tv | grep VMware
+retavalvm=$?
+if [ ${retavalvm} -ne 0 ];then
+   echo "This is not VMware environment. exit."
+   chmod -x ./5-csi-vsphere.sh
+   exit 0
+else
+apt -y install open-vm-tools
+apt clean
+fi
+
 # Cluster check ####
 kubectl get pod 
 retavalcluser=$?
@@ -52,23 +64,20 @@ echo -e "\e[31m Kubernetes cluster is not found. \e[m"
 exit 255
 fi
 
-# vSphere environment check
-lspci -tv | grep VMware
-retavalvm=$?
-if [ ${retavalvm} -ne 0 ];then
-   echo "This is not VMware environment. exit."
-   exit 255
-fi
-
-ls /dev/disk/by-id/scsi-*
-retvaluuid=$?
-if [ ${retvaluuid} -ne 0 ];then
-echo "It seemed DISKUUID is not set. Please set DISKUUID then re-try."
+kubectl get node | grep "NotReady"
+retvalstatus=$?
+if [ ${retvalstatus} -eq 0 ]; then
+echo -e "\e[31m CNI is not configured. exit. \e[m"
 exit 255
 fi
 
-apt -y install open-vm-tools
-apt clean
+# DISKUUID check
+ls /dev/disk/by-id/scsi-*
+retvaluuid=$?
+if [ ${retvaluuid} -ne 0 ];then
+echo -e "\e[31m It seemed DISKUUID is not set. Please set DISKUUID then re-try. \e[m"
+exit 255
+fi
 
 # Setup Govc
 cat << EOF > ~/govc-vcenter.sh
