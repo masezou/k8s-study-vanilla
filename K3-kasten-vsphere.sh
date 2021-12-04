@@ -26,6 +26,7 @@ fi
 kubectl get sc | grep csi.vsphere
 retval1=$?
 if [ ${retval1} -ne 0 ]; then
+chmod -x K3-kasten-vsphere.sh
 echo "*************************************************************************************"
 echo "vSphere CSI Driver was not found. No problem."
 exit
