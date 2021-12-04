@@ -457,6 +457,11 @@ sed -i -e "s/appVersion: v0.1.0/appVersion: v1.4.0/g" Chart.yaml
 kubectl create ns cert-manager
 kubectl apply -f https://github.com/jetstack/cert-manager/releases/download/v1.4.0/cert-manager.crds.yaml
 helm install cert-manager . -n cert-manager
+while [ "$(kubectl get deployment -n cert-manager cert-manager --output="jsonpath={.status.conditions[*].status}" | cut -d' ' -f1)" != "True" ]; do
+       echo "Deploying cert-manager Please wait...."
+    kubectl get deployment -n cert-manager cert-manager
+       sleep 30
+done
 cd ../../../../
 rm -rf cert-manager
 kubectl create ns sandbox
@@ -495,11 +500,6 @@ spec:
   ca:
     secretName: selfsigned-ca-cert
 EOF
-while [ "$(kubectl get deployment -n cert-manager cert-manager --output="jsonpath={.status.conditions[*].status}" | cut -d' ' -f1)" != "True" ]; do
-       echo "Deploying cert-manager Please wait...."
-    kubectl get deployment -n cert-manager cert-manager
-       sleep 30
-done
 
 # Configure Kubernetes Dashboard
 kubectl create namespace kubernetes-dashboard
