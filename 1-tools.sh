@@ -93,13 +93,12 @@ export PATH=$PATH:/usr/lib/go/bin:$GOPATH/bin
 fi
 if [ ! -f /root/go/bin/kubecolor ]; then
 go get github.com/dty1er/kubecolor/cmd/kubecolor
-cat << EOF >> /etc/profile
-if type "kubecolor" > /dev/null 2>&1
-then
-    echo ""
+if [ -z $SUDO_USER ]; then
+  echo "there is no sudo login"
 else
-    go get github.com/dty1er/kubecolor/cmd/kubecolor
+  sudo -u $SUDO_USER go get github.com/dty1er/kubecolor/cmd/kubecolor
 fi
+cat << EOF >> /etc/profile
 command -v kubecolor >/dev/null 2>&1 && alias kubectl="kubecolor"
 EOF
 alias kubectl=kubecolor
