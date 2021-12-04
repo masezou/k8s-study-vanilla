@@ -144,6 +144,6 @@ echo "then input login token"
 echo -e "\e[32m cat ./k10-k10.token \e[m"
 cat ./k10-k10.token
 echo ""
-echo "If you want to setup automatically, run ./K2-kasten-storage.sh ; ./K3-kasten-vsphere.sh"
+echo "Configured profile, blueprint, rbac also."
 
 chmod -x ./K1-kasten.sh
