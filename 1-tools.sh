@@ -96,7 +96,7 @@ go get github.com/dty1er/kubecolor/cmd/kubecolor
 cat << EOF >> /etc/profile
 if type "kubecolor" > /dev/null 2>&1
 then
-    echo "kubectl was already installed"
+    echo ""
 else
     go get github.com/dty1er/kubecolor/cmd/kubecolor
 fi
