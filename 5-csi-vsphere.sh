@@ -206,6 +206,19 @@ fi
 kubectl apply -f vsphere-csi-driver.yaml
 rm -rf vsphere-csi-driver.yaml
 
+while [ "$(kubectl -n vmware-system-csi get deployments.apps vsphere-csi-controller --output="jsonpath={.status.conditions[*].status}" | cut -d' ' -f1)" != "True" ]; do
+     echo "Deploying Ingress-nginx controller Please wait...."
+     kubectl -n vmware-system-csi get deployments.apps vsphere-csi-controller
+     sleep 30
+done
+
+kubectl  -n vmware-system-csi wait all -l app=vsphere-csi-node --for condition=Ready --timeout 180s
+retvalvspherecsinode=$?
+if [ ${retvalvspherecsinode} -ne 0 ]; then
+echo -e "\e[31m It seemed there is wrong configuration or some malfunction happened. \e[m"
+exit 255
+fi
+
 # Add Tag to vCenter
 govc tags.ls | grep k8s-zone
 retval2=$?
