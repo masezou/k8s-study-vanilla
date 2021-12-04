@@ -138,6 +138,11 @@ helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
 helm repo update
 kubectl create ns ingress-system
 helm install ingress-nginx ingress-nginx/ingress-nginx  -n ingress-system
+while [ "$(kubectl get deployment -n ingress-system ingress-nginx-controller --output="jsonpath={.status.conditions[*].status}" | cut -d' ' -f1)" != "True" ]; do
+	echo "Deploying Ingress-nginx controller Please wait...."
+    kubectl get deployment -n ingress-nginx ingress-nginx-controller
+	sleep 30
+done
 
 # Configutr local DNS Server
 apt -y install bind9 bind9utils
@@ -438,6 +443,11 @@ spec:
         #- --interval=10s
         #- --log-level=debug
 EOF
+while [ "$(kubectl get deployment -n external-dns external-dns --output="jsonpath={.status.conditions[*].status}" | cut -d' ' -f1)" != "True" ]; do
+       echo "Deploying external-dns Please wait...."
+    kubectl get deployment -n external-dns external-dns
+       sleep 30
+done
 
 # Install CertManager
 git clone https://github.com/jetstack/cert-manager.git -b v1.4.0 --depth 1
@@ -485,6 +495,11 @@ spec:
   ca:
     secretName: selfsigned-ca-cert
 EOF
+while [ "$(kubectl get deployment -n cert-manager cert-manager --output="jsonpath={.status.conditions[*].status}" | cut -d' ' -f1)" != "True" ]; do
+       echo "Deploying cert-manager Please wait...."
+    kubectl get deployment -n cert-manager cert-manager
+       sleep 30
+done
 
 # Configure Kubernetes Dashboard
 kubectl create namespace kubernetes-dashboard
