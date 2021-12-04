@@ -184,6 +184,12 @@ sed -i -e "s/replicas: 2/replicas: 1/g" csi-nfs-controller.yaml
 kubectl apply -f csi-nfs-controller.yaml
 rm -rf csi-nfs-controller.yaml
 kubectl apply -f https://raw.githubusercontent.com/kubernetes-csi/csi-driver-nfs/master/deploy/csi-nfs-node.yaml
+while [ "$(kubectl -n kube-system get deployments.apps csi-nfs-controller --output="jsonpath={.status.conditions[*].status}" | cut -d' ' -f1)" != "True" ]; do
+       echo "Deploying CSI-NFS controller Please wait...."
+    kubectl -n kube-system get deployments.apps csi-nfs-controller
+       sleep 30
+done
+
 
 curl -OL  https://raw.githubusercontent.com/kubernetes-csi/csi-driver-nfs/master/deploy/example/storageclass-nfs.yaml
 sed -i -e "s/nfs-server.default.svc.cluster.local/${LOCALIPADDR}/g" storageclass-nfs.yaml
