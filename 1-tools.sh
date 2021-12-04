@@ -146,7 +146,7 @@ apt -y remove postgresql-12
 apt -y autoremove
 mv /tmp/pgbench /usr/lib/postgresql/12/bin/
 
-bash ./K1-kasten.sh
+bash ./K0-kasten-tools.sh
 
 
 echo ""
