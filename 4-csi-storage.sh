@@ -85,6 +85,7 @@ while [ "$(kubectl -n openebs get pod openebs-cstor-csi-controller-0 --output="j
         echo "Deploying OpenEBS Please wait...."
         sleep 30
 done
+kubectl -n openebs wait pod  -l component=openebs-cstor-csi-node --for condition=Ready
 WORKERNODES=`kubectl get bd -n openebs | grep -i Unclaimed | cut -d " " -f4`
 BLOCKDEVICENAME=`kubectl get bd -n openebs | grep -i Unclaimed | cut -d " " -f1`
 cat <<EOF | kubectl create -f -
@@ -189,7 +190,7 @@ while [ "$(kubectl -n kube-system get deployments.apps csi-nfs-controller --outp
     kubectl -n kube-system get deployments.apps csi-nfs-controller
        sleep 30
 done
-
+kubectl -n kube-system wait pod -l app=csi-nfs-node --for condition=Ready --timeout 180s
 
 curl -OL  https://raw.githubusercontent.com/kubernetes-csi/csi-driver-nfs/master/deploy/example/storageclass-nfs.yaml
 sed -i -e "s/nfs-server.default.svc.cluster.local/${LOCALIPADDR}/g" storageclass-nfs.yaml
