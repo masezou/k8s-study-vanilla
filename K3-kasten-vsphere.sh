@@ -25,7 +25,11 @@ fi
 
 kubectl get sc | grep csi.vsphere
 retval1=$?
-if [ ${retval1} -eq 0 ]; then
+if [ ${retval1} -ne 0 ]; then
+echo "*************************************************************************************"
+echo "vSphere CSI Driver was not found. No problem."
+exit
+fi
 
 VSPHEREUSERNAMEBASE64=`echo -n "${VSPHEREUSERNAME}" | base64`
 VSPHEREPASSWORDBASE64=`echo -n "${VSPHEREPASSWORD}" | base64`
@@ -73,11 +77,6 @@ spec:
 EOF
 echo "*************************************************************************************"
 echo "Kasten Infrastructure was configured"
-else
-echo "*************************************************************************************"
-echo "vSphere CSI Driver was not found"
-fi
-
 
 chmod -x K3-kasten-vsphere.sh
 

@@ -45,6 +45,9 @@ fi
 
 #########################################################
 
+if [ ! -f /usr/local/bin/k10tools ]; then
+bash ./K0-kasten-tools.sh
+fi
 
 # Pre-req Kasten
 helm repo add kasten https://charts.kasten.io/
