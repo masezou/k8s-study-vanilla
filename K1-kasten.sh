@@ -116,12 +116,19 @@ spec:
          storage: 20Gi
 EOF
 fi
-
+echo "Deploying Kasten Please wait...."
+sleep 60
 while [ "$(kubectl get deployment -n kasten-io gateway --output="jsonpath={.status.conditions[*].status}" | cut -d' ' -f1)" != "True" ]; do
         echo "Deploying Kasten Please wait...."
         sleep 30
 done
 kubectl wait --for=condition=ready --timeout=180s -n kasten-io pod -l component=jobs
+kubectl wait --for=condition=ready --timeout=180s -n kasten-io pod -l component=catalog
+# configure profile/blueprint automatically
+./K2-kasten-storage.sh
+./K3-kasten-vsphere.sh
+./K4-kasten-blueprint.sh
+./K5-kasten-local-rbac.sh
 
 sa_secret=$(kubectl get serviceaccount k10-k10 -o jsonpath="{.secrets[0].name}" --namespace kasten-io)
 kubectl get secret $sa_secret --namespace kasten-io -ojsonpath="{.data.token}{'\n'}" | base64 --decode > k10-k10.token
