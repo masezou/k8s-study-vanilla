@@ -344,6 +344,13 @@ mkdir -p /root/.minio/certs/CAs
 cp ./rootCA.pem /root/.minio/certs/CAs
 openssl x509 -in public.crt -text -noout| grep IP
 cp public.crt ~/.mc/certs/CAs/
+if [ -z $SUDO_USER ]; then
+  echo "there is no sudo login"
+else
+ mkdir -p /home/$SUDO_USER/.mc/certs/CAs/
+ cp public.crt /home/$SUDO_USER/.mc/certs/CAs/
+ chown -R $SUDO_USER  /home/$SUDO_USER/.mc/
+fi
 cp /root/.minio/certs/public.crt /usr/share/ca-certificates/minio-dns.crt
 echo "minio-dns.crt">>/etc/ca-certificates.conf
 update-ca-certificates 
