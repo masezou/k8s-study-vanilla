@@ -215,6 +215,8 @@ apt -y install nfs-common
 sed -i -e "s/debian/debian.`hostname`/g" /etc/iscsi/initiatorname.iscsi
 systemctl restart iscsid.service
 
+
+#########################################################################
 # Create Single node Cluster
 if [ ${ENABLEK8SMASTER} = 1 ]; then
 CLUSTERNAME=`hostname`-cl
@@ -249,7 +251,7 @@ kubectl label node `hostname` node-role.kubernetes.io/worker=worker
 KUBECONFIGNAME=${CLUSTERNAME}-`hostname`
 kubectl config view --raw > ${KUBECONFIGNAME}_kubeconfig
 fi
-
+#########################################################################
 
 echo ""
 echo "*************************************************************************************"
