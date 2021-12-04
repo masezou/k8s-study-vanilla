@@ -588,6 +588,12 @@ host dashboard.${DNSDOMAINNAME}. ${DNSHOSTIP}
 
 kubectl -n kubernetes-dashboard get secret $(kubectl -n kubernetes-dashboard get sa/admin-user -o jsonpath="{.secrets[0].name}") -o go-template="{{.data.token | base64decode}}" > dashboard.token
 echo "" >> dashboard.token
+if [ -z $SUDO_USER ]; then
+  echo "there is no sudo login"
+else
+ cp dashboard.token /home/${SUDO_USER}/k8s-study-vanilla
+ chown ${SUDO_USER} /home/${SUDO_USER}/k8s-study-vanill/dashboard.token
+fi
 
 # Install metric server
 curl -OL https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
