@@ -140,7 +140,7 @@ kubectl create ns ingress-system
 helm install ingress-nginx ingress-nginx/ingress-nginx  -n ingress-system
 while [ "$(kubectl get deployment -n ingress-system ingress-nginx-controller --output="jsonpath={.status.conditions[*].status}" | cut -d' ' -f1)" != "True" ]; do
 	echo "Deploying Ingress-nginx controller Please wait...."
-    kubectl get deployment -n ingress-nginx ingress-nginx-controller
+    kubectl get deployment -n ingress-system ingress-nginx-controller
 	sleep 30
 done
 
