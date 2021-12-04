@@ -250,7 +250,7 @@ kubectl label node `hostname` node-role.kubernetes.io/worker=worker
 # Expoert kubeconfig
 KUBECONFIGNAME=${CLUSTERNAME}-`hostname`
 kubectl config view --raw > ${KUBECONFIGNAME}_kubeconfig
-mkdir -p /home/${SUDO_USER}/.kube/config
+mkdir -p /home/${SUDO_USER}/.kube
 cp ${KUBECONFIGNAME}_kubeconfig /home/${SUDO_USER}/.kube/config
 chown -R ${SUDO_USER}:${SUDO_USER} /home/${SUDO_USER}/.kube/
 chmod 600 /home/${SUDO_USER}/.kube/config
