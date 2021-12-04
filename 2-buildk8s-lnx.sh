@@ -250,10 +250,26 @@ kubectl label node `hostname` node-role.kubernetes.io/worker=worker
 # Expoert kubeconfig
 KUBECONFIGNAME=${CLUSTERNAME}-`hostname`
 kubectl config view --raw > ${KUBECONFIGNAME}_kubeconfig
-mkdir -p /home/${SUDO_USER}/.kube
-cp ${KUBECONFIGNAME}_kubeconfig /home/${SUDO_USER}/.kube/config
-chown -R ${SUDO_USER}:${SUDO_USER} /home/${SUDO_USER}/.kube/
-chmod 600 /home/${SUDO_USER}/.kube/config
+
+if [ -z $SUDO_USER ]; then
+  echo "there is no sudo login"
+else
+ mkdir -p /home/${SUDO_USER}/.kube
+ cp ${KUBECONFIGNAME}_kubeconfig /home/${SUDO_USER}/.kube/config
+ chown -R ${SUDO_USER}:${SUDO_USER} /home/${SUDO_USER}/.kube/
+ chmod 600 /home/${SUDO_USER}/.kube/config
+ 
+ cp -rf ../k8s-study-vanilla /home/${SUDO_USER}/
+ chown -R ${SUDO_USER}:${SUDO_USER} /home/${SUDO_USER}/k8s-study-vanilla
+ chmod -x /home/${SUDO_USER}/k8s-study-vanilla/00Install-k8s.sh
+ chmod -x /home/${SUDO_USER}/k8s-study-vanilla/0-minio.sh
+ chmod -x /home/${SUDO_USER}/k8s-study-vanilla/1-tools.sh
+ chmod -x /home/${SUDO_USER}/k8s-study-vanilla/2-buildk8s-lnx.sh
+ chmod -x /home/${SUDO_USER}/k8s-study-vanilla/3-configk8s.sh
+ chmod -x /home/${SUDO_USER}/k8s-study-vanilla/4-csi-storage.sh
+ chmod -x /home/${SUDO_USER}/k8s-study-vanilla/5-csi-vsphere.sh
+fi
+
 fi
 #########################################################################
 
