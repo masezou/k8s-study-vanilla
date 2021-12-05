@@ -12,6 +12,9 @@ TCE=0
 # for docker in client side. 
 DOCKER=0
 
+GOVC=1
+POWERSHELL=0
+
 #########################################################
 ### UID Check ###
 if [ ${EUID:-${UID}} != 0 ]; then
@@ -145,6 +148,7 @@ echo "complete -C /usr/local/bin/mc mc" > /etc/bash_completion.d/mc.sh
 /usr/local/bin/mc >/dev/null
 fi
 
+if [ ${GOVC} -eq 0 ]; then
 if [ ! -f /usr/local/bin/govc ]; then
 GOVCVER=v0.27.2
 mkdir govcbin
@@ -164,6 +168,15 @@ mv govcbin/govc /usr/local/bin
 rm -rf govcbin
 curl -OL https://raw.githubusercontent.com/vmware/govmomi/master/scripts/govc_bash_completion
 mv govc_bash_completion /etc/bash_completion.d/
+fi
+fi
+
+if [ ${POWERSHELL} -eq 0 ]; then
+curl -OL https://packages.microsoft.com/config/ubuntu/20.04/packages-microsoft-prod.deb
+dpkg -i packages-microsoft-prod.deb
+rm packages-microsoft-prod.deb
+apt update
+apt -y install powershell
 fi
 
 # Install Docker for client
