@@ -2,6 +2,10 @@
 
 KUBECTLVER=1.21.7-00
 
+CLOUDUTILS=0
+TCE=0
+DOCKER=0
+
 #########################################################
 ### UID Check ###
 if [ ${EUID:-${UID}} != 0 ]; then
@@ -135,6 +139,90 @@ echo "complete -C /usr/local/bin/mc mc" > /etc/bash_completion.d/mc.sh
 /usr/local/bin/mc >/dev/null
 fi
 
+# Install Docker for client
+if [ ${DOCKER} -eq 0 ]; then
+if [ ! -f /usr/bin/docker ]; then
+apt -y purge docker.io
+apt -y upgrade
+apt -y install apt-transport-https ca-certificates curl gnupg-agent software-properties-common
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+apt-key fingerprint 0EBFCD88
+add-apt-repository  "deb [arch=amd64] https://download.docker.com/linux/ubuntu  $(lsb_release -cs)  stable"
+apt -y install docker-ce-cli docker-ce
+groupadd docker
+if [ -z $SUDO_USER ]; then
+  echo "there is no sudo login"
+else
+usermod -g docker ${SUID_USER}
+fi
+systemctl enable docker
+systemctl daemon-reload
+systemctl restart docker
+curl -OL https://github.com/docker/compose/releases/download/v2.2.2/docker-compose-linux-x86_64
+mv docker-compose-linux-x86_64 /usr/local/bin/docker-compose
+chmod +x /usr/local/bin/docker-compose
+fi
+# for client installation
+echo "k8s installation is prohibited if you install docker to this mathine."
+chmod -x 00Install-k8s.sh 0-minio.sh 1-tools.sh 2-buildk8s-lnx.sh 3-configk8s.sh 4-csi-storage.sh 5-csi-vsphere.sh
+fi
+
+# Install Cloud Utility
+if [ ${CLOUDUTILS} -eq 0 ]; then
+# Iinstall aws/eksctl
+curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+apt -y install unzip
+unzip awscliv2.zip
+./aws/install
+rm -rf aws
+echo "complete -C '/usr/local/bin/aws_completer' aws" > /etc/bash_completion.d/aws.sh
+curl --silent --location "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$(uname -s)_amd64.tar.gz" | tar xz -C /tmp
+mv /tmp/eksctl /usr/local/bin
+eksctl completion bash > /etc/bash_completion.d/eksctl.sh
+
+# Install aks
+apt update
+apt -y install ca-certificates curl apt-transport-https lsb-release gnupg
+curl -sL https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor | tee /etc/apt/trusted.gpg.d/microsoft.gpg > /dev/null
+AZ_REPO=$(lsb_release -cs)
+echo "deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/ $AZ_REPO main" | tee /etc/apt/sources.list.d/azure-cli.list
+apt update && apt -y install azure-cli
+
+# Install gke
+apt -y install apt-transport-https ca-certificates gnupg
+apt update
+echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] http://packages.cloud.google.com/apt cloud-sdk main" | tee -a /etc/apt/sources.list.d/google-cloud-sdk.list
+curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key --keyring /usr/share/keyrings/cloud.google.gpg add -
+apt -y update && apt -y install google-cloud-sdk
+fi
+
+# Install Tanzu Community Edition Utility
+if [ ${TCE} -eq 0 ]; then
+TANZURELVER=0.9.1
+cd /tmp
+curl -OL https://github.com/vmware-tanzu/community-edition/releases/download/v${TANZURELVER}/tce-linux-amd64-v${TANZURELVER}.tar.gz
+tar xfz tce-linux-amd64-v${TANZURELVER}.tar.gz
+rm  tce-linux-amd64-v${TANZURELVER}.tar.gz
+cd tce-linux-amd64-v${TANZURELVER}
+if [ ${EUID:-${UID}} = 0 ]; then
+    echo "currenly I am root user."
+    if [ -z $SUDO_USER ]; then
+     echo "root direct login is not supported"
+     exit 255
+   else
+     echo "root user via sudo"
+   fi
+fi
+echo ok
+if [ -z $SUDO_USER ]; then
+  ./install.sh
+else
+  sudo -u $SUDO_USER ./install.sh
+fi
+cd ..
+rm -rf tce-linux-amd64-v${TANZURELVER}
+cd ${BASEPWD}
+fi
 
 # Misc
 apt -y install postgresql-client postgresql-contrib mysql-client jq apache2-utils mongodb-clients lynx scsitools
@@ -154,6 +242,10 @@ echo "**************************************************************************
 echo "Next Step"
 echo "Kubernetes tools was installed in Ubuntu"
 echo -e "\e[32m run source /etc/profile or re-login again \e[m"
+if [ ${CLOUDUTILS} -eq 0 ]; then
+echo "You have installed cloud utility (AWS/Azure/GCP)"
+echo "You need to configure cloud client"
+fi
 
 cd ${BASEPWD}
 chmod -x ./1-tools.sh
