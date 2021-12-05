@@ -148,6 +148,7 @@ echo "complete -C /usr/local/bin/mc mc" > /etc/bash_completion.d/mc.sh
 /usr/local/bin/mc >/dev/null
 fi
 
+# Install govc
 if [ ${GOVC} -eq 0 ]; then
 if [ ! -f /usr/local/bin/govc ]; then
 GOVCVER=v0.27.2
@@ -171,6 +172,7 @@ mv govc_bash_completion /etc/bash_completion.d/
 fi
 fi
 
+# Install powershell
 if [ ${POWERSHELL} -eq 0 ]; then
 curl -OL https://packages.microsoft.com/config/ubuntu/20.04/packages-microsoft-prod.deb
 dpkg -i packages-microsoft-prod.deb
