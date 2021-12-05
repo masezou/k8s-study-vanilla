@@ -146,6 +146,7 @@ EXTERNALIP=`kubectl -n ${NAMESPACE} get service wordpress |awk '{print $4}' | ta
 
 kubectl -n ${NAMESPACE} annotate service wordpress \
     external-dns.alpha.kubernetes.io/hostname=${WPHOST}.${DNSDOMAINNAME}
+kubectl -n blog1 wait pod -l app=wordpress --for condition=Ready --timeout 180s`
 
 echo ""
 echo "*************************************************************************************"
