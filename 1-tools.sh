@@ -109,7 +109,7 @@ go get github.com/dty1er/kubecolor/cmd/kubecolor
 if [ -z $SUDO_USER ]; then
   echo "there is no sudo login"
 else
-  echo "installing kubecolor to login user"
+  echo "Installing kubecolor to login user"
   sudo -u $SUDO_USER go get github.com/dty1er/kubecolor/cmd/kubecolor
 fi
 cat << EOF >> /etc/profile
@@ -340,7 +340,7 @@ mv /tmp/pgbench /usr/lib/postgresql/12/bin/
 
 bash ./K0-kasten-tools.sh
 
-
+apt clean
 echo ""
 echo "*************************************************************************************"
 echo "Next Step"
