@@ -149,7 +149,7 @@ echo "complete -C /usr/local/bin/mc mc" > /etc/bash_completion.d/mc.sh
 fi
 
 # Install govc
-if [ ${GOVC} -eq 0 ]; then
+if [ ${GOVC} -eq 1 ]; then
 if [ ! -f /usr/local/bin/govc ]; then
 GOVCVER=v0.27.2
 mkdir govcbin
@@ -173,7 +173,8 @@ fi
 fi
 
 # Install powershell
-if [ ${POWERSHELL} -eq 0 ]; then
+if [ ${POWERSHELL} -eq 1 ]; then
+if [ ${ARCH} = amd64 ]; then
 if [ ! -f /usr/bin/pwsh ]; then
 /usr/bin/pwsh
 curl -OL https://packages.microsoft.com/config/ubuntu/20.04/packages-microsoft-prod.deb
@@ -183,9 +184,13 @@ apt update
 apt -y install powershell
 fi
 fi
+if [ ${ARCH} = arm64 ]; then
+curl -L https://aka.ms/InstallAzureCli | sudo bash
+fi
+fi
 
 # Install Docker for client
-if [ ${DOCKER} -eq 0 ]; then
+if [ ${DOCKER} -eq 1 ]; then
 if [ ! -f /usr/bin/docker ]; then
 apt -y purge docker.io
 apt -y upgrade
@@ -205,7 +210,7 @@ groupadd docker
 if [ -z $SUDO_USER ]; then
   echo "there is no sudo login"
 else
-usermod -g docker ${SUID_USER}
+usermod -g docker ${SUDO_USER}
 fi
 systemctl enable docker
 systemctl daemon-reload
@@ -238,7 +243,7 @@ chmod -x 00Install-k8s.sh 0-minio.sh 1-tools.sh 2-buildk8s-lnx.sh 3-configk8s.sh
 fi
 
 # Install Cloud Utility
-if [ ${CLOUDUTILS} -eq 0 ]; then
+if [ ${CLOUDUTILS} -eq 1 ]; then
 # Iinstall aws/eksctl
 if [ ! -f /usr/local/bin/aws ]; then
 curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
@@ -273,11 +278,13 @@ fi
 fi
 
 # Install Tanzu Community Edition Utility
-if [ ${TCE} -eq 0 ]; then
+if [ ${TCE} -eq 1 ]; then
+if [ ${ARCH} = amd64 ]; then
 if [ ! -f /usr/local/bin/tanzu ]; then
 TANZURELVER=0.9.1
 cd /tmp
-curl -OL https://github.com/vmware-tanzu/community-edition/releases/download/v${TANZURELVER}/tce-linux-amd64-v${TANZURELVER}.tar.gz
+curl -OL https://github.com/vmware-tanzu/community-edition/releases/download/v${TANZURELVER}/tce-linux-amd64-v${TANZURELVER}.
+tar.gz
 tar xfz tce-linux-amd64-v${TANZURELVER}.tar.gz
 rm  tce-linux-amd64-v${TANZURELVER}.tar.gz
 cd tce-linux-amd64-v${TANZURELVER}
@@ -315,8 +322,12 @@ if [ ${ARCH} = amd64 ]; then
  else
    echo "${ARCH} platform is not supported"
  exit 1
- fi
-
+fi
+fi
+if [ ${ARCH} = arm64 ]; then
+echo "TCE is not supported on arm64
+fi
+fi
 # Misc
 apt -y install postgresql-client postgresql-contrib mysql-client jq apache2-utils mongodb-clients lynx scsitools
 systemctl stop postgresql
@@ -336,18 +347,18 @@ echo "Next Step"
 echo "Kubernetes tools was installed in Ubuntu"
 echo -e "\e[32m run source /etc/profile or re-login again \e[m"
 echo ""
-if [ ${CLOUDUTILS} -eq 0 ]; then
-echo "You have installed cloud utility (AWS/Azure/GCP)"
+if [ ${CLOUDUTILS} -eq 1 ]; then
+echo "You have installed cloud utility \(AWS/Azure/GCP\)"
 echo "You need to configure cloud client"
 echo "AWS: aws configure"
 echo "gcloud: gcloud init"
 fi
 echo ""
-if [ ${POWERSHELL} -eq 0 ]; then
+if [ ${POWERSHELL} -eq 1 ]; then
 echo "Az command"
-echo " pwsh then Install-Module -Name Az -AllowClobber -Scope CurrentUser"
+echo "pwsh then Install\-Module -Name Az \-AllowClobber \-Scope CurrentUser"
 echo "Powercli"
-echo "pwsh then Install-Module VMware.PowerCLI -Scope CurrentUser"
+echo "pwsh then Install\-Module VMware.PowerCLI \-Scope CurrentUser"
 fi
 cd ${BASEPWD}
 chmod -x ./1-tools.sh
