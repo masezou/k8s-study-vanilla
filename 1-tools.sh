@@ -256,9 +256,18 @@ cd ${BASEPWD}
 fi
 
 OCTANTVER=0.25.0
-curl -OL https://github.com/vmware-tanzu/octant/releases/download/v${OCTANTVER}/octant_${OCTANTVER}_Linux-64bit.deb
-dpkg -i octant_${OCTANTVER}_Linux-64bit.deb
-rm octant_${OCTANTVER}_Linux-64bit.deb
+if [ ${ARCH} = amd64 ]; then
+  curl -OL https://github.com/vmware-tanzu/octant/releases/download/v${OCTANTVER}/octant_${OCTANTVER}_Linux-64bit.deb
+  dpkg -i octant_${OCTANTVER}_Linux-64bit.deb
+  rm octant_${OCTANTVER}_Linux-64bit.deb
+ elif [ ${ARCH} = arm64 ]; then
+   https://github.com/vmware-tanzu/octant/releases/download/v${OCTANTVER}/octant_${OCTANTVER}_Linux-ARM64.deb
+   dpkg -i octant_${OCTANTVER}_Linux-ARM64.deb
+   rm octant_${OCTANTVER}_Linux-ARM64.deb
+ else
+   echo "${ARCH} platform is not supported"
+ exit 1
+ fi
 
 # Misc
 apt -y install postgresql-client postgresql-contrib mysql-client jq apache2-utils mongodb-clients lynx scsitools
