@@ -331,10 +331,19 @@ echo "**************************************************************************
 echo "Next Step"
 echo "Kubernetes tools was installed in Ubuntu"
 echo -e "\e[32m run source /etc/profile or re-login again \e[m"
+echo ""
 if [ ${CLOUDUTILS} -eq 0 ]; then
 echo "You have installed cloud utility (AWS/Azure/GCP)"
 echo "You need to configure cloud client"
+echo "AWS: aws configure"
+echo "gcloud: gcloud init"
 fi
-
+echo ""
+if [ ${POWERSHELL} -eq 0 ]; then
+echo "Az command"
+echo " pwsh then Install-Module -Name Az -AllowClobber -Scope CurrentUser"
+echo "Powercli"
+echo "pwsh then Install-Module VMware.PowerCLI -Scope CurrentUser"
+fi
 cd ${BASEPWD}
 chmod -x ./1-tools.sh
