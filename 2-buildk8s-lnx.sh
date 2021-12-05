@@ -9,6 +9,7 @@ ENABLEK8SMASTER=1
 
 # Enable private registry
 ENABLEREG=1
+REGDIR=/disk/registry
 # Enable pull/push sample image
 IMAGEDL=1
 
@@ -108,8 +109,8 @@ echo 0 > /proc/sys/kernel/hung_task_timeout_secs
 # Install Registry
 if [ ${ENABLEREG} = 1 ]; then
 echo "install private registry"
-mkdir -p /disk/registry
-ln -s /disk/registry /var/lib/docker-registry
+mkdir -p ${REGDIR}
+ln -s ${REGDIR} /var/lib/docker-registry
 apt -y install docker-registry
 sed -i -e "s/  htpasswd/#  htpasswd/g" /etc/docker/registry/config.yml
 sed -i -e "s/    realm/#    realm/g" /etc/docker/registry/config.yml
@@ -119,33 +120,33 @@ fi
 
 # pull/push images
 if [ ${IMAGEDL} = 1 ]; then
-ctr images pull --platform linux/amd64 docker.io/bitnami/bitnami-shell:10-debian-10-r158
+ctr images pull --platform linux/${ARCH} docker.io/bitnami/bitnami-shell:10-debian-10-r158
 ctr images tag docker.io/bitnami/bitnami-shell:10-debian-10-r158 ${LOCALIPADDR}:5000/bitnami/bitnami-shell:10-debian-10-r158
-ctr images push --platform linux/amd64 --plain-http ${LOCALIPADDR}:5000/bitnami/bitnami-shell:10-debian-10-r158
+ctr images push --platform linux/${ARCH} --plain-http ${LOCALIPADDR}:5000/bitnami/bitnami-shell:10-debian-10-r158
 ctr images rm docker.io/bitnami/bitnami-shell:10-debian-10-r158
 ctr images rm ${LOCALIPADDR}:5000/bitnami/bitnami-shell:10-debian-10-r158
 
-ctr images pull --platform linux/amd64 docker.io/bitnami/mongodb:4.4.8
+ctr images pull --platform linux/${ARCH} docker.io/bitnami/mongodb:4.4.8
 ctr images tag docker.io/bitnami/mongodb:4.4.8 ${LOCALIPADDR}:5000/bitnami/mongodb:4.4.8
-ctr images push --platform linux/amd64 --plain-http ${LOCALIPADDR}:5000/bitnami/mongodb:4.4.8
+ctr images push --platform linux/${ARCH} --plain-http ${LOCALIPADDR}:5000/bitnami/mongodb:4.4.8
 ctr images rm docker.io/bitnami/mongodb:4.4.8
 ctr images rm ${LOCALIPADDR}:5000/bitnami/mongodb:4.4.8
 
-ctr images pull --platform linux/amd64 docker.io/bitnami/mysql:8.0.27-debian-10-r8
+ctr images pull --platform linux/${ARCH} docker.io/bitnami/mysql:8.0.27-debian-10-r8
 ctr images tag docker.io/bitnami/mysql:8.0.27-debian-10-r8 ${LOCALIPADDR}:5000/bitnami/mysql:8.0.27-debian-10-r8
-ctr images push --platform linux/amd64 --plain-http ${LOCALIPADDR}:5000/bitnami/mysql:8.0.27-debian-10-r8
+ctr images push --platform linux/${ARCH} --plain-http ${LOCALIPADDR}:5000/bitnami/mysql:8.0.27-debian-10-r8
 ctr images rm docker.io/bitnami/mysql:8.0.27-debian-10-r8
 ctr images rm ${LOCALIPADDR}:5000/bitnami/mysql:8.0.27-debian-10-r8
 
-ctr images pull --platform linux/amd64 docker.io/bitnami/postgresql:11.13.0-debian-10-r89
+ctr images pull --platform linux/${ARCH} docker.io/bitnami/postgresql:11.13.0-debian-10-r89
 ctr images tag docker.io/bitnami/postgresql:11.13.0-debian-10-r89 ${LOCALIPADDR}:5000/bitnami/postgresql:11.13.0-debian-10-r89
-ctr images push --platform linux/amd64 --plain-http ${LOCALIPADDR}:5000/bitnami/postgresql:11.13.0-debian-10-r89
+ctr images push --platform linux/${ARCH} --plain-http ${LOCALIPADDR}:5000/bitnami/postgresql:11.13.0-debian-10-r89
 ctr images rm docker.io/bitnami/postgresql:11.13.0-debian-10-r89
 ctr images rm ${LOCALIPADDR}:5000/bitnami/postgresql:11.13.0-debian-10-r89
 
-ctr images pull --platform linux/amd64 docker.io/library/wordpress:4.8-apache
+ctr images pull --platform linux/${ARCH} docker.io/library/wordpress:4.8-apache
 ctr images tag docker.io/library/wordpress:4.8-apache ${LOCALIPADDR}:5000/library/wordpress:4.8-apache
-ctr images push --platform linux/amd64 --plain-http ${LOCALIPADDR}:5000/library/wordpress:4.8-apache
+ctr images push --platform linux/${ARCH} --plain-http ${LOCALIPADDR}:5000/library/wordpress:4.8-apache
 ctr images rm docker.io/library/wordpress:4.8-apache
 ctr images rm ${LOCALIPADDR}:5000/library/wordpress:4.8-apache
 echo "Registry result"
@@ -264,13 +265,13 @@ else
  
  cp -rf ../k8s-study-vanilla /home/${SUDO_USER}/
  chown -R ${SUDO_USER}:${SUDO_USER} /home/${SUDO_USER}/k8s-study-vanilla
- chmod -x /home/${SUDO_USER}/k8s-study-vanilla/00Install-k8s.sh
- chmod -x /home/${SUDO_USER}/k8s-study-vanilla/0-minio.sh
- chmod -x /home/${SUDO_USER}/k8s-study-vanilla/1-tools.sh
- chmod -x /home/${SUDO_USER}/k8s-study-vanilla/2-buildk8s-lnx.sh
- chmod -x /home/${SUDO_USER}/k8s-study-vanilla/3-configk8s.sh
- chmod -x /home/${SUDO_USER}/k8s-study-vanilla/4-csi-storage.sh
- chmod -x /home/${SUDO_USER}/k8s-study-vanilla/5-csi-vsphere.sh
+ rm /home/${SUDO_USER}/k8s-study-vanilla/00Install-k8s.sh
+ rm /home/${SUDO_USER}/k8s-study-vanilla/0-minio.sh
+ rm /home/${SUDO_USER}/k8s-study-vanilla/1-tools.sh
+ rm /home/${SUDO_USER}/k8s-study-vanilla/2-buildk8s-lnx.sh
+ rm /home/${SUDO_USER}/k8s-study-vanilla/3-configk8s.sh
+ rm /home/${SUDO_USER}/k8s-study-vanilla/4-csi-storage.sh
+ rm /home/${SUDO_USER}/k8s-study-vanilla/5-csi-vsphere.sh
 fi
 
 fi
