@@ -1,11 +1,14 @@
 #!/usr/bin/env bash
 
+#########################################################
+
 NAMESPACE=blog1
 # SC = csi-hostpath-sc / local-path / nfs-csi / vsphere-sc / cstor-csi-disk
 SC=vsphere-sc
 DNSDOMAINNAME=k8slab.internal
 WPHOST=${NAMESPACE}
 
+#########################################################
 ### Install command check ####
 if type "kubectl" > /dev/null 2>&1
 then

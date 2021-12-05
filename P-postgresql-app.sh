@@ -1,8 +1,12 @@
 #!/usr/bin/env bash
 
+#########################################################
+
 PGNAMESPACE=postgresql-app
 # SC = csi-hostpath-sc / local-path / nfs-csi / vsphere-sc / cstor-csi-disk
 SC=vsphere-sc
+
+#########################################################
 
 ### Install command check ####
 if type "kubectl" > /dev/null 2>&1

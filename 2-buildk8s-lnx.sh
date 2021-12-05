@@ -1,9 +1,16 @@
 #!/usr/bin/env bash
 
+#########################################################
+# kubeadm version
 KUBECTLVER=1.21.7-00
-ENABLEREG=1
-IMAGEDL=1
+# install as master
 ENABLEK8SMASTER=1
+
+
+# Enable private registry
+ENABLEREG=1
+# Enable pull/push sample image
+IMAGEDL=1
 
 #########################################################
 

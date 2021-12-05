@@ -1,9 +1,15 @@
 #!/usr/bin/env bash
 
+#########################################################
+
+# Kubernetes client version
 KUBECTLVER=1.21.7-00
 
+# for AKS/EKS/GKE installation
 CLOUDUTILS=0
+# For Tanzu Community edition client installation
 TCE=0
+# for docker in client side. 
 DOCKER=0
 
 #########################################################
@@ -161,6 +167,16 @@ systemctl restart docker
 curl -OL https://github.com/docker/compose/releases/download/v2.2.2/docker-compose-linux-x86_64
 mv docker-compose-linux-x86_64 /usr/local/bin/docker-compose
 chmod +x /usr/local/bin/docker-compose
+
+KINDVER=0.11.1
+if [ ! -f /usr/local/bin/kind ]; then
+curl -s -Lo ./kind https://github.com/kubernetes-sigs/kind/releases/download/v${KINDVER}/kind-linux-${ARCH}
+chmod +x ./kind
+mv ./kind /usr/local/bin/kind
+kind completion bash > /etc/bash_completion.d/kind
+source /etc/bash_completion.d/kind
+fi
+
 fi
 # for client installation
 echo "k8s installation is prohibited if you install docker to this mathine."
@@ -218,10 +234,17 @@ if [ -z $SUDO_USER ]; then
   ./install.sh
 else
   sudo -u $SUDO_USER ./install.sh
+  sudo -u $SUDO_USER ssh-keygen -f ~/.ssh/id_rsa -t rsa -N "" -C "hogehoge@example.com"
+  sudo -u $SUDO_USER cat ~/.ssh/id_rsa.pu
 fi
 cd ..
 rm -rf tce-linux-amd64-v${TANZURELVER}
 cd ${BASEPWD}
+
+OCTANTVER=0.25.0
+curl -OL https://github.com/vmware-tanzu/octant/releases/download/v${OCTANTVER}/octant_${OCTANTVER}_Linux-64bit.deb
+dpkg -i octant_${OCTANTVER}_Linux-64bit.deb
+rm octant_${OCTANTVER}_Linux-64bit.deb
 fi
 
 # Misc
