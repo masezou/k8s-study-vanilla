@@ -279,55 +279,53 @@ fi
 
 # Install Tanzu Community Edition Utility
 if [ ${TCE} -eq 1 ]; then
-if [ ${ARCH} = amd64 ]; then
-if [ ! -f /usr/local/bin/tanzu ]; then
-TANZURELVER=0.9.1
-cd /tmp
-curl -OL https://github.com/vmware-tanzu/community-edition/releases/download/v${TANZURELVER}/tce-linux-amd64-v${TANZURELVER}.
-tar.gz
-tar xfz tce-linux-amd64-v${TANZURELVER}.tar.gz
-rm  tce-linux-amd64-v${TANZURELVER}.tar.gz
-cd tce-linux-amd64-v${TANZURELVER}
-if [ ${EUID:-${UID}} = 0 ]; then
-    echo "currenly I am root user."
-    if [ -z $SUDO_USER ]; then
-     echo "root direct login is not supported"
-     exit 255
-   else
-     echo "root user via sudo"
-   fi
-fi
-echo ok
-if [ -z $SUDO_USER ]; then
-  ./install.sh
-else
-  sudo -u $SUDO_USER ./install.sh
-  sudo -u $SUDO_USER ssh-keygen -f /home/$SUDO_USER/.ssh/id_rsa -t rsa -N "" -C "hogehoge@example.com"
-  sudo -u $SUDO_USER cat ~/.ssh/id_rsa.pu
-fi
-cd ..
-rm -rf tce-linux-amd64-v${TANZURELVER}
-cd ${BASEPWD}
-fi
-fi
-OCTANTVER=0.25.0
-if [ ${ARCH} = amd64 ]; then
-  curl -OL https://github.com/vmware-tanzu/octant/releases/download/v${OCTANTVER}/octant_${OCTANTVER}_Linux-64bit.deb
-  dpkg -i octant_${OCTANTVER}_Linux-64bit.deb
-  rm octant_${OCTANTVER}_Linux-64bit.deb
- elif [ ${ARCH} = arm64 ]; then
-   https://github.com/vmware-tanzu/octant/releases/download/v${OCTANTVER}/octant_${OCTANTVER}_Linux-ARM64.deb
-   dpkg -i octant_${OCTANTVER}_Linux-ARM64.deb
-   rm octant_${OCTANTVER}_Linux-ARM64.deb
- else
-   echo "${ARCH} platform is not supported"
- exit 1
-fi
+	if [ ${ARCH} = amd64 ]; then
+  		if [ ! -f /usr/local/bin/tanzu ]; then
+  		TANZURELVER=0.9.1
+  		cd /tmp
+  		curl -OL https://github.com/vmware-tanzu/community-edition/releases/download/v${TANZURELVER}/tce-linux-amd64-v${TANZURELVER}.tar.gz
+  		tar xfz tce-linux-amd64-v${TANZURELVER}.tar.gz
+  		rm  tce-linux-amd64-v${TANZURELVER}.tar.gz
+  		cd tce-linux-amd64-v${TANZURELVER}
+   			if [ ${EUID:-${UID}} = 0 ]; then
+    		echo "currenly I am root user."
+    			if [ -z $SUDO_USER ]; then
+     			echo "root direct login is not supported"
+     			exit 255
+     			else
+     			echo "root user via sudo"
+    			fi
+   			fi
+  			if [ -z $SUDO_USER ]; then
+    		./install.sh
+  			else
+    		sudo -u $SUDO_USER ./install.sh
+    		sudo -u $SUDO_USER ssh-keygen -f /home/$SUDO_USER/.ssh/id_rsa -t rsa -N "" -C "hogehoge@example.com"
+    		sudo -u $SUDO_USER cat /home/$SUDO_USER/.ssh/id_rsa.pu
+  			fi
+  			cd ..
+  			rm -rf tce-linux-amd64-v${TANZURELVER}
+  			cd ${BASEPWD}
+ 		fi
+	fi
+	OCTANTVER=0.25.0
+	if [ ${ARCH} = amd64 ]; then
+  	curl -OL https://github.com/vmware-tanzu/octant/releases/download/v${OCTANTVER}/octant_${OCTANTVER}_Linux-64bit.deb
+  	dpkg -i octant_${OCTANTVER}_Linux-64bit.deb
+  	rm octant_${OCTANTVER}_Linux-64bit.deb
+ 	elif [ ${ARCH} = arm64 ]; then
+   	https://github.com/vmware-tanzu/octant/releases/download/v${OCTANTVER}/octant_${OCTANTVER}_Linux-ARM64.deb
+   	dpkg -i octant_${OCTANTVER}_Linux-ARM64.deb
+  	rm octant_${OCTANTVER}_Linux-ARM64.deb
+ 	else
+   	echo "${ARCH} platform is not supported"
+ 	exit 1
+	fi
 fi
 if [ ${ARCH} = arm64 ]; then
-echo "TCE is not supported on arm64
+echo "TCE is not supported on arm64"
 fi
-fi
+
 # Misc
 apt -y install postgresql-client postgresql-contrib mysql-client jq apache2-utils mongodb-clients lynx scsitools
 systemctl stop postgresql
