@@ -249,6 +249,7 @@ if [ ! -f /usr/local/bin/aws ]; then
 curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
 apt -y install unzip
 unzip awscliv2.zip
+rm awscliv2.zip
 ./aws/install
 rm -rf aws
 echo "complete -C '/usr/local/bin/aws_completer' aws" > /etc/bash_completion.d/aws.sh
