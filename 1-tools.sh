@@ -171,10 +171,18 @@ fi
 systemctl enable docker
 systemctl daemon-reload
 systemctl restart docker
-curl -OL https://github.com/docker/compose/releases/download/v2.2.2/docker-compose-linux-x86_64
-mv docker-compose-linux-x86_64 /usr/local/bin/docker-compose
+DOCKERCOMPOSEVER=2.2.2
+if [ ${ARCH} = amd64 ]; then
+  curl -OL https://github.com/docker/compose/releases/download/v${DOCKERCOMPOSEVER}/docker-compose-linux-x86_64
+  mv docker-compose-linux-x86_64 /usr/local/bin/docker-compose
+ elif [ ${ARCH} = arm64 ]; then
+  curl -OL https://github.com/docker/compose/releases/download/v${DOCKERCOMPOSEVER}/docker-compose-linux-aarch64
+  mv docker-compose-linux-aarch64 /usr/local/bin/docker-compose
+ else
+   echo "${ARCH} platform is not supported"
+ exit 1
+fi
 chmod +x /usr/local/bin/docker-compose
-
 KINDVER=0.11.1
 if [ ! -f /usr/local/bin/kind ]; then
 curl -s -Lo ./kind https://github.com/kubernetes-sigs/kind/releases/download/v${KINDVER}/kind-linux-${ARCH}
