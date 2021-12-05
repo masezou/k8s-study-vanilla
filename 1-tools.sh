@@ -145,6 +145,27 @@ echo "complete -C /usr/local/bin/mc mc" > /etc/bash_completion.d/mc.sh
 /usr/local/bin/mc >/dev/null
 fi
 
+if [ ! -f /usr/local/bin/govc ]; then
+GOVCVER=v0.27.2
+mkdir govcbin
+if [ ${ARCH} = amd64 ]; then
+curl -OL https://github.com/vmware/govmomi/releases/download/${GOVCVER}/govc_Linux_x86_64.tar.gz
+tar xfz govc_Linux_x86_64.tar.gz -C govcbin
+rm govc_Linux_x86_64.tar.gz
+fi
+
+if [ ${ARCH} = arm64 ]; then
+curl -OL https://github.com/vmware/govmomi/releases/download/${GOVCVER}/govc_Linux_arm64.tar.gz
+tar xfz govc_Linux_arm64.tar.gz -C govcbin
+rm govc_Linux_arm64.tar.gz
+fi
+
+mv govcbin/govc /usr/local/bin
+rm -rf govcbin
+curl -OL https://raw.githubusercontent.com/vmware/govmomi/master/scripts/govc_bash_completion
+mv govc_bash_completion /etc/bash_completion.d/
+fi
+
 # Install Docker for client
 if [ ${DOCKER} -eq 0 ]; then
 if [ ! -f /usr/bin/docker ]; then
