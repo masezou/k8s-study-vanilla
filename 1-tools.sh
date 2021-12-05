@@ -302,7 +302,7 @@ if [ -z $SUDO_USER ]; then
   ./install.sh
 else
   sudo -u $SUDO_USER ./install.sh
-  sudo -u $SUDO_USER ssh-keygen -f ~/.ssh/id_rsa -t rsa -N "" -C "hogehoge@example.com"
+  sudo -u $SUDO_USER ssh-keygen -f /home/$SUDO_USER/.ssh/id_rsa -t rsa -N "" -C "hogehoge@example.com"
   sudo -u $SUDO_USER cat ~/.ssh/id_rsa.pu
 fi
 cd ..
