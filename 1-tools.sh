@@ -77,6 +77,9 @@ KUBECTX=0.9.4
 if [ ${ARCH} = amd64 ]; then
         CXARCH=x86_64
 fi
+if [ ${ARCH} = arm64 ]; then
+        CXARCH=arm64
+fi
 curl -OL https://github.com/ahmetb/kubectx/releases/download/v${KUBECTX}/kubectx_v${KUBECTX}_linux_${CXARCH}.tar.gz
 tar xfz kubectx_v${KUBECTX}_linux_${CXARCH}.tar.gz
 mv kubectx /usr/local/bin/
