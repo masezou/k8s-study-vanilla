@@ -327,6 +327,7 @@ echo "TCE is not supported on arm64"
 fi
 
 # Misc
+if [ ! -f /usr/lib/postgresql/12/bin/pgbench ]; then
 apt -y install postgresql-client postgresql-contrib mysql-client jq apache2-utils mongodb-clients lynx scsitools
 systemctl stop postgresql
 systemctl disable postgresql
@@ -335,8 +336,11 @@ cp /usr/lib/postgresql/12/bin/pgbench /tmp
 apt -y remove postgresql-12
 apt -y autoremove
 mv /tmp/pgbench /usr/lib/postgresql/12/bin/
+fi
 
+if [ ! -f /usr/local/bin/k10tools ]; then
 bash ./K0-kasten-tools.sh
+fi
 
 apt clean
 echo ""
