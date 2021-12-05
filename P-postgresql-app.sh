@@ -6,6 +6,8 @@ PGNAMESPACE=postgresql-app
 # SC = csi-hostpath-sc / local-path / nfs-csi / vsphere-sc / cstor-csi-disk
 SC=vsphere-sc
 
+SAMPLEDATA=1
+
 #########################################################
 
 ### Install command check ####
@@ -39,6 +41,13 @@ if [ ${SC} = csi-hostpath-sc ]; then
 helm install --namespace ${PGNAMESPACE} postgres bitnami/postgresql --set volumePermissions.enabled=true --set global.storageClass=${SC}
 else
 helm install --namespace ${PGNAMESPACE} postgres bitnami/postgresql --set global.storageClass=${SC}
+fi
+if [ ${SAMPLEDATA} -eq 1 ]; then
+export POSTGRES_PASSWORD=$(kubectl get secret --namespace ${PGNAMESPACE} postgres-postgresql -o jsonpath="{.data.postgresql-password}" | base64 --decode)
+kubectl port-forward --namespace  ${PGNAMESPACE} svc/postgres-postgresql 5432:5432 &
+PGPASSWORD="$POSTGRES_PASSWORD" createdb --host 127.0.0.1 -U postgres pgbenchdb
+PGPASSWORD="$POSTGRES_PASSWORD" pgbench --host 127.0.0.1 -U postgres  -i pgbenchdb
+PGPASSWORD="$POSTGRES_PASSWORD" pgbench --host 127.0.0.1 -U postgres  -c 10 -t 1000  pgbenchdb
 fi
 kubectl annotate statefulset postgres-postgresql kanister.kasten.io/blueprint='postgresql-hooks' \
      --namespace=${PGNAMESPACE}
