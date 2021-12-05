@@ -174,11 +174,14 @@ fi
 
 # Install powershell
 if [ ${POWERSHELL} -eq 0 ]; then
+if [ ! -f /usr/bin/pwsh ]; then
+/usr/bin/pwsh
 curl -OL https://packages.microsoft.com/config/ubuntu/20.04/packages-microsoft-prod.deb
 dpkg -i packages-microsoft-prod.deb
 rm packages-microsoft-prod.deb
 apt update
 apt -y install powershell
+fi
 fi
 
 # Install Docker for client
@@ -271,6 +274,7 @@ fi
 
 # Install Tanzu Community Edition Utility
 if [ ${TCE} -eq 0 ]; then
+if [ ! -f /usr/local/bin/tanzu ]; then
 TANZURELVER=0.9.1
 cd /tmp
 curl -OL https://github.com/vmware-tanzu/community-edition/releases/download/v${TANZURELVER}/tce-linux-amd64-v${TANZURELVER}.tar.gz
@@ -298,7 +302,7 @@ cd ..
 rm -rf tce-linux-amd64-v${TANZURELVER}
 cd ${BASEPWD}
 fi
-
+fi
 OCTANTVER=0.25.0
 if [ ${ARCH} = amd64 ]; then
   curl -OL https://github.com/vmware-tanzu/octant/releases/download/v${OCTANTVER}/octant_${OCTANTVER}_Linux-64bit.deb
