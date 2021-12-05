@@ -186,6 +186,7 @@ fi
 # Install Cloud Utility
 if [ ${CLOUDUTILS} -eq 0 ]; then
 # Iinstall aws/eksctl
+if [ ! -f /usr/local/bin/aws ]; then
 curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
 apt -y install unzip
 unzip awscliv2.zip
@@ -195,21 +196,26 @@ echo "complete -C '/usr/local/bin/aws_completer' aws" > /etc/bash_completion.d/a
 curl --silent --location "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$(uname -s)_amd64.tar.gz" | tar xz -C /tmp
 mv /tmp/eksctl /usr/local/bin
 eksctl completion bash > /etc/bash_completion.d/eksctl.sh
+fi
 
 # Install aks
+if [ ! -f /usr/bin/az ]; then
 apt update
-apt -y install ca-certificates curl apt-transport-https lsb-release gnupg
+apt -y install apt-transport-https ca-certificates gnupg curl lsb-release
 curl -sL https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor | tee /etc/apt/trusted.gpg.d/microsoft.gpg > /dev/null
 AZ_REPO=$(lsb_release -cs)
 echo "deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/ $AZ_REPO main" | tee /etc/apt/sources.list.d/azure-cli.list
 apt update && apt -y install azure-cli
+fi
 
 # Install gke
-apt -y install apt-transport-https ca-certificates gnupg
+if [ ! -f /usr/bin/gcloud ]; then
+apt -y install ca-certificates apt-transport-https gnupg
 apt update
 echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] http://packages.cloud.google.com/apt cloud-sdk main" | tee -a /etc/apt/sources.list.d/google-cloud-sdk.list
 curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key --keyring /usr/share/keyrings/cloud.google.gpg add -
 apt -y update && apt -y install google-cloud-sdk
+fi
 fi
 
 # Install Tanzu Community Edition Utility
@@ -240,12 +246,12 @@ fi
 cd ..
 rm -rf tce-linux-amd64-v${TANZURELVER}
 cd ${BASEPWD}
+fi
 
 OCTANTVER=0.25.0
 curl -OL https://github.com/vmware-tanzu/octant/releases/download/v${OCTANTVER}/octant_${OCTANTVER}_Linux-64bit.deb
 dpkg -i octant_${OCTANTVER}_Linux-64bit.deb
 rm octant_${OCTANTVER}_Linux-64bit.deb
-fi
 
 # Misc
 apt -y install postgresql-client postgresql-contrib mysql-client jq apache2-utils mongodb-clients lynx scsitools
