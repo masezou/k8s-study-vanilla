@@ -301,7 +301,7 @@ if [ ${TCE} -eq 1 ]; then
   			else
     		sudo -u $SUDO_USER ./install.sh
     		sudo -u $SUDO_USER ssh-keygen -f /home/$SUDO_USER/.ssh/id_rsa -t rsa -N "" -C "hogehoge@example.com"
-    		sudo -u $SUDO_USER cat /home/$SUDO_USER/.ssh/id_rsa.pu
+    		sudo -u $SUDO_USER cat /home/$SUDO_USER/.ssh/id_rsa.pub
   			fi
   			cd ..
   			rm -rf tce-linux-amd64-v${TANZURELVER}
