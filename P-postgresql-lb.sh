@@ -6,7 +6,7 @@ PGNAMESPACE=postgresql-lb
 # SC = csi-hostpath-sc / local-path / nfs-csi / vsphere-sc / cstor-csi-disk
 SC=vsphere-sc
 
-SAMPLEDATA=1
+SAMPLEDATA=0
 
 #########################################################
 ### Install command check ####
@@ -42,6 +42,17 @@ helm install --namespace ${PGNAMESPACE} postgres bitnami/postgresql --version 9.
 else
 helm install --namespace ${PGNAMESPACE} postgres bitnami/postgresql --version 9.1.1 --set global.storageClass=${SC}
 fi
+
+sleep 5
+kubectl -n ${PGNAMESPACE} get pod,pvc
+while [ "$(kubectl -n ${PGNAMESPACE} get pod postgres-postgresql-0 --output="jsonpath={.status.containerStatuses[*].ready}" | cut -d' ' -f2)" != "true" ]; do
+        echo "Deploying PostgreSQL, Please wait...."
+    kubectl get pod,pvc -n ${PGNAMESPACE}
+        sleep 30
+done
+    kubectl get pod,pvc -n ${PGNAMESPACE}
+sleep 5
+
 
 if [ ${SAMPLEDATA} -eq 1 ]; then
 export POSTGRES_PASSWORD=$(kubectl get secret --namespace ${PGNAMESPACE} postgres-postgresql -o jsonpath="{.data.postgresql-password}" | base64 --decode)
