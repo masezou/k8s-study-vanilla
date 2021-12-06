@@ -712,6 +712,10 @@ sleep 10
 host registryfe.${DNSDOMAINNAME}. ${DNSHOSTIP}
 fi
 
+# Change domainname in sample code
+NSPACE=`grep "DNSDOMAINNAME=" 3-configk8s.sh | cut -d "\"" -f2`
+sed -i -e "s/k8slab.internal/${NSPACE}/g" P-wordpress.sh
+
 echo "*************************************************************************************"
 echo "Here is cluster context."
 echo -e "\e[1mkubectl config get-contexts \e[m"
