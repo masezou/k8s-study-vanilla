@@ -5,14 +5,19 @@
 # Kubernetes client version
 KUBECTLVER=1.21.7-00
 
+# for docker in client side. 
+DOCKER=0
+
+# Govc
+GOVC=1
+
+######################
+# Experimental. following is only tested on amd64.
 # for AKS/EKS/GKE installation
 CLOUDUTILS=0
 # For Tanzu Community edition client installation
 TCE=0
-# for docker in client side. 
-DOCKER=0
-
-GOVC=1
+# Powershell
 POWERSHELL=0
 
 #########################################################
@@ -325,9 +330,9 @@ if [ ${TCE} -eq 1 ]; then
    	echo "${ARCH} platform is not supported"
  	exit 1
 	fi
-fi
 if [ ${ARCH} = arm64 ]; then
 echo "TCE is not supported on arm64"
+fi
 fi
 
 # Misc
