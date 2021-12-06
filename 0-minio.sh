@@ -173,7 +173,7 @@ if [ -z $SUDO_USER ]; then
   echo "there is no sudo login"
 else
  mkdir -p /home/$SUDO_USER/.mc/certs/CAs/
- cp public.crt /home/$SUDO_USER/.mc/certs/CAs/
+ cp ~/.mc/certs/CAs/public.crt /home/$SUDO_USER/.mc/certs/CAs/
  chown -R $SUDO_USER  /home/$SUDO_USER/.mc/
  sudo -u $SUDO_USER mc alias rm local
  sudo -u $SUDO_USER mc alias set local ${MINIO_ENDPOINT} ${MINIO_ROOT_USER} ${MINIO_ROOT_PASSWORD} --api S3v4
