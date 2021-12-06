@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 #########################################################
-
+# AMD64/ARM64 Linux would be worked
 # Kubernetes client version
 KUBECTLVER=1.21.7-00
 
@@ -12,13 +12,15 @@ DOCKER=0
 GOVC=1
 
 ######################
-# Experimental. following is only tested on amd64.
+# Only tested on amd64. arm64 is experimental
 # for AKS/EKS/GKE installation
 CLOUDUTILS=0
-# For Tanzu Community edition client installation
-TCE=0
 # Powershell
 POWERSHELL=0
+#####################
+# Experimental. not tested well. only for amd64.
+# For Tanzu Community edition client installation
+TCE=0
 
 #########################################################
 ### UID Check ###
