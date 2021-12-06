@@ -263,6 +263,10 @@ else
  chown -R ${SUDO_USER}:${SUDO_USER} /home/${SUDO_USER}/.kube/
  chmod 600 /home/${SUDO_USER}/.kube/config
  
+ # Change domainname in sample code
+ NSPACE=`grep "DNSDOMAINNAME=" 3-configk8s.sh | cut -d "\"" -f2`
+ sed -i -e "s/k8slab.internal/${NSPACE}/g" P-wordpress.sh
+ # copy scripts to user area
  cp -rf ../k8s-study-vanilla /home/${SUDO_USER}/
  chown -R ${SUDO_USER}:${SUDO_USER} /home/${SUDO_USER}/k8s-study-vanilla
  rm /home/${SUDO_USER}/k8s-study-vanilla/00Install-k8s.sh
