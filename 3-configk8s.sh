@@ -33,6 +33,22 @@ else
     echo "Ubuntu 20.04=OK"
 fi
 
+### ARCH Check ###
+PARCH=`arch`
+if [ ${PARCH} = aarch64 ]; then
+  ARCH=arm64
+  echo ${ARCH}
+elif [ ${PARCH} = arm64 ]; then
+  ARCH=arm64
+  echo ${ARCH}
+elif [ ${PARCH} = x86_64 ]; then
+  ARCH=amd64
+  echo ${ARCH}
+else
+  echo "${ARCH} platform is not supported"
+  exit 1
+fi
+
 BASEPWD=`pwd`
 
 #### LOCALIP #########
@@ -624,6 +640,7 @@ while [ "$(kubectl -n kube-system get deployments.apps metrics-server --output="
 done
     kubectl -n kube-system get deployments.apps metrics-server
 # Install Reigstory Frontend
+if [ ${ARCH} = amd64 ]; then
 kubectl create namespace registry
 cat <<EOF | kubectl apply -n registry -f -
 apiVersion: v1
@@ -693,6 +710,7 @@ kubectl -n registry annotate service pregistry-frontend-clusterip \
     external-dns.alpha.kubernetes.io/hostname=registryfe.${DNSDOMAINNAME}
 sleep 10
 host registryfe.${DNSDOMAINNAME}. ${DNSHOSTIP}
+fi
 
 echo "*************************************************************************************"
 echo "Here is cluster context."
