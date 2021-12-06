@@ -131,10 +131,10 @@ sleep 30
 kubectl -n ${NAMESPACE} get pod,pvc
 while [ "$(kubectl get pod -n ${NAMESPACE} mysql-release-0 --output="jsonpath={.status.containerStatuses[*].ready}" | cut -d' ' -f2)" != "true" ]; do
 	echo "Deploying Stateful MySQL, Please wait...."
-    kubectl get pod,pvc -n ${NAMESPACE} mysql-release-0
+    kubectl get pod,pvc -n ${NAMESPACE} 
 	sleep 30
 done
-    kubectl get pod,pvc -n ${NAMESPACE} mysql-release-0
+    kubectl get pod,pvc -n ${NAMESPACE} 
 kubectl create -f wordpress-pvc.yaml -n ${NAMESPACE}
 kubectl get pvc,pv
 kubectl create -f wordpress.yaml -n ${NAMESPACE}
