@@ -134,6 +134,7 @@ while [ "$(kubectl get pod -n ${NAMESPACE} mysql-release-0 --output="jsonpath={.
     kubectl get pod,pvc -n ${NAMESPACE} mysql-release-0
 	sleep 30
 done
+    kubectl get pod,pvc -n ${NAMESPACE} mysql-release-0
 kubectl create -f wordpress-pvc.yaml -n ${NAMESPACE}
 kubectl get pvc,pv
 kubectl create -f wordpress.yaml -n ${NAMESPACE}

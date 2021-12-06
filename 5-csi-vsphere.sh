@@ -220,6 +220,7 @@ while [ "$(kubectl -n vmware-system-csi get deployments.apps vsphere-csi-control
      kubectl -n vmware-system-csi get deployments.apps vsphere-csi-controller
      sleep 30
 done
+     kubectl -n vmware-system-csi get deployments.apps vsphere-csi-controller
 kubectl  -n vmware-system-csi wait all -l app=vsphere-csi-node --for condition=Ready --timeout 180s
 
 retvalvspherecsinode=$?

@@ -104,7 +104,9 @@ echo "Deploying Kasten Please wait...."
 sleep 60
 while [ "$(kubectl get deployment -n kasten-io gateway --output="jsonpath={.status.conditions[*].status}" | cut -d' ' -f1)" != "True" ]; do
         echo "Deploying Kasten Please wait...."
+        kubectl get deployment -n kasten-io gateway
         sleep 30
+        kubectl get deployment -n kasten-io gateway
 done
 kubectl wait --for=condition=ready --timeout=180s -n kasten-io pod -l component=jobs
 kubectl wait --for=condition=ready --timeout=180s -n kasten-io pod -l component=catalog

@@ -127,6 +127,7 @@ while [ "$(kubectl get deployment -n metallb-system  controller --output="jsonpa
     kubectl get deployment -n metallb-system  controller
        sleep 30
 done
+    kubectl get deployment -n metallb-system  controller
 
 #kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/cloud/deploy.yaml
 #while [ "$(kubectl get deployment -n ingress-nginx ingress-nginx-controller --output="jsonpath={.status.conditions[*].status}" | cut -d' ' -f1)" != "True" ]; do
@@ -143,6 +144,7 @@ while [ "$(kubectl get deployment -n ingress-system ingress-nginx-controller --o
     kubectl get deployment -n ingress-system ingress-nginx-controller
 	sleep 30
 done
+    kubectl get deployment -n ingress-system ingress-nginx-controller
 
 # Configutr local DNS Server
 apt -y install bind9 bind9utils
@@ -455,6 +457,7 @@ while [ "$(kubectl get deployment -n external-dns external-dns --output="jsonpat
     kubectl get deployment -n external-dns external-dns
        sleep 30
 done
+    kubectl get deployment -n external-dns external-dns
 
 # Install CertManager
 git clone https://github.com/jetstack/cert-manager.git -b v1.4.0 --depth 1
@@ -469,6 +472,7 @@ while [ "$(kubectl get deployment -n cert-manager cert-manager --output="jsonpat
     kubectl get deployment -n cert-manager cert-manager
        sleep 30
 done
+    kubectl get deployment -n cert-manager cert-manager
 cd ../../../../
 rm -rf cert-manager
 kubectl create ns sandbox
@@ -587,6 +591,7 @@ while [ "$(kubectl -n kubernetes-dashboard get deployments --output="jsonpath={.
     kubectl -n kubernetes-dashboard get deployments
         sleep 30
 done
+    kubectl -n kubernetes-dashboard get deployments
 DASHBOARD_EXTERNALIP=`kubectl -n kubernetes-dashboard get service dashboard-service-lb| awk '{print $4}' | tail -n 1`
 kubectl -n kubernetes-dashboard annotate service dashboard-service-lb \
     external-dns.alpha.kubernetes.io/hostname=dashboard.${DNSDOMAINNAME}
@@ -617,7 +622,7 @@ while [ "$(kubectl -n kube-system get deployments.apps metrics-server --output="
     kubectl -n kube-system get deployments.apps metrics-server
         sleep 30
 done
-
+    kubectl -n kube-system get deployments.apps metrics-server
 # Install Reigstory Frontend
 kubectl create namespace registry
 cat <<EOF | kubectl apply -n registry -f -
@@ -682,6 +687,7 @@ while [ "$(kubectl -n registry get deployments.apps pregistry-frontend-deploymen
     kubectl -n registry get deployments.apps pregistry-frontend-deployment
         sleep 30
 done
+    kubectl -n registry get deployments.apps pregistry-frontend-deployment
 REGISTRY_EXTERNALIP=`kubectl -n registry get service pregistry-frontend-clusterip | awk '{print $4}' | tail -n 1`
 kubectl -n registry annotate service pregistry-frontend-clusterip \
     external-dns.alpha.kubernetes.io/hostname=registryfe.${DNSDOMAINNAME}
