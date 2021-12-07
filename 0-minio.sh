@@ -57,6 +57,15 @@ else
 fi
 echo ${LOCALIPADDR}
 
+# SUDO Login
+if [[ -z "${SUDO_USER}" ]]; then
+  echo "You are root login."
+  SUDO_USER=tmase
+else
+  echo "You are sudo login."
+fi
+echo $SUDO_USER
+
 #########################################################
 BASEPWD=`pwd`
 
