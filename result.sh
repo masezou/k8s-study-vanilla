@@ -23,6 +23,7 @@ kubectl -n kubernetes-dashboard get secret $(kubectl -n kubernetes-dashboard get
 echo "" >> dashboard.token
 REGISTRY_EXTERNALIP=`kubectl -n registry get service pregistry-frontend-clusterip | awk '{print $4}' | tail -n 1`
 KASTENEXTERNALIP=`kubectl -n kasten-io get svc gateway-ext | awk '{print $4}' | tail -n 1`
+KASTENINGRESSIP=`kubectl get ingress -n kasten-io --output="jsonpath={.items[*].status.loadBalancer.ingress[*].ip}"`
 sa_secret=$(kubectl get serviceaccount k10-k10 -o jsonpath="{.secrets[0].name}" --namespace kasten-io)
 kubectl get secret $sa_secret --namespace kasten-io -ojsonpath="{.data.token}{'\n'}" | base64 --decode > k10-k10.token
 echo "" >> k10-k10.token
@@ -64,7 +65,10 @@ echo "or"
 echo -e "\e[32m http://registryfe.${DNSDOMAINNAME} \e[m"
 echo ""
 echo -e "\e[1mKasten Dashboard \e[m"
-echo -e "\e[32m Open your browser http://${KASTENEXTERNALIP}/k10/ \e[m"
+echo -e "\e[32m Open your browser \e[m"
+echo -e "\e[32m  http://${KASTENEXTERNALIP}/k10/ \e[m"
+echo -e "\e[32m  http://${KASTENINGRESSIP}/k10/# \e[m"
+echo -e "\e[32m  https://${KASTENINGRESSIP}/k10/# \e[m"
 echo "then input login token"
 echo -e "\e[32m cat ./k10-k10.token \e[m"
 cat ./k10-k10.token

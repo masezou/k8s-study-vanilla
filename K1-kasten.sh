@@ -121,11 +121,15 @@ kubectl get secret $sa_secret --namespace kasten-io -ojsonpath="{.data.token}{'\
 echo "" >> k10-k10.token
 
 EXTERNALIP=`kubectl -n kasten-io get svc gateway-ext | awk '{print $4}' | tail -n 1`
+INGRESSIP=`kubectl get ingress -n kasten-io --output="jsonpath={.items[*].status.loadBalancer.ingress[*].ip}"`
 echo ""
 echo "*************************************************************************************"
 echo "Next Step"
 echo "Confirm wordpress kasten is running with kubectl get pods --namespace kasten-io"
-echo -e "\e[32m Open your browser http://${EXTERNALIP}/k10/ \e[m"
+echo -e "\e[32m Open your browser \e[m"
+echo -e "\e[32m http://${EXTERNALIP}/k10/ \e[m"
+echo -e "\e[32m http://${INGRESSIP}/k10/# \e[m"
+echo -e "\e[32m https://${INGRESSIP}/k10/# \e[m"
 echo "then input login token"
 echo -e "\e[32m cat ./k10-k10.token \e[m"
 cat ./k10-k10.token
