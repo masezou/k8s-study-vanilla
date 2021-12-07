@@ -7,11 +7,11 @@ This script will create only 1 node which the server is control-plane and worker
 
 This single k8s node includes local repository, minio, nfs server for nfs-csi driver
 
-Storage class: hostpath-csi/nfs-csi/vSphere CSI. 
+Storage class: OpenEBS/nfs-csi/vSphere CSI. 
 
-![Diagram1](https://user-images.githubusercontent.com/624501/140580948-258eb6a8-dbc4-42ff-8337-0e044d416a42.jpeg)
+![Slide3](https://user-images.githubusercontent.com/624501/144965922-82ed2fae-6411-4879-952e-b17f1ed83691.jpeg)
 
-![4-single vm hostpath](https://user-images.githubusercontent.com/624501/141036168-128533ff-bb1c-4c19-a608-0fe67dc98868.jpeg)
+![Slide5](https://user-images.githubusercontent.com/624501/144965928-631556b8-f515-4f25-b895-c52f83232645.jpeg)
 
 
 # Requirement
