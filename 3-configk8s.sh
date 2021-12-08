@@ -329,6 +329,9 @@ cat << EOF >>/var/cache/bind/${DNSDOMAINNAME}.lan
         IN  NS      ${DNSDOMAINNAME}.
         IN  A       ${DNSHOSTIP}
 ${DNSHOSTNAME}     IN  A       ${DNSHOSTIP}
+xip		IN NS		ns-aws.sslip.io.
+xip		IN NS		ns-gce.sslip.io.
+xip		IN NS		ns-azure.sslip.io.
 minio IN A ${DNSHOSTIP}
 *.apps IN A ${HOSTSWILDCARDIP}
 EOF
