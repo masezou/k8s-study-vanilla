@@ -13,6 +13,9 @@ REGDIR=/disk/registry
 # Enable pull/push sample image
 IMAGEDL=1
 
+# Enable sysstat
+SYSSTAT=0
+
 #########################################################
 
 if [ ${EUID:-${UID}} != 0 ]; then
@@ -289,6 +292,13 @@ else
 fi
 
 fi
+
+if [ ${SYSSTAT} = 1 ]; then
+apt -y install sysstat
+sed -i -e 's/ENABLED="false"/ENABLED="true"/g' /etc/default/sysstat
+systemctl restart sysstat.service
+fi
+
 #########################################################################
 
 echo ""
