@@ -1,9 +1,5 @@
 #!/usr/bin/env bash
 
-#########################################################
-
-# Install NFS SUB (NON CSI Driver)
-NFSSUB=0
 
 #########################################################
 ### UID Check ###
@@ -174,11 +170,18 @@ apt clean
 NFSPATH=/disk/k8s_share
 mkdir -p ${NFSPATH}
 chmod -R 1777 ${NFSPATH}
+NFSSUBPATH=/disk/nfssub
+mkdir -p ${NFSSUBPATH}
+chmod -R 1777 ${NFSSUBPATH}
 cat << EOF >> /etc/exports
 ${NFSPATH} 192.168.0.0/16(rw,async,no_root_squash)
 ${NFSPATH} 172.16.0.0/12(rw,async,no_root_squash)
 ${NFSPATH} 10.0.0.0/8(rw,async,no_root_squash)
 ${NFSPATH} 127.0.0.1/8(rw,async,no_root_squash)
+${NFSSUBPATH} 192.168.0.0/16(rw,async,no_root_squash)
+${NFSSUBPATH} 172.16.0.0/12(rw,async,no_root_squash)
+${NFSSUBPATH} 10.0.0.0/8(rw,async,no_root_squash)
+${NFSSUBPATH} 127.0.0.1/8(rw,async,no_root_squash)
 EOF
 systemctl restart nfs-server
 systemctl enable nfs-server
@@ -219,19 +222,6 @@ spec:
   fsGroupPolicy: File
 EOF
 
-if [ ${NFSSUB} -eq 1 ]; then
-NFSSUBPATH=/disk/nfssub
-mkdir -p ${NFSSUBPATH}
-chmod -R 1777 ${NFSSUBPATH}
-cat << EOF >> /etc/exports
-${NFSSUBPATH} 192.168.0.0/16(rw,async,no_root_squash)
-${NFSSUBPATH} 172.16.0.0/12(rw,async,no_root_squash)
-${NFSSUBPATH} 10.0.0.0/8(rw,async,no_root_squash)
-${NFSSUBPATH} 127.0.0.1/8(rw,async,no_root_squash)
-EOF
-systemctl restart nfs-server
-systemctl enable nfs-server
-
 # Install NFS-SUB
 kubectl create namespace nfs-subdir
 helm repo add nfs-subdir-external-provisioner https://kubernetes-sigs.github.io/nfs-subdir-external-provisioner/
@@ -240,7 +230,6 @@ helm install nfs-subdir-external-provisioner nfs-subdir-external-provisioner/nfs
     --set nfs.server=${LOCALIPADDR} \
     --set nfs.path=${NFSSUBPATH} \
     --set storageClass.name=nfs-sc
-fi
 
 echo ""
 echo "*************************************************************************************"
