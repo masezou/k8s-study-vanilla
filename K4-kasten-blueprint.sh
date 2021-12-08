@@ -114,6 +114,21 @@ actions:
           mongo --authenticationDatabase admin -u root -p "${MONGODB_ROOT_PASSWORD}" --eval="db.fsyncUnlock()"
 EOF
 
+# etcd
+kubectl create namespace etcd-backup
+
+kubectl create secret generic etcd-details \
+     --from-literal=cacert=/etc/kubernetes/pki/etcd/ca.crt \
+     --from-literal=cert=/etc/kubernetes/pki/etcd/server.crt \
+     --from-literal=endpoints=https://127.0.0.1:2379 \
+     --from-literal=key=/etc/kubernetes/pki/etcd/server.key \
+     --from-literal=etcdns=kube-system \
+     --from-literal=labels=component=etcd,tier=control-plane \
+     --namespace etcd-backup
+
+kubectl label secret -n etcd-backup etcd-details include=true
+
+kubectl annotate secret -n etcd-backup etcd-details kanister.kasten.io/blueprint='etcd-blueprint'
 
 echo "*************************************************************************************"
 echo "Pre-defined blueprints were configured"
