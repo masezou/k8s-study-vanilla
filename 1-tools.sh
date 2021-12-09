@@ -229,7 +229,7 @@ groupadd docker
 if [ -z $SUDO_USER ]; then
   echo "there is no sudo login"
 else
-usermod -g docker ${SUDO_USER}
+usermod -aG docker ${SUDO_USER}
 fi
 systemctl enable docker
 systemctl daemon-reload
