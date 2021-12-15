@@ -8,6 +8,9 @@ KUBECTLVER=1.21.7-00
 # for docker in client side. 
 DOCKER=0
 
+# for minikube in client side
+MINIKUBE=0
+
 # Govc
 GOVC=1
 
@@ -256,6 +259,15 @@ source /etc/bash_completion.d/kind
 fi
 
 fi
+
+# Install minikube
+if [ ${MINIKUBE} -eq 1 ]; then
+curl -OL https://storage.googleapis.com/minikube/releases/latest/minikube-linux-${ARCH}
+install minikube-linux-${ARCH} /usr/local/bin/minikube
+rm minikube-linux-${ARCH}
+minikube completion bash > /etc/bash_completion.d/minikube
+fi
+
 # for client installation
 echo "k8s installation is prohibited if you install docker to this mathine."
 chmod -x 00Install-k8s.sh 0-minio.sh 1-tools.sh 2-buildk8s-lnx.sh 3-configk8s.sh 4-csi-storage.sh 5-csi-vsphere.sh
