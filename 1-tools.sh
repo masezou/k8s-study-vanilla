@@ -262,6 +262,7 @@ fi
 
 # Install minikube
 if [ ${MINIKUBE} -eq 1 ]; then
+apt -y install conntrack
 curl -OL https://storage.googleapis.com/minikube/releases/latest/minikube-linux-${ARCH}
 install minikube-linux-${ARCH} /usr/local/bin/minikube
 rm minikube-linux-${ARCH}
