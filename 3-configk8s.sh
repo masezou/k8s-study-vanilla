@@ -632,7 +632,7 @@ if [ -z $SUDO_USER ]; then
   echo "there is no sudo login"
 else
  cp dashboard.token /home/${SUDO_USER}/k8s-study-vanilla
- chown ${SUDO_USER} /home/${SUDO_USER}/k8s-study-vanill/dashboard.token
+ chown ${SUDO_USER} /home/${SUDO_USER}/k8s-study-vanilla/dashboard.token
 fi
 
 # Install metric server
