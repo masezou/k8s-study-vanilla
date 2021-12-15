@@ -2,7 +2,7 @@
 
 #########################################################
 # kubeadm version
-KUBECTLVER=1.21.7-00
+KUBECTLVER=1.21.8-00
 # install as master
 ENABLEK8SMASTER=1
 

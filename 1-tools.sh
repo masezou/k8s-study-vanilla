@@ -3,7 +3,7 @@
 #########################################################
 # AMD64/ARM64 Linux would be worked
 # Kubernetes client version
-KUBECTLVER=1.21.7-00
+KUBECTLVER=1.21.8-00
 
 # for docker in client side. 
 DOCKER=0
