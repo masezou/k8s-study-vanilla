@@ -8,9 +8,6 @@ KUBECTLVER=1.21.7-00
 # for docker in client side. 
 DOCKER=0
 
-# for minikube in client side
-MINIKUBE=0
-
 # Govc
 GOVC=1
 
@@ -237,6 +234,7 @@ fi
 systemctl enable docker
 systemctl daemon-reload
 systemctl restart docker
+# Install Docker Compose
 DOCKERCOMPOSEVER=2.2.2
 if [ ${ARCH} = amd64 ]; then
   curl -OL https://github.com/docker/compose/releases/download/v${DOCKERCOMPOSEVER}/docker-compose-linux-x86_64
@@ -249,6 +247,7 @@ if [ ${ARCH} = amd64 ]; then
  exit 1
 fi
 chmod +x /usr/local/bin/docker-compose
+# Install Kind
 KINDVER=0.11.1
 if [ ! -f /usr/local/bin/kind ]; then
 curl -s -Lo ./kind https://github.com/kubernetes-sigs/kind/releases/download/v${KINDVER}/kind-linux-${ARCH}
@@ -257,16 +256,15 @@ mv ./kind /usr/local/bin/kind
 kind completion bash > /etc/bash_completion.d/kind
 source /etc/bash_completion.d/kind
 fi
-
-fi
-
 # Install minikube
-if [ ${MINIKUBE} -eq 1 ]; then
+if [ ! -f /usr/local/bin/minikube ]; then
 apt -y install conntrack
 curl -OL https://storage.googleapis.com/minikube/releases/latest/minikube-linux-${ARCH}
 install minikube-linux-${ARCH} /usr/local/bin/minikube
 rm minikube-linux-${ARCH}
 minikube completion bash > /etc/bash_completion.d/minikube
+source /etc/bash_completion.d/minikube
+fi
 fi
 
 # for client installation
