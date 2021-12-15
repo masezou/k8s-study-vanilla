@@ -256,7 +256,7 @@ curl -L https://github.com/kubernetes/kompose/releases/download/v${KOMPOSEVER}/k
 mv kompose /usr/local/bin/kompose
 chmod +x kompose /usr/local/bin/kompose
 kompose completion bash > /etc/bash_completion.d/kompose
-source kompose
+source /etc/bash_completion.d/kompose
 fi
 # Install Kind
 KINDVER=0.11.1
