@@ -235,6 +235,7 @@ systemctl enable docker
 systemctl daemon-reload
 systemctl restart docker
 # Install Docker Compose
+if [ ! -f /usr/local/bin/docker-compose ]; then
 DOCKERCOMPOSEVER=2.2.2
 if [ ${ARCH} = amd64 ]; then
   curl -OL https://github.com/docker/compose/releases/download/v${DOCKERCOMPOSEVER}/docker-compose-linux-x86_64
@@ -247,6 +248,16 @@ if [ ${ARCH} = amd64 ]; then
  exit 1
 fi
 chmod +x /usr/local/bin/docker-compose
+fi
+# Install kompose
+if [ ! -f /usr/local/bin/kompose ]; then
+KOMPOSEVER=1.26.0
+curl -L https://github.com/kubernetes/kompose/releases/download/v${KOMPOSEVER}/kompose-linux-${ARCH} -o kompose
+mv kompose /usr/local/bin/kompose
+chmod +x kompose /usr/local/bin/kompose
+kompose completion bash > /etc/bash_completion.d/kompose
+source kompose
+fi
 # Install Kind
 KINDVER=0.11.1
 if [ ! -f /usr/local/bin/kind ]; then
