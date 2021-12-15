@@ -138,6 +138,7 @@ reclaimPolicy: Delete
 volumeBindingMode: WaitForFirstConsumer
 EOF
 kubectl patch storageclass cstor-csi-disk -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"true"}}}'
+kubectl -n openebs wait pod  -l app=cstor-pool --for condition=Ready
 else
 echo "hostpath installing..."
 # Rancher local driver (Not CSI Storage)
