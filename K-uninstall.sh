@@ -32,3 +32,4 @@ kubectl annotate volumesnapshotclass csi-cstor-snapshotclass \
 fi
 chmod +x K1-kasten.sh
 kubectl get pvc -A
+helm repo remove kasten
