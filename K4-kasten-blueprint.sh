@@ -11,6 +11,13 @@ kubectl --namespace kasten-io apply -f \
     https://raw.githubusercontent.com/kanisterio/kanister/master/examples/stable/elasticsearch/blueprint-v2/elasticsearch-blueprint.yaml
 kubectl --namespace kasten-io apply -f \
     https://raw.githubusercontent.com/kanisterio/kanister/master/examples/etcd/etcd-in-cluster/k8s/etcd-incluster-blueprint.yaml
+kubectl --namespace kasten-io apply -f \
+    https://raw.githubusercontent.com/kanisterio/kanister/master/examples/stable/couchbase/blueprint-v2/couchbase-blueprint.yaml
+kubectl --namespace kasten-io apply -f \
+    https://raw.githubusercontent.com/kanisterio/kanister/master/examples/stable/foundationdb/blueprint-v2/foundationdb-blueprint.yaml
+kubectl --namespace kasten-io apply -f \
+    https://raw.githubusercontent.com/kanisterio/kanister/master/examples/stable/maria/blueprint-v2/maria-blueprint.yaml
+
 #kubectl --namespace kafka-test apply -f \
 #     https://raw.githubusercontent.com/kanisterio/kanister/master/examples/kafka/adobe-s3-connector/kafka-blueprint.yaml
 
