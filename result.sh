@@ -22,7 +22,6 @@ DASHBOARD_EXTERNALIP=`kubectl -n kubernetes-dashboard get service dashboard-serv
 kubectl -n kubernetes-dashboard get secret $(kubectl -n kubernetes-dashboard get sa/admin-user -o jsonpath="{.secrets[0].name}") -o go-template="{{.data.token | base64decode}}" > dashboard.token
 echo "" >> dashboard.token
 REGISTRY_EXTERNALIP=`kubectl -n registry get service pregistry-frontend-clusterip | awk '{print $4}' | tail -n 1`
-echo "" >> k10-k10.token
 
 echo "*************************************************************************************"
 echo "Here is cluster context."
@@ -70,6 +69,7 @@ KASTENEXTERNALIP=`kubectl -n kasten-io get svc gateway-ext | awk '{print $4}' | 
 KASTENINGRESSIP=`kubectl get ingress -n kasten-io --output="jsonpath={.items[*].status.loadBalancer.ingress[*].ip}"`
 sa_secret=$(kubectl get serviceaccount k10-k10 -o jsonpath="{.secrets[0].name}" --namespace kasten-io)
 kubectl get secret $sa_secret --namespace kasten-io -ojsonpath="{.data.token}{'\n'}" | base64 --decode > k10-k10.token
+echo "" >> k10-k10.token
 echo -e "\e[1mKasten Dashboard \e[m"
 echo -e "\e[32m Open your browser \e[m"
 echo -e "\e[32m  http://${KASTENEXTERNALIP}/k10/ \e[m"
