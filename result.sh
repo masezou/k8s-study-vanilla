@@ -29,6 +29,9 @@ echo "Here is cluster context."
 echo -e "\e[1mkubectl config get-contexts \e[m"
 kubectl config get-contexts
 echo ""
+echo -e "\e[1mmetallb loadbalancer IP address range \e[m"
+kubectl -n metallb-system get configmaps config -o jsonpath='{.data.config}'
+echo ""
 echo -e "\e[1mDNS Server \e[m"
 echo -n "DNS Domain Name is "
 echo -e "\e[32m${DNSDOMAINNAME} \e[m"
