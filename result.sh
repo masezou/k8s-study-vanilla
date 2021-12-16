@@ -64,6 +64,9 @@ echo -e "\e[32m http://${REGISTRY_EXTERNALIP}  \e[m"
 echo "or"
 echo -e "\e[32m http://registryfe.${DNSDOMAINNAME} \e[m"
 echo ""
+kubectl get ns kasten-io  > /dev/null 2>&1
+HAS_KASTEN=$?
+if [ ${HAS_KASTEN} -eq 0 ]; then
 echo -e "\e[1mKasten Dashboard \e[m"
 echo -e "\e[32m Open your browser \e[m"
 echo -e "\e[32m  http://${KASTENEXTERNALIP}/k10/ \e[m"
@@ -72,6 +75,7 @@ echo -e "\e[32m  https://${KASTENINGRESSIP}/k10/# \e[m"
 echo "then input login token"
 echo -e "\e[32m cat ./k10-k10.token \e[m"
 cat ./k10-k10.token
+fi
 echo ""
 echo -e "\e[1mKubeconfig \e[m"
 echo -e "\e[32m ~/.kube/config \e[m"
