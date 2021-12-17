@@ -280,8 +280,11 @@ fi
 fi
 
 # for client installation
-echo "k8s installation is prohibited if you install docker to this mathine."
-chmod -x 00Install-k8s.sh 0-minio.sh 1-tools.sh 2-buildk8s-lnx.sh 3-configk8s.sh 4-csi-storage.sh 5-csi-vsphere.sh
+echo "k8s installation is prohibited if you install docker to this mathine. Following scripts are removed."
+rm -rf 00Install-k8s.sh 0-minio.sh 1-tools.sh 2-buildk8s-lnx.sh 3-configk8s.sh 4-csi-storage.sh 5-csi-vsphere.sh
+
+cp -rf ../k8s-study-vanilla /home/${SUDO_USER}/
+chown -R ${SUDO_USER}:${SUDO_USER} /home/${SUDO_USER}/k8s-study-vanilla
 fi
 
 # Install Cloud Utility
