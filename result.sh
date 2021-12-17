@@ -1,5 +1,10 @@
 #!/usr/bin/env bash
 
+if [ ! -f ~/.kube/config ] ; then
+echo "There is no kubeconfig. exit ..."
+exit 0
+fi
+
 DNSDOMAINNAME="k8slab.internal"
 #### LOCALIP #########
 ip address show ens160 >/dev/null
