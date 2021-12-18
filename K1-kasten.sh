@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 SC=nfs-csi
+KASTENNSPACE=`grep "DNSDOMAINNAME=" 3-configk8s.sh | cut -d "\"" -f2`
 
 ### Install command check ####
 if type "kubectl" > /dev/null 2>&1
@@ -75,6 +76,8 @@ helm install k10 kasten/k10 --namespace=kasten-io \
 --set vmWare.taskTimeoutMin=200 \
 --set auth.tokenAuth.enabled=true \
 --set externalGateway.create=true \
+--set externalGateway.fqdn.name=kasten.${KASTENNSPACE} \
+--set externalGateway.fqdn.type=external-dns \
 --set gateway.insecureDisableSSLVerify=true \
 --set ingress.create=true \
 --set ingress.class=nginx \
@@ -100,6 +103,8 @@ spec:
          storage: 20Gi
 EOF
 fi
+sleep 2
+kubectl get deployment -n kasten-io gateway
 echo "Deploying Kasten Please wait...."
 sleep 60
 while [ "$(kubectl get deployment -n kasten-io gateway --output="jsonpath={.status.conditions[*].status}" | cut -d' ' -f1)" != "True" ]; do
