@@ -5,6 +5,8 @@
 NAMESPACE=blog1
 # SC = csi-hostpath-sc / local-path / nfs-csi / vsphere-sc / cstor-csi-disk
 SC=vsphere-sc
+BLUEPRINT=0
+
 DNSDOMAINNAME=k8slab.internal
 WPHOST=${NAMESPACE}
 
@@ -151,6 +153,15 @@ EXTERNALIP=`kubectl -n ${NAMESPACE} get service wordpress |awk '{print $4}' | ta
 kubectl -n ${NAMESPACE} annotate service wordpress \
     external-dns.alpha.kubernetes.io/hostname=${WPHOST}.${DNSDOMAINNAME}
 kubectl -n blog1 wait pod -l app=wordpress --for condition=Ready --timeout 180s
+
+if [ ${BLUEPRINT} -eq 1 ]; then
+kubectl -n kasten-io get blueprint mysql-blueprint
+retval=$?
+if [ ${retval} -eq 0 ]; then
+kubectl --namespace ${NAMESPACE}  annotate statefulset/mysql-release \
+    kanister.kasten.io/blueprint=mysql-blueprint
+fi
+fi
 
 echo ""
 echo "*************************************************************************************"
