@@ -4,7 +4,7 @@
 
 MINIO_ROOT_USER=minioadminuser
 MINIO_ROOT_PASSWORD=minioadminuser
-MINIOPATH=/minio
+MINIOPATH=/disk/minio
 
 #########################################################
 ### UID Check ###

@@ -168,10 +168,10 @@ fi
 ##Install NFS-CSI driver
 apt -y install nfs-kernel-server
 apt clean
-NFSPATH=/disk/k8s_share
+NFSPATH=/disk/nfs_csi
 mkdir -p ${NFSPATH}
 chmod -R 1777 ${NFSPATH}
-NFSSUBPATH=/disk/nfssub
+NFSSUBPATH=/disk/nfs_sub
 mkdir -p ${NFSSUBPATH}
 chmod -R 1777 ${NFSSUBPATH}
 cat << EOF >> /etc/exports
