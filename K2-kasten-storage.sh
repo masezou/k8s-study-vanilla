@@ -1,9 +1,15 @@
 #!/usr/bin/env bash
 
+#########################################################
+# Edit this section
+
+# For VBR Repository setting. 
 VBRADDRESS="VBR_ADDRESS"
 VBRUSERNAME="DOMAIN\administrator"
 VBRPASSWORD="PASSWORD"
 VBRREPONAME="DEFAULT Backup Repository 1"
+
+#########################################################
 
 #### LOCALIP #########
 ip address show ens160 >/dev/null
