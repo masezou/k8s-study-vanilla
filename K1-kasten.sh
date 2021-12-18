@@ -3,7 +3,6 @@
 SC=nfs-csi
 KASTENHOSTNAME=kasten-`hostname`
 
-
 ### Install command check ####
 if type "kubectl" > /dev/null 2>&1
 then
@@ -69,7 +68,7 @@ fi
 k10tools primer
 
 # Install Kasten
-KASTENNSPACE=`grep "DNSDOMAINNAME=" 3-configk8s.sh | cut -d "\"" -f2`
+KASTENNSPACE=`grep zone named.conf.internal-zones | grep -v in-addr.arpa | grep IN | cut -d "\"" -f 2`
 KASTENFQDN=${KASTENHOSTNAME}.${KASTENNSPACE}
 kubectl create ns kasten-io
 helm install k10 kasten/k10 --namespace=kasten-io \
