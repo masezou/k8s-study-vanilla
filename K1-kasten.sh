@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 
 SC=nfs-csi
-KASTENNSPACE=`grep "DNSDOMAINNAME=" 3-configk8s.sh | cut -d "\"" -f2`
-KASTENHOSTNAME=kasten-`hostanme`
+KASTENHOSTNAME=kasten-`hostname`
+
 
 ### Install command check ####
 if type "kubectl" > /dev/null 2>&1
@@ -69,6 +69,8 @@ fi
 k10tools primer
 
 # Install Kasten
+KASTENNSPACE=`grep "DNSDOMAINNAME=" 3-configk8s.sh | cut -d "\"" -f2`
+KASTENFQDN=${KASTENHOSTNAME}.${KASTENNSPACE}
 kubectl create ns kasten-io
 helm install k10 kasten/k10 --namespace=kasten-io \
 --set global.persistence.size=40G \
@@ -77,7 +79,7 @@ helm install k10 kasten/k10 --namespace=kasten-io \
 --set vmWare.taskTimeoutMin=200 \
 --set auth.tokenAuth.enabled=true \
 --set externalGateway.create=true \
---set externalGateway.fqdn.name=${KASTENHOSTNAME}.${KASTENNSPACE} \
+--set externalGateway.fqdn.name=${KASTENFQDN}
 --set externalGateway.fqdn.type=external-dns \
 --set gateway.insecureDisableSSLVerify=true \
 --set ingress.create=true \
