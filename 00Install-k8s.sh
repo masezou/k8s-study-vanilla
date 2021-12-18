@@ -28,7 +28,7 @@ VBRPASSWORD="VBR_PASSWORD"
 VBRREPONAME="DEFAULT Backup Repository 1"
 
 #########################################################
-sed -i -e "s/fixme/${IPRANGE}g" 3-configk8s.sh
+sed -i -e "s/\=\"fixme\"/\=\"${IPRANGE}\"/g" 3-configk8s.sh
 sed -i -e "s/192.168.133.208/${HOSTSWILDCARDIP}/g" 3-configk8s.sh
 sed -i -e "s/k8slab.internal/${DNSDOMAINNAME}/g" 3-configk8s.sh
 
@@ -39,7 +39,7 @@ sed -i -e "s/YOUR_VCENTER_IP/${VSPHERESERVERIP}/g" 5-csi-vsphere.sh
 sed -i -e "s/YOUR_DATASTORE/${VSPPHEREDATASTORE}/g" 5-csi-vsphere.sh
 
 sed -i -e "s/VBR_ADDRESS/${VBRADDRESS}/g" K2-kasten-storage.sh
-sed -i -e "s/DOMAIN\administrator/${VBRUSERNAME}/g" K2-kasten-storage.sh
+sed -i -e "s/DOMAIN\\administrator/${VBRUSERNAME}/g" K2-kasten-storage.sh
 sed -i -e "s/VBR_PASSWORD/${VBRPASSWORD}/g" K2-kasten-storage.sh
 sed -i -e "s/DEFAULT Backup Repository 1/${VBRREPONAME}/g" K2-kasten-storage.sh
 
