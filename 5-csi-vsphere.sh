@@ -215,6 +215,8 @@ fi
 kubectl apply -f vsphere-csi-driver.yaml
 rm -rf vsphere-csi-driver.yaml
 
+sleep 2
+kubectl -n vmware-system-csi get deployments.apps vsphere-csi-controller
 while [ "$(kubectl -n vmware-system-csi get deployments.apps vsphere-csi-controller --output="jsonpath={.status.conditions[*].status}" | cut -d' ' -f1)" != "True" ]; do
      echo "Deploying Ingress-nginx controller Please wait...."
      kubectl -n vmware-system-csi get deployments.apps vsphere-csi-controller

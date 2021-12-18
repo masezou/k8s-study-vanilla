@@ -147,6 +147,8 @@ data:
       addresses:
       - ${IPRANGE}
 EOF
+sleep 2
+kubectl get deployment -n metallb-system  controller
 while [ "$(kubectl get deployment -n metallb-system  controller --output="jsonpath={.status.conditions[*].status}" | cut -d' ' -f1)" != "True" ]; do
        echo "Deploying metallb controller Please wait...."
     kubectl get deployment -n metallb-system  controller
@@ -164,6 +166,8 @@ helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
 helm repo update
 kubectl create ns ingress-system
 helm install ingress-nginx ingress-nginx/ingress-nginx  -n ingress-system
+sleep 2
+kubectl get deployment -n ingress-system ingress-nginx-controller
 while [ "$(kubectl get deployment -n ingress-system ingress-nginx-controller --output="jsonpath={.status.conditions[*].status}" | cut -d' ' -f1)" != "True" ]; do
 	echo "Deploying Ingress-nginx controller Please wait...."
     kubectl get deployment -n ingress-system ingress-nginx-controller
@@ -480,6 +484,8 @@ spec:
         #- --interval=10s
         #- --log-level=debug
 EOF
+sleep 2
+kubectl get deployment -n external-dns external-dns
 while [ "$(kubectl get deployment -n external-dns external-dns --output="jsonpath={.status.conditions[*].status}" | cut -d' ' -f1)" != "True" ]; do
        echo "Deploying external-dns Please wait...."
     kubectl get deployment -n external-dns external-dns
@@ -495,6 +501,8 @@ sed -i -e "s/appVersion: v0.1.0/appVersion: v1.4.0/g" Chart.yaml
 kubectl create ns cert-manager
 kubectl apply -f https://github.com/jetstack/cert-manager/releases/download/v1.4.0/cert-manager.crds.yaml
 helm install cert-manager . -n cert-manager
+sleep 2
+kubectl get deployment -n cert-manager cert-manager
 while [ "$(kubectl get deployment -n cert-manager cert-manager --output="jsonpath={.status.conditions[*].status}" | cut -d' ' -f1)" != "True" ]; do
        echo "Deploying cert-manager Please wait...."
     kubectl get deployment -n cert-manager cert-manager
@@ -614,6 +622,8 @@ spec:
   selector:
     k8s-app: kubernetes-dashboard
 EOF
+sleep 2
+kubectl -n kubernetes-dashboard get deployments
 while [ "$(kubectl -n kubernetes-dashboard get deployments --output="jsonpath={.items[*].status.conditions[*].status}" | cut -d' ' -f1)" != "True" ]; do
         echo "Deploying Kubernetes Dashboard Please wait...."
     kubectl -n kubernetes-dashboard get deployments
@@ -645,6 +655,8 @@ cat << EOF | sed -i -e "/        imagePullPolicy: IfNotPresent$/r /dev/stdin" co
 EOF
 kubectl apply -f components.yaml
 rm -rf components.yaml
+sleep 2
+kubectl -n kube-system get deployments.apps metrics-server
 while [ "$(kubectl -n kube-system get deployments.apps metrics-server --output="jsonpath={.status.conditions[*].status}" | cut -d' ' -f1)" != "True" ]; do
         echo "Deploying Kubernetes metrics-server  Please wait...."
     kubectl -n kube-system get deployments.apps metrics-server
@@ -711,6 +723,8 @@ spec:
                 name: pregistry-configmap
                 key: pregistry_port
 EOF
+sleep 2
+kubectl -n registry get deployments.apps pregistry-frontend-deployment
 while [ "$(kubectl -n registry get deployments.apps pregistry-frontend-deployment  --output="jsonpath={.status.conditions[*].status}" | cut -d' ' -f1)" != "True" ]; do
         echo "Deploying registry frontend  Please wait...."
     kubectl -n registry get deployments.apps pregistry-frontend-deployment

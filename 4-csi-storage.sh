@@ -80,6 +80,8 @@ helm repo add openebs https://openebs.github.io/charts
 helm repo update
 helm install openebs --namespace openebs openebs/openebs --create-namespace \
 --set cstor.enabled=true 
+sleep 2
+kubectl -n openebs get pod openebs-cstor-csi-controller-0
 echo "Initial wait 30s"
 sleep 30
 while [ "$(kubectl -n openebs get pod openebs-cstor-csi-controller-0 --output="jsonpath={.status.conditions[*].status}" | cut -d' ' -f3)" != "True" ]; do
@@ -195,6 +197,8 @@ curl -OL https://raw.githubusercontent.com/kubernetes-csi/csi-driver-nfs/master/
 sed -i -e "s/replicas: 2/replicas: 1/g" csi-nfs-controller.yaml
 kubectl apply -f csi-nfs-controller.yaml
 rm -rf csi-nfs-controller.yaml
+sleep 2
+kubectl -n kube-system get deployments.apps csi-nfs-controller
 kubectl apply -f https://raw.githubusercontent.com/kubernetes-csi/csi-driver-nfs/master/deploy/csi-nfs-node.yaml
 while [ "$(kubectl -n kube-system get deployments.apps csi-nfs-controller --output="jsonpath={.status.conditions[*].status}" | cut -d' ' -f1)" != "True" ]; do
        echo "Deploying CSI-NFS controller Please wait...."
