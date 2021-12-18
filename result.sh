@@ -71,12 +71,14 @@ kubectl get ns kasten-io  > /dev/null 2>&1
 HAS_KASTEN=$?
 if [ ${HAS_KASTEN} -eq 0 ]; then
 KASTENEXTERNALIP=`kubectl -n kasten-io get svc gateway-ext | awk '{print $4}' | tail -n 1`
+KASTENFQDN=`kubectl -n kasten-io  get svc gateway-ext --output="jsonpath={.metadata.annotations}" | jq | grep external-dns | cut -d "\"" -f 4`
 KASTENINGRESSIP=`kubectl get ingress -n kasten-io --output="jsonpath={.items[*].status.loadBalancer.ingress[*].ip}"`
 sa_secret=$(kubectl get serviceaccount k10-k10 -o jsonpath="{.secrets[0].name}" --namespace kasten-io)
 kubectl get secret $sa_secret --namespace kasten-io -ojsonpath="{.data.token}{'\n'}" | base64 --decode > k10-k10.token
 echo "" >> k10-k10.token
 echo -e "\e[1mKasten Dashboard \e[m"
 echo -e "\e[32m Open your browser \e[m"
+echo -e "\e[32m  http://${KASTENFQDN}/k10/ \e[m"
 echo -e "\e[32m  http://${KASTENEXTERNALIP}/k10/ \e[m"
 echo -e "\e[32m  http://${KASTENINGRESSIP}/k10/# \e[m"
 echo -e "\e[32m  https://${KASTENINGRESSIP}/k10/# \e[m"

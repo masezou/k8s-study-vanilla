@@ -2,6 +2,7 @@
 
 SC=nfs-csi
 KASTENNSPACE=`grep "DNSDOMAINNAME=" 3-configk8s.sh | cut -d "\"" -f2`
+KASTENHOSTNAME=kasten-`hostanme`
 
 ### Install command check ####
 if type "kubectl" > /dev/null 2>&1
@@ -76,7 +77,7 @@ helm install k10 kasten/k10 --namespace=kasten-io \
 --set vmWare.taskTimeoutMin=200 \
 --set auth.tokenAuth.enabled=true \
 --set externalGateway.create=true \
---set externalGateway.fqdn.name=kasten.${KASTENNSPACE} \
+--set externalGateway.fqdn.name=${KASTENHOSTNAME}.${KASTENNSPACE} \
 --set externalGateway.fqdn.type=external-dns \
 --set gateway.insecureDisableSSLVerify=true \
 --set ingress.create=true \
@@ -132,6 +133,7 @@ echo "**************************************************************************
 echo "Next Step"
 echo "Confirm wordpress kasten is running with kubectl get pods --namespace kasten-io"
 echo -e "\e[32m Open your browser \e[m"
+echo -e "\e[32m http://${KASTENHOSTNAME}.${DNSDOMAINNAME}/k10/ \e[m"
 echo -e "\e[32m http://${EXTERNALIP}/k10/ \e[m"
 echo -e "\e[32m http://${INGRESSIP}/k10/# \e[m"
 echo -e "\e[32m https://${INGRESSIP}/k10/# \e[m"
