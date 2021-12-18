@@ -284,4 +284,12 @@ kubectl get sc
 echo ""
 
 cd ${BASEPWD}
+if [ -z $SUDO_USER ]; then
+  echo "there is no sudo login"
+else
+head -n 20 5-csi-vsphere.sh > vsphere-env
+mkdir -p /home/${SUDO_USER}/k8s-study-vanilla/
+cp vsphere-env /home/${SUDO_USER}/k8s-study-vanilla/vsphere-env
+chmod -x  /home/${SUDO_USER}/k8s-study-vanilla/vsphere-env
+fi
 chmod -x ./5-csi-vsphere.sh
