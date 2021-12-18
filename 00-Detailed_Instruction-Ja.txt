@@ -116,6 +116,10 @@ cd k8s-study-vanilla
          ファイルがない場合は、DISKUUIDの設定がVMにされていない。
          
  これでKubernetes環境の構築が完了
+
+問題がなければ、exitをしてrootのセッションを終了する。
  
 もし、インストール後の情報を再度みたい場合は、以下を実行
+cd ~/k8s-study-vanilla
 bash ./result.sh
+
