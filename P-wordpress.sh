@@ -128,6 +128,8 @@ else
 helm install mysql-release bitnami/mysql -n ${NAMESPACE} --set global.storageClass=${SC}
 #helm install mysql-release ${MYSQLCHART}  -n ${NAMESPACE} --set global.storageClass=${SC} --set global.imageRegistry=192.168.17.2:5000
 fi
+sleep 5
+kubectl get pod,pvc -n ${NAMESPACE} 
 echo "Initial sleep 30s"
 sleep 30
 kubectl -n ${NAMESPACE} get pod,pvc
