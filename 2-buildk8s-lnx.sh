@@ -280,10 +280,6 @@ else
  chown -R ${SUDO_USER}:${SUDO_USER} /home/${SUDO_USER}/.kube/
  chmod 600 /home/${SUDO_USER}/.kube/config
  
- # Change domainname in sample code
- NSPACE=`grep "DNSDOMAINNAME=" 3-configk8s.sh | cut -d "\"" -f2`
- sed -i -e "s/k8slab.internal/${NSPACE}/g" P-wordpress.sh
- sed -i -e "s/k8slab.internal/${NSPACE}/g" result.sh
  # copy scripts to user area
  cp -rf ../k8s-study-vanilla /home/${SUDO_USER}/
  chown -R ${SUDO_USER}:${SUDO_USER} /home/${SUDO_USER}/k8s-study-vanilla
@@ -291,9 +287,9 @@ else
  rm /home/${SUDO_USER}/k8s-study-vanilla/0-minio.sh
  rm /home/${SUDO_USER}/k8s-study-vanilla/1-tools.sh
  rm /home/${SUDO_USER}/k8s-study-vanilla/2-buildk8s-lnx.sh
- chmod -x  /home/${SUDO_USER}/k8s-study-vanilla/3-configk8s.sh
+ rm /home/${SUDO_USER}/k8s-study-vanilla/3-configk8s.sh
  rm /home/${SUDO_USER}/k8s-study-vanilla/4-csi-storage.sh
- chmod -x /home/${SUDO_USER}/k8s-study-vanilla/5-csi-vsphere.sh
+ rm /home/${SUDO_USER}/k8s-study-vanilla/5-csi-vsphere.sh
 fi
 
 fi

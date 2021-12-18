@@ -354,6 +354,22 @@ echo ""
 host www.yahoo.co.jp. ${DNSHOSTIP}
 echo ""
 
+# Change domainname in codes
+sed -i -e "s/k8slab.internal/${DNSDOMAINNAME}/g" K1-kasten.sh
+sed -i -e "s/k8slab.internal/${DNSDOMAINNAME}/g" P-wordpress.sh
+sed -i -e "s/k8slab.internal/${DNSDOMAINNAME}/g" result.sh
+
+if [ -z $SUDO_USER ]; then
+  echo "there is no sudo login"
+else
+ cp K1-kasten.sh  /home/${SUDO_USER}/k8s-study-vanilla/
+ cp P-wordpress.sh /home/${SUDO_USER}/k8s-study-vanilla/
+ cp result.sh /home/${SUDO_USER}/k8s-study-vanilla/
+ chown ${SUDO_USER}:${SUDO_USER} K1-kasten.sh 
+ chown ${SUDO_USER}:${SUDO_USER} P-wordpress.sh
+ chown ${SUDO_USER}:${SUDO_USER} result.sh 
+fi
+
 # minio cert update
 if [ -f /root/.minio/certs/private.key ]; then
 cd /root/.minio/certs/

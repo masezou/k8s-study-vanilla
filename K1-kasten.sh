@@ -68,8 +68,8 @@ fi
 k10tools primer
 
 # Install Kasten
-KASTENNSPACE=`grep zone named.conf.internal-zones | grep -v in-addr.arpa | grep IN | cut -d "\"" -f 2`
-KASTENFQDN=${KASTENHOSTNAME}.${KASTENNSPACE}
+DNSDOMAINNAME="k8slab.internal"
+KASTENFQDN=${KASTENHOSTNAME}.${DNSDOMAINNAME}
 kubectl create ns kasten-io
 helm install k10 kasten/k10 --namespace=kasten-io \
 --set global.persistence.size=40G \
@@ -134,7 +134,7 @@ echo "**************************************************************************
 echo "Next Step"
 echo "Confirm wordpress kasten is running with kubectl get pods --namespace kasten-io"
 echo -e "\e[32m Open your browser \e[m"
-echo -e "\e[32m http://${KASTENHOSTNAME}.${DNSDOMAINNAME}/k10/ \e[m"
+echo -e "\e[32m http://${KASTENFQDN}/k10/ \e[m"
 echo -e "\e[32m http://${EXTERNALIP}/k10/ \e[m"
 echo -e "\e[32m http://${INGRESSIP}/k10/# \e[m"
 echo -e "\e[32m https://${INGRESSIP}/k10/# \e[m"
