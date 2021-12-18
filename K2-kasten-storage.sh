@@ -1,5 +1,10 @@
 #!/usr/bin/env bash
 
+VBRADDRESS="VBR_ADDRESS"
+VBRUSERNAME="DOMAIN\administrator"
+VBRPASSWORD="PASSWORD"
+VBRREPONAME="DEFAULT Backup Repository 1"
+
 #### LOCALIP #########
 ip address show ens160 >/dev/null
 retval=$?
@@ -118,6 +123,53 @@ spec:
       claimName: ${KASTENNFSPVC}
 EOF
 fi
+
+# Configure vbr setup
+if [ ${VBRADDRESS} ! = "VBRADDRESS" ]; then
+kubectl get sc | grep csi.vsphere.vmware.com
+retvalvbr=$?
+if [ ${retvalvbr} -eq 0 ]; then
+VBRUSER=` echo -n "${VBRUSERNAME}" | base64`
+VBRPASS=` echo -n "${VBRPASSWORD}" | base64`
+
+cat << EOF | kubectl -n kasten-io create -f -
+apiVersion: v1
+data:
+  vbr_password:  ${VBRPASS}
+  vbr_user: ${VBRUSER}
+kind: Secret
+metadata:
+  name: k10-vbr-secret
+  namespace: kasten-io
+type: Opaque
+
+EOF
+cat <<EOF | kubectl -n kasten-io create -f -
+apiVersion: config.kio.kasten.io/v1alpha1
+kind: Profile
+metadata:
+  name: vbr-profile
+  namespace: kasten-io
+spec:
+  type: Location
+  locationSpec:
+    credential:
+      secretType: VBRKey
+      secret:
+        apiVersion: v1
+        kind: Secret
+        name: k10-vbr-secret
+        namespace: kasten-io
+    type: VBR
+    vbr:
+      repoName: ${VBRREPONAME}
+      serverAddress: ${VBRADDRESS}
+      serverPort: 9419
+      skipSSLVerify: true
+EOF
+fi
+fi
+
 
 echo "*************************************************************************************"
 echo "Kasten Backup storages were configured"
