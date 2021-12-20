@@ -131,7 +131,7 @@ EOF
 fi
 
 # Configure vbr setup
-if [ ${VBRADDRESS} ! = "VBRADDRESS" ]; then
+if [ ${VBRADDRESS} != "VBR_ADDRESS" ]; then
 kubectl get sc | grep csi.vsphere.vmware.com
 retvalvbr=$?
 if [ ${retvalvbr} -eq 0 ]; then
