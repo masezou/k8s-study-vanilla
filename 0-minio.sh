@@ -138,7 +138,7 @@ sleep 3
 
 mc alias rm local
 MINIO_ENDPOINT=https://${LOCALIPADDR}:9000
-mc alias set local ${MINIO_ENDPOINT} ${MINIO_ROOT_USER} ${MINIO_ROOT_PASSWORD} --api S3v4
+mc alias set local ${MINIO_ENDPOINT} ${MCLOGINUSER} ${MCLOGINPASSWORD} --api S3v4
 cat << EOF > s3user.json
 {
         "Version": "2012-10-17",
@@ -192,18 +192,18 @@ else
  cp ~/.mc/certs/CAs/public.crt /home/$SUDO_USER/.mc/certs/CAs/
  chown -R $SUDO_USER  /home/$SUDO_USER/.mc/
  sudo -u $SUDO_USER mc alias rm local
- sudo -u $SUDO_USER mc alias set local ${MINIO_ENDPOINT} ${MINIO_ROOT_USER} ${MINIO_ROOT_PASSWORD} --api S3v4
+ sudo -u $SUDO_USER mc alias set local ${MINIO_ENDPOINT} ${MCLOGINUSER} ${MCLOGINPASSWORD} --api S3v4
 fi
 
 mc admin info local/
 echo ""
 echo "*************************************************************************************"
 echo -e "\e[32m Minio API endpoint is ${MINIO_ENDPOINT} \e[m"
-echo -e "\e[32m MINIO_ROOT_USER=${MINIO_ROOT_USER} \e[m"
-echo -e "\e[32m MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD} \e[m"
+echo -e "\e[32m Access Key ${MCLOGINUSER} \e[m"
+echo -e "\e[32m Secret     ${MCLOGINPASSWORD} \e[m"
 echo -e "\e[32m Minio console is https://${LOCALIPADDR}:9001 \e[m"
-echo -e "\e[32m username: ${MINIO_ROOT_USER} \e[m"
-echo -e "\e[32m password: ${MINIO_ROOT_PASSWORD} \e[m"
+echo -e "\e[32m username: ${MCLOGINUSER} \e[m"
+echo -e "\e[32m password: ${MCLOGINPASSWORD} \e[m"
 echo ""
 echo "*************************************************************************************"
 echo "Next Step"

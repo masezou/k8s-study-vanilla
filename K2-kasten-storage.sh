@@ -3,6 +3,9 @@
 #########################################################
 # Edit this section
 
+MCLOGINUSER=miniologinuser
+MCLOGINPASSWORD=miniologinuser
+
 # For VBR Repository setting. 
 VBRADDRESS="VBR_ADDRESS"
 VBRUSERNAME="DOMAIN\administrator"
@@ -10,6 +13,13 @@ VBRPASSWORD="VBR_PASSWORD"
 VBRREPONAME="DEFAULT Backup Repository 1"
 
 #########################################################
+
+MINIOIP=${LOCALIPADDR}
+BUCKETNAME=`hostname`
+MINIOLOCK_BUCKET_NAME=`hostname`-lock
+MINIOLOCK_PERIOD=30d
+PROTECTION_PERIOD=240h
+KASTENNFSPVC=kastenbackup-pvc
 
 #### LOCALIP #########
 ip address show ens160 >/dev/null
@@ -27,24 +37,13 @@ else
 fi
 echo ${LOCALIPADDR}
 
-
-MINIOIP=${LOCALIPADDR}
-MINIO_ROOT_USER=miniologinuser
-MINIO_ROOT_PASSWORD=miniologinuser
-BUCKETNAME=`hostname`
-MINIOLOCK_BUCKET_NAME=`hostname`-lock
-MINIOLOCK_PERIOD=30d
-PROTECTION_PERIOD=240h
-KASTENNFSPVC=kastenbackup-pvc
-
-
 mc alias rm local
 MINIO_ENDPOINT=https://${MINIOIP}:9000
-mc alias set local ${MINIO_ENDPOINT} ${MINIO_ROOT_USER} ${MINIO_ROOT_PASSWORD} --api S3v4
+mc alias set local ${MINIO_ENDPOINT} ${MCLOGINUSER} ${MCLOGINPASSWORD} --api S3v4
 
 # Configure local minio setup
-AWS_ACCESS_KEY_ID=` echo -n "${MINIO_ROOT_USER}" | base64`
-AWS_SECRET_ACCESS_KEY_ID=` echo -n "${MINIO_ROOT_PASSWORD}" | base64`
+AWS_ACCESS_KEY_ID=` echo -n "${MCLOGINUSER}" | base64`
+AWS_SECRET_ACCESS_KEY_ID=` echo -n "${MCLOGINPASSWORD}" | base64`
 
 cat << EOF | kubectl -n kasten-io create -f -
 apiVersion: v1
