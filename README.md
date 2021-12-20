@@ -30,9 +30,9 @@ Storage class: OpenEBS/nfs-csi/vSphere CSI.
 
 Configure your clone. Before execute script, please change following.
 
-* 3-configk8s.sh:IPRANGE: loadbalancer will be assigned this subnet, thus you need to set unused IP subnet.
+* 3-configk8s.sh:   IPRANGE: loadbalancer will be assigned this subnet, thus you need to set unused IP subnet.
 
-* 6-csi-vsphere.sh/K3-kasten-vsphere.sh: vCenter configuration in vSphere  CSI driver and Kasten Storage setting.
+* 5-csi-vsphere.sh: vCenter configuration in vSphere  CSI driver and Kasten Storage setting.
 
 Please read 00-Detailed_Instruction-En.txt (English) / 00-Detailed_Instruction-Ja.txt (Japanese) also.
 
@@ -47,9 +47,6 @@ cd k8s-study-vanilla
 ```
 
 Following is fully automation. It is easy.
-```bash
-./00Install-k8s.sh
-```
 
 or execute each step.
 ```bash
