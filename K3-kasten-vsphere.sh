@@ -1,10 +1,6 @@
 #!/usr/bin/env bash
 
-if [ ! -f ./vsphere-env ]; then
-echo "There is no ./vsphere-env in same directory!!! Exit..."
-exit 255
-fi
-source ./vsphere-env 
+###VSPHERESETTING####
 
 echo "Here is vSphere information"
 echo $VSPHEREUSERNAME

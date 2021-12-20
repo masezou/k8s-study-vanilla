@@ -283,9 +283,14 @@ cd ${BASEPWD}
 if [ -z $SUDO_USER ]; then
   echo "there is no sudo login"
 else
-head -n 16 5-csi-vsphere.sh > vsphere-env
+grep VSPHEREUSERNAME= 5-csi-vsphere.sh > vsphere-env
+grep VSPHEREPASSWORD= 5-csi-vsphere.sh >> vsphere-env
+grep VSPHERESERVER= 5-csi-vsphere.sh >> vsphere-env
+sed -i -e "###VSPHERESETTING####/r vsphere-env" K3-kasten-vsphere.sh
+rm vsphere-env
 mkdir -p /home/${SUDO_USER}/k8s-study-vanilla/
-cp vsphere-env /home/${SUDO_USER}/k8s-study-vanilla/vsphere-env
-chmod -x  /home/${SUDO_USER}/k8s-study-vanilla/vsphere-env
+cp K3-kasten-vsphere.sh /home/${SUDO_USER}/k8s-study-vanilla/K3-kasten-vsphere.sh
+chmod +x /home/${SUDO_USER}/k8s-study-vanilla/K3-kasten-vsphere.sh
+chown ${SUDO_USER}:${SUDO_USER} /home/${SUDO_USER}/k8s-study-vanilla/K3-kasten-vsphere.sh
 fi
 chmod -x ./5-csi-vsphere.sh
