@@ -14,13 +14,6 @@ VBRREPONAME="DEFAULT Backup Repository 1"
 
 #########################################################
 
-MINIOIP=${LOCALIPADDR}
-BUCKETNAME=`hostname`
-MINIOLOCK_BUCKET_NAME=`hostname`-lock
-MINIOLOCK_PERIOD=30d
-PROTECTION_PERIOD=240h
-KASTENNFSPVC=kastenbackup-pvc
-
 #### LOCALIP #########
 ip address show ens160 >/dev/null
 retval=$?
@@ -36,6 +29,13 @@ else
   fi
 fi
 echo ${LOCALIPADDR}
+
+MINIOIP=${LOCALIPADDR}
+BUCKETNAME=`hostname`
+MINIOLOCK_BUCKET_NAME=`hostname`-lock
+MINIOLOCK_PERIOD=30d
+PROTECTION_PERIOD=240h
+KASTENNFSPVC=kastenbackup-pvc
 
 mc alias rm local
 MINIO_ENDPOINT=https://${MINIOIP}:9000
