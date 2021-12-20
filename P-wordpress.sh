@@ -3,7 +3,7 @@
 #########################################################
 
 NAMESPACE=blog1
-# SC = csi-hostpath-sc / local-path / nfs-csi / vsphere-sc / cstor-csi-disk
+# SC = csi-hostpath-sc / local-path / nfs-sc / nfs-csi / vsphere-sc / cstor-csi-disk
 SC=vsphere-sc
 BLUEPRINT=0
 
