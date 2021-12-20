@@ -180,10 +180,10 @@ cat << EOF > s3user.json
 EOF
 mc admin policy add local/ s3user s3user.json
 rm s3user.json
-fi
-
 mc admin user add local ${MCLOGINUSER} ${MCLOGINPASSWORD} 
 mc admin policy set local s3user user=${MCLOGINUSER}
+fi
+
 
 if [ -z $SUDO_USER ]; then
   echo "there is no sudo login"
