@@ -45,10 +45,7 @@ sudo -i
 git clone https://github.com/masezou/k8s-study-vanilla
 cd k8s-study-vanilla
 ```
-
-Following is fully automation. It is easy.
-
-or execute each step.
+Execute each step.
 ```bash
 ./0-minio.sh ; ./1-tools.sh ; ./2-buildk8s-lnx.sh ; ./3-configk8s.sh ; ./4-csi-storage.sh
 ```
