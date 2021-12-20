@@ -761,6 +761,8 @@ kubectl -n registry annotate service pregistry-frontend-clusterip \
 sleep 10
 host registryfe.${DNSDOMAINNAME}. ${DNSHOSTIP}
 fi
+rndc freeze ${DNSDOMAINNAME}
+rndc thaw ${DNSDOMAINNAME}
 
 echo "*************************************************************************************"
 echo "Here is cluster context."
