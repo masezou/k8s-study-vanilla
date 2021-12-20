@@ -198,6 +198,12 @@ else
 fi
 
 mc admin info local/
+
+if [ -f K2-kasten-storage.sh]; then
+sed -i -e "s/MCLOGINUSER=miniologinuser/MCLOGINUSER=${MCLOGINUSER}/g" K2-kasten-storage.sh
+sed -i -e "s/MCLOGINPASSWORD=miniologinuser/MCLOGINPASSWORD=${MCLOGINPASSWORD}/g" K2-kasten-storage.sh
+fi
+
 echo ""
 echo "*************************************************************************************"
 echo -e "\e[32m Minio API endpoint is ${MINIO_ENDPOINT} \e[m"
