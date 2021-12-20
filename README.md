@@ -20,7 +20,7 @@ Storage class: OpenEBS/nfs-csi/vSphere CSI.
 
 -If you want to use vSphre CSI Driver, You need to have vCenter 6.7U3 above and any VM need to be set DISKUUID in option. At least 1 vCenter and 1 ESX. vCenter cluster is option.
 
-![vsphere](https://user-images.githubusercontent.com/624501/140580806-104d5fb6-3c94-40fe-8f9c-1af4c85f9af1.png)
+![Untitled](https://user-images.githubusercontent.com/624501/146712111-9c0d6b9d-a644-4c1c-b3c1-4bb0fda0e06c.jpg)
 
 ![DiskUUID](https://user-images.githubusercontent.com/624501/140580848-8a36ba87-3fa8-4ae2-b41d-9abfe690216c.png)
 
