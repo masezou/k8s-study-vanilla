@@ -1,9 +1,12 @@
 #!/usr/bin/env bash
+#########################################################
 
 ###VSPHERESETTING####
 #VSPHEREUSERNAME="administrator@vsphere.local"
 #VSPHEREPASSWORD="YOUR_VCENTER_PASSWORD"
 #VSPHERESERVER="YOUR_VCENTER_FQDN"
+
+#########################################################
 
 echo "Here is vSphere information"
 echo $VSPHEREUSERNAME

@@ -1,7 +1,10 @@
 #!/usr/bin/env bash
+#########################################################
 
 SC=nfs-csi
 KASTENHOSTNAME=kasten-`hostname`
+
+#########################################################
 
 ### Install command check ####
 if type "kubectl" > /dev/null 2>&1
