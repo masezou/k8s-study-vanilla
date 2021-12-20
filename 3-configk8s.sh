@@ -14,6 +14,9 @@ HOSTSWILDCARDIP="192.168.133.208"
 # If you want to change DNS domain name, you can chage it.
 DNSDOMAINNAME="k8slab.internal"
 
+# IF you have internal DNS, please comment out and set your own DNS server
+#FORWARDDNS=192.168.8.1
+
 #########################################################
 ### UID Check ###
 if [ ${EUID:-${UID}} != 0 ]; then
@@ -213,6 +216,11 @@ options {
         recursion yes;
 };
 EOF
+if [ ! -z ${FORWARDDNS} ]; then
+sed -i -e "s@// forwarders {@forwarders {@g" /etc/bind/named.conf.options
+sed -i -e "s@//      0.0.0.0;@     ${FORWARDDNS} ;@g" /etc/bind/named.conf.options
+sed -i -e "s@// };@};@g" /etc/bind/named.conf.options
+fi
 tsig-keygen -a hmac-sha256 externaldns-key > /etc/bind/external.key
 cat /etc/bind/external.key>> /etc/bind/named.conf.options
 chown root:bind /etc/bind/named.conf.options
