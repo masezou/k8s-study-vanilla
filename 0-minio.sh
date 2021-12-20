@@ -199,7 +199,7 @@ fi
 
 mc admin info local/
 
-if [ -f K2-kasten-storage.sh]; then
+if [ -f K2-kasten-storage.sh ]; then
 sed -i -e "s/MCLOGINUSER=miniologinuser/MCLOGINUSER=${MCLOGINUSER}/g" K2-kasten-storage.sh
 sed -i -e "s/MCLOGINPASSWORD=miniologinuser/MCLOGINPASSWORD=${MCLOGINPASSWORD}/g" K2-kasten-storage.sh
 fi
