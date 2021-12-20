@@ -199,6 +199,7 @@ fi
 
 mc admin info local/
 
+cd ${BASEPWD}
 if [ -f K2-kasten-storage.sh ]; then
 sed -i -e "s/MCLOGINUSER=miniologinuser/MCLOGINUSER=${MCLOGINUSER}/g" K2-kasten-storage.sh
 sed -i -e "s/MCLOGINPASSWORD=miniologinuser/MCLOGINPASSWORD=${MCLOGINPASSWORD}/g" K2-kasten-storage.sh
@@ -218,5 +219,4 @@ echo "Next Step"
 echo ""
 echo "run ./1-tools.sh"
 echo ""
-cd ${BASEPWD}
 chmod -x 0-minio.sh
