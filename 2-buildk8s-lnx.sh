@@ -11,7 +11,7 @@ ENABLEK8SMASTER=1
 ENABLEREG=1
 REGDIR=/disk/registry
 # Enable pull/push sample image
-IMAGEDL=1
+IMAGEDL=0
 
 # Enable sysstat
 SYSSTAT=0

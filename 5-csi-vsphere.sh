@@ -1,15 +1,11 @@
 #!/usr/bin/env bash
-
+#########################################################
+# Pre-requirement
+# vCenter needs to be 6.7U3 above and to be set DISKUUID.
 #########################################################
 # Edit this section
 
-####################
-# Pre-requirement
-# vCenter need to be 6.7U3 above
-# The VM need to be set DISKUUID
-####################
-
-#For vSphere CSI/Tanzu
+#For vSphere CSI driver
 VSPHEREUSERNAME="administrator@vsphere.local"
 VSPHEREPASSWORD="YOUR_VCENTER_PASSWORD"
 VSPHERESERVER="YOUR_VCENTER_FQDN"
@@ -287,7 +283,7 @@ cd ${BASEPWD}
 if [ -z $SUDO_USER ]; then
   echo "there is no sudo login"
 else
-head -n 20 5-csi-vsphere.sh > vsphere-env
+head -n 16 5-csi-vsphere.sh > vsphere-env
 mkdir -p /home/${SUDO_USER}/k8s-study-vanilla/
 cp vsphere-env /home/${SUDO_USER}/k8s-study-vanilla/vsphere-env
 chmod -x  /home/${SUDO_USER}/k8s-study-vanilla/vsphere-env

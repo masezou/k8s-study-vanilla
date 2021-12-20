@@ -3,9 +3,6 @@
 #########################################################
 # Edit this section
 
-MCLOGINUSER=miniologinuser
-MCLOGINPASSWORD=miniologinuser
-
 # For VBR Repository setting. 
 VBRADDRESS="VBR_ADDRESS"
 VBRUSERNAME="DOMAIN\administrator"
@@ -31,6 +28,8 @@ fi
 echo ${LOCALIPADDR}
 
 MINIOIP=${LOCALIPADDR}
+MCLOGINUSER=miniologinuser
+MCLOGINPASSWORD=miniologinuser
 BUCKETNAME=`hostname`
 MINIOLOCK_BUCKET_NAME=`hostname`-lock
 MINIOLOCK_PERIOD=30d
