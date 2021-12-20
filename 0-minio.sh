@@ -2,11 +2,15 @@
 
 #########################################################
 
-MINIO_ROOT_USER=minioadminuser
-MINIO_ROOT_PASSWORD=minioadminuser
+MCLOGINUSER=miniologinuser
+MCLOGINPASSWORD=miniologinuser
 MINIOPATH=/disk/minio
 
 #########################################################
+
+MINIO_ROOT_USER=minioadminuser
+MINIO_ROOT_PASSWORD=minioadminuser
+
 ### UID Check ###
 if [ ${EUID:-${UID}} != 0 ]; then
     echo "This script must be run as root"
@@ -177,6 +181,9 @@ EOF
 mc admin policy add local/ s3user s3user.json
 rm s3user.json
 fi
+
+mc admin user add local ${MCLOGINUSER} ${MCLOGINPASSWORD} 
+mc admin policy set local s3user user=${MCLOGINUSER}
 
 if [ -z $SUDO_USER ]; then
   echo "there is no sudo login"

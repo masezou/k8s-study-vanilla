@@ -29,8 +29,8 @@ echo ${LOCALIPADDR}
 
 
 MINIOIP=${LOCALIPADDR}
-MINIO_ROOT_USER=minioadminuser
-MINIO_ROOT_PASSWORD=minioadminuser
+MINIO_ROOT_USER=miniologinuser
+MINIO_ROOT_PASSWORD=miniologinuser
 BUCKETNAME=`hostname`
 MINIOLOCK_BUCKET_NAME=`hostname`-lock
 MINIOLOCK_PERIOD=30d
