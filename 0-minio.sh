@@ -138,7 +138,7 @@ sleep 3
 
 mc alias rm local
 MINIO_ENDPOINT=https://${LOCALIPADDR}:9000
-mc alias set local ${MINIO_ENDPOINT} ${MCLOGINUSER} ${MCLOGINPASSWORD} --api S3v4
+mc alias set local ${MINIO_ENDPOINT} ${MINIO_ROOT_USER} ${MINIO_ROOT_PASSWORD} --api S3v4
 cat << EOF > s3user.json
 {
         "Version": "2012-10-17",
@@ -181,7 +181,9 @@ EOF
 mc admin policy add local/ s3user s3user.json
 rm s3user.json
 mc admin user add local ${MCLOGINUSER} ${MCLOGINPASSWORD} 
-mc admin policy set local s3user user=${MCLOGINUSER}
+mc admin policy set local s3user,consoleAdmin user=${MCLOGINUSER}
+mc alias rm local
+mc alias set local ${MINIO_ENDPOINT} ${MCLOGINUSER} ${MCLOGINPASSWORD} --api S3v4
 fi
 
 
@@ -199,8 +201,8 @@ mc admin info local/
 echo ""
 echo "*************************************************************************************"
 echo -e "\e[32m Minio API endpoint is ${MINIO_ENDPOINT} \e[m"
-echo -e "\e[32m Access Key ${MCLOGINUSER} \e[m"
-echo -e "\e[32m Secret     ${MCLOGINPASSWORD} \e[m"
+echo -e "\e[32m Access Key: ${MCLOGINUSER} \e[m"
+echo -e "\e[32m Secret Key: ${MCLOGINPASSWORD} \e[m"
 echo -e "\e[32m Minio console is https://${LOCALIPADDR}:9001 \e[m"
 echo -e "\e[32m username: ${MCLOGINUSER} \e[m"
 echo -e "\e[32m password: ${MCLOGINPASSWORD} \e[m"
