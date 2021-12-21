@@ -759,6 +759,13 @@ fi
 rndc freeze ${DNSDOMAINNAME}
 rndc thaw ${DNSDOMAINNAME}
 
+chmod +x ./result.sh
+if [ -z $SUDO_USER ]; then
+  echo "there is no sudo login"
+else
+ chmod +x /home/${SUDO_USER}/k8s-study-vanilla/result.sh
+fi
+
 echo "*************************************************************************************"
 echo "Here is cluster context."
 echo -e "\e[1mkubectl config get-contexts \e[m"
