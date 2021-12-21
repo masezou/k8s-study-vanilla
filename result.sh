@@ -5,7 +5,6 @@ echo "There is no kubeconfig. exit ..."
 exit 0
 fi
 
-DNSDOMAINNAME="k8slab.internal"
 #### LOCALIP #########
 ip address show ens160 >/dev/null
 retval=$?
@@ -23,10 +22,14 @@ fi
 
 DNSHOSTIP=${LOCALIPADDR}
 DNSHOSTNAME=`hostname`
+#DNSDOMAINNAME="k8slab.internal"
+DNSDOMAINNAME=`kubectl -n external-dns get deployments.apps  --output="jsonpath={.items[*].spec.template.spec.containers }" | jq |grep rfc2136-zone | cut -d "=" -f 2 | cut -d "\"" -f 1`
 DASHBOARD_EXTERNALIP=`kubectl -n kubernetes-dashboard get service dashboard-service-lb| awk '{print $4}' | tail -n 1`
 kubectl -n kubernetes-dashboard get secret $(kubectl -n kubernetes-dashboard get sa/admin-user -o jsonpath="{.secrets[0].name}") -o go-template="{{.data.token | base64decode}}" > dashboard.token
 echo "" >> dashboard.token
+DASHBOARD_FQDN=`kubectl -n kubernetes-dashboard get svc dashboard-service-lb --output="jsonpath={.metadata.annotations}" | jq | grep external | cut -d "\"" -f 4`
 REGISTRY_EXTERNALIP=`kubectl -n registry get service pregistry-frontend-clusterip | awk '{print $4}' | tail -n 1`
+REGISTRY_FQDN=`kubectl -n registry get svc pregistry-frontend-clusterip --output="jsonpath={.metadata.annotations}" | jq | grep external | cut -d "\"" -f 4`
 
 echo "*************************************************************************************"
 echo "Here is cluster context."
@@ -46,7 +49,7 @@ echo ""
 echo -e "\e[1mKubernetes dashboard \e[m"
 echo -e "\e[32m https://${DASHBOARD_EXTERNALIP}/#/login  \e[m"
 echo "or"
-echo -e "\e[32m https://dashboard.${DNSDOMAINNAME}/#/login \e[m"
+echo -e "\e[32m https://${DASHBOARD_FQDN}/#/login \e[m"
 echo ""
 echo -e "\e[32m login token is cat ./dashboard.token  \e[m"
 cat ./dashboard.token
@@ -65,7 +68,7 @@ echo "You need to set insecure-registry in your client side docker setting."
 echo -e "\e[1mRegistry frontend UI \e[m"
 echo -e "\e[32m http://${REGISTRY_EXTERNALIP}  \e[m"
 echo "or"
-echo -e "\e[32m http://registryfe.${DNSDOMAINNAME} \e[m"
+echo -e "\e[32m http://${REGISTRY_FQDN} \e[m"
 echo ""
 kubectl get ns kasten-io  > /dev/null 2>&1
 HAS_KASTEN=$?
@@ -73,6 +76,9 @@ if [ ${HAS_KASTEN} -eq 0 ]; then
 KASTENEXTERNALIP=`kubectl -n kasten-io get svc gateway-ext | awk '{print $4}' | tail -n 1`
 KASTENFQDNURL=`kubectl -n kasten-io  get svc gateway-ext --output="jsonpath={.metadata.annotations}" | jq | grep external-dns | cut -d "\"" -f 4`
 KASTENINGRESSIP=`kubectl get ingress -n kasten-io --output="jsonpath={.items[*].status.loadBalancer.ingress[*].ip}"`
+K10INGRESHOST=`kubectl -n kasten-io get ingress k10-ingress --output="jsonpath={.spec.rules[*].host }"`
+K10INGRESPATH=`kubectl -n kasten-io get ingress k10-ingress --output="jsonpath={.spec.rules[*].http.paths[*].path }"`
+K10INGRESURL="${K10INGRESHOST}/${K10INGRESPATH}"
 sa_secret=$(kubectl get serviceaccount k10-k10 -o jsonpath="{.secrets[0].name}" --namespace kasten-io)
 kubectl get secret $sa_secret --namespace kasten-io -ojsonpath="{.data.token}{'\n'}" | base64 --decode > k10-k10.token
 echo "" >> k10-k10.token
@@ -80,8 +86,8 @@ echo -e "\e[1mKasten Dashboard \e[m"
 echo -e "\e[32m Open your browser \e[m"
 echo -e "\e[32m  http://${KASTENFQDNURL}/k10/ \e[m"
 echo -e "\e[32m  http://${KASTENEXTERNALIP}/k10/ \e[m"
-echo -e "\e[32m  http://${KASTENINGRESSIP}/k10/# \e[m"
-echo -e "\e[32m  https://${KASTENINGRESSIP}/k10/# \e[m"
+echo -e "\e[32m  http://${K10INGRESURL} \e[m"
+echo -e "\e[32m  https://${K10INGRESURL} \e[m"
 echo "then input login token"
 echo -e "\e[32m cat ./k10-k10.token \e[m"
 cat ./k10-k10.token

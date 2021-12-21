@@ -3,6 +3,7 @@
 
 SC=nfs-csi
 KASTENHOSTNAME=kasten-`hostname`
+KASTENINGRESS=k10-`hostname`
 
 #########################################################
 
@@ -73,6 +74,7 @@ k10tools primer
 # Install Kasten
 DNSDOMAINNAME="k8slab.internal"
 KASTENFQDN=${KASTENHOSTNAME}.${DNSDOMAINNAME}
+KASTENFQDNINGRESS=${KASTENINGRESS}.${DNSDOMAINNAME}
 kubectl create ns kasten-io
 helm install k10 kasten/k10 --namespace=kasten-io \
 --set global.persistence.size=40G \
@@ -86,6 +88,7 @@ helm install k10 kasten/k10 --namespace=kasten-io \
 --set gateway.insecureDisableSSLVerify=true \
 --set ingress.create=true \
 --set ingress.class=nginx \
+--set ingress.host=${KASTENFQDNINGRESS} \
 --set injectKanisterSidecar.enabled=true \
 --set-string injectKanisterSidecar.namespaceSelector.matchLabels.k10/injectKanisterSidecar=true 
 
@@ -140,8 +143,8 @@ echo "Confirm wordpress kasten is running with kubectl get pods --namespace kast
 echo -e "\e[32m Open your browser \e[m"
 echo -e "\e[32m http://${KASTENFQDNURL}/k10/ \e[m"
 echo -e "\e[32m http://${EXTERNALIP}/k10/ \e[m"
-echo -e "\e[32m http://${INGRESSIP}/k10/# \e[m"
-echo -e "\e[32m https://${INGRESSIP}/k10/# \e[m"
+echo -e "\e[32m http://${KASTENFQDNINGRESS}/k10/ \e[m"
+echo -e "\e[32m https://${KASTENFQDNINGRESS}/k10/ \e[m"
 echo "then input login token"
 echo -e "\e[32m cat ./k10-k10.token \e[m"
 cat ./k10-k10.token
