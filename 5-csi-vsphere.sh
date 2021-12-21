@@ -290,7 +290,6 @@ sed -i -e "/###VSPHERESETTING####/r vsphere-env" K3-kasten-vsphere.sh
 rm vsphere-env
 mkdir -p /home/${SUDO_USER}/k8s-study-vanilla/
 cp K3-kasten-vsphere.sh /home/${SUDO_USER}/k8s-study-vanilla/K3-kasten-vsphere.sh
-chmod +x /home/${SUDO_USER}/k8s-study-vanilla/K3-kasten-vsphere.sh
 chown ${SUDO_USER}:${SUDO_USER} /home/${SUDO_USER}/k8s-study-vanilla/K3-kasten-vsphere.sh
 fi
 chmod -x ./5-csi-vsphere.sh
