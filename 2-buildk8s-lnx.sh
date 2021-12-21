@@ -189,21 +189,21 @@ kubeadm completion bash > /etc/bash_completion.d/kubeadm.sh
 if [ ! -f /etc/bash_completion.d/kubectl ]; then
 kubectl completion bash >/etc/bash_completion.d/kubectl
 source /etc/bash_completion.d/kubectl
+echo 'export KUBE_EDITOR=vi' >>~/.bashrc
+fi
 # Install etcd-client
 apt -y install etcd-client
 curl -OL https://gist.githubusercontent.com/swynter-ladbrokes/9960fe1a1f2467bfe6e6/raw/7a92e7d92b68d67f958d28af880e6561037c33c1/etcdctl
 mv etcdctl /etc/bash_completion.d/
 source /etc/bash_completion.d/etcdctl 
-echo 'export KUBE_EDITOR=vi' >>~/.bashrc
 # CRICTL setting
-cat << EOF >>  /etc/crictl.yaml
+cat << EOF >  /etc/crictl.yaml
 runtime-endpoint: unix:///run/containerd/containerd.sock
 image-endpoint: unix:///run/containerd/containerd.sock
 timeout: 2
 debug: true
 EOF
 echo "source <(crictl completion bash) " >> /etc/profile.d/crictl.sh
-fi
 
 apt -y install keepalived
 cat <<EOF | sudo tee /etc/modules-load.d/containerd.conf
