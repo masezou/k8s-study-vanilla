@@ -78,7 +78,7 @@ KASTENFQDNURL=`kubectl -n kasten-io  get svc gateway-ext --output="jsonpath={.me
 KASTENINGRESSIP=`kubectl get ingress -n kasten-io --output="jsonpath={.items[*].status.loadBalancer.ingress[*].ip}"`
 K10INGRESHOST=`kubectl -n kasten-io get ingress k10-ingress --output="jsonpath={.spec.rules[*].host }"`
 K10INGRESPATH=`kubectl -n kasten-io get ingress k10-ingress --output="jsonpath={.spec.rules[*].http.paths[*].path }"`
-K10INGRESURL="${K10INGRESHOST}/${K10INGRESPATH}"
+K10INGRESURL="${K10INGRESHOST}${K10INGRESPATH}"
 sa_secret=$(kubectl get serviceaccount k10-k10 -o jsonpath="{.secrets[0].name}" --namespace kasten-io)
 kubectl get secret $sa_secret --namespace kasten-io -ojsonpath="{.data.token}{'\n'}" | base64 --decode > k10-k10.token
 echo "" >> k10-k10.token
