@@ -46,12 +46,14 @@ curl -OL https://github.com/kastenhq/external-tools/releases/download/${KASTENVE
 tar xfz k10tools_${KASTENVER}_linux_${ARCH}.tar.gz -C /usr/local/bin
 rm -rf k10tools_${KASTENVER}_linux_${ARCH}.tar.gz
 chmod +x /usr/local/bin/k10tools
+k10tools completion bash > /etc/bash_completion.d/k10tools
 
 rm -rf /usr/local/bin/k10multicluster
 curl -OL https://github.com/kastenhq/external-tools/releases/download/${KASTENVER}/k10multicluster_${KASTENVER}_linux_${ARCH}.tar.gz
 tar xfz k10multicluster_${KASTENVER}_linux_${ARCH}.tar.gz -C /usr/local/bin
 rm -rf k10multicluster_${KASTENVER}_linux_${ARCH}.tar.gz
 chmod +x /usr/local/bin/k10multicluster
+k10multicluster completion bash > /etc/bash_completion.d/k10multicluster
 
 KUBESTRVER=0.4.31
 if [ ! -f /usr/local/bin/kubestr ]; then
