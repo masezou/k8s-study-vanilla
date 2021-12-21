@@ -7,7 +7,8 @@ NAMESPACE=blog1
 SC=vsphere-sc
 BLUEPRINT=0
 
-DNSDOMAINNAME=k8slab.internal
+#DNSDOMAINNAME=k8slab.internal
+DNSDOMAINNAME=`kubectl -n external-dns get deployments.apps  --output="jsonpath={.items[*].spec.template.spec.containers }" | jq |grep rfc2136-zone | cut -d "=" -f 2 | cut -d "\"" -f 1`
 WPHOST=${NAMESPACE}
 
 #########################################################
