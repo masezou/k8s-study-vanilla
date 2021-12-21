@@ -5,7 +5,7 @@
 # Kubernetes client version
 KUBECTLVER=1.21.8-00
 
-# for docker in client side. 
+# for docker in client side. If you set this, you would not be able to deploy k8s environment on this server. 
 DOCKER=0
 
 # Govc

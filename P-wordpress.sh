@@ -1,17 +1,21 @@
 #!/usr/bin/env bash
 
 #########################################################
-
+# namespace. namespace will be used with hostname
 NAMESPACE=blog1
+
 # SC = csi-hostpath-sc / local-path / nfs-sc / nfs-csi / vsphere-sc / cstor-csi-disk
 SC=vsphere-sc
+
+# Kasten blueprint setting
 BLUEPRINT=0
+
+#########################################################
 
 #DNSDOMAINNAME=k8slab.internal
 DNSDOMAINNAME=`kubectl -n external-dns get deployments.apps  --output="jsonpath={.items[*].spec.template.spec.containers }" | jq |grep rfc2136-zone | cut -d "=" -f 2 | cut -d "\"" -f 1`
 WPHOST=${NAMESPACE}
 
-#########################################################
 ### Install command check ####
 if type "kubectl" > /dev/null 2>&1
 then
