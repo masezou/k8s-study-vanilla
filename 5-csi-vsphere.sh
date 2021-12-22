@@ -280,13 +280,12 @@ kubectl get sc
 echo ""
 
 if [ -f K3-kasten-vsphere.sh ]; then
-cd ${BASEPWD}
 if [ -z $SUDO_USER ]; then
   echo "there is no sudo login"
 else
-grep VSPHEREUSERNAME=\" $0 > vsphere-env
-grep VSPHEREPASSWORD=\" $0 >> vsphere-env
-grep VSPHERESERVER=\" $0 >> vsphere-env
+grep VSPHEREUSERNAME=\" 5-csi-vsphere.sh > vsphere-env
+grep VSPHEREPASSWORD=\" 5-csi-vsphere.sh >> vsphere-env
+grep VSPHERESERVER=\" 5-csi-vsphere.sh >> vsphere-env
 sed -i -e "/###VSPHERESETTING####/r vsphere-env" K3-kasten-vsphere.sh
 rm -rf vsphere-env
 mkdir -p /home/${SUDO_USER}/k8s-study-vanilla/
