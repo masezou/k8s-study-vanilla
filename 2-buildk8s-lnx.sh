@@ -107,13 +107,16 @@ curl https://raw.githubusercontent.com/containerd/containerd/v1.4.12/contrib/aut
 # Containerd settings
 containerd config default | sudo tee /etc/containerd/config.toml
 sed -i -e "/^          \[plugins\.\"io\.containerd\.grpc\.v1\.cri\"\.containerd\.runtimes\.runc\.options\]$/a\            SystemdCgroup \= true" /etc/containerd/config.toml
-
+dpkg -l | grep containerd | grep 1.4  > /dev/null
+retvalcd14=$?
+if [ ${retvalcd14} -eq 0 ]; then
 cat << EOF > insert.txt
         [plugins."io.containerd.grpc.v1.cri".registry.mirrors."${LOCALIPADDR}:5000"]
           endpoint = ["http://${LOCALIPADDR}:5000"]
 EOF
 sed -i -e "/^          endpoint \= \[\"https\:\/\/registry-1.docker.io\"\]$/r insert.txt" /etc/containerd/config.toml
 rm -rf insert.txt
+fi
 systemctl restart containerd
 echo 0 > /proc/sys/kernel/hung_task_timeout_secs
 
