@@ -1,5 +1,12 @@
 #!/usr/bin/env bash
 
+kubectl get ns kasten-io-mc
+retvalmcck=$?
+if [ ${retvalmcck} -eq 0 ]; then
+echo "This cluster has already configured multi-cluster setting"
+exit 255
+fi
+
 CONTEXT=`kubectl config get-contexts -o=name`
 CLUSTERNAME=`kubectl config get-clusters | tail -n 1`
 k10multicluster setup-primary --context=${CONTEXT} --name=${CLUSTERNAME} 
