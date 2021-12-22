@@ -5,25 +5,8 @@ echo "There is no kubeconfig. exit ..."
 exit 0
 fi
 
-#### LOCALIP #########
-ip address show ens160 >/dev/null
-retval=$?
-if [ ${retval} -eq 0 ]; then
-        LOCALIPADDR=`ip -f inet -o addr show ens160 |cut -d\  -f 7 | cut -d/ -f 1`
-else
-  ip address show ens192 >/dev/null
-  retval2=$?
-  if [ ${retval2} -eq 0 ]; then
-        LOCALIPADDR=`ip -f inet -o addr show ens192 |cut -d\  -f 7 | cut -d/ -f 1`
-  else
-        LOCALIPADDR=`ip -f inet -o addr show eth0 |cut -d\  -f 7 | cut -d/ -f 1`
-  fi
-fi
-
-DNSHOSTIP=${LOCALIPADDR}
-DNSHOSTNAME=`hostname`
-#DNSDOMAINNAME="k8slab.internal"
 DNSDOMAINNAME=`kubectl -n external-dns get deployments.apps  --output="jsonpath={.items[*].spec.template.spec.containers }" | jq |grep rfc2136-zone | cut -d "=" -f 2 | cut -d "\"" -f 1`
+DNSHOSTIP=`dig -t A ${DNSDOMAINNAME} +short | grep -v 127`
 DASHBOARD_EXTERNALIP=`kubectl -n kubernetes-dashboard get service dashboard-service-lb| awk '{print $4}' | tail -n 1`
 kubectl -n kubernetes-dashboard get secret $(kubectl -n kubernetes-dashboard get sa/admin-user -o jsonpath="{.secrets[0].name}") -o go-template="{{.data.token | base64decode}}" > dashboard.token
 echo "" >> dashboard.token
@@ -55,7 +38,7 @@ echo -e "\e[32m login token is cat ./dashboard.token  \e[m"
 cat ./dashboard.token
 echo ""
 echo -e "\e[1mMinio dashboard  \e[m"
-echo -e "\e[32m https://${LOCALIPADDR}:9001  \e[m"
+echo -e "\e[32m https://${DNSHOSTIP}:9001  \e[m"
 echo "or"
 echo -e "\e[32m https://minio.${DNSDOMAINNAME}:9001 \e[m"
 echo ""
@@ -63,7 +46,7 @@ echo -n " login credential is "
 echo -e "\e[32m miniologinuser/miniologinuser \e[m"
 echo ""
 echo -e "\e[1mRegistry \e[m"
-echo -e "\e[32m http://${LOCALIPADDR}:5000  \e[m"
+echo -e "\e[32m http://${DNSHOSTIP}:5000  \e[m"
 echo "You need to set insecure-registry in your client side docker setting."
 echo -e "\e[1mRegistry frontend UI \e[m"
 echo -e "\e[32m http://${REGISTRY_EXTERNALIP}  \e[m"

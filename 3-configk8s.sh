@@ -357,11 +357,6 @@ echo ""
 host www.yahoo.co.jp. ${DNSHOSTIP}
 echo ""
 
-# Change domainname in codes
-sed -i -e "s/k8slab.internal/${DNSDOMAINNAME}/g" K1-kasten.sh
-sed -i -e "s/k8slab.internal/${DNSDOMAINNAME}/g" P-wordpress.sh
-sed -i -e "s/k8slab.internal/${DNSDOMAINNAME}/g" result.sh
-
 if [ -z $SUDO_USER ]; then
   echo "there is no sudo login"
 else
@@ -511,6 +506,7 @@ while [ "$(kubectl get deployment -n external-dns external-dns --output="jsonpat
        sleep 30
 done
     kubectl get deployment -n external-dns external-dns
+DNSDOMAINNAME=`kubectl -n external-dns get deployments.apps  --output="jsonpath={.items[*].spec.template.spec.containers }" | jq |grep rfc2136-zone | cut -d "=" -f 2 | cut -d "\"" -f 1`
 
 # Install CertManager
 git clone https://github.com/jetstack/cert-manager.git -b v1.4.0 --depth 1
@@ -759,11 +755,13 @@ fi
 rndc freeze ${DNSDOMAINNAME}
 rndc thaw ${DNSDOMAINNAME}
 
+if [ -f ./result.sh ]; then
 chmod +x ./result.sh
 if [ -z $SUDO_USER ]; then
   echo "there is no sudo login"
 else
  chmod +x /home/${SUDO_USER}/k8s-study-vanilla/result.sh
+fi
 fi
 
 echo "*************************************************************************************"

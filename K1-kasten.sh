@@ -72,7 +72,6 @@ fi
 k10tools primer
 
 # Install Kasten
-#DNSDOMAINNAME="k8slab.internal"
 DNSDOMAINNAME=`kubectl -n external-dns get deployments.apps  --output="jsonpath={.items[*].spec.template.spec.containers }" | jq |grep rfc2136-zone | cut -d "=" -f 2 | cut -d "\"" -f 1`
 KASTENFQDN=${KASTENHOSTNAME}.${DNSDOMAINNAME}
 KASTENFQDNINGRESS=${KASTENINGRESS}.${DNSDOMAINNAME}
