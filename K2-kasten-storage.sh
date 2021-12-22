@@ -179,4 +179,4 @@ echo "**************************************************************************
 echo "Kasten Backup storages were configured"
 echo ""
 
-chmod -x ./K2-kasten-storage.sh
+chmod -x $0

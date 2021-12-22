@@ -77,5 +77,4 @@ rm -rf ./vsphere-env
 echo "*************************************************************************************"
 echo "Kasten Infrastructure was configured"
 
-chmod -x K3-kasten-vsphere.sh
-
+chmod -x $0

@@ -73,4 +73,4 @@ echo "**************************************************************************
 echo "K10tool/K10multicluster/kubestr were installed"
 echo ""
 
-chmod -x ./K0-kasten-tools.sh
+chmod -x $0

@@ -816,4 +816,4 @@ echo -e "\e[32m Run ./4-csi-storage.sh \e[m"
 echo ""
 
 cd ${BASEPWD}
-chmod -x ./3-configk8s.sh
+chmod -x $0

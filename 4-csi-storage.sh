@@ -248,4 +248,4 @@ echo -e "\e[32m If you want to use vSphere CSI Driver on ESX/vCenter environment
 echo ""
 
 cd ${BASEPWD}
-chmod -x ./4-csi-storage.sh
+chmod -x $0

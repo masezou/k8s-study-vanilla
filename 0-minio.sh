@@ -219,4 +219,4 @@ echo "Next Step"
 echo ""
 echo "run ./1-tools.sh"
 echo ""
-chmod -x 0-minio.sh
+chmod -x $0

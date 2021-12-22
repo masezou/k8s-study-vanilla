@@ -409,4 +409,4 @@ echo "Powercli"
 echo "pwsh then Install\-Module VMware.PowerCLI \-Scope CurrentUser"
 fi
 cd ${BASEPWD}
-chmod -x ./1-tools.sh
+chmod -x $0

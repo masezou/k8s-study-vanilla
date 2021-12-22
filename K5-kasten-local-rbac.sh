@@ -61,4 +61,4 @@ echo " backupview"
 echo " nsadmin"
 echo ""
 
-chmod -x ./K5-kasten-local-rbac.sh
+chmod -x $0

@@ -152,4 +152,4 @@ cat ./k10-k10.token
 echo ""
 echo "Configured profile, blueprint, rbac also."
 
-chmod -x ./K1-kasten.sh
+chmod -x $0
