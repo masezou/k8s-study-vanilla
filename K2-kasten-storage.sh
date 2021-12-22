@@ -4,10 +4,10 @@
 # Edit this section
 
 # For VBR Repository setting. 
-VBRADDRESS="VBR_ADDRESS"
-VBRUSERNAME="DOMAIN\administrator"
-VBRPASSWORD="VBR_PASSWORD"
-VBRREPONAME="DEFAULT Backup Repository 1"
+VBRADDRESS="YOUR_VBR_ADDRESS"
+VBRUSERNAME="YOUR_DOMAIN\administrator"
+VBRPASSWORD="YOUR_VBR_PASSWORD"
+VBRREPONAME="YOUR_DEFAULT Backup Repository 1"
 
 #########################################################
 
