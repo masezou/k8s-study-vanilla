@@ -65,6 +65,18 @@ K10INGRESURL="${K10INGRESHOST}${K10INGRESPATH}"
 sa_secret=$(kubectl get serviceaccount k10-k10 -o jsonpath="{.secrets[0].name}" --namespace kasten-io)
 kubectl get secret $sa_secret --namespace kasten-io -ojsonpath="{.data.token}{'\n'}" | base64 --decode > k10-k10.token
 echo "" >> k10-k10.token
+sa_secret=$(kubectl get serviceaccount backupadmin -o jsonpath="{.secrets[0].name}")
+kubectl get secret $sa_secret  -ojsonpath="{.data.token}{'\n'}" | base64 --decode > backupadmin.token
+echo "" >> backupadmin.token
+sa_secret=$(kubectl get serviceaccount backupbasic -o jsonpath="{.secrets[0].name}")
+kubectl get secret $sa_secret  -ojsonpath="{.data.token}{'\n'}" | base64 --decode > backupbasic.token
+echo "" >> backupbasic.token
+sa_secret=$(kubectl get serviceaccount backupview -o jsonpath="{.secrets[0].name}")
+kubectl get secret $sa_secret  -ojsonpath="{.data.token}{'\n'}" | base64 --decode > backupview.token
+echo "" >> backupview.token
+sa_secret=$(kubectl get serviceaccount nsadmin -o jsonpath="{.secrets[0].name}")
+kubectl get secret $sa_secret  -ojsonpath="{.data.token}{'\n'}" | base64 --decode > nsadmin.token
+echo "" >> nsadmin.token
 echo -e "\e[1mKasten Dashboard \e[m"
 echo -e "\e[32m Open your browser \e[m"
 echo -e "\e[32m  http://${KASTENFQDNURL}/k10/ \e[m"
