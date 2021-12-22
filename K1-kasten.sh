@@ -22,10 +22,10 @@ then
 else
 if [ ! -f /usr/local/bin/helm ]; then
 curl -s -O https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3
-bash ./get-helm-3
+sudo bash ./get-helm-3
 helm version
 rm get-helm-3
-helm completion bash > /etc/bash_completion.d/helm
+sudo helm completion bash > /etc/bash_completion.d/helm
 source /etc/bash_completion.d/helm
 helm repo add bitnami https://charts.bitnami.com/bitnami
 helm repo update

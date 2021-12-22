@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 
-
 #########################################################
 ### UID Check ###
 if [ ${EUID:-${UID}} != 0 ]; then
@@ -62,12 +61,12 @@ echo -e "\e[31m CNI is not configured. exit. \e[m"
 exit 255
 fi
 
-
 # Device /dev/sdb check
 if [  -b /dev/sdb ]; then
 umount /dev/sdb1
 sgdisk -Z /dev/sdb
-echo "openebs installing..."
+
+# Install OpenEBS
 apt install -y open-iscsi
 systemctl enable iscsid && systemctl start iscsid
 mkdir -p /var/openebs/local
@@ -143,7 +142,6 @@ EOF
 kubectl patch storageclass cstor-csi-disk -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"true"}}}'
 kubectl -n openebs wait pod  -l app=cstor-pool --for condition=Ready
 else
-echo "hostpath installing..."
 # Rancher local driver (Not CSI Storage)
 kubectl apply -f https://raw.githubusercontent.com/rancher/local-path-provisioner/master/deploy/local-path-storage.yaml
 SNAPSHOTTER_VERSION=v4.2.1

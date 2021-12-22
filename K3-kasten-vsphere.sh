@@ -73,7 +73,6 @@ spec:
         name: k10-vsphere-infra-secret
         namespace: kasten-io
 EOF
-rm -rf ./vsphere-env
 echo "*************************************************************************************"
 echo "Kasten Infrastructure was configured"
 
