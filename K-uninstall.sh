@@ -30,6 +30,11 @@ if [ ${retval7} -eq 0 ]; then
 kubectl annotate volumesnapshotclass csi-cstor-snapshotclass \
     k10.kasten.io/is-snapshot-class-
 fi
+kubectl delete namespace kasten-io-mc
+
+if [ -f K1-kasten.sh ]; then
 chmod +x K1-kasten.sh
+fi
+
 kubectl get pvc -A
 helm repo remove kasten
