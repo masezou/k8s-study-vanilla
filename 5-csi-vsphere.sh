@@ -288,10 +288,11 @@ grep VSPHEREUSERNAME=\" $0 > vsphere-env
 grep VSPHEREPASSWORD=\" $0 >> vsphere-env
 grep VSPHERESERVER=\" $0 >> vsphere-env
 sed -i -e "/###VSPHERESETTING####/r vsphere-env" K3-kasten-vsphere.sh
-rm vsphere-env
+rm -rf vsphere-env
 mkdir -p /home/${SUDO_USER}/k8s-study-vanilla/
 cp K3-kasten-vsphere.sh /home/${SUDO_USER}/k8s-study-vanilla/K3-kasten-vsphere.sh
 chown ${SUDO_USER}:${SUDO_USER} /home/${SUDO_USER}/k8s-study-vanilla/K3-kasten-vsphere.sh
 fi
 fi
+cd ${BASEPWD}
 chmod -x $0
