@@ -45,7 +45,7 @@ lspci -tv | grep VMware
 retavalvm=$?
 if [ ${retavalvm} -ne 0 ];then
    echo "This is not VMware environment. exit."
-   chmod -x ./5-csi-vsphere.sh
+   chmod -x $0
    exit 0
 else
 apt -y install open-vm-tools
@@ -279,17 +279,19 @@ echo "kubectl get sc"
 kubectl get sc
 echo ""
 
+if [ -f K3-kasten-vsphere.sh ]; then
 cd ${BASEPWD}
 if [ -z $SUDO_USER ]; then
   echo "there is no sudo login"
 else
-grep VSPHEREUSERNAME=\" 5-csi-vsphere.sh > vsphere-env
-grep VSPHEREPASSWORD=\" 5-csi-vsphere.sh >> vsphere-env
-grep VSPHERESERVER=\" 5-csi-vsphere.sh >> vsphere-env
+grep VSPHEREUSERNAME=\" $0 > vsphere-env
+grep VSPHEREPASSWORD=\" $0 >> vsphere-env
+grep VSPHERESERVER=\" $0 >> vsphere-env
 sed -i -e "/###VSPHERESETTING####/r vsphere-env" K3-kasten-vsphere.sh
 rm vsphere-env
 mkdir -p /home/${SUDO_USER}/k8s-study-vanilla/
 cp K3-kasten-vsphere.sh /home/${SUDO_USER}/k8s-study-vanilla/K3-kasten-vsphere.sh
 chown ${SUDO_USER}:${SUDO_USER} /home/${SUDO_USER}/k8s-study-vanilla/K3-kasten-vsphere.sh
 fi
-chmod -x ./5-csi-vsphere.sh
+fi
+chmod -x $0
