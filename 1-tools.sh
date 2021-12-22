@@ -255,7 +255,7 @@ if [ ! -f /usr/local/bin/kompose ]; then
 KOMPOSEVER=1.26.0
 curl -L https://github.com/kubernetes/kompose/releases/download/v${KOMPOSEVER}/kompose-linux-${ARCH} -o kompose
 mv kompose /usr/local/bin/kompose
-chmod +x kompose /usr/local/bin/kompose
+chmod +x /usr/local/bin/kompose
 kompose completion bash > /etc/bash_completion.d/kompose
 source /etc/bash_completion.d/kompose
 fi
@@ -263,8 +263,8 @@ fi
 KINDVER=0.11.1
 if [ ! -f /usr/local/bin/kind ]; then
 curl -s -Lo ./kind https://github.com/kubernetes-sigs/kind/releases/download/v${KINDVER}/kind-linux-${ARCH}
-chmod +x ./kind
 mv ./kind /usr/local/bin/kind
+chmod +x /usr/local/bin/kind
 kind completion bash > /etc/bash_completion.d/kind
 source /etc/bash_completion.d/kind
 fi

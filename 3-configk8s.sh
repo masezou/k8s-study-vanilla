@@ -116,8 +116,6 @@ if [ ${retavalcluser} -ne 0 ]; then
 echo -e "\e[31m Kubernetes cluster is not found. \e[m"
 exit 255
 fi
-
-
 export KUBECONFIG=$HOME/.kube/config
 
 # Configure Metallb and ingress
@@ -155,12 +153,6 @@ while [ "$(kubectl get deployment -n metallb-system  controller --output="jsonpa
 done
     kubectl get deployment -n metallb-system  controller
 
-#kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/cloud/deploy.yaml
-#while [ "$(kubectl get deployment -n ingress-nginx ingress-nginx-controller --output="jsonpath={.status.conditions[*].status}" | cut -d' ' -f1)" != "True" ]; do
-#	echo "Deploying Ingress-nginx controller Please wait...."
-#    kubectl get deployment -n ingress-nginx ingress-nginx-controller
-#	sleep 30
-#done
 helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
 helm repo update
 kubectl create ns ingress-system
@@ -356,17 +348,6 @@ host minio.${DNSDOMAINNAME}. ${DNSHOSTIP}
 echo ""
 host www.yahoo.co.jp. ${DNSHOSTIP}
 echo ""
-
-if [ -z $SUDO_USER ]; then
-  echo "there is no sudo login"
-else
- cp K1-kasten.sh  /home/${SUDO_USER}/k8s-study-vanilla/
- cp P-wordpress.sh /home/${SUDO_USER}/k8s-study-vanilla/
- cp result.sh /home/${SUDO_USER}/k8s-study-vanilla/
- chown ${SUDO_USER}:${SUDO_USER} K1-kasten.sh 
- chown ${SUDO_USER}:${SUDO_USER} P-wordpress.sh
- chown ${SUDO_USER}:${SUDO_USER} result.sh 
-fi
 
 # minio cert update
 if [ -f /root/.minio/certs/private.key ]; then
@@ -678,6 +659,7 @@ while [ "$(kubectl -n kube-system get deployments.apps metrics-server --output="
         sleep 30
 done
     kubectl -n kube-system get deployments.apps metrics-server
+
 # Install Reigstory Frontend
 if [ ${ARCH} = amd64 ]; then
 kubectl create namespace registry
@@ -755,13 +737,18 @@ fi
 rndc freeze ${DNSDOMAINNAME}
 rndc thaw ${DNSDOMAINNAME}
 
-if [ -f ./result.sh ]; then
+chmod -x ./K1-kasten.sh
 chmod +x ./result.sh
 if [ -z $SUDO_USER ]; then
   echo "there is no sudo login"
 else
+ cp K1-kasten.sh  /home/${SUDO_USER}/k8s-study-vanilla/
+ cp P-wordpress.sh /home/${SUDO_USER}/k8s-study-vanilla/
+ cp result.sh /home/${SUDO_USER}/k8s-study-vanilla/
+ chown ${SUDO_USER}:${SUDO_USER} K1-kasten.sh 
+ chown ${SUDO_USER}:${SUDO_USER} P-wordpress.sh
+ chown ${SUDO_USER}:${SUDO_USER} result.sh 
  chmod +x /home/${SUDO_USER}/k8s-study-vanilla/result.sh
-fi
 fi
 
 echo "*************************************************************************************"

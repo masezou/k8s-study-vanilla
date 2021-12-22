@@ -57,7 +57,7 @@ Then if your Ubuntu VM is on vSphere with vCenter 6.7U3 above.
 
 After Installation, you can review installation result.
 ```bash
-bash ./result.sh
+./result.sh
 ```
 
 # Note

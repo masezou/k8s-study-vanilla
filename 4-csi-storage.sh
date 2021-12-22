@@ -65,6 +65,7 @@ fi
 
 # Device /dev/sdb check
 if [  -b /dev/sdb ]; then
+umount /dev/sdb1
 sgdisk -Z /dev/sdb
 echo "openebs installing..."
 apt install -y open-iscsi
