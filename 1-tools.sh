@@ -211,7 +211,7 @@ fi
 # Install Docker for client
 if [ ${DOCKER} -eq 1 ]; then
 if [ ! -f /usr/bin/docker ]; then
-apt -y purge docker.io
+apt -y purge docker docker.io
 apt -y upgrade
 apt -y install apt-transport-https ca-certificates curl gnupg-agent software-properties-common
 curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -

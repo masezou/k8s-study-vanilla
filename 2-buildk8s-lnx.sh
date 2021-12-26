@@ -100,7 +100,7 @@ else
   exit 1
 fi
 apt update
-apt -y purge docker.io docker-ce-cli docker-ce docker-ce-rootless-extras
+apt -y purge docker docker.io docker-ce-cli docker-ce docker-ce-rootless-extras
 apt -y install containerd.io
 curl https://raw.githubusercontent.com/containerd/containerd/v1.4.12/contrib/autocomplete/ctr -o /etc/bash_completion.d/ctr
 
