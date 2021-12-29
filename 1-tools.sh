@@ -8,21 +8,17 @@ KUBECTLVER=1.21.8-00
 # for docker in client side. If you set this, you would not be able to deploy k8s environment on this server. 
 DOCKER=0
 
-# Govc
-GOVC=1
-
 ######################
 # Only tested on amd64. arm64 is experimental
 # for AKS/EKS/GKE installation
 CLOUDUTILS=0
 # Powershell
 POWERSHELL=0
-#####################
-# Experimental. not tested well. only for amd64.
-# For Tanzu Community edition client installation
-TCE=0
 
 #########################################################
+# Govc
+GOVC=1
+
 ### UID Check ###
 if [ ${EUID:-${UID}} != 0 ]; then
     echo "This script must be run as root"
@@ -322,61 +318,12 @@ apt -y update && apt -y install google-cloud-sdk
 fi
 fi
 
-# Install Tanzu Community Edition Utility
-if [ ${TCE} -eq 1 ]; then
-	if [ ${ARCH} = amd64 ]; then
-  		if [ ! -f /usr/local/bin/tanzu ]; then
-  		TANZURELVER=0.9.1
-  		cd /tmp
-  		curl -OL https://github.com/vmware-tanzu/community-edition/releases/download/v${TANZURELVER}/tce-linux-amd64-v${TANZURELVER}.tar.gz
-  		tar xfz tce-linux-amd64-v${TANZURELVER}.tar.gz
-  		rm  tce-linux-amd64-v${TANZURELVER}.tar.gz
-  		cd tce-linux-amd64-v${TANZURELVER}
-   			if [ ${EUID:-${UID}} = 0 ]; then
-    		echo "currenly I am root user."
-    			if [ -z $SUDO_USER ]; then
-     			echo "root direct login is not supported"
-     			exit 255
-     			else
-     			echo "root user via sudo"
-    			fi
-   			fi
-  			if [ -z $SUDO_USER ]; then
-    		./install.sh
-  			else
-    		sudo -u $SUDO_USER ./install.sh
-    		sudo -u $SUDO_USER ssh-keygen -f /home/$SUDO_USER/.ssh/id_rsa -t rsa -N "" -C "hogehoge@example.com"
-    		sudo -u $SUDO_USER cat /home/$SUDO_USER/.ssh/id_rsa.pub
-  			fi
-  			cd ..
-  			rm -rf tce-linux-amd64-v${TANZURELVER}
-  			cd ${BASEPWD}
- 		fi
-	fi
-	OCTANTVER=0.25.0
-	if [ ${ARCH} = amd64 ]; then
-  	curl -OL https://github.com/vmware-tanzu/octant/releases/download/v${OCTANTVER}/octant_${OCTANTVER}_Linux-64bit.deb
-  	dpkg -i octant_${OCTANTVER}_Linux-64bit.deb
-  	rm octant_${OCTANTVER}_Linux-64bit.deb
- 	elif [ ${ARCH} = arm64 ]; then
-   	https://github.com/vmware-tanzu/octant/releases/download/v${OCTANTVER}/octant_${OCTANTVER}_Linux-ARM64.deb
-   	dpkg -i octant_${OCTANTVER}_Linux-ARM64.deb
-  	rm octant_${OCTANTVER}_Linux-ARM64.deb
- 	else
-   	echo "${ARCH} platform is not supported"
- 	exit 1
-	fi
-if [ ${ARCH} = arm64 ]; then
-echo "TCE is not supported on arm64"
-fi
-fi
-
 # Misc
 if [ ! -f /usr/lib/postgresql/12/bin/pgbench ]; then
 apt -y install postgresql-client postgresql-contrib mysql-client jq apache2-utils mongodb-clients lynx scsitools
 systemctl stop postgresql
 systemctl disable postgresql
-#I want to use only pgbench!
+# I want to use only pgbench!
 cp /usr/lib/postgresql/12/bin/pgbench /tmp
 apt -y remove postgresql-12
 apt -y autoremove
