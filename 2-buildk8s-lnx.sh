@@ -302,6 +302,28 @@ sed -i -e 's/ENABLED="false"/ENABLED="true"/g' /etc/default/sysstat
 systemctl restart sysstat.service
 fi
 
+# For Gitlab service account
+cat <<EOF | kubectl apply -f -
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: gitlab
+  namespace: kube-system
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: gitlab-admin
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-admin
+subjects:
+  - kind: ServiceAccount
+    name: gitlab
+    namespace: kube-system
+EOF
+
 #########################################################################
 
 echo ""
