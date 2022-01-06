@@ -165,6 +165,8 @@ while [ "$(kubectl get deployment -n ingress-system ingress-nginx-controller --o
 done
     kubectl get deployment -n ingress-system ingress-nginx-controller
 
+INGRESS_IP=$(kubectl -n ingress-system get svc ingress-nginx-controller -ojsonpath='{.status.loadBalancer.ingress[0].ip}')
+
 # Configutr local DNS Server
 apt -y install bind9 bind9utils
 echo 'include "/etc/bind/named.conf.internal-zones";' >> /etc/bind/named.conf
@@ -331,7 +333,8 @@ ${DNSHOSTNAME}     IN  A       ${DNSHOSTIP}
 xip		IN NS		ns-aws.sslip.io.
 xip		IN NS		ns-gce.sslip.io.
 xip		IN NS		ns-azure.sslip.io.
-minio IN A ${DNSHOSTIP}
+minio  IN A ${DNSHOSTIP}
+*.apps IN A ${INGRESS_IP}
 EOF
 chown bind:bind /var/cache/bind/${DNSDOMAINNAME}.lan
 chmod g+w /var/cache/bind/${DNSDOMAINNAME}.lan
@@ -344,6 +347,8 @@ echo ""
 host ${DNSHOSTNAME}.${DNSDOMAINNAME}. ${DNSHOSTIP}
 echo ""
 host minio.${DNSDOMAINNAME}. ${DNSHOSTIP}
+echo ""
+host abcd.apps.${DNSDOMAINNAME}. ${DNSHOSTIP}
 echo ""
 host www.yahoo.co.jp. ${DNSHOSTIP}
 echo ""
