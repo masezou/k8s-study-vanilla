@@ -169,6 +169,8 @@ kubectl --namespace ${NAMESPACE}  annotate statefulset/mysql-release \
 fi
 fi
 
+host ${WPHOST}.${DNSDOMAINNAME}. ${DNSHOSTIP}
+
 echo ""
 echo "*************************************************************************************"
 echo "Next Step"
