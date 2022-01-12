@@ -279,6 +279,8 @@ echo "kubectl get sc"
 kubectl get sc
 echo ""
 
+
+cd ${BASEPWD}
 if [ -f K3-kasten-vsphere.sh ]; then
 if [ -z $SUDO_USER ]; then
   echo "there is no sudo login"
@@ -293,5 +295,4 @@ cp K3-kasten-vsphere.sh /home/${SUDO_USER}/k8s-study-vanilla/K3-kasten-vsphere.s
 chown ${SUDO_USER}:${SUDO_USER} /home/${SUDO_USER}/k8s-study-vanilla/K3-kasten-vsphere.sh
 fi
 fi
-cd ${BASEPWD}
 chmod -x $0
