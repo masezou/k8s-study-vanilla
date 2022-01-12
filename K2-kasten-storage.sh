@@ -110,9 +110,22 @@ spec:
 EOF
 
 # NFS Server
-kubectl -n kasten-io get pvc | grep ${KASTENNFSPVC}
-retval1=$?
-if [ ${retval1} -eq 0 ]; then
+kubectl get sc | grep nfs-csi
+retval3=$?
+if [ ${retval3} -eq 0 ]; then
+cat <<EOF | kubectl apply -n kasten-io -f -
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+   name: ${KASTENNFSPVC}
+spec:
+   storageClassName: nfs-csi
+   accessModes:
+      - ReadWriteMany
+   resources:
+      requests:
+         storage: 20Gi
+EOF
 cat <<EOF | kubectl -n kasten-io create -f -
 apiVersion: config.kio.kasten.io/v1alpha1
 kind: Profile

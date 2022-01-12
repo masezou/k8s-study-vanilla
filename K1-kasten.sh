@@ -92,25 +92,6 @@ helm install k10 kasten/k10 --namespace=kasten-io \
 --set injectKanisterSidecar.enabled=true \
 --set-string injectKanisterSidecar.namespaceSelector.matchLabels.k10/injectKanisterSidecar=true 
 
-# define NFS storage
-kubectl get sc | grep nfs-csi
-retval12=$?
-if [ ${retval12} -eq 0 ]; then
-KASTENNFSPVC=kastenbackup-pvc
-cat <<EOF | kubectl apply -n kasten-io -f -
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-   name: ${KASTENNFSPVC}
-spec:
-   storageClassName: nfs-csi
-   accessModes:
-      - ReadWriteMany
-   resources:
-      requests:
-         storage: 20Gi
-EOF
-fi
 sleep 2
 kubectl get deployment -n kasten-io gateway
 echo "Deploying Kasten Please wait...."
