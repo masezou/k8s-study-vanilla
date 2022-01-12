@@ -247,7 +247,7 @@ chmod +x /usr/local/bin/docker-compose
 fi
 # Install kompose
 if [ ! -f /usr/local/bin/kompose ]; then
-KOMPOSEVER=1.26.0
+KOMPOSEVER=1.26.1
 curl -L https://github.com/kubernetes/kompose/releases/download/v${KOMPOSEVER}/kompose-linux-${ARCH} -o kompose
 mv kompose /usr/local/bin/kompose
 chmod +x /usr/local/bin/kompose

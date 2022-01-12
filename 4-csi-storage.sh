@@ -211,6 +211,7 @@ curl -OL  https://raw.githubusercontent.com/kubernetes-csi/csi-driver-nfs/master
 sed -i -e "s/nfs-server.default.svc.cluster.local/${LOCALIPADDR}/g" storageclass-nfs.yaml
 sed -i -e "s@share: /@share: ${NFSPATH}@g" storageclass-nfs.yaml
 kubectl create -f storageclass-nfs.yaml
+kubectl create secret generic mount-options --from-literal mountOptions="nfsvers=3,hard"
 rm -rf storageclass-nfs.yaml
 kubectl patch storageclass nfs-csi -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"false"}}}'
 kubectl delete CSIDriver nfs.csi.k8s.io
