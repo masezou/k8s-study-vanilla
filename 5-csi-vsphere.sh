@@ -13,7 +13,15 @@ VSPHERESERVERIP="YOUR_VCENTER_IP"
 VSPPHEREDATASTORE="YOUR_DATASTORE"
 
 #########################################################
+
+# kubernetes version check
+kubectl version | grep Server | grep 1.22
+retvsphere=$?
+if [ ${retvsphere} -eq 0 ]; then
+VSPHERECSI=2.4.1
+else
 VSPHERECSI=2.3.0
+fi
 
 if [ ${EUID:-${UID}} != 0 ]; then
     echo "This script must be run as root"
@@ -205,7 +213,7 @@ cd
 
 curl -OL https://raw.githubusercontent.com/kubernetes-sigs/vsphere-csi-driver/v${VSPHERECSI}/manifests/vanilla/vsphere-csi-driver.yaml
 # v2.4.0 fix
-if [ ${VSPHERECSI}="2.4.0" ]; then 
+if [ ${VSPHERECSI}="2.4.1" ]; then 
 sed -i -e "s/replicas: 3/replicas: 1/g" vsphere-csi-driver.yaml
 fi
 kubectl apply -f vsphere-csi-driver.yaml
