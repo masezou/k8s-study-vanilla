@@ -244,6 +244,7 @@ if [ ${ARCH} = amd64 ]; then
  exit 1
 fi
 chmod +x /usr/local/bin/docker-compose
+curl -L https://raw.githubusercontent.com/docker/compose/1.29.2/contrib/completion/bash/docker-compose  -o /etc/bash_completion.d/docker-compose
 fi
 # Install kompose
 if [ ! -f /usr/local/bin/kompose ]; then
