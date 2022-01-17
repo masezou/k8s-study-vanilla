@@ -253,8 +253,8 @@ if [ ${retvalds} -ne 0 ]; then
 echo -e "\e[31m It seemed ${VSPPHEREDATASTORE} was wrong. Please set Datastore tag manually in vCenter.  \e[m"
 fi
 
-VSPHERESTGPOLICY=k8s-policy
 # Create Storage policy
+VSPHERESTGPOLICY=k8s-policy
 govc storage.policy.ls | grep ${VSPHERESTGPOLICY}
 retval4=$?
 if [ ${retval4} -ne 0 ]; then
@@ -270,7 +270,7 @@ metadata:
     storageclass.kubernetes.io/is-default-class: "true"
 provisioner: csi.vsphere.vmware.com
 parameters:
-  storagepolicyname: "k8s-policy"
+  storagepolicyname: "${VSPHERESTGPOLICY}"
   fstype: ext4
 EOF
 
