@@ -245,17 +245,20 @@ govc tags.attach k8s-zone /Datacenter
 fi
 
 # Assign datastore
-govc tags.attach -c k8s-zone k8s-zone /Datacenter/datastore/${VSPPHEREDATASTORE}
+VSPHERETAGCATEGORY=k8s-zone
+VSPHERETAG=k8s-zone
+govc tags.attach -c ${VSPHERETAGCATEGORY} ${VSPHERETAG} /Datacenter/datastore/${VSPPHEREDATASTORE}
 retvalds=$?
 if [ ${retvalds} -ne 0 ]; then
 echo -e "\e[31m It seemed ${VSPPHEREDATASTORE} was wrong. Please set Datastore tag manually in vCenter.  \e[m"
 fi
 
+VSPHERESTGPOLICY=k8s-policy
 # Create Storage policy
-govc storage.policy.ls | grep k8s-policy
+govc storage.policy.ls | grep ${VSPHERESTGPOLICY}
 retval4=$?
 if [ ${retval4} -ne 0 ]; then
-  govc storage.policy.create -category k8s-zone -tag k8s-zone k8s-policy
+  govc storage.policy.create -category ${VSPHERETAGCATEGORY} -tag ${VSPHERETAG} ${VSPHERESTGPOLICY}
 fi
 
 cat <<EOF | kubectl apply -f -
@@ -278,6 +281,11 @@ kubectl patch storageclass csi-hostpath-sc \
     -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"false"}}}'
 kubectl patch storageclass cstor-csi-disk \
     -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"false"}}}'
+
+echo "export VSPHERE_ENDPOINT=${VSPHERESERVER}" >> /etc/profile.d/k10tools
+echo "export VSPHERE_USERNAME=${VSPHEREUSERNAME}" >> /etc/profile.d/k10tools
+echo "export VSPHERE_PASSWORD=${VSPHEREPASSWORD}" >> /etc/profile.d/k10tools
+echo "export VSPHERE_SNAPSHOT_TAGGING_CATEGORY=${VSPHERETAGCATEGORY}" >> /etc/profile.d/k10tools
 
 echo ""
 echo "*************************************************************************************"
