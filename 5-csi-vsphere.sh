@@ -282,10 +282,10 @@ kubectl patch storageclass csi-hostpath-sc \
 kubectl patch storageclass cstor-csi-disk \
     -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"false"}}}'
 
-echo "export VSPHERE_ENDPOINT=${VSPHERESERVER}" >> /etc/profile.d/k10tools
-echo "export VSPHERE_USERNAME=${VSPHEREUSERNAME}" >> /etc/profile.d/k10tools
-echo "export VSPHERE_PASSWORD=${VSPHEREPASSWORD}" >> /etc/profile.d/k10tools
-echo "export VSPHERE_SNAPSHOT_TAGGING_CATEGORY=${VSPHERETAGCATEGORY}" >> /etc/profile.d/k10tools
+echo "export VSPHERE_ENDPOINT=${VSPHERESERVER}" >> /etc/profile.d/k10tools.sh
+echo "export VSPHERE_USERNAME=${VSPHEREUSERNAME}" >> /etc/profile.d/k10tools.sh
+echo "export VSPHERE_PASSWORD=${VSPHEREPASSWORD}" >> /etc/profile.d/k10tools.sh
+echo "export VSPHERE_SNAPSHOT_TAGGING_CATEGORY=${VSPHERETAGCATEGORY}" >> /etc/profile.d/k10tools.sh
 
 echo ""
 echo "*************************************************************************************"
