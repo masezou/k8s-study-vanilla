@@ -289,7 +289,7 @@ echo "export VSPHERE_SNAPSHOT_TAGGING_CATEGORY=${VSPHERETAGCATEGORY}" >> /etc/pr
 
 echo ""
 echo "*************************************************************************************"
-echo -e "\e[32m vSphere CSI Driver installation and Storage Class creation is done. \e[m"
+echo -e "\e[32m vSphere CSI Driver ${VSPHERECSI} installation and Storage Class creation are done. \e[m"
 echo ""
 echo "kubectl get sc"
 kubectl get sc
