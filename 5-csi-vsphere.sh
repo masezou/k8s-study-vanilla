@@ -20,7 +20,7 @@ retvsphere=$?
 if [ ${retvsphere} -eq 0 ]; then
 VSPHERECSI=2.4.1
 else
-VSPHERECSI=2.3.0
+VSPHERECSI=2.3.1
 fi
 
 if [ ${EUID:-${UID}} != 0 ]; then
