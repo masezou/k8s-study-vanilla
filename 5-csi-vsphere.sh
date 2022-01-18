@@ -311,5 +311,4 @@ cp K3-kasten-vsphere.sh /home/${SUDO_USER}/k8s-study-vanilla/K3-kasten-vsphere.s
 chown ${SUDO_USER}:${SUDO_USER} /home/${SUDO_USER}/k8s-study-vanilla/K3-kasten-vsphere.sh
 fi
 fi
-echo ${VSPHERECSI} > vsphere-csi-version
 chmod -x $0
