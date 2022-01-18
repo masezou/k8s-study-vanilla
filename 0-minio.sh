@@ -131,7 +131,7 @@ fi
 
 ( cd /etc/systemd/system/ || return ; curl -O https://raw.githubusercontent.com/minio/minio-service/master/linux-systemd/minio.service )
 sed -i -e 's/minio-user/root/g' /etc/systemd/system/minio.service
-sed -i -e "s@/opt/bin/@/usr/local/bin/@g" minio.service
+sed -i -e "s@/opt/bin/@/usr/local/bin/@g" /etc/systemd/system/minio.service
 systemctl enable --now minio.service
 systemctl status minio.service --no-pager
 sleep 3
