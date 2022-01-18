@@ -3,7 +3,7 @@
 #########################################################
 # AMD64/ARM64 Linux would be worked
 # Kubernetes client version
-#KUBECTLVER=1.21.8-00
+# 1.21.8-00 was tested also.
 KUBECTLVER=1.22.5-00
 
 # for docker in client side. If you set this, you would not be able to deploy k8s environment on this server. 
