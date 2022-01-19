@@ -192,7 +192,7 @@ showmount -e
 # Install NFS-CSI driver for single node
 kubectl apply -f https://raw.githubusercontent.com/kubernetes-csi/csi-driver-nfs/master/deploy/rbac-csi-nfs-controller.yaml
 kubectl apply -f https://raw.githubusercontent.com/kubernetes-csi/csi-driver-nfs/master/deploy/csi-nfs-driverinfo.yaml
-curl -OL https://raw.githubusercontent.com/kubernetes-csi/csi-driver-nfs/master/deploy/csi-nfs-controller.yaml
+curl --retry 10 --retry-delay 3 --retry-connrefused -sSOL https://raw.githubusercontent.com/kubernetes-csi/csi-driver-nfs/master/deploy/csi-nfs-controller.yaml
 sed -i -e "s/replicas: 2/replicas: 1/g" csi-nfs-controller.yaml
 kubectl apply -f csi-nfs-controller.yaml
 rm -rf csi-nfs-controller.yaml
@@ -207,7 +207,7 @@ done
     kubectl -n kube-system get deployments.apps csi-nfs-controller
 kubectl -n kube-system wait pod -l app=csi-nfs-node --for condition=Ready --timeout 180s
 
-curl -OL  https://raw.githubusercontent.com/kubernetes-csi/csi-driver-nfs/master/deploy/example/storageclass-nfs.yaml
+curl --retry 10 --retry-delay 3 --retry-connrefused -sSOL https://raw.githubusercontent.com/kubernetes-csi/csi-driver-nfs/master/deploy/example/storageclass-nfs.yaml
 sed -i -e "s/nfs-server.default.svc.cluster.local/${LOCALIPADDR}/g" storageclass-nfs.yaml
 sed -i -e "s@share: /@share: ${NFSPATH}@g" storageclass-nfs.yaml
 kubectl create -f storageclass-nfs.yaml

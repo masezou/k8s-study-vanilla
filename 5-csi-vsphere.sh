@@ -97,13 +97,13 @@ export GOVC_RESOURCE_POOL='${VSPHERERESOURCEPOOL}' # Default resource pool to de
 EOF
 if [ ! -f /usr/local/bin/govc ]; then
 GOVCVER=v0.27.2
-curl -OL https://github.com/vmware/govmomi/releases/download/${GOVCVER}/govc_Linux_x86_64.tar.gz
+curl --retry 10 --retry-delay 3 --retry-connrefused -sSOL https://github.com/vmware/govmomi/releases/download/${GOVCVER}/govc_Linux_x86_64.tar.gz
 mkdir govcbin
 tar xfz govc_Linux_x86_64.tar.gz -C govcbin
 rm govc_Linux_x86_64.tar.gz
 mv govcbin/govc /usr/local/bin
 rm -rf govcbin
-curl -OL https://raw.githubusercontent.com/vmware/govmomi/master/scripts/govc_bash_completion
+curl --retry 10 --retry-delay 3 --retry-connrefused -sSOL https://raw.githubusercontent.com/vmware/govmomi/master/scripts/govc_bash_completion
 mv govc_bash_completion /etc/bash_completion.d/
 fi
 source ~/govc-vcenter.sh
@@ -211,7 +211,7 @@ rm /etc/kubernetes/csi-vsphere.conf
 kubectl get secret vsphere-config-secret --namespace=vmware-system-csi
 cd
 
-curl -OL https://raw.githubusercontent.com/kubernetes-sigs/vsphere-csi-driver/v${VSPHERECSI}/manifests/vanilla/vsphere-csi-driver.yaml
+curl --retry 10 --retry-delay 3 --retry-connrefused -sSOL https://raw.githubusercontent.com/kubernetes-sigs/vsphere-csi-driver/v${VSPHERECSI}/manifests/vanilla/vsphere-csi-driver.yaml
 # v2.4.0 fix
 if [ ${VSPHERECSI}="2.4.1" ]; then 
 sed -i -e "s/replicas: 3/replicas: 1/g" vsphere-csi-driver.yaml

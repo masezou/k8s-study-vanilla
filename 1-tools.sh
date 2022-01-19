@@ -92,19 +92,19 @@ fi
 if [ ${ARCH} = arm64 ]; then
         CXARCH=arm64
 fi
-curl -OL https://github.com/ahmetb/kubectx/releases/download/v${KUBECTX}/kubectx_v${KUBECTX}_linux_${CXARCH}.tar.gz
+curl --retry 10 --retry-delay 3 --retry-connrefused -sSOL https://github.com/ahmetb/kubectx/releases/download/v${KUBECTX}/kubectx_v${KUBECTX}_linux_${CXARCH}.tar.gz
 tar xfz kubectx_v${KUBECTX}_linux_${CXARCH}.tar.gz
 mv kubectx /usr/local/bin/
 chmod +x /usr/local/bin/kubectx
 rm -rf LICENSE kubectx_v${KUBECTX}_linux_${CXARCH}.tar.gz
-curl -OL https://raw.githubusercontent.com/ahmetb/kubectx/master/completion/kubectx.bash
+curl --retry 10 --retry-delay 3 --retry-connrefused -sSOL https://raw.githubusercontent.com/ahmetb/kubectx/master/completion/kubectx.bash
 mv kubectx.bash /etc/bash_completion.d/
 source /etc/bash_completion.d/kubectx.bash
-curl -OL https://github.com/ahmetb/kubectx/releases/download/v${KUBECTX}/kubens_v${KUBECTX}_linux_${CXARCH}.tar.gz
+curl --retry 10 --retry-delay 3 --retry-connrefused -sSOL https://github.com/ahmetb/kubectx/releases/download/v${KUBECTX}/kubens_v${KUBECTX}_linux_${CXARCH}.tar.gz
 tar xfz kubens_v${KUBECTX}_linux_${CXARCH}.tar.gz
 mv kubens /usr/local/bin/
 chmod +x /usr/local/bin/kubens
-curl -OL https://raw.githubusercontent.com/ahmetb/kubectx/master/completion/kubens.bash
+curl --retry 10 --retry-delay 3 --retry-connrefused -sSOL https://raw.githubusercontent.com/ahmetb/kubectx/master/completion/kubens.bash
 mv kubens.bash /etc/bash_completion.d/
 source /etc/bash_completion.d/kubens.bash
 rm -rf LICENSE kubens_v${KUBECTX}_linux_${CXARCH}.tar.gz
@@ -147,7 +147,7 @@ fi
 
 # Install Skaffold
 if [ ! -f /usr/local/bin/skaffold ]; then
-curl -Lo skaffold https://storage.googleapis.com/skaffold/releases/latest/skaffold-linux-${ARCH} && \
+curl --retry 10 --retry-delay 3 --retry-connrefused -sSOL skaffold https://storage.googleapis.com/skaffold/releases/latest/skaffold-linux-${ARCH} && \
 install skaffold /usr/local/bin/
 rm skaffold
 skaffold completion bash >/etc/bash_completion.d/skaffold
@@ -156,7 +156,7 @@ fi
 
 # Install Minio client
 if [ ! -f /usr/local/bin/mc ]; then
-curl -OL https://dl.min.io/client/mc/release/linux-${ARCH}/mc
+curl --retry 10 --retry-delay 3 --retry-connrefused -sSOL https://dl.min.io/client/mc/release/linux-${ARCH}/mc
 mv mc /usr/local/bin/
 chmod +x /usr/local/bin/mc
 echo "complete -C /usr/local/bin/mc mc" > /etc/bash_completion.d/mc.sh
@@ -169,20 +169,20 @@ if [ ! -f /usr/local/bin/govc ]; then
 GOVCVER=v0.27.2
 mkdir govcbin
 if [ ${ARCH} = amd64 ]; then
-curl -OL https://github.com/vmware/govmomi/releases/download/${GOVCVER}/govc_Linux_x86_64.tar.gz
+curl --retry 10 --retry-delay 3 --retry-connrefused -sSOL https://github.com/vmware/govmomi/releases/download/${GOVCVER}/govc_Linux_x86_64.tar.gz
 tar xfz govc_Linux_x86_64.tar.gz -C govcbin
 rm govc_Linux_x86_64.tar.gz
 fi
 
 if [ ${ARCH} = arm64 ]; then
-curl -OL https://github.com/vmware/govmomi/releases/download/${GOVCVER}/govc_Linux_arm64.tar.gz
+curl --retry 10 --retry-delay 3 --retry-connrefused -sSOL https://github.com/vmware/govmomi/releases/download/${GOVCVER}/govc_Linux_arm64.tar.gz
 tar xfz govc_Linux_arm64.tar.gz -C govcbin
 rm govc_Linux_arm64.tar.gz
 fi
 
 mv govcbin/govc /usr/local/bin
 rm -rf govcbin
-curl -OL https://raw.githubusercontent.com/vmware/govmomi/master/scripts/govc_bash_completion
+curl --retry 10 --retry-delay 3 --retry-connrefused -sSOL https://raw.githubusercontent.com/vmware/govmomi/master/scripts/govc_bash_completion
 mv govc_bash_completion /etc/bash_completion.d/
 fi
 fi
@@ -192,7 +192,7 @@ if [ ${POWERSHELL} -eq 1 ]; then
 if [ ${ARCH} = amd64 ]; then
 if [ ! -f /usr/bin/pwsh ]; then
 /usr/bin/pwsh
-curl -OL https://packages.microsoft.com/config/ubuntu/20.04/packages-microsoft-prod.deb
+curl --retry 10 --retry-delay 3 --retry-connrefused -sSOL https://packages.microsoft.com/config/ubuntu/20.04/packages-microsoft-prod.deb
 dpkg -i packages-microsoft-prod.deb
 rm packages-microsoft-prod.deb
 apt update
@@ -200,7 +200,7 @@ apt -y install powershell
 fi
 fi
 if [ ${ARCH} = arm64 ]; then
-curl -L https://aka.ms/InstallAzureCli | sudo bash
+curl --retry 10 --retry-delay 3 --retry-connrefused -sS -L https://aka.ms/InstallAzureCli | sudo bash
 fi
 fi
 
@@ -221,7 +221,7 @@ if [ ${ARCH} = amd64 ]; then
  exit 1
 fi
 apt -y install docker-ce-cli docker-ce
-curl https://raw.githubusercontent.com/containerd/containerd/v1.4.12/contrib/autocomplete/ctr -o /etc/bash_completion.d/ctr
+curl --retry 10 --retry-delay 3 --retry-connrefused -sS https://raw.githubusercontent.com/containerd/containerd/v1.4.12/contrib/autocomplete/ctr -o /etc/bash_completion.d/ctr
 groupadd docker
 if [ -z $SUDO_USER ]; then
   echo "there is no sudo login"
@@ -235,22 +235,22 @@ systemctl restart docker
 if [ ! -f /usr/local/bin/docker-compose ]; then
 DOCKERCOMPOSEVER=2.2.2
 if [ ${ARCH} = amd64 ]; then
-  curl -OL https://github.com/docker/compose/releases/download/v${DOCKERCOMPOSEVER}/docker-compose-linux-x86_64
+  curl --retry 10 --retry-delay 3 --retry-connrefused -sSOL https://github.com/docker/compose/releases/download/v${DOCKERCOMPOSEVER}/docker-compose-linux-x86_64
   mv docker-compose-linux-x86_64 /usr/local/bin/docker-compose
  elif [ ${ARCH} = arm64 ]; then
-  curl -OL https://github.com/docker/compose/releases/download/v${DOCKERCOMPOSEVER}/docker-compose-linux-aarch64
+  curl --retry 10 --retry-delay 3 --retry-connrefused -sSOL https://github.com/docker/compose/releases/download/v${DOCKERCOMPOSEVER}/docker-compose-linux-aarch64
   mv docker-compose-linux-aarch64 /usr/local/bin/docker-compose
  else
    echo "${ARCH} platform is not supported"
  exit 1
 fi
 chmod +x /usr/local/bin/docker-compose
-curl -L https://raw.githubusercontent.com/docker/compose/1.29.2/contrib/completion/bash/docker-compose  -o /etc/bash_completion.d/docker-compose
+curl --retry 10 --retry-delay 3 --retry-connrefused -sS -L https://raw.githubusercontent.com/docker/compose/1.29.2/contrib/completion/bash/docker-compose  -o /etc/bash_completion.d/docker-compose
 fi
 # Install kompose
 if [ ! -f /usr/local/bin/kompose ]; then
 KOMPOSEVER=1.26.1
-curl -L https://github.com/kubernetes/kompose/releases/download/v${KOMPOSEVER}/kompose-linux-${ARCH} -o kompose
+curl --retry 10 --retry-delay 3 --retry-connrefused -sS -L https://github.com/kubernetes/kompose/releases/download/v${KOMPOSEVER}/kompose-linux-${ARCH} -o kompose
 mv kompose /usr/local/bin/kompose
 chmod +x /usr/local/bin/kompose
 kompose completion bash > /etc/bash_completion.d/kompose
@@ -268,7 +268,7 @@ fi
 # Install minikube
 if [ ! -f /usr/local/bin/minikube ]; then
 apt -y install conntrack
-curl -OL https://storage.googleapis.com/minikube/releases/latest/minikube-linux-${ARCH}
+curl --retry 10 --retry-delay 3 --retry-connrefused -sSOL https://storage.googleapis.com/minikube/releases/latest/minikube-linux-${ARCH}
 install minikube-linux-${ARCH} /usr/local/bin/minikube
 rm minikube-linux-${ARCH}
 minikube completion bash > /etc/bash_completion.d/minikube
@@ -288,7 +288,7 @@ fi
 if [ ${CLOUDUTILS} -eq 1 ]; then
 # Iinstall aws/eksctl
 if [ ! -f /usr/local/bin/aws ]; then
-curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+curl --retry 10 --retry-delay 3 --retry-connrefused -sS "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
 apt -y install unzip
 unzip awscliv2.zip
 rm awscliv2.zip
@@ -304,7 +304,7 @@ fi
 if [ ! -f /usr/bin/az ]; then
 apt update
 apt -y install apt-transport-https ca-certificates gnupg curl lsb-release
-curl -sL https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor | tee /etc/apt/trusted.gpg.d/microsoft.gpg > /dev/null
+curl --retry 10 --retry-delay 3 --retry-connrefused -sL https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor | tee /etc/apt/trusted.gpg.d/microsoft.gpg > /dev/null
 AZ_REPO=$(lsb_release -cs)
 echo "deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/ $AZ_REPO main" | tee /etc/apt/sources.list.d/azure-cli.list
 apt update && apt -y install azure-cli
@@ -315,7 +315,7 @@ if [ ! -f /usr/bin/gcloud ]; then
 apt -y install ca-certificates apt-transport-https gnupg
 apt update
 echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] http://packages.cloud.google.com/apt cloud-sdk main" | tee -a /etc/apt/sources.list.d/google-cloud-sdk.list
-curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key --keyring /usr/share/keyrings/cloud.google.gpg add -
+curl --retry 10 --retry-delay 3 --retry-connrefused -sS https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key --keyring /usr/share/keyrings/cloud.google.gpg add -
 apt -y update && apt -y install google-cloud-sdk
 fi
 fi

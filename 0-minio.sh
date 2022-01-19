@@ -78,12 +78,12 @@ mkdir -p ${MINIOPATH}/data{1..4}
 chmod -R 755 ${MINIOPATH}/data*
 fi
 mkdir -p ~/.minio/certs
-curl -OL https://dl.min.io/server/minio/release/linux-${ARCH}/minio
+curl --retry 10 --retry-delay 3 --retry-connrefused -sSOL https://dl.min.io/server/minio/release/linux-${ARCH}/minio
 mv minio  /usr/local/bin/
 chmod +x /usr/local/bin/minio
 fi
 if [ ! -f /usr/local/bin/mc ]; then
-curl -OL https://dl.min.io/client/mc/release/linux-${ARCH}/mc
+curl --retry 10 --retry-delay 3 --retry-connrefused -sSOL https://dl.min.io/client/mc/release/linux-${ARCH}/mc
 mv mc /usr/local/bin/
 chmod +x /usr/local/bin/mc
 echo "complete -C /usr/local/bin/mc mc" > /etc/bash_completion.d/mc.sh
@@ -129,7 +129,7 @@ MINIO_SERVER_URL=https://${LOCALIPADDR}:9000
 EOT
 fi
 
-( cd /etc/systemd/system/ || return ; curl -O https://raw.githubusercontent.com/minio/minio-service/master/linux-systemd/minio.service )
+( cd /etc/systemd/system/ || return ; curl --retry 10 --retry-delay 3 --retry-connrefused -sSO https://raw.githubusercontent.com/minio/minio-service/master/linux-systemd/minio.service )
 sed -i -e 's/minio-user/root/g' /etc/systemd/system/minio.service
 sed -i -e "s@/opt/bin/@/usr/local/bin/@g" /etc/systemd/system/minio.service
 systemctl enable --now minio.service

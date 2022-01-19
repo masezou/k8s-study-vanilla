@@ -102,7 +102,7 @@ fi
 apt update
 apt -y purge docker docker.io docker-ce-cli docker-ce docker-ce-rootless-extras
 apt -y install containerd.io
-curl https://raw.githubusercontent.com/containerd/containerd/v1.4.12/contrib/autocomplete/ctr -o /etc/bash_completion.d/ctr
+curl --retry 10 --retry-delay 3 --retry-connrefused -sS https://raw.githubusercontent.com/containerd/containerd/v1.4.12/contrib/autocomplete/ctr -o /etc/bash_completion.d/ctr
 
 # Containerd settings
 containerd config default | sudo tee /etc/containerd/config.toml
@@ -196,7 +196,7 @@ echo 'export KUBE_EDITOR=vi' >>~/.bashrc
 fi
 # Install etcd-client
 apt -y install etcd-client
-curl -OL https://gist.githubusercontent.com/swynter-ladbrokes/9960fe1a1f2467bfe6e6/raw/7a92e7d92b68d67f958d28af880e6561037c33c1/etcdctl
+curl --retry 10 --retry-delay 3 --retry-connrefused -sSOL https://gist.githubusercontent.com/swynter-ladbrokes/9960fe1a1f2467bfe6e6/raw/7a92e7d92b68d67f958d28af880e6561037c33c1/etcdctl
 mv etcdctl /etc/bash_completion.d/
 source /etc/bash_completion.d/etcdctl 
 # CRICTL setting

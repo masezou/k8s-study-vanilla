@@ -646,7 +646,7 @@ else
 fi
 
 # Install metric server
-curl -OL https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
+curl --retry 10 --retry-delay 3 --retry-connrefused -sSOL https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
 cat << EOF | sed -i -e "/        imagePullPolicy: IfNotPresent$/r /dev/stdin" components.yaml
         command:
         - /metrics-server
