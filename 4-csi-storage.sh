@@ -236,6 +236,7 @@ helm install nfs-subdir-external-provisioner nfs-subdir-external-provisioner/nfs
     --set nfs.path=${NFSSUBPATH} \
     --set storageClass.name=nfs-sc
 
+kubectl -n openebs wait pod  -l app=cstor-pool --for condition=Ready
 echo ""
 echo "*************************************************************************************"
 echo "CSI storage was created"
