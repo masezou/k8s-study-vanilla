@@ -157,6 +157,7 @@ kubectl -n ${NAMESPACE} annotate service wordpress \
     external-dns.alpha.kubernetes.io/hostname=${WPHOST}.${DNSDOMAINNAME}
 kubectl -n blog1 wait pod -l app=wordpress --for condition=Ready --timeout 180s
 
+sleep 10
 host ${WPHOST}.${DNSDOMAINNAME}. ${DNSHOSTIP}
 
 echo ""
