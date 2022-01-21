@@ -3,7 +3,7 @@
 #########################################################
 # kubeadm version
 # 1.21.8-00 was tested also.
-KUBECTLVER=1.22.5-00
+KUBECTLVER=1.22.6-00
 # install as master
 ENABLEK8SMASTER=1
 
@@ -194,11 +194,6 @@ kubectl completion bash >/etc/bash_completion.d/kubectl
 source /etc/bash_completion.d/kubectl
 echo 'export KUBE_EDITOR=vi' >>~/.bashrc
 fi
-# Install etcd-client
-apt -y install etcd-client
-curl --retry 10 --retry-delay 3 --retry-connrefused -sSOL https://gist.githubusercontent.com/swynter-ladbrokes/9960fe1a1f2467bfe6e6/raw/7a92e7d92b68d67f958d28af880e6561037c33c1/etcdctl
-mv etcdctl /etc/bash_completion.d/
-source /etc/bash_completion.d/etcdctl 
 # CRICTL setting
 cat << EOF >  /etc/crictl.yaml
 runtime-endpoint: unix:///run/containerd/containerd.sock

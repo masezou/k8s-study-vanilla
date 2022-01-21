@@ -4,21 +4,28 @@
 # AMD64/ARM64 Linux would be worked
 # Kubernetes client version
 # 1.21.8-00 was tested also.
-KUBECTLVER=1.22.5-00
+KUBECTLVER=1.22.6-00
+
+# For Client use. Not to set in cluster environment.
+CLIENT=0
+
+#########################################################
+
+if [ ${CLIENT} -eq 1 ]; then
 
 # for docker in client side. If you set this, you would not be able to deploy k8s environment on this server. 
-DOCKER=0
+DOCKER=1
 
 ######################
 # Only tested on amd64. arm64 is experimental
 # for AKS/EKS/GKE installation
-CLOUDUTILS=0
+CLOUDUTILS=1
 # Powershell
-POWERSHELL=0
+POWERSHELL=1
 
-#########################################################
 # Govc
 GOVC=1
+fi
 
 ### UID Check ###
 if [ ${EUID:-${UID}} != 0 ]; then
@@ -82,6 +89,12 @@ kubectl completion bash >/etc/bash_completion.d/kubectl
 source /etc/bash_completion.d/kubectl
 echo 'export KUBE_EDITOR=vi' >>~/.bashrc
 fi
+
+# Install etcd-client
+apt -y install etcd-client
+curl --retry 10 --retry-delay 3 --retry-connrefused -sSOL https://gist.githubusercontent.com/swynter-ladbrokes/9960fe1a1f2467bfe6e6/raw/7a92e7d92b68d67f958d28af880e6561037c33c1/etcdctl
+mv etcdctl /etc/bash_completion.d/
+source /etc/bash_completion.d/etcdctl
 
 # Install kubectx and kubens
 if [ ! -f /usr/local/bin/kubectx ]; then
