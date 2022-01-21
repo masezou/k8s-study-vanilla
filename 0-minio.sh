@@ -74,6 +74,8 @@ BASEPWD=`pwd`
 
 if [ ! -f /usr/local/bin/minio ]; then
 if [ ! -d ${MINIOPATH} ]; then
+ufw allow 9000
+ufw allow 9001
 mkdir -p ${MINIOPATH}/data{1..4}
 chmod -R 755 ${MINIOPATH}/data*
 fi
