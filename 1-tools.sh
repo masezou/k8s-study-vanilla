@@ -198,7 +198,6 @@ fi
 if [ ${POWERSHELL} -eq 1 ]; then
 if [ ${ARCH} = amd64 ]; then
 if [ ! -f /usr/bin/pwsh ]; then
-/usr/bin/pwsh
 curl --retry 10 --retry-delay 3 --retry-connrefused -sSOL https://packages.microsoft.com/config/ubuntu/20.04/packages-microsoft-prod.deb
 dpkg -i packages-microsoft-prod.deb
 rm packages-microsoft-prod.deb
@@ -284,10 +283,11 @@ fi
 fi
 
 # for client installation
-echo "k8s installation is prohibited if you install docker to this mathine. Following scripts are removed."
-rm -rf 00Install-k8s.sh 0-minio.sh 1-tools.sh 2-buildk8s-lnx.sh 3-configk8s.sh 4-csi-storage.sh 5-csi-vsphere.sh
+echo -e "\e[31mk8s installation is prohibited if you install docker to this mathine. this script removes deploying k8s scripts. \e[m"
+rm -rf 00Install-k8s.sh 0-minio.sh 2-buildk8s-lnx.sh 3-configk8s.sh 4-csi-storage.sh 5-csi-vsphere.sh
 
 cp -rf ../k8s-study-vanilla /home/${SUDO_USER}/
+rm /home/${SUDO_USER}/k8s-study-vanilla/1-tools.sh
 chown -R ${SUDO_USER}:${SUDO_USER} /home/${SUDO_USER}/k8s-study-vanilla
 fi
 
@@ -297,7 +297,7 @@ if [ ${CLOUDUTILS} -eq 1 ]; then
 if [ ! -f /usr/local/bin/aws ]; then
 curl --retry 10 --retry-delay 3 --retry-connrefused -sS "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
 apt -y install unzip
-unzip awscliv2.zip
+unzip -q awscliv2.zip
 rm awscliv2.zip
 ./aws/install
 rm -rf aws
