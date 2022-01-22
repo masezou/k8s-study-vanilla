@@ -17,6 +17,7 @@ kubectl get svc -n pacman
 
 DNSDOMAINNAME=`kubectl -n external-dns get deployments.apps  --output="jsonpath={.items[*].spec.template.spec.containers }" | jq |grep rfc2136-zone | cut -d "=" -f 2 | cut -d "\"" -f 1`
 kubectl -n pacman annotate service pacman external-dns.alpha.kubernetes.io/hostname=pacman.${DNSDOMAINNAME}
+kubectl -n pacman wait pod -l name=pacman --for condition=Ready
 
 sleep 10
 host pacman.${DNSDOMAINNAME}
