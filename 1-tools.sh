@@ -154,9 +154,7 @@ fi
 
 # Install Skaffold
 if [ ! -f /usr/local/bin/skaffold ]; then
-curl --retry 10 --retry-delay 3 --retry-connrefused -sSOL skaffold https://storage.googleapis.com/skaffold/releases/latest/skaffold-linux-${ARCH} && \
-install skaffold /usr/local/bin/
-rm skaffold
+curl --retry 10 --retry-delay 3 --retry-connrefused -sS -Lo skaffold https://storage.googleapis.com/skaffold/releases/latest/skaffold-linux-amd64 && chmod +x skaffold && sudo mv skaffold /usr/local/bin
 skaffold completion bash >/etc/bash_completion.d/skaffold
 source /etc/bash_completion.d/skaffold
 fi
