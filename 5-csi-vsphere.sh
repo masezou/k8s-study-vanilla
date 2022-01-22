@@ -282,6 +282,9 @@ kubectl patch storageclass csi-hostpath-sc \
 kubectl patch storageclass cstor-csi-disk \
     -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"false"}}}'
 
+echo "Wating for deploy csi driver to node..."
+kubectl -n vmware-system-csi wait pod -l app=vsphere-csi-node --for condition=Ready
+
 echo "export VSPHERE_ENDPOINT=${VSPHERESERVER}" >> /etc/profile.d/k10tools.sh
 echo "export VSPHERE_USERNAME=${VSPHEREUSERNAME}" >> /etc/profile.d/k10tools.sh
 echo "export VSPHERE_PASSWORD=${VSPHEREPASSWORD}" >> /etc/profile.d/k10tools.sh
