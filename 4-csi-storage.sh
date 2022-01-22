@@ -144,7 +144,7 @@ kubectl -n openebs wait pod  -l app=cstor-pool --for condition=Ready
 else
 # Rancher local driver (Not CSI Storage)
 kubectl apply -f https://raw.githubusercontent.com/rancher/local-path-provisioner/master/deploy/local-path-storage.yaml
-SNAPSHOTTER_VERSION=v4.2.1
+SNAPSHOTTER_VERSION=v5.0.1
 # Apply VolumeSnapshot CRDs
 kubectl apply -f https://raw.githubusercontent.com/kubernetes-csi/external-snapshotter/${SNAPSHOTTER_VERSION}/client/config/crd/snapshot.storage.k8s.io_volumesnapshotclasses.yaml
 kubectl apply -f https://raw.githubusercontent.com/kubernetes-csi/external-snapshotter/${SNAPSHOTTER_VERSION}/client/config/crd/snapshot.storage.k8s.io_volumesnapshotcontents.yaml

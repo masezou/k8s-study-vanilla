@@ -12,20 +12,14 @@ CLIENT=0
 #########################################################
 
 if [ ${CLIENT} -eq 1 ]; then
-
-# for docker in client side. If you set this, you would not be able to deploy k8s environment on this server. 
 DOCKER=1
-
-######################
 # Only tested on amd64. arm64 is experimental
-# for AKS/EKS/GKE installation
 CLOUDUTILS=1
 # Powershell
 POWERSHELL=1
-
+fi
 # Govc
 GOVC=1
-fi
 
 ### UID Check ###
 if [ ${EUID:-${UID}} != 0 ]; then
@@ -246,7 +240,7 @@ systemctl daemon-reload
 systemctl restart docker
 # Install Docker Compose
 if [ ! -f /usr/local/bin/docker-compose ]; then
-DOCKERCOMPOSEVER=2.2.2
+DOCKERCOMPOSEVER=2.2.3
 if [ ${ARCH} = amd64 ]; then
   curl --retry 10 --retry-delay 3 --retry-connrefused -sSOL https://github.com/docker/compose/releases/download/v${DOCKERCOMPOSEVER}/docker-compose-linux-x86_64
   mv docker-compose-linux-x86_64 /usr/local/bin/docker-compose
