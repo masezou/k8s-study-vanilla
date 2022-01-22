@@ -117,15 +117,26 @@ echo "" >> k10-k10.token
 EXTERNALIP=`kubectl -n kasten-io get svc gateway-ext | awk '{print $4}' | tail -n 1`
 INGRESSIP=`kubectl get ingress -n kasten-io --output="jsonpath={.items[*].status.loadBalancer.ingress[*].ip}"`
 KASTENFQDNURL=`kubectl -n kasten-io  get svc gateway-ext --output="jsonpath={.metadata.annotations}" | jq | grep external-dns | cut -d "\"" -f 4`
+
+sleep 10
+host ${KASTENFQDNURL}
+retvaldns1=$?
+host ${KASTENFQDNINGRESS}
+retvaldns2=$?
+
 echo ""
 echo "*************************************************************************************"
 echo "Next Step"
 echo "Confirm wordpress kasten is running with kubectl get pods --namespace kasten-io"
 echo -e "\e[32m Open your browser \e[m"
-echo -e "\e[32m http://${KASTENFQDNURL}/k10/ \e[m"
 echo -e "\e[32m http://${EXTERNALIP}/k10/ \e[m"
+if [ ${retvaldns1} -eq 0 ]; then
+echo -e "\e[32m http://${KASTENFQDNURL}/k10/ \e[m"
+fi
+if [ ${retvaldns2} -eq 0 ]; then
 echo -e "\e[32m http://${KASTENFQDNINGRESS}/k10/ \e[m"
 echo -e "\e[32m https://${KASTENFQDNINGRESS}/k10/ \e[m"
+fi
 echo "then input login token"
 echo -e "\e[32m cat ./k10-k10.token \e[m"
 cat ./k10-k10.token

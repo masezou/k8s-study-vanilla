@@ -17,6 +17,11 @@ kubectl get svc -n pacman
 
 DNSDOMAINNAME=`kubectl -n external-dns get deployments.apps  --output="jsonpath={.items[*].spec.template.spec.containers }" | jq |grep rfc2136-zone | cut -d "=" -f 2 | cut -d "\"" -f 1`
 kubectl -n pacman annotate service pacman external-dns.alpha.kubernetes.io/hostname=pacman.${DNSDOMAINNAME}
+
+sleep 10
+host pacman.${DNSDOMAINNAME}
+retvaldns=$?
+
 cd ..
 
 echo ""
@@ -24,8 +29,10 @@ echo "**************************************************************************
 echo "Next Step"
 echo "kubectl -n pacman get svc"
 echo "http://EXTERNAL-IP/"
+if [ ${retvaldns} -eq 0 ]; then 
 echo "or"
 echo "http://pacman.${DNSDOMAINNAME}/"
+fi
 echo ""
 
 chmod -x P-pacman.sh

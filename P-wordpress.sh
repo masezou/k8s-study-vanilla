@@ -159,14 +159,14 @@ kubectl -n blog1 wait pod -l app=wordpress --for condition=Ready --timeout 180s
 
 sleep 10
 host ${WPHOST}.${DNSDOMAINNAME}. ${DNSHOSTIP}
-
+retvaldns=$?
 echo ""
 echo "*************************************************************************************"
 echo "Next Step"
 echo "Confirm wordpress pod and mysql pod are running with kubectl get pod -A"
 echo "Open http://${EXTERNALIP}"
+if [ ${retvaldns} -eq 0 ]; then 
 echo "or"
 echo "Open http://${WPHOST}.${DNSDOMAINNAME}"
+fi
 echo ""
-
-
