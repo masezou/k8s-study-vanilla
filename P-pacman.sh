@@ -19,7 +19,7 @@ DNSDOMAINNAME=`kubectl -n external-dns get deployments.apps  --output="jsonpath=
 kubectl -n pacman annotate service pacman external-dns.alpha.kubernetes.io/hostname=pacman.${DNSDOMAINNAME}
 kubectl -n pacman wait pod -l name=pacman --for condition=Ready
 
-sleep 10
+sleep 30
 host pacman.${DNSDOMAINNAME}
 retvaldns=$?
 
