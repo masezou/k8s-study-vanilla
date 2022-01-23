@@ -94,7 +94,7 @@ source /etc/bash_completion.d/etcdctl
 if [ ! -f /usr/local/bin/kubectx ]; then
 KUBECTX=0.9.4
 if [ ${ARCH} = amd64 ]; then
-        CXARCH=x86_64
+        CXARCH=$(uname -i)
 fi
 if [ ${ARCH} = arm64 ]; then
         CXARCH=arm64
@@ -174,15 +174,15 @@ if [ ! -f /usr/local/bin/govc ]; then
 GOVCVER=v0.27.2
 mkdir govcbin
 if [ ${ARCH} = amd64 ]; then
-curl --retry 10 --retry-delay 3 --retry-connrefused -sSOL https://github.com/vmware/govmomi/releases/download/${GOVCVER}/govc_Linux_x86_64.tar.gz
-tar xfz govc_Linux_x86_64.tar.gz -C govcbin
-rm govc_Linux_x86_64.tar.gz
+curl --retry 10 --retry-delay 3 --retry-connrefused -sSOL https://github.com/vmware/govmomi/releases/download/${GOVCVER}/govc_$(uname -s)_$(uname -i).tar.gz
+tar xfz govc_$(uname -s)_$(uname -i).tar.gz -C govcbin
+rm govc_$(uname -s)_$(uname -i).tar.gz
 fi
 
 if [ ${ARCH} = arm64 ]; then
-curl --retry 10 --retry-delay 3 --retry-connrefused -sSOL https://github.com/vmware/govmomi/releases/download/${GOVCVER}/govc_Linux_arm64.tar.gz
-tar xfz govc_Linux_arm64.tar.gz -C govcbin
-rm govc_Linux_arm64.tar.gz
+curl --retry 10 --retry-delay 3 --retry-connrefused -sSOL https://github.com/vmware/govmomi/releases/download/${GOVCVER}/govc_$(uname -s)_${ARCH}.tar.gz
+tar xfz govc_$(uname -s)_${ARCH}.tar.gz -C govcbin
+rm govc_$(uname -s)_${ARCH}.tar.gz
 fi
 
 mv govcbin/govc /usr/local/bin
@@ -239,8 +239,8 @@ systemctl restart docker
 if [ ! -f /usr/local/bin/docker-compose ]; then
 DOCKERCOMPOSEVER=2.2.3
 if [ ${ARCH} = amd64 ]; then
-  curl --retry 10 --retry-delay 3 --retry-connrefused -sSOL https://github.com/docker/compose/releases/download/v${DOCKERCOMPOSEVER}/docker-compose-linux-x86_64
-  mv docker-compose-linux-x86_64 /usr/local/bin/docker-compose
+  curl --retry 10 --retry-delay 3 --retry-connrefused -sSOL https://github.com/docker/compose/releases/download/v${DOCKERCOMPOSEVER}/docker-compose-linux-$(uname -i)
+  mv docker-compose-linux-$(uname -i) /usr/local/bin/docker-compose
  elif [ ${ARCH} = arm64 ]; then
   curl --retry 10 --retry-delay 3 --retry-connrefused -sSOL https://github.com/docker/compose/releases/download/v${DOCKERCOMPOSEVER}/docker-compose-linux-aarch64
   mv docker-compose-linux-aarch64 /usr/local/bin/docker-compose
@@ -293,7 +293,7 @@ fi
 if [ ${CLOUDUTILS} -eq 1 ]; then
 # Iinstall aws/eksctl
 if [ ! -f /usr/local/bin/aws ]; then
-curl --retry 10 --retry-delay 3 --retry-connrefused -sS "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+curl --retry 10 --retry-delay 3 --retry-connrefused -sS "https://awscli.amazonaws.com/awscli-exe-linux-$(uname -i).zip" -o "awscliv2.zip"
 apt -y install unzip
 unzip -q awscliv2.zip
 rm awscliv2.zip

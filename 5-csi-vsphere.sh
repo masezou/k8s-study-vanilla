@@ -97,10 +97,10 @@ export GOVC_RESOURCE_POOL='${VSPHERERESOURCEPOOL}' # Default resource pool to de
 EOF
 if [ ! -f /usr/local/bin/govc ]; then
 GOVCVER=v0.27.2
-curl --retry 10 --retry-delay 3 --retry-connrefused -sSOL https://github.com/vmware/govmomi/releases/download/${GOVCVER}/govc_Linux_x86_64.tar.gz
+curl --retry 10 --retry-delay 3 --retry-connrefused -sSOL https://github.com/vmware/govmomi/releases/download/${GOVCVER}/govc_Linux_$(uname -i).tar.gz
 mkdir govcbin
-tar xfz govc_Linux_x86_64.tar.gz -C govcbin
-rm govc_Linux_x86_64.tar.gz
+tar xfz govc_Linux_$(uname -i).tar.gz -C govcbin
+rm govc_Linux_$(uname -i).tar.gz
 mv govcbin/govc /usr/local/bin
 rm -rf govcbin
 curl --retry 10 --retry-delay 3 --retry-connrefused -sSOL https://raw.githubusercontent.com/vmware/govmomi/master/scripts/govc_bash_completion

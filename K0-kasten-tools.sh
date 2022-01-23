@@ -60,9 +60,9 @@ if [ ! -f /usr/local/bin/kubestr ]; then
 rm -rf /usr/local/bin/kubestr
 mkdir temp
 cd temp
-curl --retry 10 --retry-delay 3 --retry-connrefused -sSOL https://github.com/kastenhq/kubestr/releases/download/v${KUBESTRVER}/kubestr_${KUBESTRVER}_Linux_${ARCH}.tar.gz
-tar xfz kubestr_${KUBESTRVER}_Linux_${ARCH}.tar.gz
-rm kubestr_${KUBESTRVER}_Linux_${ARCH}.tar.gz
+curl --retry 10 --retry-delay 3 --retry-connrefused -sSOL https://github.com/kastenhq/kubestr/releases/download/v${KUBESTRVER}/kubestr_${KUBESTRVER}_$(uname -s)_${ARCH}.tar.gz
+tar xfz kubestr_${KUBESTRVER}_$(uname -s)_${ARCH}.tar.gz
+rm kubestr_${KUBESTRVER}_$(uname -s)_${ARCH}.tar.gz
 mv kubestr /usr/local/bin/kubestr
 chmod +x /usr/local/bin/kubestr
 cd ..
