@@ -1,4 +1,14 @@
 #!/usr/bin/env bash
+#########################################################
+# Experimental
+
+SYNOLOGY=0
+
+SYNOLOGYHOST="YOUR_SYNOLOGY_HOST"
+SYNOLOGYPORT="5001"
+SYNOLOGYHTTPS="true"
+SYNOLOGYUSERNAME="YOUR_SYNOLOGY_USER"
+SYNOLOGYPASSWORD="YOUR_SYNOLOGY_PASSWORD"
 
 #########################################################
 ### UID Check ###
@@ -235,6 +245,36 @@ helm install nfs-subdir-external-provisioner nfs-subdir-external-provisioner/nfs
     --set nfs.server=${LOCALIPADDR} \
     --set nfs.path=${NFSSUBPATH} \
     --set storageClass.name=nfs-sc
+
+# Install Synology CSI (Experimental)
+if [ ${SYNOLOGY} -eq 1 ]; then
+git clone https://github.com/kubernetes-csi/external-snapshotter
+cd external-snapshotter
+kubectl kustomize client/config/crd | kubectl create -f -
+kubectl -n kube-system kustomize deploy/kubernetes/snapshot-controller | kubectl create -f -
+cd ..
+apt -y install make golang-go
+git clone --depth 1 git@github.com:SynologyOpenSource/synology-csi.git
+cd synology-csi
+cat << EOF > config/client-info.yml
+---
+clients:
+  - host: ${SYNOLOGYHOST}
+    port: ${SYNOLOGYPORT}
+    https: ${SYNOLOGYHTTPS}
+    username: ${SYNOLOGYUSERNAME}
+    password: ${SYNOLOGYPASSWORD}
+EOF
+
+./scripts/deploy.sh install --all
+cd ..
+kubectl get pods -n synology-csi
+kubectl apply -f deploy/kubernetes/v1.19/storage-class.yml
+kubectl apply -f deploy/kubernetes/v1.19/snapshotter/volume-snapshot-class.yml
+kubectl -n synology-csi wait pod  -l app=synology-csi-controller --for condition=Ready
+kubectl -n synology-csi wait pod  -l app=synology-csi-node --for condition=Ready
+kubectl -n synology-csi wait pod  -l app=synology-csi-snapshotter --for condition=Ready
+fi
 
 kubectl -n openebs wait pod  -l app=cstor-pool --for condition=Ready
 echo ""
