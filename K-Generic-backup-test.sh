@@ -10,7 +10,7 @@ TESTFILE=00-Detailed_Instruction-En.txt
 
 #########################################################
 # Clean up
-rm -rf demodata_restored backup-run-action.yaml
+rm -rf demodata demodata_restored generic-backup.yaml backup-run-action.yaml
 
 kubectl create namespace ${NAMESPACE}
 kubectl label namespace ${NAMESPACE} k10/injectKanisterSidecar=true
@@ -119,7 +119,7 @@ spec:
     namespace: kasten-io
 EOF
 kubectl create -f backup-run-action.yaml 
-rm backup-run-action.yaml
+rm -rf backup-run-action.yaml
 
 echo -e "\e[32m Wait for finishing and successful BACKUP ${NAMESPACE} in Kasten Dashboard. then \e[m"
 read -p "Press any key to continue... " -n1 -s
@@ -163,6 +163,6 @@ echo "Cleanup, it will delete test namespace and backup policy"
 read -p "Press any key to continue... " -n1 -s
 kubectl -n kasten-io delete policy ${NAMESPACE}-backup
 kubectl delete ns ${NAMESPACE}
-rm demodata demodata_restored
+rm -rf demodata demodata_restored generic-backup.yaml backup-run-action.yaml
 echo "Test was finished."
 exit 0
