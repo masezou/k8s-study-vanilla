@@ -1,3 +1,10 @@
+#!/usr/bin/env bash
+
+#########################################################
+
+SC=local-hostpath
+
+#########################################################
 kubectl create namespace genericbackup-test
 kubectl label namespace genericbackup-test k10/injectKanisterSidecar=true
 cat <<EOF | kubectl apply -n genericbackup-test -f -
@@ -9,7 +16,7 @@ metadata:
     app: demo
     pvc: demo
 spec:
-  storageClassName: local-path
+  storageClassName: ${SC}
   accessModes:
     - ReadWriteOnce
   resources:
@@ -50,17 +57,25 @@ spec:
           claimName: demo-pvc
 EOF
 kubectl get pods --namespace=genericbackup-test | grep demo-app
-cp 3-configk8s.sh demodata
-kubectl cp demodata genericbackup-test/demo-app-696f676d47-csnjs:/data/
-kubectl exec --namespace=genericbackup-test demo-app-696f676d47-csnjs -- ls -l /data
+cp 00-Detailed_Instruction-En.txt demodata
+kubectl -n genericbackup-test cp demodata \
+  $(kubectl -n genericbackup-test get pod -l app=demo -o custom-columns=:metadata.name):/data/demodeta
+kubectl exec --namespace=genericbackup-test $(kubectl -n genericbackup-test get pod -l app=demo -o custom-columns=:metadata.name) -- ls -l /data
 
-#Backup in Kasten Dashboard
+
+echo "execute BACKUP in Kasten Dashboard. then \n"
+read -p "Press any key to continue... " -n1 -s
 
 #Delete data
-kubectl exec --namespace=genericbackup-test demo-app-696f676d47-csnjs -- rm -rf /data/3-configk8s.sh
+kubectl exec --namespace=genericbackup-test $(kubectl -n genericbackup-test get pod -l app=demo -o custom-columns=:metadata.name) -- rm -rf /data/demodata
 
-#Verify
+echo "execute RESTORE in Kasten Dashboard. then \n"
+read -p "Press any key to continue... " -n1 -s
+
+echo "Verify data"
+
 md5sum demodata
 kubectl get pods --namespace=genericbackup-test | grep demo-app
-kubectl cp genericbackup-test/<pod>:/data/demodata demodata_restored
+kubectl -n genericbackup-test cp \
+  $(kubectl -n genericbackup-test get pod -l app=demo -o custom-columns=:metadata.name):/data/demodeta demodata_restored
 md5sum  demodata_restored
