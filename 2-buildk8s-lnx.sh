@@ -7,6 +7,9 @@ KUBECTLVER=1.22.6-00
 # install as master
 ENABLEK8SMASTER=1
 
+# REGISTRY Setting
+REGISTORY=${LOCALIPADDR}:5000
+REGISTORYURL=http://${REGISTORY}
 
 # Enable private registry
 ENABLEREG=1
@@ -107,12 +110,14 @@ curl --retry 10 --retry-delay 3 --retry-connrefused -sS https://raw.githubuserco
 # Containerd settings
 containerd config default | sudo tee /etc/containerd/config.toml
 sed -i -e "/^          \[plugins\.\"io\.containerd\.grpc\.v1\.cri\"\.containerd\.runtimes\.runc\.options\]$/a\            SystemdCgroup \= true" /etc/containerd/config.toml
+
+
 dpkg -l | grep containerd | grep 1.4  > /dev/null
 retvalcd14=$?
 if [ ${retvalcd14} -eq 0 ]; then
 cat << EOF > insert.txt
-        [plugins."io.containerd.grpc.v1.cri".registry.mirrors."${LOCALIPADDR}:5000"]
-          endpoint = ["http://${LOCALIPADDR}:5000"]
+        [plugins."io.containerd.grpc.v1.cri".registry.mirrors."${REGISTORY}"]
+          endpoint = ["${REGISTORYURL}"]
 EOF
 sed -i -e "/^          endpoint \= \[\"https\:\/\/registry-1.docker.io\"\]$/r insert.txt" /etc/containerd/config.toml
 rm -rf insert.txt
@@ -136,36 +141,36 @@ fi
 # pull/push images
 if [ ${IMAGEDL} = 1 ]; then
 ctr images pull --platform linux/${ARCH} docker.io/bitnami/bitnami-shell:10-debian-10-r158
-ctr images tag docker.io/bitnami/bitnami-shell:10-debian-10-r158 ${LOCALIPADDR}:5000/bitnami/bitnami-shell:10-debian-10-r158
-ctr images push --platform linux/${ARCH} --plain-http ${LOCALIPADDR}:5000/bitnami/bitnami-shell:10-debian-10-r158
+ctr images tag docker.io/bitnami/bitnami-shell:10-debian-10-r158 ${REGISTORY}/bitnami/bitnami-shell:10-debian-10-r158
+ctr images push --platform linux/${ARCH} --plain-http ${REGISTORY}/bitnami/bitnami-shell:10-debian-10-r158
 ctr images rm docker.io/bitnami/bitnami-shell:10-debian-10-r158
-ctr images rm ${LOCALIPADDR}:5000/bitnami/bitnami-shell:10-debian-10-r158
+ctr images rm ${REGISTORY}/bitnami/bitnami-shell:10-debian-10-r158
 
 ctr images pull --platform linux/${ARCH} docker.io/bitnami/mongodb:4.4.8
-ctr images tag docker.io/bitnami/mongodb:4.4.8 ${LOCALIPADDR}:5000/bitnami/mongodb:4.4.8
-ctr images push --platform linux/${ARCH} --plain-http ${LOCALIPADDR}:5000/bitnami/mongodb:4.4.8
+ctr images tag docker.io/bitnami/mongodb:4.4.8 ${REGISTORY}/bitnami/mongodb:4.4.8
+ctr images push --platform linux/${ARCH} --plain-http ${REGISTORY}/bitnami/mongodb:4.4.8
 ctr images rm docker.io/bitnami/mongodb:4.4.8
-ctr images rm ${LOCALIPADDR}:5000/bitnami/mongodb:4.4.8
+ctr images rm ${REGISTORY}/bitnami/mongodb:4.4.8
 
 ctr images pull --platform linux/${ARCH} docker.io/bitnami/mysql:8.0.27-debian-10-r8
-ctr images tag docker.io/bitnami/mysql:8.0.27-debian-10-r8 ${LOCALIPADDR}:5000/bitnami/mysql:8.0.27-debian-10-r8
-ctr images push --platform linux/${ARCH} --plain-http ${LOCALIPADDR}:5000/bitnami/mysql:8.0.27-debian-10-r8
+ctr images tag docker.io/bitnami/mysql:8.0.27-debian-10-r8 ${REGISTORY}/bitnami/mysql:8.0.27-debian-10-r8
+ctr images push --platform linux/${ARCH} --plain-http ${REGISTORY}/bitnami/mysql:8.0.27-debian-10-r8
 ctr images rm docker.io/bitnami/mysql:8.0.27-debian-10-r8
-ctr images rm ${LOCALIPADDR}:5000/bitnami/mysql:8.0.27-debian-10-r8
+ctr images rm ${REGISTORY}/bitnami/mysql:8.0.27-debian-10-r8
 
 ctr images pull --platform linux/${ARCH} docker.io/bitnami/postgresql:11.13.0-debian-10-r89
-ctr images tag docker.io/bitnami/postgresql:11.13.0-debian-10-r89 ${LOCALIPADDR}:5000/bitnami/postgresql:11.13.0-debian-10-r89
-ctr images push --platform linux/${ARCH} --plain-http ${LOCALIPADDR}:5000/bitnami/postgresql:11.13.0-debian-10-r89
+ctr images tag docker.io/bitnami/postgresql:11.13.0-debian-10-r89 ${REGISTORY}/bitnami/postgresql:11.13.0-debian-10-r89
+ctr images push --platform linux/${ARCH} --plain-http ${REGISTORY}/bitnami/postgresql:11.13.0-debian-10-r89
 ctr images rm docker.io/bitnami/postgresql:11.13.0-debian-10-r89
-ctr images rm ${LOCALIPADDR}:5000/bitnami/postgresql:11.13.0-debian-10-r89
+ctr images rm ${REGISTORY}/bitnami/postgresql:11.13.0-debian-10-r89
 
 ctr images pull --platform linux/${ARCH} docker.io/library/wordpress:4.8-apache
-ctr images tag docker.io/library/wordpress:4.8-apache ${LOCALIPADDR}:5000/library/wordpress:4.8-apache
-ctr images push --platform linux/${ARCH} --plain-http ${LOCALIPADDR}:5000/library/wordpress:4.8-apache
+ctr images tag docker.io/library/wordpress:4.8-apache ${REGISTORY}/library/wordpress:4.8-apache
+ctr images push --platform linux/${ARCH} --plain-http ${REGISTORY}/library/wordpress:4.8-apache
 ctr images rm docker.io/library/wordpress:4.8-apache
-ctr images rm ${LOCALIPADDR}:5000/library/wordpress:4.8-apache
+ctr images rm ${REGISTORY}/library/wordpress:4.8-apache
 echo "Registry result"
-curl -X GET http://${LOCALIPADDR}:5000/v2/_catalog
+curl -X GET http://${REGISTORY}/v2/_catalog
 ctr images ls
 fi
 
