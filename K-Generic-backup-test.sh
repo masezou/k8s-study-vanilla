@@ -6,8 +6,12 @@ SC=local-hostpath
 
 NAMESPACE=genericbackup-test
 PROFILE=minio-profile
+TESTFILE=00-Detailed_Instruction-En.txt
 
 #########################################################
+# Clean up
+rm -rf demodata_restored backup-run-action.yaml
+
 kubectl create namespace ${NAMESPACE}
 kubectl label namespace ${NAMESPACE} k10/injectKanisterSidecar=true
 cat <<EOF | kubectl apply -n ${NAMESPACE} -f -
@@ -66,9 +70,8 @@ kubectl -n ${NAMESPACE} wait pod -l app=demo --for condition=Ready --timeout 180
 kubectl -n ${NAMESPACE} get pvc
 kubectl -n ${NAMESPACE} get pod
 kubectl get pods --namespace=${NAMESPACE} | grep demo-app
-cp 00-Detailed_Instruction-En.txt demodata
-kubectl -n ${NAMESPACE} cp demodata \
-  $(kubectl -n ${NAMESPACE} get pod -l app=demo -o custom-columns=:metadata.name):/data/demodata
+cp ${TESTFILE} demodata
+kubectl -n ${NAMESPACE} cp demodata $(kubectl -n ${NAMESPACE} get pod -l app=demo -o custom-columns=:metadata.name):/data/demodata
 kubectl exec --namespace=${NAMESPACE} $(kubectl -n ${NAMESPACE} get pod -l app=demo -o custom-columns=:metadata.name) -- ls -l /data
 
 cat <<EOF > generic-backup.yaml
@@ -97,8 +100,13 @@ spec:
           namespace: kasten-io
 EOF
 kubectl --namespace=kasten-io create -f generic-backup.yaml
-echo "Follwoing is test data"
+echo ""
+echo ""
+echo -e "\e[32m Follwoing is test data \e[m"
 kubectl exec --namespace=${NAMESPACE} $(kubectl -n ${NAMESPACE} get pod -l app=demo -o custom-columns=:metadata.name) -- ls -l /data
+echo ""
+echo ""
+
 cat >backup-run-action.yaml <<EOF
 apiVersion: actions.kio.kasten.io/v1alpha1
 kind: RunAction
@@ -111,29 +119,49 @@ spec:
     namespace: kasten-io
 EOF
 kubectl create -f backup-run-action.yaml 
+rm backup-run-action.yaml
 
-echo "Wait for finishing and succeful BACKUP ${NAMESPACE} in Kasten Dashboard. then"
+echo -e "\e[32m Wait for finishing and succeful BACKUP ${NAMESPACE} in Kasten Dashboard. then \e[m"
 read -p "Press any key to continue... " -n1 -s
 
 #Delete data
 kubectl exec --namespace=${NAMESPACE} $(kubectl -n ${NAMESPACE} get pod -l app=demo -o custom-columns=:metadata.name) -- rm -rf /data/demodata
-echo "Test Data was removed"
+echo ""
+echo ""
+echo -e "\e[31m Test Data was removed \e[m"
 kubectl exec --namespace=${NAMESPACE} $(kubectl -n ${NAMESPACE} get pod -l app=demo -o custom-columns=:metadata.name) -- ls -l /data
-echo "execute RESTORE ${NAMESPACE} in Kasten Dashboard. then"
+echo ""
+echo ""
+echo -e "\e[31m RESTORE ${NAMESPACE} in Kasten Dashboard. then  \e[m"
 read -p "Press any key to continue... " -n1 -s
 
+kubectl -n ${NAMESPACE} wait pod -l app=demo --for condition=Ready --timeout 180s
 echo "Verify data"
-
-echo "Original data in this host"
+echo -e "\e[32m Original data in this host. \e[m"
+echo ""
+echo ""
 md5sum demodata
 echo ""
+echo ""
 kubectl get pods --namespace=${NAMESPACE} | grep demo-app
-kubectl -n ${NAMESPACE} cp \
-  $(kubectl -n ${NAMESPACE} get pod -l app=demo -o custom-columns=:metadata.name):/data/demodeta demodata_restored
-echo "Restored data which it was copoed to host"
-md5sum  demodata_restored
 
-echo "delete test namespace and backup policy"
+echo -e "\e[31m Restored data \e[m"
+kubectl exec --namespace=${NAMESPACE} $(kubectl -n ${NAMESPACE} get pod -l app=demo -o custom-columns=:metadata.name) -- ls -l /data
+echo ""
+echo ""
+kubectl -n ${NAMESPACE} cp $(kubectl -n ${NAMESPACE} get pod -l app=demo -o custom-columns=:metadata.name):/data/demodata demodata_restored
+echo "Restored data which it was copoed to host"
+echo -e "\e[31m Restored data which it was copoed to host. \e[m"
+echo ""
+echo ""
+md5sum  demodata_restored
+echo ""
+echo ""
+
+echo "Cleanup, it will delete test namespace and backup policy"
 read -p "Press any key to continue... " -n1 -s
 kubectl -n kasten-io delete policy ${NAMESPACE}-backup
 kubectl delete ns ${NAMESPACE}
+rm demodata demodata_restored
+echo "Test was finished."
+exit 0
