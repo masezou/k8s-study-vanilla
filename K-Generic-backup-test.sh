@@ -121,9 +121,9 @@ EOF
 kubectl create -f backup-run-action.yaml 
 rm backup-run-action.yaml
 
-echo -e "\e[32m Wait for finishing and succeful BACKUP ${NAMESPACE} in Kasten Dashboard. then \e[m"
+echo -e "\e[32m Wait for finishing and successful BACKUP ${NAMESPACE} in Kasten Dashboard. then \e[m"
 read -p "Press any key to continue... " -n1 -s
-
+/
 #Delete data
 kubectl exec --namespace=${NAMESPACE} $(kubectl -n ${NAMESPACE} get pod -l app=demo -o custom-columns=:metadata.name) -- rm -rf /data/demodata
 echo ""
@@ -136,6 +136,7 @@ echo -e "\e[31m RESTORE ${NAMESPACE} in Kasten Dashboard. then  \e[m"
 read -p "Press any key to continue... " -n1 -s
 
 kubectl -n ${NAMESPACE} wait pod -l app=demo --for condition=Ready --timeout 180s
+while [[ $(kubectl -n ${NAMESPACE} get pvc demo-pvc -o 'jsonpath={..status.phase}') != "Bound" ]]; do echo "waiting for PVC status" && sleep 1; done
 echo "Verify data"
 echo -e "\e[32m Original data in this host. \e[m"
 echo ""
