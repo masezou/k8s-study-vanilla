@@ -136,6 +136,8 @@ echo -e "\e[31m RESTORE ${NAMESPACE} in Kasten Dashboard. then  \e[m"
 read -p "Press any key to continue... " -n1 -s
 
 kubectl -n ${NAMESPACE} wait pod -l app=demo --for condition=Ready --timeout 180s
+sleep 10
+kubectl -n ${NAMESPACE} get pvc
 echo "Wait for bonding"
 sleep 20
 kubectl -n ${NAMESPACE} get pod
@@ -151,10 +153,11 @@ echo ""
 kubectl get pods --namespace=${NAMESPACE} | grep demo-app
 
 echo -e "\e[31m Restored data \e[m"
-kubectl exec --namespace=${NAMESPACE} $(kubectl -n ${NAMESPACE} get pod -l app=demo -o custom-columns=:metadata.name) -- ls -l /data
+kubectl -n ${NAMESPACE} get pod -l app=demo -o custom-columns=:metadata.name
+kubectl exec --namespace=${NAMESPACE} $(kubectl -n ${NAMESPACE} get pod -l app=demo -o custom-columns=:metadata.name |grep demo-app) -- ls -l /data
 echo ""
 echo ""
-kubectl -n ${NAMESPACE} cp $(kubectl -n ${NAMESPACE} get pod -l app=demo -o custom-columns=:metadata.name):/data/demodata demodata_restored
+kubectl -n ${NAMESPACE} cp $(kubectl -n ${NAMESPACE} get pod -l app=demo -o custom-columns=:metadata.name |grep demo-app):/data/demodata demodata_restored
 echo "Restored data which it was copoed to host"
 echo -e "\e[31m Restored data which it was copoed to host. \e[m"
 echo ""
