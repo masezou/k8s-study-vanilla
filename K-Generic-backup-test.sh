@@ -1,13 +1,16 @@
 #!/usr/bin/env bash
 
 #########################################################
-
+# SC =local-hostpath / nfs-sc
 SC=local-hostpath
 
+NAMESPACE=genericbackup-test
+PROFILE=minio-profile
+
 #########################################################
-kubectl create namespace genericbackup-test
-kubectl label namespace genericbackup-test k10/injectKanisterSidecar=true
-cat <<EOF | kubectl apply -n genericbackup-test -f -
+kubectl create namespace ${NAMESPACE}
+kubectl label namespace ${NAMESPACE} k10/injectKanisterSidecar=true
+cat <<EOF | kubectl apply -n ${NAMESPACE} -f -
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
@@ -56,26 +59,81 @@ spec:
         persistentVolumeClaim:
           claimName: demo-pvc
 EOF
-kubectl get pods --namespace=genericbackup-test | grep demo-app
+sleep 10
+kubectl -n ${NAMESPACE} get pvc
+kubectl -n ${NAMESPACE} get pod
+kubectl -n ${NAMESPACE} wait pod -l app=demo --for condition=Ready --timeout 180s
+kubectl -n ${NAMESPACE} get pvc
+kubectl -n ${NAMESPACE} get pod
+kubectl get pods --namespace=${NAMESPACE} | grep demo-app
 cp 00-Detailed_Instruction-En.txt demodata
-kubectl -n genericbackup-test cp demodata \
-  $(kubectl -n genericbackup-test get pod -l app=demo -o custom-columns=:metadata.name):/data/demodeta
-kubectl exec --namespace=genericbackup-test $(kubectl -n genericbackup-test get pod -l app=demo -o custom-columns=:metadata.name) -- ls -l /data
+kubectl -n ${NAMESPACE} cp demodata \
+  $(kubectl -n ${NAMESPACE} get pod -l app=demo -o custom-columns=:metadata.name):/data/demodata
+kubectl exec --namespace=${NAMESPACE} $(kubectl -n ${NAMESPACE} get pod -l app=demo -o custom-columns=:metadata.name) -- ls -l /data
 
+cat <<EOF > generic-backup.yaml
+kind: Policy
+apiVersion: config.kio.kasten.io/v1alpha1
+metadata:
+  name: ${NAMESPACE}-backup
+  namespace: kasten-io
+spec:
+  comment: Generic Backup test backup policy
+  frequency: "@hourly"
+  retention:
+    hourly: 3
+  selector:
+    matchExpressions:
+      - key: k10.kasten.io/appNamespace
+        operator: In
+        values:
+          - ${NAMESPACE}
+  actions:
+    - action: backup
+      backupParameters:
+        filters: {}
+        profile:
+          name: ${PROFILE}
+          namespace: kasten-io
+EOF
+kubectl --namespace=kasten-io create -f generic-backup.yaml
+echo "Follwoing is test data"
+kubectl exec --namespace=${NAMESPACE} $(kubectl -n ${NAMESPACE} get pod -l app=demo -o custom-columns=:metadata.name) -- ls -l /data
+cat >backup-run-action.yaml <<EOF
+apiVersion: actions.kio.kasten.io/v1alpha1
+kind: RunAction
+metadata:
+  generateName: run-backup-
+spec:
+  subject:
+    kind: Policy
+    name: ${NAMESPACE}-backup
+    namespace: kasten-io
+EOF
+kubectl create -f backup-run-action.yaml 
 
-echo "execute BACKUP in Kasten Dashboard. then \n"
+echo "Wait for finishing and succeful BACKUP ${NAMESPACE} in Kasten Dashboard. then"
 read -p "Press any key to continue... " -n1 -s
 
 #Delete data
-kubectl exec --namespace=genericbackup-test $(kubectl -n genericbackup-test get pod -l app=demo -o custom-columns=:metadata.name) -- rm -rf /data/demodata
-
-echo "execute RESTORE in Kasten Dashboard. then \n"
+kubectl exec --namespace=${NAMESPACE} $(kubectl -n ${NAMESPACE} get pod -l app=demo -o custom-columns=:metadata.name) -- rm -rf /data/demodata
+echo "Test Data was removed"
+kubectl exec --namespace=${NAMESPACE} $(kubectl -n ${NAMESPACE} get pod -l app=demo -o custom-columns=:metadata.name) -- ls -l /data
+echo "execute RESTORE ${NAMESPACE} in Kasten Dashboard. then"
 read -p "Press any key to continue... " -n1 -s
 
 echo "Verify data"
 
+echo "Original data in this host"
 md5sum demodata
-kubectl get pods --namespace=genericbackup-test | grep demo-app
-kubectl -n genericbackup-test cp \
-  $(kubectl -n genericbackup-test get pod -l app=demo -o custom-columns=:metadata.name):/data/demodeta demodata_restored
+echo ""
+kubectl get pods --namespace=${NAMESPACE} | grep demo-app
+kubectl -n ${NAMESPACE} cp \
+  $(kubectl -n ${NAMESPACE} get pod -l app=demo -o custom-columns=:metadata.name):/data/demodeta demodata_restored
+echo "Restored data which it was copoed to host"
 md5sum  demodata_restored
+
+echo "delete test namespace and backup policy"
+read -p "Press any key to continue... " -n1 -s
+kubectl -n kasten-io delete policy ${NAMESPACE}-backup
+kubectl delete ns ${NAMESPACE}
