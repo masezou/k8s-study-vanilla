@@ -137,6 +137,7 @@ read -p "Press any key to continue... " -n1 -s
 
 kubectl -n ${NAMESPACE} wait pod -l app=demo --for condition=Ready --timeout 180s
 sleep 10
+kubectl -n ${NAMESPACE} get pvc
 while [[ $(kubectl -n ${NAMESPACE} get pvc demo-pvc -o 'jsonpath={..status.phase}') != "Bound" ]]; do echo "waiting for PVC status" && sleep 1; done
 echo "Verify data"
 echo -e "\e[32m Original data in this host. \e[m"
