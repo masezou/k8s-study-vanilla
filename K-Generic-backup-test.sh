@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 #########################################################
-# SC =local-hostpath / nfs-sc
+# SC =local-hostpath / nfs-sc / nfs-csi
 SC=local-hostpath
 
 NAMESPACE=genericbackup-test
