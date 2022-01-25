@@ -303,6 +303,11 @@ echo "complete -C '/usr/local/bin/aws_completer' aws" > /etc/bash_completion.d/a
 curl --silent --location "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$(uname -s)_amd64.tar.gz" | tar xz -C /tmp
 mv /tmp/eksctl /usr/local/bin
 eksctl completion bash > /etc/bash_completion.d/eksctl.sh
+export EKSA_RELEASE="0.6.1" OS="$(uname -s | tr A-Z a-z)" RELEASE_NUMBER=3
+curl "https://anywhere-assets.eks.amazonaws.com/releases/eks-a/${RELEASE_NUMBER}/artifacts/eks-a/v${EKSA_RELEASE}/${OS}/eksctl-anywhere-v${EKSA_RELEASE}-${OS}-amd64.tar.gz" \
+    --silent --location \
+    | tar xz ./eksctl-anywhere
+sudo mv ./eksctl-anywhere /usr/local/bin/
 fi
 
 # Install aks
