@@ -211,6 +211,7 @@ fi
 # Install Docker for client
 if [ ${DOCKER} -eq 1 ]; then
 if [ ! -f /usr/bin/docker ]; then
+snap remove docker
 apt -y purge docker docker.io
 apt -y upgrade
 apt -y install apt-transport-https ca-certificates curl gnupg-agent software-properties-common
@@ -347,6 +348,11 @@ bash ./K0-kasten-tools.sh
 fi
 
 apt clean
+# disable snapd
+systemctl disable --now snapd
+systemctl disable --now snapd.socket
+systemctl disable --now snapd.seeded
+
 echo ""
 echo "*************************************************************************************"
 echo "Next Step"
