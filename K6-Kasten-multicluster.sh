@@ -25,6 +25,34 @@ spec:
     kind: User
     name: system:serviceaccount:kasten-io:k10-k10
 EOF
+cat << EOF | kubectl apply -f -
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: k10-mc-user
+rules:
+- apiGroups:
+  - auth.kio.kasten.io
+  - config.kio.kasten.io
+  - dist.kio.kasten.io
+  resources:
+  - '*'
+  verbs:
+  - get
+  - list
+EOF
+cat <<EOF | kubectl apply -f -
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: backup-mc-user
+  namespace: default
+EOF
+sa_secret=$(kubectl get serviceaccount backup-mc-user -o jsonpath="{.secrets[0].name}")
+kubectl get secret $sa_secret  -ojsonpath="{.data.token}{'\n'}" | base64 --decode > backup-mc-user.token
+echo "" >> backup-mc-user.token
+kubectl create rolebinding k10mcuserbinding --clusterrole=backupmcuser --namespace=kasten-io-mc --serviceaccount=default:backup-mc-user
+
 
 # define global NFS storage
 kubectl get sc | grep nfs-csi
