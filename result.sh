@@ -77,6 +77,12 @@ echo "" >> backupview.token
 sa_secret=$(kubectl get serviceaccount nsadmin -o jsonpath="{.secrets[0].name}")
 kubectl get secret $sa_secret  -ojsonpath="{.data.token}{'\n'}" | base64 --decode > nsadmin.token
 echo "" >> nsadmin.token
+sa_secret=$(kubectl get serviceaccount backup-mc-admin -o jsonpath="{.secrets[0].name}")
+kubectl get secret $sa_secret  -ojsonpath="{.data.token}{'\n'}" | base64 --decode > backup-mc-admin.token
+echo "" >> backup-mc-admin.token
+sa_secret=$(kubectl get serviceaccount backup-mc-user -o jsonpath="{.secrets[0].name}")
+kubectl get secret $sa_secret  -ojsonpath="{.data.token}{'\n'}" | base64 --decode > backup-mc-user.token
+echo "" >> backup-mc-user.token
 echo -e "\e[1mKasten Dashboard \e[m"
 echo -e "\e[32m Open your browser \e[m"
 echo -e "\e[32m  http://${KASTENFQDNURL}/k10/ \e[m"

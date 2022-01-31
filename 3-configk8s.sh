@@ -13,6 +13,9 @@ DNSDOMAINNAME="k8slab.internal"
 # IF you have internal DNS, please comment out and set your own DNS server
 #FORWARDDNS=192.168.8.1
 
+# external authentication
+KEYCLOCK=0
+
 #########################################################
 ### UID Check ###
 if [ ${EUID:-${UID}} != 0 ]; then
@@ -755,6 +758,27 @@ else
  chmod +x /home/${SUDO_USER}/k8s-study-vanilla/result.sh
 fi
 
+
+if [ ${KEYCLOCK} -eq 1 ]; then
+KEYCLOCKUSER=keyclockadmin
+KEYCLOCKPASSWORD="keyclock123!"
+KEYCLOAKVER=16.1.1
+KEYCLOAKPATH=/opt
+if [ ! -d  ${KEYCLOAKPATH}/keycloak-${KEYCLOAKVER} ]; then
+apt -y install openjdk-17-jdk
+java -version
+cd ${KEYCLOAKPATH}
+curl --retry 10 --retry-delay 3 --retry-connrefused -sSOL https://github.com/keycloak/keycloak/releases/download/${KEYCLOAKVER}/keycloak-${KEYCLOAKVER}.tar.gz
+tar xfz keycloak-${KEYCLOAKVER}.tar.gz -C ${KEYCLOAKPATH}
+cd ${KEYCLOAKPATH}/keycloak-${KEYCLOAKVER}/
+./bin/add-user-keycloak.sh --user ${KEYCLOCKUSER} --password  ${KEYCLOCKPASSWORD}
+./bin/standalone.sh -b 0.0.0.0 &
+cd ${BASEPWD}
+fi
+fi
+
+
+
 echo "*************************************************************************************"
 echo "Here is cluster context."
 echo -e "\e[1mkubectl config get-contexts \e[m"
@@ -790,6 +814,13 @@ echo -e "\e[1mRegistry frontend UI \e[m"
 echo -e "\e[32m http://${REGISTRY_EXTERNALIP}  \e[m"
 echo "or"
 echo -e "\e[32m http://registryfe.${DNSDOMAINNAME} \e[m"
+echo ""
+echo ""
+if [ ${KEYCLOCK} -eq 1 ]; then
+echo "Keyclock"
+echo "Keyclock URL:http://${LOCALIPADDR}:8080"
+echo "username: ${KEYCLOCKUSER} / password: ${KEYCLOCKPASSWORD}"
+fi
 echo ""
 echo " Copy HOME/.kube/config to your Windows/Mac/Linux desktop"
 echo " You can access Kubernetes from your desktop!"
