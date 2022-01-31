@@ -25,6 +25,17 @@ spec:
     kind: User
     name: system:serviceaccount:kasten-io:k10-k10
 EOF
+cat << EOF  | kubectl apply -f -
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: backup-mc-admin
+  namespace: default
+EOF
+sa_secret=$(kubectl get serviceaccount backup-mc-admin -o jsonpath="{.secrets[0].name}")
+kubectl get secret $sa_secret  -ojsonpath="{.data.token}{'\n'}" | base64 --decode > backup-mc-admin.token
+echo "" >> backup-mc-admin.token
+kubectl create rolebinding k10mcadminbinding --clusterrole=10-mc-admin --namespace=kasten-io-mc --serviceaccount=default:backup-mc-admin
 cat << EOF | kubectl apply -f -
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
