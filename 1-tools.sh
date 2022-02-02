@@ -3,7 +3,7 @@
 #########################################################
 # AMD64/ARM64 Linux would be worked
 # Kubernetes client version
-# 1.21.8-00 was tested also.
+# 1.21.9-00 was tested also.
 KUBECTLVER=1.22.6-00
 
 # For Client use. Not to set in cluster environment.
