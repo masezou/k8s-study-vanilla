@@ -96,7 +96,7 @@ export GOVC_NETWORK="${VSPPHERENETWORK}" # Default network to deploy to
 export GOVC_RESOURCE_POOL='${VSPHERERESOURCEPOOL}' # Default resource pool to deploy to
 EOF
 if [ ! -f /usr/local/bin/govc ]; then
-GOVCVER=v0.27.2
+GOVCVER=v0.27.3
 curl --retry 10 --retry-delay 3 --retry-connrefused -sSOL https://github.com/vmware/govmomi/releases/download/${GOVCVER}/govc_Linux_$(uname -i).tar.gz
 mkdir govcbin
 tar xfz govc_Linux_$(uname -i).tar.gz -C govcbin
