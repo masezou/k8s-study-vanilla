@@ -763,18 +763,29 @@ if [ ${KEYCLOCK} -eq 1 ]; then
 KEYCLOCKUSER=keyclockadmin
 KEYCLOCKPASSWORD="keyclock123!"
 KEYCLOAKVER=16.1.1
-KEYCLOAKPATH=/opt
-if [ ! -d  ${KEYCLOAKPATH}/keycloak-${KEYCLOAKVER} ]; then
 apt -y install openjdk-17-jdk
 java -version
-cd ${KEYCLOAKPATH}
 curl --retry 10 --retry-delay 3 --retry-connrefused -sSOL https://github.com/keycloak/keycloak/releases/download/${KEYCLOAKVER}/keycloak-${KEYCLOAKVER}.tar.gz
-tar xfz keycloak-${KEYCLOAKVER}.tar.gz -C ${KEYCLOAKPATH}
-cd ${KEYCLOAKPATH}/keycloak-${KEYCLOAKVER}/
-./bin/add-user-keycloak.sh --user ${KEYCLOCKUSER} --password  ${KEYCLOCKPASSWORD}
-./bin/standalone.sh -b 0.0.0.0 &
-cd ${BASEPWD}
-fi
+tar xfz keycloak-${KEYCLOAKVER}.tar.gz -C /opt
+rm keycloak-${KEYCLOAKVER}.tar.gz
+mv /opt/keycloak-${KEYCLOAKVER}/ /opt/keycloak
+groupadd keycloak
+useradd -r -g keycloak -d /opt/keycloak -s /sbin/nologin keycloak
+chown -R keycloak:keycloak /opt/keycloak
+cp /opt/keycloak/docs/contrib/scripts/systemd/wildfly.service /etc/systemd/system/keycloak.service
+sed -i -e "s/The WildFly Application Server/Keycloak Server/g" /etc/systemd/system/keycloak.service
+sed -i -e "s/wildfly/keycloak/g" /etc/systemd/system/keycloak.service
+sed -i -e "9a Group=keycloak" /etc/systemd/system/keycloak.service
+mkdir -p /etc/keycloak
+cp /opt/keycloak/docs/contrib/scripts/systemd/wildfly.conf /etc/keycloak/keycloak.conf
+cp /opt/keycloak/docs/contrib/scripts/systemd/launch.sh /opt/keycloak/bin/
+chown keycloak:keycloak /opt/keycloak/bin/launch.sh
+sed -i -e "s/wildfly/keycloak/g" /opt/keycloak/bin/launch.sh
+systemctl daemon-reload
+systemctl enable keycloak
+systemctl start keycloak
+systemctl status keycloak
+/opt/keycloak/bin/add-user-keycloak.sh --user ${KEYCLOCKUSER} --password  ${KEYCLOCKPASSWORD}
 fi
 
 
