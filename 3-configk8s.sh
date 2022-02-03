@@ -758,7 +758,6 @@ else
  chmod +x /home/${SUDO_USER}/k8s-study-vanilla/result.sh
 fi
 
-
 if [ ${KEYCLOCK} -eq 1 ]; then
 KEYCLOCKUSER=keyclockadmin
 KEYCLOCKPASSWORD="keyclock123!"
@@ -784,12 +783,15 @@ sed -i -e "s/wildfly/keycloak/g" /opt/keycloak/bin/launch.sh
 systemctl daemon-reload
 systemctl enable keycloak
 systemctl start keycloak
+echo "starting keycloak"
+sleep 20
 systemctl status keycloak
-systemctl restart keycloak
 /opt/keycloak/bin/add-user-keycloak.sh -r master -u ${KEYCLOCKUSER} -p ${KEYCLOCKPASSWORD}
+systemctl restart keycloak
+echo "re-starting keycloak"
+sleep 20
+systemctl status keycloak
 fi
-
-
 
 echo "*************************************************************************************"
 echo "Here is cluster context."
