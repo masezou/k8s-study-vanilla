@@ -786,6 +786,7 @@ systemctl enable keycloak
 systemctl start keycloak
 systemctl status keycloak
 /opt/keycloak/bin/add-user-keycloak.sh --user ${KEYCLOCKUSER} --password  ${KEYCLOCKPASSWORD}
+systemctl restart keycloak
 fi
 
 
