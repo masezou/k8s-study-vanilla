@@ -785,12 +785,12 @@ systemctl enable keycloak
 systemctl start keycloak
 echo "starting keycloak"
 sleep 20
-systemctl status keycloak
+systemctl status keycloak --no-pager
 /opt/keycloak/bin/add-user-keycloak.sh -r master -u ${KEYCLOCKUSER} -p ${KEYCLOCKPASSWORD}
 systemctl restart keycloak
 echo "re-starting keycloak"
 sleep 20
-systemctl status keycloak
+systemctl status keycloak --no-pager
 fi
 
 echo "*************************************************************************************"
