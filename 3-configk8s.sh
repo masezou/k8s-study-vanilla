@@ -73,7 +73,7 @@ else
 LOCALIPADDR=${FORCE_LOCALIP}
 fi
 if [ -z ${LOCALIPADDR} ]; then
-echo "Local IP address setting was failed, please set FORCE_LOACALIP and re-run."
+echo -e "\e[31m Local IP address setting was failed, please set FORCE_LOCALIP and re-run.  \e[m"
 exit 255
 else
 echo ${LOCALIPADDR}
