@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
 #########################################################
 
+# Specify NFS storage location path
+NFSPATH=/disk/nfs_csi
+NFSSUBPATH=/disk/nfs_sub
+
 #FORCE_LOCALIP=192.168.16.2
 
 # Experimental
@@ -179,10 +183,8 @@ fi
 ##Install NFS-CSI driver
 apt -y install nfs-kernel-server
 apt clean
-NFSPATH=/disk/nfs_csi
 mkdir -p ${NFSPATH}
 chmod -R 1777 ${NFSPATH}
-NFSSUBPATH=/disk/nfs_sub
 mkdir -p ${NFSSUBPATH}
 chmod -R 1777 ${NFSSUBPATH}
 cat << EOF >> /etc/exports
