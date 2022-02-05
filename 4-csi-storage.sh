@@ -41,7 +41,7 @@ else
     exit 255
 fi
 
-### Install command check ####
+### Cluster check ####
 kubectl get pod 
 retavalcluser=$?
 if [ ${retavalcluser} -ne 0 ]; then

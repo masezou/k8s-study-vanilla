@@ -54,6 +54,15 @@ fi
 
 BASEPWD=`pwd`
 
+### Cluster check ####
+kubectl get pod 
+retavalcluser=$?
+if [ ${retavalcluser} -ne 0 ]; then
+echo -e "\e[31m Kubernetes cluster is not found. \e[m"
+exit 255
+fi
+export KUBECONFIG=$HOME/.kube/config
+
 #### LOCALIP (from kubectl) #########
 if [ -z ${FORCE_LOCALIP} ]; then
 LOCALIPADDR=`kubectl get nodes -o jsonpath='{.items[*].status.addresses[?(@.type=="InternalIP")].address}'`
@@ -110,13 +119,6 @@ exit 255
 fi
 echo "Load balanacer IP range is ${IPRANGE}"
 
-kubectl get pod 
-retavalcluser=$?
-if [ ${retavalcluser} -ne 0 ]; then
-echo -e "\e[31m Kubernetes cluster is not found. \e[m"
-exit 255
-fi
-export KUBECONFIG=$HOME/.kube/config
 
 # Configure Metallb and ingress
 echo "configure ${IPRANGE}"

@@ -60,7 +60,7 @@ apt -y install open-vm-tools
 apt clean
 fi
 
-# Cluster check ####
+### Cluster check ####
 kubectl get pod 
 retavalcluser=$?
 if [ ${retavalcluser} -ne 0 ]; then
