@@ -18,7 +18,7 @@ REGDIR=/disk/registry
 IMAGEDL=0
 
 # Enable sysstat
-SYSSTAT=0
+SYSSTAT=1
 
 #########################################################
 
