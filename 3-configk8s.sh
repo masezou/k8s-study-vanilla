@@ -14,7 +14,7 @@ DNSDOMAINNAME="k8slab.internal"
 #FORWARDDNS=192.168.8.1
 
 # external authentication
-KEYCLOCK=0
+KEYCLOAK=0
 
 #########################################################
 ### UID Check ###
@@ -759,9 +759,9 @@ else
  chmod +x /home/${SUDO_USER}/k8s-study-vanilla/result.sh
 fi
 
-if [ ${KEYCLOCK} -eq 1 ]; then
-KEYCLOCKUSER=keyclockadmin
-KEYCLOCKPASSWORD="keyclock123!"
+if [ ${KEYCLOAK} -eq 1 ]; then
+KEYCLOAKUSER=keycloakadmin
+KEYCLOAKPASSWORD="keycloak123!"
 KEYCLOAKVER=16.1.1
 apt -y install openjdk-17-jdk
 java -version
@@ -787,7 +787,7 @@ systemctl start keycloak
 echo "starting keycloak"
 sleep 20
 systemctl status keycloak --no-pager
-/opt/keycloak/bin/add-user-keycloak.sh -r master -u ${KEYCLOCKUSER} -p ${KEYCLOCKPASSWORD}
+/opt/keycloak/bin/add-user-keycloak.sh -r master -u ${KEYCLOAKUSER} -p ${KEYCLOAKPASSWORD}
 systemctl restart keycloak
 echo "re-starting keycloak"
 sleep 20
@@ -831,12 +831,12 @@ echo "or"
 echo -e "\e[32m http://registryfe.${DNSDOMAINNAME} \e[m"
 echo ""
 echo ""
-if [ ${KEYCLOCK} -eq 1 ]; then
-echo "Keyclock"
-echo "Keyclock URL:http://keyloak.${DNSDOMAINNAME}:8080"
+if [ ${KEYCLOAK} -eq 1 ]; then
+echo "Keycloak"
+echo "http://keycloak.${DNSDOMAINNAME}:8080"
 echo "or"
-echo "Keyclock URL:http://${LOCALIPADDR}:8080"
-echo "username: ${KEYCLOCKUSER} / password: ${KEYCLOCKPASSWORD}"
+echo "http://${LOCALIPADDR}:8080"
+echo "username: ${KEYCLOAKCKUSER} / password: ${KEYCLOAKKPASSWORD}"
 fi
 echo ""
 echo " Copy HOME/.kube/config to your Windows/Mac/Linux desktop"
