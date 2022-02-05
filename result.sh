@@ -53,6 +53,14 @@ echo -e "\e[32m http://${REGISTRY_EXTERNALIP}  \e[m"
 echo "or"
 echo -e "\e[32m http://${REGISTRY_FQDN} \e[m"
 echo ""
+echo -e "\e[1mKeycloak  \e[m"
+echo -e "\e[32m https://${DNSHOSTIP}:8080/auth  \e[m"
+echo "or"
+echo -e "\e[32m https://keycloak.${DNSDOMAINNAME}:8080 \e[m"
+echo ""
+echo -n " login credential is "
+echo -e "\e[32m keycloakadmin/keycloak123! \e[m"
+echo ""
 kubectl get ns kasten-io  > /dev/null 2>&1
 HAS_KASTEN=$?
 if [ ${HAS_KASTEN} -eq 0 ]; then
