@@ -14,7 +14,7 @@ DNSDOMAINNAME="k8slab.internal"
 #FORWARDDNS=192.168.8.1
 
 # external authentication
-KEYCLOAK=0
+KEYCLOAK=1
 
 #########################################################
 ### UID Check ###
