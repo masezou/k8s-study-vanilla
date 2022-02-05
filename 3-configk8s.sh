@@ -336,7 +336,8 @@ ${DNSHOSTNAME}     IN  A       ${DNSHOSTIP}
 xip		IN NS		ns-aws.sslip.io.
 xip		IN NS		ns-gce.sslip.io.
 xip		IN NS		ns-azure.sslip.io.
-minio  IN A ${DNSHOSTIP}
+minio IN A ${DNSHOSTIP}
+keycloak IN A ${DNSHOSTIP}
 *.apps IN A ${INGRESS_IP}
 EOF
 chown bind:bind /var/cache/bind/${DNSDOMAINNAME}.lan
@@ -832,6 +833,8 @@ echo ""
 echo ""
 if [ ${KEYCLOCK} -eq 1 ]; then
 echo "Keyclock"
+echo "Keyclock URL:http://keyloak.${DNSDOMAINNAME}:8080"
+echo "or"
 echo "Keyclock URL:http://${LOCALIPADDR}:8080"
 echo "username: ${KEYCLOCKUSER} / password: ${KEYCLOCKPASSWORD}"
 fi
