@@ -20,6 +20,7 @@ IMAGEDL=0
 # Enable sysstat
 SYSSTAT=1
 
+#FORCE_LOCALIP=192.168.16.2
 #########################################################
 
 if [ ${EUID:-${UID}} != 0 ]; then
@@ -53,20 +54,29 @@ else
 fi
 
 #### LOCALIP #########
+if [ -z ${FORCE_LOCALIP} ]; then
 ip address show ens160 >/dev/null
 retval=$?
-if [ ${retval} -eq 0 ]; then
+ if [ ${retval} -eq 0 ]; then
         LOCALIPADDR=`ip -f inet -o addr show ens160 |cut -d\  -f 7 | cut -d/ -f 1`
 else
   ip address show ens192 >/dev/null
   retval2=$?
-  if [ ${retval2} -eq 0 ]; then
-        LOCALIPADDR=`ip -f inet -o addr show ens192 |cut -d\  -f 7 | cut -d/ -f 1`
-  else
-        LOCALIPADDR=`ip -f inet -o addr show eth0 |cut -d\  -f 7 | cut -d/ -f 1`
-  fi
+   if [ ${retval2} -eq 0 ]; then
+         LOCALIPADDR=`ip -f inet -o addr show ens192 |cut -d\  -f 7 | cut -d/ -f 1`
+   else
+         LOCALIPADDR=`ip -f inet -o addr show eth0 |cut -d\  -f 7 | cut -d/ -f 1`
+   fi
+ fi
+else
+LOCALIPADDR=${FORCE_LOCALIP}
 fi
+if [ -z ${LOCALIPADDR} ]; then
+echo "Local IP address setting was failed, please set FORCE_LOACALIP and re-run."
+exit 255
+else
 echo ${LOCALIPADDR}
+fi
 
 # SUDO Login
 if [[ -z "${SUDO_USER}" ]]; then
