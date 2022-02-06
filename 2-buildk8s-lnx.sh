@@ -8,8 +8,8 @@
 ENABLEK8SMASTER=1
 
 # REGISTRY Setting
-REGISTORY=${LOCALIPADDR}:5000
-REGISTORYURL=http://${REGISTORY}
+REGISTRY="${LOCALIPADDR}:5000"
+REGISTRYURL=http://${REGISTRY}
 
 # Enable private registry
 ENABLEREG=1
@@ -127,8 +127,8 @@ dpkg -l | grep containerd | grep 1.4  > /dev/null
 retvalcd14=$?
 if [ ${retvalcd14} -eq 0 ]; then
 cat << EOF > insert.txt
-        [plugins."io.containerd.grpc.v1.cri".registry.mirrors."${REGISTORY}"]
-          endpoint = ["${REGISTORYURL}"]
+        [plugins."io.containerd.grpc.v1.cri".registry.mirrors."${REGISTRY}"]
+          endpoint = ["${REGISTRYURL}"]
 EOF
 sed -i -e "/^          endpoint \= \[\"https\:\/\/registry-1.docker.io\"\]$/r insert.txt" /etc/containerd/config.toml
 rm -rf insert.txt
@@ -153,36 +153,36 @@ fi
 # pull/push images
 if [ ${IMAGEDL} = 1 ]; then
 ctr images pull --platform linux/${ARCH} docker.io/bitnami/bitnami-shell:10-debian-10-r158
-ctr images tag docker.io/bitnami/bitnami-shell:10-debian-10-r158 ${REGISTORY}/bitnami/bitnami-shell:10-debian-10-r158
-ctr images push --platform linux/${ARCH} --plain-http ${REGISTORY}/bitnami/bitnami-shell:10-debian-10-r158
+ctr images tag docker.io/bitnami/bitnami-shell:10-debian-10-r158 ${REGISTRY}/bitnami/bitnami-shell:10-debian-10-r158
+ctr images push --platform linux/${ARCH} --plain-http ${REGISTRY}/bitnami/bitnami-shell:10-debian-10-r158
 ctr images rm docker.io/bitnami/bitnami-shell:10-debian-10-r158
-ctr images rm ${REGISTORY}/bitnami/bitnami-shell:10-debian-10-r158
+ctr images rm ${REGISTRY}/bitnami/bitnami-shell:10-debian-10-r158
 
 ctr images pull --platform linux/${ARCH} docker.io/bitnami/mongodb:4.4.8
-ctr images tag docker.io/bitnami/mongodb:4.4.8 ${REGISTORY}/bitnami/mongodb:4.4.8
-ctr images push --platform linux/${ARCH} --plain-http ${REGISTORY}/bitnami/mongodb:4.4.8
+ctr images tag docker.io/bitnami/mongodb:4.4.8 ${REGISTRY}/bitnami/mongodb:4.4.8
+ctr images push --platform linux/${ARCH} --plain-http ${REGISTRY}/bitnami/mongodb:4.4.8
 ctr images rm docker.io/bitnami/mongodb:4.4.8
-ctr images rm ${REGISTORY}/bitnami/mongodb:4.4.8
+ctr images rm ${REGISTRY}/bitnami/mongodb:4.4.8
 
 ctr images pull --platform linux/${ARCH} docker.io/bitnami/mysql:8.0.27-debian-10-r8
-ctr images tag docker.io/bitnami/mysql:8.0.27-debian-10-r8 ${REGISTORY}/bitnami/mysql:8.0.27-debian-10-r8
-ctr images push --platform linux/${ARCH} --plain-http ${REGISTORY}/bitnami/mysql:8.0.27-debian-10-r8
+ctr images tag docker.io/bitnami/mysql:8.0.27-debian-10-r8 ${REGISTRY}/bitnami/mysql:8.0.27-debian-10-r8
+ctr images push --platform linux/${ARCH} --plain-http ${REGISTRY}/bitnami/mysql:8.0.27-debian-10-r8
 ctr images rm docker.io/bitnami/mysql:8.0.27-debian-10-r8
-ctr images rm ${REGISTORY}/bitnami/mysql:8.0.27-debian-10-r8
+ctr images rm ${REGISTRY}/bitnami/mysql:8.0.27-debian-10-r8
 
 ctr images pull --platform linux/${ARCH} docker.io/bitnami/postgresql:11.13.0-debian-10-r89
-ctr images tag docker.io/bitnami/postgresql:11.13.0-debian-10-r89 ${REGISTORY}/bitnami/postgresql:11.13.0-debian-10-r89
-ctr images push --platform linux/${ARCH} --plain-http ${REGISTORY}/bitnami/postgresql:11.13.0-debian-10-r89
+ctr images tag docker.io/bitnami/postgresql:11.13.0-debian-10-r89 ${REGISTRY}/bitnami/postgresql:11.13.0-debian-10-r89
+ctr images push --platform linux/${ARCH} --plain-http ${REGISTRY}/bitnami/postgresql:11.13.0-debian-10-r89
 ctr images rm docker.io/bitnami/postgresql:11.13.0-debian-10-r89
-ctr images rm ${REGISTORY}/bitnami/postgresql:11.13.0-debian-10-r89
+ctr images rm ${REGISTRY}/bitnami/postgresql:11.13.0-debian-10-r89
 
 ctr images pull --platform linux/${ARCH} docker.io/library/wordpress:4.8-apache
-ctr images tag docker.io/library/wordpress:4.8-apache ${REGISTORY}/library/wordpress:4.8-apache
-ctr images push --platform linux/${ARCH} --plain-http ${REGISTORY}/library/wordpress:4.8-apache
+ctr images tag docker.io/library/wordpress:4.8-apache ${REGISTRY}/library/wordpress:4.8-apache
+ctr images push --platform linux/${ARCH} --plain-http ${REGISTRY}/library/wordpress:4.8-apache
 ctr images rm docker.io/library/wordpress:4.8-apache
-ctr images rm ${REGISTORY}/library/wordpress:4.8-apache
+ctr images rm ${REGISTRY}/library/wordpress:4.8-apache
 echo "Registry result"
-curl -X GET http://${REGISTORY}/v2/_catalog
+curl -X GET ${REGISTRYURL}/v2/_catalog
 ctr images ls
 fi
 
@@ -204,7 +204,7 @@ apt-add-repository "deb http://apt.kubernetes.io/ kubernetes-xenial main"
 apt update
 fi
 if [ -z ${KUBECTLVER} ]; then
-KUBECTLVER=`grep "KUBECTLVER=" ./2-buildk8s-lnx.sh | cut -d "=" -f2`
+KUBECTLVER=`grep "KUBECTLVER=" ./1-tools.sh | cut -d "=" -f2`
 fi
 apt -y install -qy kubelet=${KUBECTLVER} kubectl=${KUBECTLVER} kubeadm=${KUBECTLVER}
 if [ ! -f /usr/bin/kubeadm ]; then
