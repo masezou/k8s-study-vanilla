@@ -339,6 +339,7 @@ EOF
 
 echo ""
 echo "*************************************************************************************"
+kubectl cluster-info
 echo "Kubeconfig was copied ${KUBECONFIGNAME}_kubeconfig"
 echo ""
 echo "Next Step"
