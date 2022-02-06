@@ -338,6 +338,7 @@ xip		IN NS		ns-aws.sslip.io.
 xip		IN NS		ns-gce.sslip.io.
 xip		IN NS		ns-azure.sslip.io.
 minio IN A ${DNSHOSTIP}
+mail IN A ${DNSHOSTIP}
 keycloak IN A ${DNSHOSTIP}
 EOF
 if [ ! -z ${INGRESS_IP} ]; then
