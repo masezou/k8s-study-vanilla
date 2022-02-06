@@ -14,7 +14,7 @@ DNSDOMAINNAME="k8slab.internal"
 #FORWARDDNS=192.168.8.1
 
 # external authentication
-KEYCLOAK=1
+KEYCLOAK=0
 
 #FORCE_LOCALIP=192.168.16.2
 #########################################################
@@ -789,13 +789,13 @@ cp /opt/keycloak/docs/contrib/scripts/systemd/launch.sh /opt/keycloak/bin/
 chown keycloak:keycloak /opt/keycloak/bin/launch.sh
 sed -i -e "s/wildfly/keycloak/g" /opt/keycloak/bin/launch.sh
 systemctl daemon-reload
-systemctl enable keycloak
 systemctl start keycloak
 echo "starting keycloak"
 sleep 20
 systemctl status keycloak --no-pager
 /opt/keycloak/bin/add-user-keycloak.sh -r master -u ${KEYCLOAKUSER} -p ${KEYCLOAKPASSWORD}
 systemctl restart keycloak
+systemctl enable keycloak
 echo "re-starting keycloak"
 sleep 20
 systemctl status keycloak --no-pager
@@ -843,24 +843,25 @@ echo ""
 echo ""
 if [ ${KEYCLOAK} -eq 1 ]; then
 echo "Keycloak"
-echo "http://keycloak.${DNSDOMAINNAME}:8080"
+echo -e "\e[32m http://keycloak.${DNSDOMAINNAME}:8080 \e[m"
 echo "or"
-echo "http://${LOCALIPADDR}:8080"
-echo "username: ${KEYCLOAKCKUSER} / password: ${KEYCLOAKKPASSWORD}"
+echo -e "\e[32m http://${LOCALIPADDR}:8080  \e[m"
+echo -e "\e[32m username: ${KEYCLOAKCKUSER} / password: ${KEYCLOAKKPASSWORD} \e[m"
+echo "and postfix was configured."
 fi
 echo ""
-echo " Copy HOME/.kube/config to your Windows/Mac/Linux desktop"
+echo " Copy HOME/.kube/config to your Windows/Mac/Linux desktop."
 echo " You can access Kubernetes from your desktop!"
 echo ""
 echo "CNI/Loadbaancer/external-dns/Kubernetes dashboard/Registry Frontend were installed."
-echo "Please check kubectl get pod -A All pod need to be running/completed"
+echo "Please check kubectl get pod -A All pod need to be running/completed."
 echo "*************************************************************************************"
 echo "Next Step"
 echo ""
-echo "Following is current DNS Server"
+echo "Following is current DNS Server."
 systemd-resolve --status | grep "Current DNS"
 echo "if ${LOCALIPADDR} is not set as local DNS resolver, please set DNS server to ${LOCALIPADDR}."
-echo "You may be able to modify yaml file in /etc/netplan/, then execute netplan apply"
+echo "You may be able to modify yaml file in /etc/netplan/, then execute netplan apply."
 echo ""
 echo ""
 echo -e "\e[32m Run source /etc/profile \e[m"
