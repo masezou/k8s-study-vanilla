@@ -357,6 +357,9 @@ systemctl disable --now snapd
 systemctl disable --now snapd.socket
 systemctl disable --now snapd.seeded
 
+# I like vi in less# I like vi in less.
+echo "VISUAL=vi" >/etc/profile.d/less-pager.sh
+
 echo ""
 echo "*************************************************************************************"
 echo "Next Step"
