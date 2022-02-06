@@ -101,8 +101,9 @@ update-alternatives --set arptables /usr/sbin/arptables-legacy
 update-alternatives --set ebtables /usr/sbin/ebtables-legacy
 
 # Install containerd
+if [ ! -f /usr/bin/containerd ]; then
 apt -y install apt-transport-https ca-certificates curl gnupg-agent software-properties-common
-curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+curl --retry 10 --retry-delay 3 --retry-connrefused  -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -
 apt-key fingerprint 0EBFCD88
 if [ ${ARCH} = amd64 ]; then
   add-apt-repository  "deb [arch=amd64] https://download.docker.com/linux/ubuntu  $(lsb_release -cs)  stable"
@@ -134,9 +135,10 @@ rm -rf insert.txt
 fi
 systemctl restart containerd
 echo 0 > /proc/sys/kernel/hung_task_timeout_secs
-
+fi
 
 # Install Registry
+if [ ! -f /usr/bin/docker-registry ]; then
 if [ ${ENABLEREG} = 1 ]; then
 echo "install private registry"
 mkdir -p ${REGDIR}
@@ -147,7 +149,7 @@ sed -i -e "s/    realm/#    realm/g" /etc/docker/registry/config.yml
 sed -i -e "s/    path/#    path/g" /etc/docker/registry/config.yml
 systemctl restart docker-registry
 fi
-
+fi
 # pull/push images
 if [ ${IMAGEDL} = 1 ]; then
 ctr images pull --platform linux/${ARCH} docker.io/bitnami/bitnami-shell:10-debian-10-r158
@@ -186,7 +188,7 @@ fi
 
 
 # Install Kubernetes
-
+if [ ! -f /usr/bin/kubeadm ]; then
 ## for containerd
 mkdir -p /etc/systemd/system/kubelet.service.d
 cat << EOF | sudo tee  /etc/systemd/system/kubelet.service.d/0-containerd.conf
@@ -197,7 +199,7 @@ EOF
 dpkg -l kubectl
 retval=$?
 if [ ${retval} -ne 0 ]; then
-curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -
+curl --retry 10 --retry-delay 3 --retry-connrefused -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -
 apt-add-repository "deb http://apt.kubernetes.io/ kubernetes-xenial main"
 apt update
 fi
@@ -205,6 +207,10 @@ if [ -z ${KUBECTLVER} ]; then
 grep "KUBECTLVER=" ./2-buildk8s-lnx.sh | cut -d "=" -f2
 fi
 apt -y install -qy kubelet=${KUBECTLVER} kubectl=${KUBECTLVER} kubeadm=${KUBECTLVER}
+268 if [ ! -f /usr/bin/kubeadm ]; then
+269 echo -e "\e[31m kubeadm was not installed correctly. exit. \e[m"
+270 exit 255
+271 else
 apt-mark hold kubectl kubelet kubeadm
 kubeadm completion bash > /etc/bash_completion.d/kubeadm.sh
 if [ ! -f /etc/bash_completion.d/kubectl ]; then
@@ -212,6 +218,9 @@ kubectl completion bash >/etc/bash_completion.d/kubectl
 source /etc/bash_completion.d/kubectl
 echo 'export KUBE_EDITOR=vi' >>~/.bashrc
 fi
+fi
+fi
+
 # CRICTL setting
 cat << EOF >  /etc/crictl.yaml
 runtime-endpoint: unix:///run/containerd/containerd.sock
@@ -259,6 +268,10 @@ systemctl restart iscsid.service
 
 #########################################################################
 # Create Single node Cluster
+if [ ! -f /usr/bin/kubeadm ]; then
+echo -e "\e[31m kubeadm was not installed correctly. exit. \e[m"
+exit 255
+else
 if [ ${ENABLEK8SMASTER} = 1 ]; then
 CLUSTERNAME=`hostname`-cl
 cat << EOF > k8sconfig.yaml
@@ -287,6 +300,7 @@ chown $(id -u):$(id -g) $HOME/.kube/config
 export KUBECONFIG=$HOME/.kube/config
 kubectl taint nodes --all node-role.kubernetes.io/master-
 kubectl label node `hostname` node-role.kubernetes.io/worker=worker
+fi
 
 if [ -z $SUDO_USER ]; then
   echo "there is no sudo login"
