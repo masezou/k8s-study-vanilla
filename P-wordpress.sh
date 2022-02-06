@@ -167,6 +167,6 @@ echo "Confirm wordpress pod and mysql pod are running with kubectl get pod -A"
 echo "Open http://${EXTERNALIP}"
 if [ ${retvaldns} -eq 0 ]; then 
 echo "or"
-echo "Open http://${WPHOST}.${DNSDOMAINNAME}"
+echo "Open http://${WPHOST}.${DNSDOMAINNAME}/wp-admin/install.php"
 fi
 echo ""
