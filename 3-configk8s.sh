@@ -332,6 +332,7 @@ cat << EOF >>/var/cache/bind/${DNSDOMAINNAME}.lan
 )
         IN  NS      ${DNSDOMAINNAME}.
         IN  A       ${DNSHOSTIP}
+        IN MX 10    ${DNSHOSTNAME}.${DNSDOMAINNAME}.
 ${DNSHOSTNAME}     IN  A       ${DNSHOSTIP}
 xip		IN NS		ns-aws.sslip.io.
 xip		IN NS		ns-gce.sslip.io.
@@ -796,6 +797,9 @@ systemctl restart keycloak
 echo "re-starting keycloak"
 sleep 20
 systemctl status keycloak --no-pager
+debconf-set-selections <<< "postfix postfix/mailname string ${DNSHOSTNAME}.${DNSDOMAINNAME}"
+debconf-set-selections <<< "postfix postfix/main_mailer_type string 'Local only'"
+apt -y install postfix mailutils
 fi
 
 echo "*************************************************************************************"
