@@ -30,6 +30,11 @@ if [ ${retval7} -eq 0 ]; then
 kubectl annotate volumesnapshotclass csi-cstor-snapshotclass \
     k10.kasten.io/is-snapshot-class-
 fi
+
+kubectl delete clusterrolebinding backupadmin-rolebinding
+kubectl delete clusterrolebinding backupbasic-rolebinding
+kubectl delete clusterrolebinding backupview-rolebinding
+kubectl delete clusterrolebinding sadmin-rolebinding
 kubectl delete namespace kasten-io-mc
 
 if [ -f K1-kasten.sh ]; then
