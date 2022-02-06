@@ -141,6 +141,7 @@ echo "then input login token"
 echo -e "\e[32m cat ./k10-k10.token \e[m"
 cat ./k10-k10.token
 echo ""
+kubectl top nodes
 echo "Configured profile, blueprint, rbac also."
 
 chmod -x $0
