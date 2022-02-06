@@ -3,7 +3,7 @@
 #########################################################
 # kubeadm version
 # 1.21.9-00 was tested also.
-KUBECTLVER=1.22.6-00
+#KUBECTLVER=1.21.9-00
 # install as master
 ENABLEK8SMASTER=1
 
@@ -15,7 +15,7 @@ REGISTORYURL=http://${REGISTORY}
 ENABLEREG=1
 REGDIR=/disk/registry
 # Enable pull/push sample image
-IMAGEDL=0
+IMAGEDL=1
 
 # Enable sysstat
 SYSSTAT=1
@@ -200,6 +200,9 @@ if [ ${retval} -ne 0 ]; then
 curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -
 apt-add-repository "deb http://apt.kubernetes.io/ kubernetes-xenial main"
 apt update
+fi
+if [ -z ${KUBECTLVER} ]; then
+grep "KUBECTLVER=" ./2-buildk8s-lnx.sh | cut -d "=" -f2
 fi
 apt -y install -qy kubelet=${KUBECTLVER} kubectl=${KUBECTLVER} kubeadm=${KUBECTLVER}
 apt-mark hold kubectl kubelet kubeadm
