@@ -771,6 +771,7 @@ KEYCLOAKPASSWORD="keycloak123!"
 KEYCLOAKVER=16.1.1
 apt -y install openjdk-17-jdk
 java -version
+echo "downloaing keycloak"
 curl --retry 10 --retry-delay 3 --retry-connrefused -sSOL https://github.com/keycloak/keycloak/releases/download/${KEYCLOAKVER}/keycloak-${KEYCLOAKVER}.tar.gz
 tar xfz keycloak-${KEYCLOAKVER}.tar.gz -C /opt
 rm keycloak-${KEYCLOAKVER}.tar.gz
