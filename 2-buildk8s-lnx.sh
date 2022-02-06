@@ -207,10 +207,10 @@ if [ -z ${KUBECTLVER} ]; then
 grep "KUBECTLVER=" ./2-buildk8s-lnx.sh | cut -d "=" -f2
 fi
 apt -y install -qy kubelet=${KUBECTLVER} kubectl=${KUBECTLVER} kubeadm=${KUBECTLVER}
-268 if [ ! -f /usr/bin/kubeadm ]; then
-269 echo -e "\e[31m kubeadm was not installed correctly. exit. \e[m"
-270 exit 255
-271 else
+if [ ! -f /usr/bin/kubeadm ]; then
+ echo -e "\e[31m kubeadm was not installed correctly. exit. \e[m"
+exit 255
+else
 apt-mark hold kubectl kubelet kubeadm
 kubeadm completion bash > /etc/bash_completion.d/kubeadm.sh
 if [ ! -f /etc/bash_completion.d/kubectl ]; then
@@ -272,6 +272,9 @@ if [ ! -f /usr/bin/kubeadm ]; then
 echo -e "\e[31m kubeadm was not installed correctly. exit. \e[m"
 exit 255
 else
+kubectl cluster-info
+retvalcluster=$?
+if [ ${retvalcluster} -ne 0 ]; then
 if [ ${ENABLEK8SMASTER} = 1 ]; then
 CLUSTERNAME=`hostname`-cl
 cat << EOF > k8sconfig.yaml
@@ -300,6 +303,7 @@ chown $(id -u):$(id -g) $HOME/.kube/config
 export KUBECONFIG=$HOME/.kube/config
 kubectl taint nodes --all node-role.kubernetes.io/master-
 kubectl label node `hostname` node-role.kubernetes.io/worker=worker
+fi
 fi
 
 if [ -z $SUDO_USER ]; then
