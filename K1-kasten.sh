@@ -102,8 +102,8 @@ while [ "$(kubectl get deployment -n kasten-io gateway --output="jsonpath={.stat
         sleep 30
         kubectl get deployment -n kasten-io gateway
 done
-kubectl wait --for=condition=ready --timeout=180s -n kasten-io pod -l component=jobs
-kubectl wait --for=condition=ready --timeout=180s -n kasten-io pod -l component=catalog
+kubectl wait --for=condition=ready --timeout=360s -n kasten-io pod -l component=jobs
+kubectl wait --for=condition=ready --timeout=360s -n kasten-io pod -l component=catalog
 # configure profile/blueprint automatically
 bash ./K2-kasten-storage.sh
 bash ./K3-kasten-vsphere.sh
