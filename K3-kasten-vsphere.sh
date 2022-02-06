@@ -75,5 +75,6 @@ spec:
 EOF
 echo "*************************************************************************************"
 echo "Kasten Infrastructure was configured"
+kubectl -n kasten-io get profiles
 
 chmod -x $0

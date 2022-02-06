@@ -124,6 +124,7 @@ EOF
 
 echo "*************************************************************************************"
 echo "Pre-defined blueprints were configured"
+kubectl -n kasten-io get blueprints
 echo ""
 
 chmod -x $0

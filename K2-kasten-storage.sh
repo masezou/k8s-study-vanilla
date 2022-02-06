@@ -9,6 +9,10 @@ VBRUSERNAME="YOUR_DOMAIN\administrator"
 VBRPASSWORD="YOUR_VBR_PASSWORD"
 VBRREPONAME="YOUR_DEFAULT Backup Repository 1"
 
+# Minio Immutable setting
+MINIOLOCK_PERIOD=30d
+PROTECTION_PERIOD=240h
+
 #FORCE_LOCALIP=192.168.16.2
 #########################################################
 
@@ -30,8 +34,6 @@ MCLOGINUSER=miniologinuser
 MCLOGINPASSWORD=miniologinuser
 BUCKETNAME=`hostname`
 MINIOLOCK_BUCKET_NAME=`hostname`-lock
-MINIOLOCK_PERIOD=30d
-PROTECTION_PERIOD=240h
 KASTENNFSPVC=kastenbackup-pvc
 
 mc alias rm local
@@ -78,7 +80,7 @@ spec:
       region: us-east-1
 EOF
 
-# Immutable setting
+# Minio immutable setting
 mc mb --with-lock --region=us-east1 local/${MINIOLOCK_BUCKET_NAME}
 mc retention set --default compliance ${MINIOLOCK_PERIOD} local/${MINIOLOCK_BUCKET_NAME}
 cat <<EOF | kubectl -n kasten-io create -f -
@@ -107,7 +109,7 @@ spec:
       protectionPeriod: ${PROTECTION_PERIOD}
 EOF
 
-# NFS Server
+# NFS Storage
 kubectl get sc | grep nfs-csi
 retval3=$?
 if [ ${retval3} -eq 0 ]; then
@@ -188,6 +190,7 @@ fi
 
 echo "*************************************************************************************"
 echo "Kasten Backup storages were configured"
+kubectl -n kasten-io get profiles
 echo ""
 
 chmod -x $0
