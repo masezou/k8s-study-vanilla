@@ -204,7 +204,7 @@ apt-add-repository "deb http://apt.kubernetes.io/ kubernetes-xenial main"
 apt update
 fi
 if [ -z ${KUBECTLVER} ]; then
-grep "KUBECTLVER=" ./2-buildk8s-lnx.sh | cut -d "=" -f2
+KUBECTLVER=`grep "KUBECTLVER=" ./2-buildk8s-lnx.sh | cut -d "=" -f2`
 fi
 apt -y install -qy kubelet=${KUBECTLVER} kubectl=${KUBECTLVER} kubeadm=${KUBECTLVER}
 if [ ! -f /usr/bin/kubeadm ]; then
