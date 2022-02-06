@@ -338,8 +338,12 @@ xip		IN NS		ns-gce.sslip.io.
 xip		IN NS		ns-azure.sslip.io.
 minio IN A ${DNSHOSTIP}
 keycloak IN A ${DNSHOSTIP}
+EOF
+if [ ! -z ${INGRESS_IP} ]; then
+cat << EOF >>/var/cache/bind/${DNSDOMAINNAME}.lan
 *.apps IN A ${INGRESS_IP}
 EOF
+fi
 chown bind:bind /var/cache/bind/${DNSDOMAINNAME}.lan
 chmod g+w /var/cache/bind/${DNSDOMAINNAME}.lan
 systemctl restart named
