@@ -20,6 +20,9 @@ IMAGEDL=1
 # Enable sysstat
 SYSSTAT=1
 
+# Kubernetes Cluster name
+CLUSTERNAME=`hostname`-cl
+
 #FORCE_LOCALIP=192.168.16.2
 #########################################################
 
@@ -132,6 +135,8 @@ cat << EOF > insert.txt
 EOF
 sed -i -e "/^          endpoint \= \[\"https\:\/\/registry-1.docker.io\"\]$/r insert.txt" /etc/containerd/config.toml
 rm -rf insert.txt
+else
+echo "TBD... in containerd 1.5.x"
 fi
 systemctl restart containerd
 echo 0 > /proc/sys/kernel/hung_task_timeout_secs
@@ -276,7 +281,6 @@ kubectl cluster-info
 retvalcluster=$?
 if [ ${retvalcluster} -ne 0 ]; then
 if [ ${ENABLEK8SMASTER} = 1 ]; then
-CLUSTERNAME=`hostname`-cl
 cat << EOF > k8sconfig.yaml
 apiVersion: kubeadm.k8s.io/v1beta2
 kind: InitConfiguration
