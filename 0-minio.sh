@@ -79,6 +79,11 @@ else
 fi
 echo $SUDO_USER
 
+# Just in case
+apt update
+apt -y upgrade
+apt -y install curl openssl
+
 #########################################################
 BASEPWD=`pwd`
 

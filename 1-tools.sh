@@ -72,7 +72,7 @@ BASEPWD=`pwd`
 
 apt update
 apt -y upgrade
-apt -y install git curl
+apt -y install git curl openssl
 
 # Install kubectl
 if [ ! -f /usr/bin/kubectl ]; then
