@@ -117,6 +117,16 @@ else
   exit 1
 fi
 apt update
+# Remove docker from snap and stop snapd
+systemctl status snapd.service --no-pager
+retvalsnap=$?
+if [ ${retvalsnap} -eq 0 ]; then
+   snap remove docker
+   systemctl disable --now snapd
+   systemctl disable --now snapd.socket
+   systemctl disable --now snapd.seeded
+fi
+# Remove docker. We will use containerd!!!!
 apt -y purge docker docker.io docker-ce-cli docker-ce docker-ce-rootless-extras
 apt -y install containerd.io
 curl --retry 10 --retry-delay 3 --retry-connrefused -sS https://raw.githubusercontent.com/containerd/containerd/v1.4.12/contrib/autocomplete/ctr -o /etc/bash_completion.d/ctr

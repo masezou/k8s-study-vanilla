@@ -215,7 +215,16 @@ fi
 # Install Docker for client
 if [ ${DOCKER} -eq 1 ]; then
 if [ ! -f /usr/bin/docker ]; then
-snap remove docker
+# Remove docker from snap and stop snapd
+systemctl status snapd.service --no-pager
+retvalsnap=$?
+if [ ${retvalsnap} -eq 0 ]; then
+   snap remove docker
+   systemctl disable --now snapd
+   systemctl disable --now snapd.socket
+   systemctl disable --now snapd.seeded
+fi
+# Remove docker from Ubuntu
 apt -y purge docker docker.io
 apt -y upgrade
 apt -y install apt-transport-https ca-certificates curl gnupg-agent software-properties-common
@@ -353,9 +362,13 @@ fi
 
 apt clean
 # disable snapd
-systemctl disable --now snapd
-systemctl disable --now snapd.socket
-systemctl disable --now snapd.seeded
+systemctl status snapd.service --no-pager
+retvalsnap=$?
+if [ ${retvalsnap} -eq 0 ]; then
+   systemctl disable --now snapd
+   systemctl disable --now snapd.socket
+   systemctl disable --now snapd.seeded
+fi
 
 # I like vi in less# I like vi in less.
 echo "export VISUAL=vi" >/etc/profile.d/less-pager.sh
