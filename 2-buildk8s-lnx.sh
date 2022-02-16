@@ -32,6 +32,8 @@ if [ ${EUID:-${UID}} != 0 ]; then
 else
     echo "I am root user."
 fi
+
+### Distribution Check ###
 grep 20.04 /etc/lsb-release
 UBUNTUCHECK=$?
 if [ ${UBUNTUCHECK} != 0 ]; then
@@ -39,6 +41,11 @@ echo "NG"
 exit 1
 fi
 echo "ok"
+
+if [ ! -f /usr/bin/curl ]; then
+echo -e "\e[31m It seemed his VM is installed Ubuntu Desktop media. VM which is installed from Ubuntu Desktop media is not supported. Please re-create VM from Ubuntu Server media! \e[m"
+exit 255
+fi
 
 ### ARCH Check ###
 PARCH=`arch`

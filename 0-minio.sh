@@ -29,6 +29,11 @@ if [ ${DISTVER} = 1 ]; then
 else
     echo "Ubuntu 20.04=OK"
 fi
+if [ ! -f /usr/bin/curl ]; then
+echo -e "\e[31m It seemed his VM is installed Ubuntu Desktop media. VM which is installed from Ubuntu Desktop media is not supported. Please re-create VM from Ubuntu Server media! \e[m"
+exit 255
+fi
+
 
 ### ARCH Check ###
 PARCH=`arch`
@@ -82,7 +87,6 @@ echo $SUDO_USER
 # Just in case
 apt update
 apt -y upgrade
-apt -y install curl openssl
 
 #########################################################
 BASEPWD=`pwd`
