@@ -42,7 +42,7 @@ exit 1
 fi
 echo "ok"
 
-if [ ! -f /usr/bin/curl ]; then
+if [ ! -f /usr/share/doc/ubuntu-server/copyright ]; then
 echo -e "\e[31m It seemed his VM is installed Ubuntu Desktop media. VM which is installed from Ubuntu Desktop media is not supported. Please re-create VM from Ubuntu Server media! \e[m"
 exit 255
 fi

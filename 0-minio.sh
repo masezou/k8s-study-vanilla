@@ -29,7 +29,7 @@ if [ ${DISTVER} = 1 ]; then
 else
     echo "Ubuntu 20.04=OK"
 fi
-if [ ! -f /usr/bin/curl ]; then
+if [ ! -f /usr/share/doc/ubuntu-server/copyright ]; then
 echo -e "\e[31m It seemed his VM is installed Ubuntu Desktop media. VM which is installed from Ubuntu Desktop media is not supported. Please re-create VM from Ubuntu Server media! \e[m"
 exit 255
 fi
