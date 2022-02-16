@@ -391,6 +391,11 @@ echo "Az command"
 echo "pwsh then Install\-Module -Name Az \-AllowClobber \-Scope CurrentUser"
 echo "Powercli"
 echo "pwsh then Install\-Module VMware.PowerCLI \-Scope CurrentUser"
+echo ""
+echo ""
+if [ ${CLIENT} -eq 1 ]; then
+echo "If you are using Ubuntu Desktop with X Window, plase reboot your Ubuntu desktop."
+fi
 fi
 cd ${BASEPWD}
 chmod -x $0
