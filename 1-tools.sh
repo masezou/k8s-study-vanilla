@@ -370,7 +370,7 @@ if [ ${retvalsnap} -eq 0 ]; then
    systemctl disable --now snapd.seeded
 fi
 
-# I like vi in less# I like vi in less.
+# I like vi in less.
 echo "export VISUAL=vi" >/etc/profile.d/less-pager.sh
 
 echo ""
