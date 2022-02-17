@@ -6,9 +6,15 @@ MCLOGINUSER=miniologinuser
 MCLOGINPASSWORD=miniologinuser
 MINIOPATH=/disk/minio
 
+ERASURE_CODING=0
+#EC_MNT1=/disk/minio/data1
+#EC_MNT2=/disk/minio/data2
+#EC_MNT3=/disk/minio/data3
+#EC_MNT4=/disk/minio/data4
+
 #FORCE_LOCALIP=192.168.16.2
 #########################################################
-
+MINIOBINPATH=/usr/local/bin
 MINIO_ROOT_USER=minioadminuser
 MINIO_ROOT_PASSWORD=minioadminuser
 
@@ -91,17 +97,20 @@ apt -y upgrade
 #########################################################
 BASEPWD=`pwd`
 
-if [ ! -f /usr/local/bin/minio ]; then
+if [ ! -f ${MINIOBINPATH}/minio ]; then
 if [ ! -d ${MINIOPATH} ]; then
 ufw allow 9000
 ufw allow 9001
-mkdir -p ${MINIOPATH}/data{1..4}
+if [ ${ERASURE_CODING} -eq 0 ]; then
+#mkdir -p ${MINIOPATH}/data{1..4}
+mkdir -p ${MINIOPATH}/data1
 chmod -R 755 ${MINIOPATH}/data*
+fi
 fi
 mkdir -p ~/.minio/certs
 curl --retry 10 --retry-delay 3 --retry-connrefused -sSOL https://dl.min.io/server/minio/release/linux-${ARCH}/minio
-mv minio  /usr/local/bin/
-chmod +x /usr/local/bin/minio
+mv minio  ${MINIOBINPATH}
+chmod +x ${MINIOBINPATH}/minio
 fi
 if [ ! -f /usr/local/bin/mc ]; then
 curl --retry 10 --retry-delay 3 --retry-connrefused -sSOL https://dl.min.io/client/mc/release/linux-${ARCH}/mc
@@ -134,11 +143,20 @@ update-ca-certificates
 cd || exit
 fi
 if [ ! -f /etc/systemd/system/minio.service ]; then
-
 if [ ! -f /etc/default/minio ]; then
+
+if [ ${ERASURE_CODING} -eq 0 ]; then
 cat <<EOT > /etc/default/minio
 # Volume to be used for MinIO server.
-MINIO_VOLUMES="${MINIOPATH}/data1 ${MINIOPATH}/data2 ${MINIOPATH}/data3 ${MINIOPATH}/data4"
+MINIO_VOLUMES="${MINIOPATH}/data1"
+EOT
+else
+cat <<EOT > /etc/default/minio
+# Volume to be used for MinIO server.
+MINIO_VOLUMES="${EC_MNT1} ${EC_MNT2} ${EC_MNT3} ${EC_MNT4}"
+EOT
+fi
+cat <<EOT >> /etc/default/minio
 # Use if you want to run MinIO on a custom port.
 MINIO_OPTS="--address :9000 --console-address :9001"
 # Access Key of the server.
@@ -152,7 +170,7 @@ fi
 
 ( cd /etc/systemd/system/ || return ; curl --retry 10 --retry-delay 3 --retry-connrefused -sSO https://raw.githubusercontent.com/minio/minio-service/master/linux-systemd/minio.service )
 sed -i -e 's/minio-user/root/g' /etc/systemd/system/minio.service
-sed -i -e "s@/opt/bin/@/usr/local/bin/@g" /etc/systemd/system/minio.service
+sed -i -e "s@/usr/local/bin/@${MINIOBINPATH}/@g" /etc/systemd/system/minio.service
 systemctl enable --now minio.service
 systemctl status minio.service --no-pager
 sleep 3
@@ -225,6 +243,11 @@ if [ -f K2-kasten-storage.sh ]; then
 sed -i -e "s/MCLOGINUSER=miniologinuser/MCLOGINUSER=${MCLOGINUSER}/g" K2-kasten-storage.sh
 sed -i -e "s/MCLOGINPASSWORD=miniologinuser/MCLOGINPASSWORD=${MCLOGINPASSWORD}/g" K2-kasten-storage.sh
 fi
+
+if [ ${ERASURE_CODING} -eq 1 ]; then
+sed -i -e "s/ERASURE_CODING=0/ERASURE_CODING=1/g" K2-kasten-storage.sh
+fi
+
 
 echo ""
 echo "*************************************************************************************"

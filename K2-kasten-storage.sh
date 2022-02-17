@@ -10,6 +10,7 @@ VBRPASSWORD="YOUR_VBR_PASSWORD"
 VBRREPONAME="YOUR_DEFAULT Backup Repository 1"
 
 # Minio Immutable setting
+ERASURE_CODING=0
 MINIOLOCK_PERIOD=30d
 PROTECTION_PERIOD=240h
 
@@ -81,6 +82,7 @@ spec:
 EOF
 
 # Minio immutable setting
+if [ ${ERASURE_CODING} -eq 1 ]; then
 mc mb --with-lock --region=us-east1 local/${MINIOLOCK_BUCKET_NAME}
 mc retention set --default compliance ${MINIOLOCK_PERIOD} local/${MINIOLOCK_BUCKET_NAME}
 cat <<EOF | kubectl -n kasten-io create -f -
@@ -108,7 +110,7 @@ spec:
       region: us-east-1
       protectionPeriod: ${PROTECTION_PERIOD}
 EOF
-
+fi
 # NFS Storage
 kubectl get sc | grep nfs-csi
 retval3=$?
