@@ -2,8 +2,10 @@
 
 #########################################################
 # kubeadm version
+# Kubernetes version is refered in 1-tool.sh. If you want to set certain version, set this.
 # 1.21.9-00 was tested also.
-#KUBECTLVER=1.21.9-00
+#KUBECTLVER=1.22.6-00
+
 # install as master
 ENABLEK8SMASTER=1
 
@@ -225,9 +227,12 @@ curl --retry 10 --retry-delay 3 --retry-connrefused -s https://packages.cloud.go
 apt-add-repository "deb http://apt.kubernetes.io/ kubernetes-xenial main"
 apt update
 fi
-if [ -z ${KUBECTLVER} ]; then
-KUBECTLVER=`grep "KUBECTLVER=" ./1-tools.sh | cut -d "=" -f2`
+if [  -z ${KUBECTLVER} ]; then
+KUBEADMBASEVER=`grep "KUBEBASEVER=" ./1-tools.sh | cut -d "=" -f2`
+KUBECTLVER=`curl -s https://packages.cloud.google.com/apt/dists/kubernetes-xenial/main/binary-amd64/Packages | grep Version | awk '{print $2}' | sort | uniq | grep ${KUBEADMBASEVER} | tail -1`
 fi
+echo ${KUBECTLVER}
+
 apt -y install -qy kubelet=${KUBECTLVER} kubectl=${KUBECTLVER} kubeadm=${KUBECTLVER}
 if [ ! -f /usr/bin/kubeadm ]; then
  echo -e "\e[31m kubeadm was not installed correctly. exit. \e[m"
@@ -381,6 +386,8 @@ EOF
 
 echo ""
 echo "*************************************************************************************"
+echo "Kubernetes ${KUBECTLVER} was installed"
+echo ""
 kubectl cluster-info
 echo "Kubeconfig was copied ${KUBECONFIGNAME}_kubeconfig"
 echo ""

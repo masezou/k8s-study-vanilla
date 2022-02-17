@@ -3,8 +3,12 @@
 #########################################################
 # AMD64/ARM64 Linux would be worked
 # Kubernetes client version
+# Only supports 1.21.x and 1.22
+KUBEBASEVER=1.22
+
+# If you want to set certain version....
 # 1.21.9-00 was tested also.
-KUBECTLVER=1.22.6-00
+#KUBECTLVER=1.22.6-00
 
 # For Client use. Not to set in cluster environment.
 CLIENT=0
@@ -72,7 +76,13 @@ BASEPWD=`pwd`
 
 apt update
 apt -y upgrade
-apt -y install git curl
+#apt -y install git curl
+
+if [  -z ${KUBECTLVER} ]; then
+KUBECTLVER=`curl -s https://packages.cloud.google.com/apt/dists/kubernetes-xenial/main/binary-amd64/Packages | grep Version | awk '{print $2}' | sort | uniq | grep ${KUBEBASEVER} | tail -1`
+fi
+echo ${KUBECTLVER}
+
 
 # Install kubectl
 if [ ! -f /usr/bin/kubectl ]; then
@@ -376,7 +386,7 @@ echo "export VISUAL=vi" >/etc/profile.d/less-pager.sh
 echo ""
 echo "*************************************************************************************"
 echo "Next Step"
-echo "Kubernetes tools was installed in Ubuntu"
+echo "Kubernetes tools ${KUBECTLVER} were installed in this Ubuntu."
 echo -e "\e[32m run source /etc/profile or re-login again \e[m"
 echo ""
 if [ ${CLOUDUTILS} -eq 1 ]; then
