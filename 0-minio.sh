@@ -6,11 +6,12 @@ MCLOGINUSER=miniologinuser
 MCLOGINPASSWORD=miniologinuser
 MINIOPATH=/disk/minio
 
+# If you configure erasure coding, before running this script, mount 4 disk to following mount point with xfs.
 ERASURE_CODING=0
-#EC_MNT1=/disk/minio/data1
-#EC_MNT2=/disk/minio/data2
-#EC_MNT3=/disk/minio/data3
-#EC_MNT4=/disk/minio/data4
+EC_MNT1=/disk/minio/data1
+EC_MNT2=/disk/minio/data2
+EC_MNT3=/disk/minio/data3
+EC_MNT4=/disk/minio/data4
 
 #FORCE_LOCALIP=192.168.16.2
 #########################################################
@@ -39,7 +40,6 @@ if [ ! -f /usr/share/doc/ubuntu-server/copyright ]; then
 echo -e "\e[31m It seemed his VM is installed Ubuntu Desktop media. VM which is installed from Ubuntu Desktop media is not supported. Please re-create VM from Ubuntu Server media! \e[m"
 exit 255
 fi
-
 
 ### ARCH Check ###
 PARCH=`arch`
@@ -97,10 +97,10 @@ apt -y upgrade
 #########################################################
 BASEPWD=`pwd`
 
-if [ ! -f ${MINIOBINPATH}/minio ]; then
-if [ ! -d ${MINIOPATH} ]; then
 ufw allow 9000
 ufw allow 9001
+if [ ! -f ${MINIOBINPATH}/minio ]; then
+if [ ! -d ${MINIOPATH} ]; then
 if [ ${ERASURE_CODING} -eq 0 ]; then
 #mkdir -p ${MINIOPATH}/data{1..4}
 mkdir -p ${MINIOPATH}/data1
@@ -108,11 +108,13 @@ chmod -R 755 ${MINIOPATH}/data*
 fi
 fi
 mkdir -p ~/.minio/certs
+echo "Downloading minio server."
 curl --retry 10 --retry-delay 3 --retry-connrefused -sSOL https://dl.min.io/server/minio/release/linux-${ARCH}/minio
 mv minio  ${MINIOBINPATH}
 chmod +x ${MINIOBINPATH}/minio
 fi
 if [ ! -f /usr/local/bin/mc ]; then
+echo "Downloading minio clent."
 curl --retry 10 --retry-delay 3 --retry-connrefused -sSOL https://dl.min.io/client/mc/release/linux-${ARCH}/mc
 mv mc /usr/local/bin/
 chmod +x /usr/local/bin/mc
@@ -168,6 +170,7 @@ MINIO_SERVER_URL=https://${LOCALIPADDR}:9000
 EOT
 fi
 
+echo "Downloading systemd setting"
 ( cd /etc/systemd/system/ || return ; curl --retry 10 --retry-delay 3 --retry-connrefused -sSO https://raw.githubusercontent.com/minio/minio-service/master/linux-systemd/minio.service )
 sed -i -e 's/minio-user/root/g' /etc/systemd/system/minio.service
 sed -i -e "s@/usr/local/bin/@${MINIOBINPATH}/@g" /etc/systemd/system/minio.service
@@ -236,21 +239,18 @@ else
  sudo -u $SUDO_USER mc alias set local ${MINIO_ENDPOINT} ${MCLOGINUSER} ${MCLOGINPASSWORD} --api S3v4
 fi
 
-mc admin info local/
-
 cd ${BASEPWD}
-if [ -f K2-kasten-storage.sh ]; then
+if [ -f ./K2-kasten-storage.sh ]; then
 sed -i -e "s/MCLOGINUSER=miniologinuser/MCLOGINUSER=${MCLOGINUSER}/g" K2-kasten-storage.sh
 sed -i -e "s/MCLOGINPASSWORD=miniologinuser/MCLOGINPASSWORD=${MCLOGINPASSWORD}/g" K2-kasten-storage.sh
-fi
-
 if [ ${ERASURE_CODING} -eq 1 ]; then
 sed -i -e "s/ERASURE_CODING=0/ERASURE_CODING=1/g" K2-kasten-storage.sh
 fi
-
+fi
 
 echo ""
 echo "*************************************************************************************"
+mc admin info local/
 echo -e "\e[32m Minio API endpoint is ${MINIO_ENDPOINT} \e[m"
 echo -e "\e[32m Access Key: ${MCLOGINUSER} \e[m"
 echo -e "\e[32m Secret Key: ${MCLOGINPASSWORD} \e[m"
