@@ -8,6 +8,13 @@ MCLOGINPASSWORD=miniologinuser
 MINIOPATH=/disk/minio
 
 #FORCE_LOCALIP=192.168.16.2
+
+#########################################################
+
+# Uninstall
+#rm -rf /usr/local/bin/minio /usr/local/bin/mc
+#rm -rf /disk/minio/ /etc/systemd/system/minio.service /etc/default/minio
+
 #########################################################
 MINIOBINPATH=/usr/local/bin
 MINIO_ROOT_USER=minioadminuser
@@ -84,47 +91,55 @@ else
 fi
 echo $SUDO_USER
 
+
+
 # Just in case
 apt update
 apt -y upgrade
-
-#########################################################
+apt -y install wget
 BASEPWD=`pwd`
+#########################################################
 
-ufw allow 9000
-ufw allow 9001
-# Erasure Coding
-df | grep ${MINIOPATH}
-retvalchk=$?
-if [ ${retvalchk} -ne 0 ]; then
-ERASURE_CODING=1
-else
-ERASURE_CODING=0
-fi
 if [ ! -f ${MINIOBINPATH}/minio ]; then
-if [ ! -d ${MINIOPATH} ]; then
-if [ ${ERASURE_CODING} -eq 0 ]; then
-mkdir -p ${MINIOPATH}/data1
-chmod -R 755 ${MINIOPATH}/data*
-else
-mkdir -p ${MINIOPATH}/data{1..4}
-chmod -R 755 ${MINIOPATH}/data*
-fi
-fi
-mkdir -p ~/.minio/certs
 echo "Downloading minio server."
-curl --retry 10 --retry-delay 3 --retry-connrefused -SOL https://dl.min.io/server/minio/release/linux-${ARCH}/minio
+#curl --retry 10 --retry-delay 3 --retry-connrefused -SOL https://dl.min.io/server/minio/release/linux-${ARCH}/minio
+wget https://dl.min.io/server/minio/release/linux-${ARCH}/minio
 mv minio  ${MINIOBINPATH}
 chmod +x ${MINIOBINPATH}/minio
 fi
+
 if [ ! -f /usr/local/bin/mc ]; then
 echo "Downloading minio clent."
-curl --retry 10 --retry-delay 3 --retry-connrefused -SOL https://dl.min.io/client/mc/release/linux-${ARCH}/mc
+#curl --retry 10 --retry-delay 3 --retry-connrefused -SOL https://dl.min.io/client/mc/release/linux-${ARCH}/mc
+wget https://dl.min.io/client/mc/release/linux-${ARCH}/mc
 mv mc /usr/local/bin/
 chmod +x /usr/local/bin/mc
 echo "complete -C /usr/local/bin/mc mc" > /etc/bash_completion.d/mc.sh
-/usr/local/bin/mc >/dev/null
+mc update
+else
+mc update
 fi
+
+if [ ! -d ${MINIOPATH} ]; then
+# Erasure Coding
+df | grep ${MINIOPATH}
+retvalchk=$?
+if [ ${retvalchk} -ne 1 ]; then
+ERASURE_CODING=1
+echo "Erasure Coding ON"
+else
+ERASURE_CODING=0
+echo "Erasure Coding OFF"
+fi
+if [ ${ERASURE_CODING} -eq 0 ]; then
+mkdir -p ${MINIOPATH}/data1
+else
+mkdir -p ${MINIOPATH}/data{1..4}
+fi
+chmod -R 755 ${MINIOPATH}/data*
+mkdir -p ~/.minio/certs
+fi
+
 if [ ! -f /root/.minio/certs/public.crt ]; then
 cd /root/.minio/certs/
 LOCALHOSTNAME=`hostname`
@@ -148,9 +163,8 @@ echo "minio.crt">>/etc/ca-certificates.conf
 update-ca-certificates
 cd || exit
 fi
-if [ ! -f /etc/systemd/system/minio.service ]; then
-if [ ! -f /etc/default/minio ]; then
 
+if [ ! -f /etc/default/minio ]; then
 if [ ${ERASURE_CODING} -eq 0 ]; then
 cat <<EOT > /etc/default/minio
 # Volume to be used for MinIO server.
@@ -173,11 +187,13 @@ MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD}
 MINIO_SERVER_URL=https://${LOCALIPADDR}:9000
 EOT
 fi
+if [ ! -f /etc/systemd/system/minio.service ]; then
 echo "Downloading systemd setting"
-( cd /etc/systemd/system/ || return ; curl --retry 10 --retry-delay 3 --retry-connrefused -sSO https://raw.githubusercontent.com/minio/minio-service/master/linux-systemd/minio.service )
+#( cd /etc/systemd/system/ || return ; curl --retry 10 --retry-delay 3 --retry-connrefused -sSO https://raw.githubusercontent.com/minio/minio-service/master/linux-systemd/minio.service )
+( cd /etc/systemd/system/ || return ; wget https://raw.githubusercontent.com/minio/minio-service/master/linux-systemd/minio.service )
 sed -i -e 's/minio-user/root/g' /etc/systemd/system/minio.service
-sed -i -e "s@/usr/local/bin/@${MINIOBINPATH}/@g" /etc/systemd/system/minio.service
-fi
+ufw allow 9000
+ufw allow 9001
 systemctl enable --now minio.service
 systemctl status minio.service --no-pager
 sleep 3
@@ -231,7 +247,6 @@ mc admin policy set local s3user,consoleAdmin user=${MCLOGINUSER}
 mc alias rm local
 mc alias set local ${MINIO_ENDPOINT} ${MCLOGINUSER} ${MCLOGINPASSWORD} --api S3v4
 
-
 if [ -z $SUDO_USER ]; then
   echo "there is no sudo login"
 else
@@ -250,6 +265,9 @@ if [ ${ERASURE_CODING} -eq 1 ]; then
 sed -i -e "s/ERASURE_CODING=0/ERASURE_CODING=1/g" K2-kasten-storage.sh
 fi
 fi
+else
+mc admin update local
+fi
 
 echo ""
 echo "*************************************************************************************"
@@ -266,6 +284,9 @@ echo -e "\e[32m Minio console is https://${LOCALIPADDR}:9001 \e[m"
 echo -e "\e[32m username: ${MCLOGINUSER} \e[m"
 echo -e "\e[32m password: ${MCLOGINPASSWORD} \e[m"
 echo ""
+echo "Update"
+echo "mc admin update local"
+echo "mc update"
 echo "*************************************************************************************"
 echo "Next Step"
 echo ""
