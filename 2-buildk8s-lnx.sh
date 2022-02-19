@@ -10,8 +10,8 @@
 ENABLEK8SMASTER=1
 
 # REGISTRY Setting
-REGISTRY="${LOCALIPADDR}:5000"
-REGISTRYURL=http://${REGISTRY}
+#REGISTRY="${LOCALIPADDR}:5000"
+#REGISTRYURL=http://${REGISTRY}
 
 # Enable private registry
 ENABLEREG=1
@@ -88,6 +88,13 @@ echo -e "\e[31m Local IP address setting was failed, please set FORCE_LOCALIP an
 exit 255
 else
 echo ${LOCALIPADDR}
+fi
+
+if [ -z ${REGISTRY} ]; then
+REGISTRY="${LOCALIPADDR}:5000"
+fi
+if [ -z ${REGISTRYURL} ]; then
+REGISTRYURL=http://${REGISTRY}
 fi
 
 # SUDO Login
