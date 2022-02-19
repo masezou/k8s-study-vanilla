@@ -756,12 +756,14 @@ chmod +x ./result.sh
 if [ -z $SUDO_USER ]; then
   echo "there is no sudo login"
 else
- cp K1-kasten.sh  /home/${SUDO_USER}/k8s-study-vanilla/
- cp P-wordpress.sh /home/${SUDO_USER}/k8s-study-vanilla/
- cp result.sh /home/${SUDO_USER}/k8s-study-vanilla/
- chown ${SUDO_USER}:${SUDO_USER} K1-kasten.sh 
- chown ${SUDO_USER}:${SUDO_USER} P-wordpress.sh
- chown ${SUDO_USER}:${SUDO_USER} result.sh 
+ mkdir -p /home/${SUDO_USER}/k8s-study-vanilla/
+ chown ${SUDO_USER}:${SUDO_USER} /home/${SUDO_USER}/k8s-study-vanilla/
+ cp ./K1-kasten.sh /home/${SUDO_USER}/k8s-study-vanilla/
+ cp ./P-wordpress.sh/home/${SUDO_USER}/k8s-study-vanilla/
+ cp ./result.sh /home/${SUDO_USER}/k8s-study-vanilla/
+ chown ${SUDO_USER}:${SUDO_USER} /home/${SUDO_USER}/k8s-study-vanilla/K1-kasten.sh 
+ chown ${SUDO_USER}:${SUDO_USER} /home/${SUDO_USER}/k8s-study-vanilla/P-wordpress.sh
+ chown ${SUDO_USER}:${SUDO_USER} /home/${SUDO_USER}/k8s-study-vanilla/result.sh 
  chmod +x /home/${SUDO_USER}/k8s-study-vanilla/result.sh
 fi
 
