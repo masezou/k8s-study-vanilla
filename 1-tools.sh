@@ -79,7 +79,7 @@ apt -y upgrade
 #apt -y install git curl
 
 if [  -z ${KUBECTLVER} ]; then
-KUBECTLVER=`curl -s https://packages.cloud.google.com/apt/dists/kubernetes-xenial/main/binary-amd64/Packages | grep Version | awk '{print $2}' | sort | uniq | grep ${KUBEBASEVER} | tail -1`
+KUBECTLVER=`curl -s https://packages.cloud.google.com/apt/dists/kubernetes-xenial/main/binary-amd64/Packages | grep Version | awk '{print $2}' | sort -n -t "." -k 3 | uniq | grep ${KUBEBASEVER} | tail -1`
 fi
 echo ${KUBECTLVER}
 

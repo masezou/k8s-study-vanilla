@@ -229,7 +229,7 @@ apt update
 fi
 if [  -z ${KUBECTLVER} ]; then
 KUBEADMBASEVER=`grep "KUBEBASEVER=" ./1-tools.sh | cut -d "=" -f2`
-KUBECTLVER=`curl -s https://packages.cloud.google.com/apt/dists/kubernetes-xenial/main/binary-amd64/Packages | grep Version | awk '{print $2}' | sort | uniq | grep ${KUBEADMBASEVER} | tail -1`
+KUBECTLVER=`curl -s https://packages.cloud.google.com/apt/dists/kubernetes-xenial/main/binary-amd64/Packages | grep Version | awk '{print $2}' | sort -n -t "." -k 3 | uniq | grep ${KUBEADMBASEVER} | tail -1`
 fi
 echo ${KUBECTLVER}
 
