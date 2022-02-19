@@ -113,13 +113,13 @@ fi
 fi
 mkdir -p ~/.minio/certs
 echo "Downloading minio server."
-curl --retry 10 --retry-delay 3 --retry-connrefused -sSOL https://dl.min.io/server/minio/release/linux-${ARCH}/minio
+curl --retry 10 --retry-delay 3 --retry-connrefused -SOL https://dl.min.io/server/minio/release/linux-${ARCH}/minio
 mv minio  ${MINIOBINPATH}
 chmod +x ${MINIOBINPATH}/minio
 fi
 if [ ! -f /usr/local/bin/mc ]; then
 echo "Downloading minio clent."
-curl --retry 10 --retry-delay 3 --retry-connrefused -sSOL https://dl.min.io/client/mc/release/linux-${ARCH}/mc
+curl --retry 10 --retry-delay 3 --retry-connrefused -SOL https://dl.min.io/client/mc/release/linux-${ARCH}/mc
 mv mc /usr/local/bin/
 chmod +x /usr/local/bin/mc
 echo "complete -C /usr/local/bin/mc mc" > /etc/bash_completion.d/mc.sh
