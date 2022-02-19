@@ -78,6 +78,16 @@ else
 echo ${LOCALIPADDR}
 fi
 
+# mount check
+if [ ${ERASURE_CODING} = 1 ]; then
+df | grep ${MINIOPATH}
+retvalchk=$?
+if [ ${retvalchk} -ne 0 ]; then
+echo "extra disk and mount the disk to MINIOPATH"
+exit 255
+fi
+fi
+
 # SUDO Login
 if [[ -z "${SUDO_USER}" ]]; then
   echo "You are root login."
