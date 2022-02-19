@@ -6,12 +6,8 @@ MCLOGINUSER=miniologinuser
 MCLOGINPASSWORD=miniologinuser
 MINIOPATH=/disk/minio
 
-# If you configure erasure coding, before running this script, mount 4 disk to following mount point with xfs.
+# If you configure erasure coding, before running this script, mount at least a disk to MINIOPATH with xfs.
 ERASURE_CODING=0
-EC_MNT1=/disk/minio/data1
-EC_MNT2=/disk/minio/data2
-EC_MNT3=/disk/minio/data3
-EC_MNT4=/disk/minio/data4
 
 #FORCE_LOCALIP=192.168.16.2
 #########################################################
@@ -102,8 +98,10 @@ ufw allow 9001
 if [ ! -f ${MINIOBINPATH}/minio ]; then
 if [ ! -d ${MINIOPATH} ]; then
 if [ ${ERASURE_CODING} -eq 0 ]; then
-#mkdir -p ${MINIOPATH}/data{1..4}
 mkdir -p ${MINIOPATH}/data1
+chmod -R 755 ${MINIOPATH}/data*
+else
+mkdir -p ${MINIOPATH}/data{1..4}
 chmod -R 755 ${MINIOPATH}/data*
 fi
 fi
@@ -155,7 +153,7 @@ EOT
 else
 cat <<EOT > /etc/default/minio
 # Volume to be used for MinIO server.
-MINIO_VOLUMES="${EC_MNT1} ${EC_MNT2} ${EC_MNT3} ${EC_MNT4}"
+MINIO_VOLUMES="${MINIOPATH}/data1 ${MINIOPATH}/data2 ${MINIOPATH}/data3 ${MINIOPATH}/data4"
 EOT
 fi
 cat <<EOT >> /etc/default/minio
@@ -169,11 +167,11 @@ MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD}
 MINIO_SERVER_URL=https://${LOCALIPADDR}:9000
 EOT
 fi
-
 echo "Downloading systemd setting"
 ( cd /etc/systemd/system/ || return ; curl --retry 10 --retry-delay 3 --retry-connrefused -sSO https://raw.githubusercontent.com/minio/minio-service/master/linux-systemd/minio.service )
 sed -i -e 's/minio-user/root/g' /etc/systemd/system/minio.service
 sed -i -e "s@/usr/local/bin/@${MINIOBINPATH}/@g" /etc/systemd/system/minio.service
+fi
 systemctl enable --now minio.service
 systemctl status minio.service --no-pager
 sleep 3
@@ -226,7 +224,6 @@ mc admin user add local ${MCLOGINUSER} ${MCLOGINPASSWORD}
 mc admin policy set local s3user,consoleAdmin user=${MCLOGINUSER}
 mc alias rm local
 mc alias set local ${MINIO_ENDPOINT} ${MCLOGINUSER} ${MCLOGINPASSWORD} --api S3v4
-fi
 
 
 if [ -z $SUDO_USER ]; then
@@ -251,6 +248,11 @@ fi
 echo ""
 echo "*************************************************************************************"
 mc admin info local/
+if [ ${ERASURE_CODING} -eq 1 ]; then
+echo -e "\e[31m Erasure Coding is supported. \e[m"
+else
+echo -e "\e[32m Erasure Coding is not supported. \e[m"
+fi
 echo -e "\e[32m Minio API endpoint is ${MINIO_ENDPOINT} \e[m"
 echo -e "\e[32m Access Key: ${MCLOGINUSER} \e[m"
 echo -e "\e[32m Secret Key: ${MCLOGINPASSWORD} \e[m"
