@@ -272,6 +272,13 @@ fi
 echo ""
 echo "*************************************************************************************"
 mc admin info local/
+mc admin info local | grep Drives
+retvaldrv=$?
+if [ ${retvaldrv} -eq 0 ]; then
+ERASURE_CODING=1
+else
+ERASURE_CODING=0
+fi
 if [ ${ERASURE_CODING} -eq 1 ]; then
 echo -e "\e[32m Erasure Coding is supported. \e[m"
 else
