@@ -194,5 +194,10 @@ echo "**************************************************************************
 echo "Kasten Backup storages were configured"
 kubectl -n kasten-io get profiles
 echo ""
-
+echo ""
+if [ ${ERASURE_CODING} -eq 1 ]; then
+echo -e "\e[32m MINIO Lock bucket and polocy were created. \e[m"
+else
+echo -e "\e[31m MINIO Lock bucket and polocy were not created due to not having your MINIO compatibility.\e[m"
+fi
 chmod -x $0
