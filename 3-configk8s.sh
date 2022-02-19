@@ -768,7 +768,7 @@ fi
 if [ ${KEYCLOAK} -eq 1 ]; then
 KEYCLOAKUSER=keycloakadmin
 KEYCLOAKPASSWORD="keycloak123!"
-KEYCLOAKVER=16.1.1
+KEYCLOAKVER=17.0.0
 apt -y install openjdk-17-jdk
 java -version
 echo "downloaing keycloak"
