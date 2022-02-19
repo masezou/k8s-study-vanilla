@@ -4,10 +4,8 @@
 
 MCLOGINUSER=miniologinuser
 MCLOGINPASSWORD=miniologinuser
+# If you want to use erasure coding, before running this script, please mount at least a disk (/dev/sdc1) to MINIOPATH with xfs.
 MINIOPATH=/disk/minio
-
-# If you configure erasure coding, before running this script, mount at least a disk to MINIOPATH with xfs.
-ERASURE_CODING=0
 
 #FORCE_LOCALIP=192.168.16.2
 #########################################################
@@ -78,16 +76,6 @@ else
 echo ${LOCALIPADDR}
 fi
 
-# mount check
-if [ ${ERASURE_CODING} = 1 ]; then
-df | grep ${MINIOPATH}
-retvalchk=$?
-if [ ${retvalchk} -ne 0 ]; then
-echo "extra disk and mount the disk to MINIOPATH"
-exit 255
-fi
-fi
-
 # SUDO Login
 if [[ -z "${SUDO_USER}" ]]; then
   echo "You are root login."
@@ -105,6 +93,14 @@ BASEPWD=`pwd`
 
 ufw allow 9000
 ufw allow 9001
+# Erasure Coding
+df | grep ${MINIOPATH}
+retvalchk=$?
+if [ ${retvalchk} -ne 0 ]; then
+ERASURE_CODING=1
+else
+ERASURE_CODING=0
+fi
 if [ ! -f ${MINIOBINPATH}/minio ]; then
 if [ ! -d ${MINIOPATH} ]; then
 if [ ${ERASURE_CODING} -eq 0 ]; then
@@ -259,9 +255,9 @@ echo ""
 echo "*************************************************************************************"
 mc admin info local/
 if [ ${ERASURE_CODING} -eq 1 ]; then
-echo -e "\e[31m Erasure Coding is supported. \e[m"
+echo -e "\e[32m Erasure Coding is supported. \e[m"
 else
-echo -e "\e[32m Erasure Coding is not supported. \e[m"
+echo -e "\e[31m Erasure Coding is not supported. \e[m"
 fi
 echo -e "\e[32m Minio API endpoint is ${MINIO_ENDPOINT} \e[m"
 echo -e "\e[32m Access Key: ${MCLOGINUSER} \e[m"
