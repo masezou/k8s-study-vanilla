@@ -236,9 +236,10 @@ apt update
 fi
 if [  -z ${KUBECTLVER} ]; then
 KUBEADMBASEVER=`grep "KUBEBASEVER=" ./1-tools.sh | cut -d "=" -f2`
+echo "Install kuberneates latest version"
 KUBECTLVER=`curl -s https://packages.cloud.google.com/apt/dists/kubernetes-xenial/main/binary-amd64/Packages | grep Version | awk '{print $2}' | sort -n -t "." -k 3 | uniq | grep ${KUBEADMBASEVER} | tail -1`
 fi
-echo ${KUBECTLVER}
+echo "Kubernetes version: ${KUBECTLVER}"
 
 apt -y install -qy kubelet=${KUBECTLVER} kubectl=${KUBECTLVER} kubeadm=${KUBECTLVER}
 if [ ! -f /usr/bin/kubeadm ]; then
@@ -338,27 +339,6 @@ kubectl taint nodes --all node-role.kubernetes.io/master-
 kubectl label node `hostname` node-role.kubernetes.io/worker=worker
 fi
 fi
-
-if [ -z $SUDO_USER ]; then
-  echo "there is no sudo login"
-else
- mkdir -p /home/${SUDO_USER}/.kube
- cp ~/.kube/config /home/${SUDO_USER}/.kube/
- chown -R ${SUDO_USER}:${SUDO_USER} /home/${SUDO_USER}/.kube/
- chmod 600 /home/${SUDO_USER}/.kube/config
- 
- # copy scripts to user area
- cp -rf ../k8s-study-vanilla /home/${SUDO_USER}/
- chown -R ${SUDO_USER}:${SUDO_USER} /home/${SUDO_USER}/k8s-study-vanilla
- rm /home/${SUDO_USER}/k8s-study-vanilla/00Install-k8s.sh
- rm /home/${SUDO_USER}/k8s-study-vanilla/0-minio.sh
- rm /home/${SUDO_USER}/k8s-study-vanilla/1-tools.sh
- rm /home/${SUDO_USER}/k8s-study-vanilla/2-buildk8s-lnx.sh
- rm /home/${SUDO_USER}/k8s-study-vanilla/3-configk8s.sh
- rm /home/${SUDO_USER}/k8s-study-vanilla/4-csi-storage.sh
- rm /home/${SUDO_USER}/k8s-study-vanilla/5-csi-vsphere.sh
-fi
-
 fi
 
 if [ ${SYSSTAT} = 1 ]; then
@@ -388,6 +368,26 @@ subjects:
     name: gitlab
     namespace: kube-system
 EOF
+
+if [ -z $SUDO_USER ]; then
+  echo "there is no sudo login"
+else
+ mkdir -p /home/${SUDO_USER}/.kube
+ cp ~/.kube/config /home/${SUDO_USER}/.kube/
+ chown -R ${SUDO_USER}:${SUDO_USER} /home/${SUDO_USER}/.kube/
+ chmod 600 /home/${SUDO_USER}/.kube/config
+
+ # copy scripts to user area
+ cp -rf ../k8s-study-vanilla /home/${SUDO_USER}/
+ chown -R ${SUDO_USER}:${SUDO_USER} /home/${SUDO_USER}/k8s-study-vanilla
+ rm /home/${SUDO_USER}/k8s-study-vanilla/00Install-k8s.sh
+ rm /home/${SUDO_USER}/k8s-study-vanilla/0-minio.sh
+ rm /home/${SUDO_USER}/k8s-study-vanilla/1-tools.sh
+ rm /home/${SUDO_USER}/k8s-study-vanilla/2-buildk8s-lnx.sh
+ rm /home/${SUDO_USER}/k8s-study-vanilla/3-configk8s.sh
+ rm /home/${SUDO_USER}/k8s-study-vanilla/4-csi-storage.sh
+ rm /home/${SUDO_USER}/k8s-study-vanilla/5-csi-vsphere.sh
+fi
 
 #########################################################################
 
