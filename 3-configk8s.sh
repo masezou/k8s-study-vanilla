@@ -757,6 +757,9 @@ KEYCLOAKPASSWORD="keycloak123!"
 KEYCLOAKVER=16.1.1
 apt -y install openjdk-17-jdk
 java -version
+debconf-set-selections <<< "postfix postfix/mailname string ${DNSHOSTNAME}.${DNSDOMAINNAME}"
+debconf-set-selections <<< "postfix postfix/main_mailer_type string 'Local only'"
+apt -y install postfix mailutils
 echo "downloaing keycloak"
 curl --retry 10 --retry-delay 3 --retry-connrefused -sSOL https://github.com/keycloak/keycloak/releases/download/${KEYCLOAKVER}/keycloak-${KEYCLOAKVER}.tar.gz
 tar xfz keycloak-${KEYCLOAKVER}.tar.gz -C /opt
@@ -785,11 +788,9 @@ systemctl enable keycloak
 echo "re-starting keycloak"
 sleep 20
 systemctl status keycloak --no-pager
-debconf-set-selections <<< "postfix postfix/mailname string ${DNSHOSTNAME}.${DNSDOMAINNAME}"
-debconf-set-selections <<< "postfix postfix/main_mailer_type string 'Local only'"
-apt -y install postfix mailutils
 fi
-
+apt clean
+apt update
 echo "*************************************************************************************"
 echo "Here is cluster context."
 echo -e "\e[1mkubectl config get-contexts \e[m"
