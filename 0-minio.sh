@@ -136,9 +136,8 @@ mkdir -p ${MINIOPATH}/data1
 else
 mkdir -p ${MINIOPATH}/data{1..4}
 fi
-chmod -R 755 ${MINIOPATH}/data*
-mkdir -p ~/.minio/certs
 fi
+chmod -R 755 ${MINIOPATH}/data*
 
 if [ ! -f /root/.minio/certs/public.crt ]; then
 mkdir -p /root/.minio/certs/
