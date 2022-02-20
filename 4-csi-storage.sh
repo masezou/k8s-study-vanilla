@@ -85,6 +85,7 @@ if [ ${retvallvm} -ne 0 ]; then
 if [  -b /dev/sdb ]; then
 echo "Initilize /dev/sdb....."
 sgdisk -Z /dev/sdb
+INITDISK=1
 fi
 fi
 fi
@@ -98,11 +99,13 @@ if [ ${retvallvm} -ne 0 ]; then
 if [  -b /dev/sdc ]; then
 echo "Initilize /dev/sdc....."
 sgdisk -Z /dev/sdc
+INITDISK=1
 fi
 fi
 fi
 
 # Install OpenEBS
+if [ ${INITDISK} -eq 1 ]; then
 apt install -y open-iscsi
 systemctl enable iscsid && systemctl start iscsid
 mkdir -p /var/openebs/local
