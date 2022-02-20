@@ -120,7 +120,6 @@ else
 mc update
 fi
 
-if [ ! -d ${MINIOPATH} ]; then
 # Erasure Coding
 df | grep ${MINIOPATH}
 retvalchk=$?
@@ -132,12 +131,16 @@ ERASURE_CODING=0
 echo "Erasure Coding OFF"
 fi
 if [ ${ERASURE_CODING} -eq 0 ]; then
+if [ ! -d ${MINIOPATH} ]; then
 mkdir -p ${MINIOPATH}/data1
+fi
+chmod -R 755 ${MINIOPATH}/data1
 else
+if [ ! -d ${MINIOPATH} ]; then
 mkdir -p ${MINIOPATH}/data{1..4}
 fi
-fi
 chmod -R 755 ${MINIOPATH}/data*
+fi
 
 if [ ! -f /root/.minio/certs/public.crt ]; then
 mkdir -p /root/.minio/certs/
