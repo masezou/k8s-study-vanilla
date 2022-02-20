@@ -76,9 +76,21 @@ exit 255
 fi
 
 # Device /dev/sdb check
+df | grep sdb
+retvalmount=$?
+if [ ${retvalmount} -ne 0 ]; then
 if [  -b /dev/sdb ]; then
-umount /dev/sdb1
 sgdisk -Z /dev/sdb
+fi
+fi
+# Device /dev/sdc check
+df | grep sdc
+retvalmount=$?
+if [ ${retvalmount} -ne 0 ]; then
+if [  -b /dev/sdc ]; then
+sgdisk -Z /dev/sdc
+fi
+fi
 
 # Install OpenEBS
 apt install -y open-iscsi
