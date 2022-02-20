@@ -754,7 +754,7 @@ rndc thaw ${DNSDOMAINNAME}
 if [ ${KEYCLOAK} -eq 1 ]; then
 KEYCLOAKUSER=keycloakadmin
 KEYCLOAKPASSWORD="keycloak123!"
-KEYCLOAKVER=17.0.0
+KEYCLOAKVER=16.1.1
 apt -y install openjdk-17-jdk
 java -version
 echo "downloaing keycloak"
@@ -788,22 +788,6 @@ systemctl status keycloak --no-pager
 debconf-set-selections <<< "postfix postfix/mailname string ${DNSHOSTNAME}.${DNSDOMAINNAME}"
 debconf-set-selections <<< "postfix postfix/main_mailer_type string 'Local only'"
 apt -y install postfix mailutils
-fi
-
-chmod -x ./K1-kasten.sh
-chmod +x ./result.sh
-if [ -z $SUDO_USER ]; then
-  echo "there is no sudo login"
-else
- mkdir -p /home/${SUDO_USER}/k8s-study-vanilla/
- chown ${SUDO_USER}:${SUDO_USER} /home/${SUDO_USER}/k8s-study-vanilla/
- cp ./K1-kasten.sh /home/${SUDO_USER}/k8s-study-vanilla/
- cp ./P-wordpress.sh/home/${SUDO_USER}/k8s-study-vanilla/
- cp ./result.sh /home/${SUDO_USER}/k8s-study-vanilla/
- chown ${SUDO_USER}:${SUDO_USER} /home/${SUDO_USER}/k8s-study-vanilla/K1-kasten.sh
- chown ${SUDO_USER}:${SUDO_USER} /home/${SUDO_USER}/k8s-study-vanilla/P-wordpress.sh
- chown ${SUDO_USER}:${SUDO_USER} /home/${SUDO_USER}/k8s-study-vanilla/result.sh
- chmod +x /home/${SUDO_USER}/k8s-study-vanilla/result.sh
 fi
 
 echo "*************************************************************************************"
@@ -872,4 +856,19 @@ echo -e "\e[32m Run ./4-csi-storage.sh \e[m"
 echo ""
 
 cd ${BASEPWD}
+chmod -x ./K1-kasten.sh
+chmod +x ./result.sh
+if [ -z $SUDO_USER ]; then
+  echo "there is no sudo login"
+else
+ mkdir -p /home/${SUDO_USER}/k8s-study-vanilla/
+ chown ${SUDO_USER}:${SUDO_USER} /home/${SUDO_USER}/k8s-study-vanilla/
+ cp ./K1-kasten.sh /home/${SUDO_USER}/k8s-study-vanilla/
+ cp ./P-wordpress.sh/home/${SUDO_USER}/k8s-study-vanilla/
+ cp ./result.sh /home/${SUDO_USER}/k8s-study-vanilla/
+ chown ${SUDO_USER}:${SUDO_USER} /home/${SUDO_USER}/k8s-study-vanilla/K1-kasten.sh
+ chown ${SUDO_USER}:${SUDO_USER} /home/${SUDO_USER}/k8s-study-vanilla/P-wordpress.sh
+ chown ${SUDO_USER}:${SUDO_USER} /home/${SUDO_USER}/k8s-study-vanilla/result.sh
+ chmod +x /home/${SUDO_USER}/k8s-study-vanilla/result.sh
+fi
 chmod -x $0
