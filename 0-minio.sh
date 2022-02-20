@@ -141,6 +141,7 @@ mkdir -p ~/.minio/certs
 fi
 
 if [ ! -f /root/.minio/certs/public.crt ]; then
+mkdir -p /root/.minio/certs/
 cd /root/.minio/certs/
 LOCALHOSTNAME=`hostname`
 openssl genrsa -out rootCA.key 4096
