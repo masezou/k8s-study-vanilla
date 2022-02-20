@@ -865,7 +865,7 @@ else
  mkdir -p /home/${SUDO_USER}/k8s-study-vanilla/
  chown ${SUDO_USER}:${SUDO_USER} /home/${SUDO_USER}/k8s-study-vanilla/
  cp ./K1-kasten.sh /home/${SUDO_USER}/k8s-study-vanilla/
- cp ./P-wordpress.sh/home/${SUDO_USER}/k8s-study-vanilla/
+ cp ./P-wordpress.sh /home/${SUDO_USER}/k8s-study-vanilla/
  cp ./result.sh /home/${SUDO_USER}/k8s-study-vanilla/
  chown ${SUDO_USER}:${SUDO_USER} /home/${SUDO_USER}/k8s-study-vanilla/K1-kasten.sh
  chown ${SUDO_USER}:${SUDO_USER} /home/${SUDO_USER}/k8s-study-vanilla/P-wordpress.sh
