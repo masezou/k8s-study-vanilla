@@ -829,9 +829,9 @@ echo ""
 echo ""
 if [ ${KEYCLOAK} -eq 1 ]; then
 echo "Keycloak"
-echo -e "\e[32m http://keycloak.${DNSDOMAINNAME}:8080 \e[m"
+echo -e "\e[32m http://keycloak.${DNSDOMAINNAME}:8080/auth \e[m"
 echo "or"
-echo -e "\e[32m http://${LOCALIPADDR}:8080  \e[m"
+echo -e "\e[32m http://${LOCALIPADDR}:8080/auth  \e[m"
 echo -e "\e[32m username: ${KEYCLOAKCKUSER} / password: ${KEYCLOAKKPASSWORD} \e[m"
 echo "and postfix was configured."
 fi
