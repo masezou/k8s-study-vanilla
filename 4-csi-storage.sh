@@ -79,16 +79,26 @@ fi
 df | grep sdb
 retvalmount=$?
 if [ ${retvalmount} -ne 0 ]; then
+pvscan | grep sdb
+retvallvm=$?
+if [ ${retvallvm} -ne 0 ]; then
 if [  -b /dev/sdb ]; then
+echo "Initilize /dev/sdb....."
 sgdisk -Z /dev/sdb
+fi
 fi
 fi
 # Device /dev/sdc check
 df | grep sdc
 retvalmount=$?
 if [ ${retvalmount} -ne 0 ]; then
+pvscan | grep sdc
+retvallvm=$?
+if [ ${retvallvm} -ne 0 ]; then
 if [  -b /dev/sdc ]; then
+echo "Initilize /dev/sdc....."
 sgdisk -Z /dev/sdc
+fi
 fi
 fi
 
