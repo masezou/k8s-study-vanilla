@@ -120,6 +120,26 @@ else
 mc update
 fi
 
+# Device /dev/sdc check
+df | grep sdc
+retvalmount=$?
+if [ ${retvalmount} -ne 0 ]; then
+pvscan | grep sdc
+retvallvm=$?
+if [ ${retvallvm} -ne 0 ]; then
+if [  -b /dev/sdc ]; then
+echo "Initilize /dev/sdc....."
+sgdisk -Z /dev/sdc
+parted /dev/sdc --script 'mklabel gpt mkpart primary 0% 100% print quit'
+sleep 3
+mkfs.xfs -b size=4096 -m reflink=1,crc=1 /dev/sdc1
+mkdir -p ${MINIOPATH}
+echo "/dev/sdc1       ${MINIOPATH}  xfs     defaults 0 0" >>/etc/fstab
+mount -a
+fi
+fi
+fi
+
 # Erasure Coding
 df | grep ${MINIOPATH}
 retvalchk=$?
@@ -284,7 +304,8 @@ ERASURE_CODING=0
 fi
 if [ ${ERASURE_CODING} -eq 1 ]; then
 echo -e "\e[32m Erasure Coding is supported. \e[m"
-else
+fi
+if [ ${ERASURE_CODING} -eq 0 ]; then
 echo -e "\e[31m Erasure Coding is not supported. \e[m"
 fi
 echo -e "\e[32m Minio API endpoint is ${MINIO_ENDPOINT} \e[m"
