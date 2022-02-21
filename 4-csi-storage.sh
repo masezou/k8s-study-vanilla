@@ -104,6 +104,9 @@ fi
 fi
 fi
 
+if [ -z ${INITDISK} ]; then
+INITDISK=0
+fi
 # Install OpenEBS
 if [ ${INITDISK} -eq 1 ]; then
 apt install -y open-iscsi
