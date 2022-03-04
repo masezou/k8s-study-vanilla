@@ -174,6 +174,7 @@ if [ ${ENABLEREG} = 1 ]; then
 echo "install private registry"
 mkdir -p ${REGDIR}
 ln -s ${REGDIR} /var/lib/docker-registry
+ufw allow 5000
 apt -y install docker-registry
 sed -i -e "s/  htpasswd/#  htpasswd/g" /etc/docker/registry/config.yml
 sed -i -e "s/    realm/#    realm/g" /etc/docker/registry/config.yml
