@@ -256,10 +256,15 @@ if [ -z $SUDO_USER ]; then
   echo "there is no sudo login"
 else
 usermod -aG docker ${SUDO_USER}
+mkdir -p /home/${SUDO_USER}/.docker
 fi
 systemctl enable docker
 systemctl daemon-reload
 systemctl restart docker
+if [ ${CLIENT} -eq 1 ]; then
+containerd config default | sudo tee /etc/containerd/config.toml
+systemctl restart containerd.service
+fi
 # Install Docker Compose
 if [ ! -f /usr/local/bin/docker-compose ]; then
 DOCKERCOMPOSEVER=2.2.3
