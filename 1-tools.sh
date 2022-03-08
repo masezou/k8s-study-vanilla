@@ -291,7 +291,7 @@ kompose completion bash > /etc/bash_completion.d/kompose
 source /etc/bash_completion.d/kompose
 fi
 # Install Kind
-KINDVER=0.11.1
+KINDVER=0.12.0
 if [ ! -f /usr/local/bin/kind ]; then
 curl -s -Lo ./kind https://github.com/kubernetes-sigs/kind/releases/download/v${KINDVER}/kind-linux-${ARCH}
 mv ./kind /usr/local/bin/kind
