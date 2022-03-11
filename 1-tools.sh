@@ -251,6 +251,11 @@ if [ ${ARCH} = amd64 ]; then
 fi
 apt -y install docker-ce-cli docker-ce
 curl --retry 10 --retry-delay 3 --retry-connrefused -sS https://raw.githubusercontent.com/containerd/containerd/v1.5.10/contrib/autocomplete/ctr -o /etc/bash_completion.d/ctr
+NERDCTLVER=0.17.1
+curl --retry 10 --retry-delay 3 --retry-connrefused -sSOL https://github.com/containerd/nerdctl/releases/download/v${NERDCTLVER}/nerdctl-full-${NERDCTLVER}-linux-${ARCH}.tar.gz
+tar xfz nerdctl-full-${NERDCTLVER}-linux-${ARCH}.tar.gz -C /usr/local
+rm -rf nerdctl-full-${NERDCTLVER}-linux-${ARCH}.tar.gz
+nerdctl completion bash > /etc/bash_completion.d/nerdctl
 groupadd docker
 if [ -z $SUDO_USER ]; then
   echo "there is no sudo login"
