@@ -145,7 +145,7 @@ fi
 # Remove docker. We will use containerd!!!!
 apt -y purge docker docker.io docker-ce-cli docker-ce docker-ce-rootless-extras
 apt -y install containerd.io
-curl --retry 10 --retry-delay 3 --retry-connrefused -sS https://raw.githubusercontent.com/containerd/containerd/v1.4.12/contrib/autocomplete/ctr -o /etc/bash_completion.d/ctr
+curl --retry 10 --retry-delay 3 --retry-connrefused -sS https://raw.githubusercontent.com/containerd/containerd/v1.5.10/contrib/autocomplete/ctr -o /etc/bash_completion.d/ctr
 
 # Containerd settings
 containerd config default | sudo tee /etc/containerd/config.toml

@@ -250,7 +250,7 @@ if [ ${ARCH} = amd64 ]; then
  exit 1
 fi
 apt -y install docker-ce-cli docker-ce
-curl --retry 10 --retry-delay 3 --retry-connrefused -sS https://raw.githubusercontent.com/containerd/containerd/v1.4.12/contrib/autocomplete/ctr -o /etc/bash_completion.d/ctr
+curl --retry 10 --retry-delay 3 --retry-connrefused -sS https://raw.githubusercontent.com/containerd/containerd/v1.5.10/contrib/autocomplete/ctr -o /etc/bash_completion.d/ctr
 groupadd docker
 if [ -z $SUDO_USER ]; then
   echo "there is no sudo login"
