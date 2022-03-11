@@ -175,8 +175,6 @@ server = "$REGISTRY"
 [host."$REGISTRYURL"]
   capabilities = ["pull", "resolve"]
 EOF
-
-echo "TBD... in containerd 1.5.x"
 fi
 systemctl restart containerd
 echo 0 > /proc/sys/kernel/hung_task_timeout_secs

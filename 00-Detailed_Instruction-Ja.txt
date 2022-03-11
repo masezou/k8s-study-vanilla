@@ -23,7 +23,7 @@ vSphere CSIドライバーによって、vSphere 6.7U3からサポートされ�
 
 このスクリプトでできるもの
 コンテナ環境
-   Kubernetes 1.21.8/containerd.io 1.4.12 (1ノード)
+   Kubernetes 1.22.7/containerd.io 1.5.10 (1ノード)
     CNI: Metallb/Ingress
     CSI: Hostpath-CSI/NFS-CSI/vSphere-CSI
 
