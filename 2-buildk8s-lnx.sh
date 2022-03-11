@@ -413,6 +413,9 @@ echo ""
 kubectl cluster-info
 echo "Kubeconfig was copied ${KUBECONFIGNAME}_kubeconfig"
 echo ""
+echo "Registry data"
+curl -X GET ${REGISTRYURL}/v2/_catalog
+echo ""
 echo "Next Step"
 echo ""
 echo -e "\e[32m Run ./3-configk8s.sh. \e[m"
