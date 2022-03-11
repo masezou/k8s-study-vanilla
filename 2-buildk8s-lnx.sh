@@ -146,11 +146,13 @@ fi
 apt -y purge docker docker.io docker-ce-cli docker-ce docker-ce-rootless-extras
 apt -y install containerd.io
 curl --retry 10 --retry-delay 3 --retry-connrefused -sS https://raw.githubusercontent.com/containerd/containerd/v1.5.10/contrib/autocomplete/ctr -o /etc/bash_completion.d/ctr
+if [ ! -f /usr/local/bin/nerdctl ]; then
 NERDCTLVER=0.17.1
 curl --retry 10 --retry-delay 3 --retry-connrefused -sSOL https://github.com/containerd/nerdctl/releases/download/v${NERDCTLVER}/nerdctl-full-${NERDCTLVER}-linux-${ARCH}.tar.gz
 tar xfz nerdctl-full-${NERDCTLVER}-linux-${ARCH}.tar.gz -C /usr/local
 rm -rf nerdctl-full-${NERDCTLVER}-linux-${ARCH}.tar.gz
 nerdctl completion bash > /etc/bash_completion.d/nerdctl
+fi
 
 # Containerd settings
 containerd config default | sudo tee /etc/containerd/config.toml
@@ -174,10 +176,12 @@ server = "https://docker.io"
 
 [host."https://registry-1.docker.io"]
   capabilities = ["pull", "resolve"]
+EOF
+mkdir -p /etc/containerd/certs.d/${REGISTRY}
+cat << EOF > /etc/containerd/certs.d/${REGISTRY}/hosts.toml
+server = "${REGISTRYURL}"
 
-server = "$REGISTRY"
-
-[host."$REGISTRYURL"]
+[host."${REGISTRYURL}"]
   capabilities = ["pull", "resolve"]
 EOF
 fi

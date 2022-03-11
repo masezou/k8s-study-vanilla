@@ -12,6 +12,9 @@ KUBEBASEVER=1.22
 
 # For Client use. Not to set in cluster environment.
 CLIENT=0
+# REGISTRY Setting
+#REGISTRY="${LOCALIPADDR}:5000"
+#REGISTRYURL=http://${REGISTRY}
 
 #########################################################
 
@@ -251,11 +254,13 @@ if [ ${ARCH} = amd64 ]; then
 fi
 apt -y install docker-ce-cli docker-ce
 curl --retry 10 --retry-delay 3 --retry-connrefused -sS https://raw.githubusercontent.com/containerd/containerd/v1.5.10/contrib/autocomplete/ctr -o /etc/bash_completion.d/ctr
+if [ ! -f /usr/local/bin/nerdctl ]; then
 NERDCTLVER=0.17.1
 curl --retry 10 --retry-delay 3 --retry-connrefused -sSOL https://github.com/containerd/nerdctl/releases/download/v${NERDCTLVER}/nerdctl-full-${NERDCTLVER}-linux-${ARCH}.tar.gz
 tar xfz nerdctl-full-${NERDCTLVER}-linux-${ARCH}.tar.gz -C /usr/local
 rm -rf nerdctl-full-${NERDCTLVER}-linux-${ARCH}.tar.gz
 nerdctl completion bash > /etc/bash_completion.d/nerdctl
+fi
 groupadd docker
 if [ -z $SUDO_USER ]; then
   echo "there is no sudo login"
@@ -268,6 +273,36 @@ systemctl daemon-reload
 systemctl restart docker
 if [ ${CLIENT} -eq 1 ]; then
 containerd config default | sudo tee /etc/containerd/config.toml
+dpkg -l | grep containerd | grep 1.4  > /dev/null
+retvalcd14=$?
+if [ ${retvalcd14} -eq 0 ]; then
+if [ ! -z ${REGISTRY} ]; then
+cat << EOF > insert.txt
+        [plugins."io.containerd.grpc.v1.cri".registry.mirrors."${REGISTRY}"]
+          endpoint = ["${REGISTRYURL}"]
+EOF
+sed -i -e "/^          endpoint \= \[\"https\:\/\/registry-1.docker.io\"\]$/r insert.txt" /etc/containerd/config.toml
+rm -rf insert.txt
+fi
+else
+sed -i -e 's@config_path = ""@config_path = "/etc/containerd/certs.d"@g' /etc/containerd/config.toml
+mkdir -p /etc/containerd/certs.d/docker.io
+cat << EOF > /etc/containerd/certs.d/docker.io/hosts.toml
+server = "https://docker.io"
+
+[host."https://registry-1.docker.io"]
+  capabilities = ["pull", "resolve"]
+EOF
+if [ ! -z ${REGISTRY} ]; then
+mkdir -p /etc/containerd/certs.d/${REGISTRY}
+cat << EOF > /etc/containerd/certs.d/${REGISTRY}/hosts.toml
+server = "${REGISTRYURL}"
+
+[host."${REGISTRYURL}"]
+  capabilities = ["pull", "resolve"]
+EOF
+fi
+fi
 systemctl restart containerd.service
 fi
 # Install Docker Compose
