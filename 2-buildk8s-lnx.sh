@@ -148,13 +148,11 @@ apt -y install containerd.io
 curl --retry 10 --retry-delay 3 --retry-connrefused -sS https://raw.githubusercontent.com/containerd/containerd/v1.4.12/contrib/autocomplete/ctr -o /etc/bash_completion.d/ctr
 
 # Containerd settings
-containerd config default | sudo tee /etc/containerd/config.toml
-sed -i -e "/^          \[plugins\.\"io\.containerd\.grpc\.v1\.cri\"\.containerd\.runtimes\.runc\.options\]$/a\            SystemdCgroup \= true" /etc/containerd/config.toml
-
-
 dpkg -l | grep containerd | grep 1.4  > /dev/null
 retvalcd14=$?
 if [ ${retvalcd14} -eq 0 ]; then
+containerd config default | sudo tee /etc/containerd/config.toml
+sed -i -e "/^          \[plugins\.\"io\.containerd\.grpc\.v1\.cri\"\.containerd\.runtimes\.runc\.options\]$/a\            SystemdCgroup \= true" /etc/containerd/config.toml
 cat << EOF > insert.txt
         [plugins."io.containerd.grpc.v1.cri".registry.mirrors."${REGISTRY}"]
           endpoint = ["${REGISTRYURL}"]
