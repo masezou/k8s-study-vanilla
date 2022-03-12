@@ -147,8 +147,8 @@ fi
 apt -y purge docker docker.io docker-ce-cli docker-ce docker-ce-rootless-extras
 
 if [ -z ${CONTAINERDVER} ]; then
-echo "Install containerd.io_1.4.13-1"
-apt -y install containerd.io_1.4.13-1
+echo "Install containerd.io 1.4.13-1"
+apt -y install containerd.io=1.4.13-1
 curl --retry 10 --retry-delay 3 --retry-connrefused -sS https://raw.githubusercontent.com/containerd/containerd/v1.4.13/contrib/autocomplete/ctr -o /etc/bash_completion.d/ctr
 else
 echo "Install containerd.io latest version"
