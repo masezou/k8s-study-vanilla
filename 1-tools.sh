@@ -261,13 +261,26 @@ curl --retry 10 --retry-delay 3 --retry-connrefused -sSOL https://github.com/con
 tar xfz nerdctl-full-${NERDCTLVER}-linux-${ARCH}.tar.gz -C /usr/local
 rm -rf nerdctl-full-${NERDCTLVER}-linux-${ARCH}.tar.gz
 nerdctl completion bash > /etc/bash_completion.d/nerdctl
+sed -i -e 's/GRUB_CMDLINE_LINUX=""/GRUB_CMDLINE_LINUX="systemd.unified_cgroup_hierarchy=1"/g' /etc/default/grub
+update-grub
+mkdir -p /etc/systemd/system/user@.service.d
+cat <<EOF | sudo tee /etc/systemd/system/user@.service.d/delegate.conf
+[Service]
+Delegate=cpu cpuset io memory pids
+EOF
+systemctl daemon-reload
 fi
 groupadd docker
 if [ -z $SUDO_USER ]; then
   echo "there is no sudo login"
 else
 usermod -aG docker ${SUDO_USER}
-mkdir -p /home/${SUDO_USER}/.docker
+sudo -u $SUDO_USER mkdir -p /home/${SUDO_USER}/.docker
+fi
+if [ ! -z ${REGISTRY} ]; then
+cat << EOF > /etc/docker/daemon.json
+{ "insecure-registries":["${REGISTRY}"] }
+EOF
 fi
 systemctl enable docker
 systemctl daemon-reload
@@ -301,6 +314,7 @@ server = "${REGISTRYURL}"
 
 [host."${REGISTRYURL}"]
   capabilities = ["pull", "resolve"]
+  skip_verify = true
 EOF
 fi
 fi
@@ -452,6 +466,7 @@ echo ""
 echo ""
 if [ ${CLIENT} -eq 1 ]; then
 echo "If you are using Ubuntu Desktop with X Window, plase reboot your Ubuntu desktop."
+echo "If you want to use nerdctl, once reboot, then execute containerd-rootless-setuptool.sh install in normal user."
 fi
 fi
 cd ${BASEPWD}
