@@ -5,6 +5,7 @@
 # Kubernetes version is refered in 1-tool.sh. If you want to set certain version, set this.
 # 1.21.9-00 was tested also.
 #KUBECTLVER=1.22.6-00
+#CONTAINERDVER=latest
 
 # install as master
 ENABLEK8SMASTER=1
@@ -144,8 +145,17 @@ if [ ${retvalsnap} -eq 0 ]; then
 fi
 # Remove docker. We will use containerd!!!!
 apt -y purge docker docker.io docker-ce-cli docker-ce docker-ce-rootless-extras
+
+if [ -z ${CONTAINERDVER} ]; then
+echo "Install containerd.io_1.4.13-1"
+apt -y install containerd.io_1.4.13-1
+curl --retry 10 --retry-delay 3 --retry-connrefused -sS https://raw.githubusercontent.com/containerd/containerd/v1.4.13/contrib/autocomplete/ctr -o /etc/bash_completion.d/ctr
+else
+echo "Install containerd.io latest version"
 apt -y install containerd.io
 curl --retry 10 --retry-delay 3 --retry-connrefused -sS https://raw.githubusercontent.com/containerd/containerd/v1.5.10/contrib/autocomplete/ctr -o /etc/bash_completion.d/ctr
+fi
+
 if [ ! -f /usr/local/bin/nerdctl ]; then
 apt -y install uidmap
 NERDCTLVER=0.17.1
