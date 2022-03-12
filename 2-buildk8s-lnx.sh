@@ -182,7 +182,8 @@ cat << EOF > /etc/containerd/certs.d/${REGISTRY}/hosts.toml
 server = "${REGISTRYURL}"
 
 [host."${REGISTRYURL}"]
-  capabilities = ["pull", "resolve"]
+  capabilities = ["pull", "resolve", "push"]
+  skip_verify = true
 EOF
 fi
 systemctl restart containerd
