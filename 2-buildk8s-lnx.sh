@@ -121,6 +121,18 @@ update-alternatives --set arptables /usr/sbin/arptables-legacy
 update-alternatives --set ebtables /usr/sbin/ebtables-legacy
 
 # Install containerd
+# Remove docker from snap and stop snapd
+systemctl status snapd.service --no-pager
+retvalsnap=$?
+if [ ${retvalsnap} -eq 0 ]; then
+   snap remove docker
+   systemctl disable --now snapd
+   systemctl disable --now snapd.socket
+   systemctl disable --now snapd.seeded
+fi
+# Remove docker. We will use containerd!!!!
+apt -y purge docker docker.io docker-ce-cli docker-ce docker-ce-rootless-extras
+
 if [ ! -f /usr/bin/containerd ]; then
 apt -y install apt-transport-https ca-certificates curl gnupg-agent software-properties-common
 curl --retry 10 --retry-delay 3 --retry-connrefused  -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -
@@ -134,17 +146,6 @@ else
   exit 1
 fi
 apt update
-# Remove docker from snap and stop snapd
-systemctl status snapd.service --no-pager
-retvalsnap=$?
-if [ ${retvalsnap} -eq 0 ]; then
-   snap remove docker
-   systemctl disable --now snapd
-   systemctl disable --now snapd.socket
-   systemctl disable --now snapd.seeded
-fi
-# Remove docker. We will use containerd!!!!
-apt -y purge docker docker.io docker-ce-cli docker-ce docker-ce-rootless-extras
 
 if [ -z ${CONTAINERDVER} ]; then
 echo "Install containerd.io 1.4.13-1"
