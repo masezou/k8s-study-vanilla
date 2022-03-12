@@ -13,7 +13,7 @@ KUBEBASEVER=1.22
 # For Client use. Not to set in cluster environment.
 CLIENT=0
 # REGISTRY Setting
-#REGISTRY="${LOCALIPADDR}:5000"
+#REGISTRY="IPADDR:5000"
 #REGISTRYURL=http://${REGISTRY}
 
 #########################################################
