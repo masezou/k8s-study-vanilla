@@ -168,19 +168,20 @@ fi
 
 # Containerd settings
 containerd config default | sudo tee /etc/containerd/config.toml
+sed -i -e "s/SystemdCgroup = false/SystemdCgroup = true/g" config.toml
 
 dpkg -l | grep containerd | grep 1.4  > /dev/null
 retvalcd14=$?
 if [ ${retvalcd14} -eq 0 ]; then
-sed -i -e "/^          \[plugins\.\"io\.containerd\.grpc\.v1\.cri\"\.containerd\.runtimes\.runc\.options\]$/a\            SystemdCgroup \= true" /etc/containerd/config.toml
+#sed -i -e "/^          \[plugins\.\"io\.containerd\.grpc\.v1\.cri\"\.containerd\.runtimes\.runc\.options\]$/a\            SystemdCgroup \= true" /etc/containerd/config.toml
 cat << EOF > insert.txt
         [plugins."io.containerd.grpc.v1.cri".registry.mirrors."${REGISTRY}"]
           endpoint = ["${REGISTRYURL}"]
 EOF
-sed -i -e "/^          endpoint \= \[\"https\:\/\/registry-1.docker.io\"\]$/r insert.txt" /etc/containerd/config.toml
+#sed -i -e "/^          endpoint \= \[\"https\:\/\/registry-1.docker.io\"\]$/r insert.txt" /etc/containerd/config.toml
+sed -i -e "/^      \[plugins.\"io.containerd.grpc.v1.cri\".registry.mirrors\]$/r insert.txt" /etc/containerd/config.toml
 rm -rf insert.txt
 else
-sed -i -e "s/SystemdCgroup = false/SystemdCgroup = true/g" config.toml
 sed -i -e 's@config_path = ""@config_path = "/etc/containerd/certs.d"@g' /etc/containerd/config.toml
 mkdir -p /etc/containerd/certs.d/docker.io
 cat << EOF > /etc/containerd/certs.d/docker.io/hosts.toml
