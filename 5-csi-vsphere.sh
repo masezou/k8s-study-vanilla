@@ -18,8 +18,8 @@ VSPPHEREDATASTORE="YOUR_DATASTORE"
 kubectl version | grep Server | grep 1.22
 retvsphere=$?
 if [ ${retvsphere} -eq 0 ]; then
-# You can select 2.4.1 or 2.5.0
-VSPHERECSI=2.5.0
+# You can select 2.4.1 or 2.5.0 (vSphere 7U3 required)
+VSPHERECSI=2.4.1
 else
 VSPHERECSI=2.3.1
 fi
