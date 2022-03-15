@@ -3,7 +3,7 @@
 #########################################################
 
 PGNAMESPACE=postgresql-lb
-# SC = csi-hostpath-sc / local-path / nfs-csi / vsphere-sc / cstor-csi-disk
+# SC = csi-hostpath-sc / local-path / nfs-csi / vsphere-sc / example-vanilla-rwo-filesystem-sc / cstor-csi-disk
 SC=vsphere-sc
 
 SAMPLEDATA=0

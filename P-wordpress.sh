@@ -4,7 +4,7 @@
 # namespace. namespace will be used with hostname
 NAMESPACE=blog1
 
-# SC = csi-hostpath-sc / local-hostpath / nfs-sc / nfs-csi / vsphere-sc / cstor-csi-disk
+# SC = csi-hostpath-sc / local-hostpath / nfs-sc / nfs-csi / vsphere-sc / example-vanilla-rwo-filesystem-sc / cstor-csi-disk
 SC=vsphere-sc
 
 #########################################################
