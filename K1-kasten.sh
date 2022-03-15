@@ -63,6 +63,14 @@ kubectl annotate volumesnapshotclass longhorn \
     k10.kasten.io/is-snapshot-class=true
 fi
 
+# Trial
+kubectl get volumesnapshotclass | grep example-vanilla-rwo-filesystem-sc
+retval5=$?
+if [ ${retval5} -eq 0 ]; then
+kubectl annotate volumesnapshotclass example-vanilla-rwo-filesystem-sc \
+    k10.kasten.io/is-snapshot-class=true
+fi
+
 kubectl get volumesnapshotclass | grep csi-cstor-snapshotclass
 retval7=$?
 if [ ${retval7} -eq 0 ]; then
