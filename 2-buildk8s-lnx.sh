@@ -434,6 +434,7 @@ echo "Kubernetes ${KUBECTLVER} was installed"
 echo ""
 kubectl cluster-info
 echo "Kubeconfig was copied ${KUBECONFIGNAME}_kubeconfig"
+kubectl get node -o wide
 echo ""
 echo "Registry data"
 curl -X GET ${REGISTRYURL}/v2/_catalog
