@@ -5,14 +5,9 @@
 # Kubernetes version is refered in 1-tool.sh. If you want to set certain version, set this.
 # 1.21.9-00 was tested also.
 #KUBECTLVER=1.22.6-00
-CONTAINERDVER=latest
 
 # install as master
 ENABLEK8SMASTER=1
-
-# REGISTRY Setting
-#REGISTRY="${LOCALIPADDR}:5000"
-#REGISTRYURL=http://${REGISTRY}
 
 # Enable private registry
 ENABLEREG=1
@@ -20,11 +15,18 @@ REGDIR=/disk/registry
 # Enable pull/push sample image
 IMAGEDL=1
 
+# Kubernetes Cluster name
+CLUSTERNAME=`hostname`-cl
+
+
 # Enable sysstat
 SYSSTAT=1
 
-# Kubernetes Cluster name
-CLUSTERNAME=`hostname`-cl
+# REGISTRY Setting
+#REGISTRY="${LOCALIPADDR}:5000"
+#REGISTRYURL=http://${REGISTRY}
+
+CONTAINERDVER=latest
 
 #FORCE_LOCALIP=192.168.16.2
 #########################################################
