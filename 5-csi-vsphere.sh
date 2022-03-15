@@ -18,7 +18,8 @@ VSPPHEREDATASTORE="YOUR_DATASTORE"
 kubectl version | grep Server | grep 1.22
 retvsphere=$?
 if [ ${retvsphere} -eq 0 ]; then
-VSPHERECSI=2.4.1
+# You can select 2.4.1 or 2.5.0
+VSPHERECSI=2.5.0
 else
 VSPHERECSI=2.3.1
 fi
@@ -277,13 +278,46 @@ EOF
 kubectl taint nodes --all node-role.kubernetes.io/master-
 kubectl label node `hostname` node-role.kubernetes.io/worker=worker
 
+echo "Wating for deploy csi driver to node..."
+kubectl -n vmware-system-csi wait pod -l app=vsphere-csi-node --for condition=Ready
+
+#Snapshot support in 2.5.0
+if [ ${VSPHERECSI} = 2.5.0 ]; then
+curl -s https://raw.githubusercontent.com/kubernetes-sigs/vsphere-csi-driver/v${VSPHERECSI}/manifests/vanilla/deploy-csi-snapshot-components.sh | bash
+cat <<EOF | kubectl apply -f -
+kind: StorageClass
+apiVersion: storage.k8s.io/v1
+metadata:
+  name: example-vanilla-rwo-filesystem-sc
+  annotations:
+#    storageclass.kubernetes.io/is-default-class: "true"  # Optional
+provisioner: csi.vsphere.vmware.com
+allowVolumeExpansion: true  # Optional: only applicable to vSphere 7.0U1 and above
+#parameters:
+#  datastoreurl: "ds:///vmfs/volumes/vsan:52cdfa80721ff516-ea1e993113acfc77/"  # Optional Parameter
+#  storagepolicyname: "vSAN Default Storage Policy"  # Optional Parameter
+#  csi.storage.k8s.io/fstype: "ext4"  # Optional Parameter
+EOF
+kubectl get sc
+cat <<EOF | kubectl apply -f -
+apiVersion: snapshot.storage.k8s.io/v1
+kind: VolumeSnapshotClass
+metadata:
+  name: example-vanilla-rwo-filesystem-snapshotclass
+driver: csi.vsphere.vmware.com
+deletionPolicy: Delete
+EOF
+kubectl get volumesnapshotclass
+
+#kubectl patch storageclass  example-vanilla-rwo-filesystem-sc \
+#    -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"true"}}}'
+fi
+
 kubectl patch storageclass csi-hostpath-sc \
     -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"false"}}}'
 kubectl patch storageclass cstor-csi-disk \
     -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"false"}}}'
 
-echo "Wating for deploy csi driver to node..."
-kubectl -n vmware-system-csi wait pod -l app=vsphere-csi-node --for condition=Ready
 
 echo "export VSPHERE_ENDPOINT=${VSPHERESERVER}" >> /etc/profile.d/k10tools.sh
 echo "export VSPHERE_USERNAME=${VSPHEREUSERNAME}" >> /etc/profile.d/k10tools.sh
