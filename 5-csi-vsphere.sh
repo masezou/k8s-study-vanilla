@@ -12,6 +12,7 @@ VSPHERESERVER="YOUR_VCENTER_FQDN"
 VSPHERESERVERIP="YOUR_VCENTER_IP"
 VSPPHEREDATASTORE="YOUR_DATASTORE"
 
+#VSPHERECSI=2.4.0
 #########################################################
 
 if [ ${EUID:-${UID}} != 0 ]; then
@@ -109,6 +110,7 @@ exit 255
 fi
 
 # kubernetes  and vSphere version check
+if [ -z ${VSPHERECSI} ]; then
 kubectl version | grep Server | grep 1.22
 retvsphere=$?
 if [ ${retvsphere} -ne 0 ]; then
@@ -122,6 +124,7 @@ else
 VSPHERECSI=2.4.1
 fi
 echo $VSPHERECSI
+fi
 fi
 
 # Configure vsphere-cloud-controller-manager
