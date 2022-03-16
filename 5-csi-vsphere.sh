@@ -14,16 +14,6 @@ VSPPHEREDATASTORE="YOUR_DATASTORE"
 
 #########################################################
 
-# kubernetes version check
-kubectl version | grep Server | grep 1.22
-retvsphere=$?
-if [ ${retvsphere} -eq 0 ]; then
-# You can select 2.4.1 or 2.5.0 (vSphere 7U3 required)
-VSPHERECSI=2.4.1
-else
-VSPHERECSI=2.3.1
-fi
-
 if [ ${EUID:-${UID}} != 0 ]; then
     echo "This script must be run as root"
     exit 1
@@ -116,6 +106,22 @@ if [ ${retvalvcconnect} -ne 0 ]; then
 echo -e "\e[31m It seemed ${VSPHERESERVER} was not able to connect from tis node. Please check vCenter connectivity and re-run.  \e[m"
 rm ~/govc-vcenter.sh
 exit 255
+fi
+
+# kubernetes  and vSphere version check
+kubectl version | grep Server | grep 1.22
+retvsphere=$?
+if [ ${retvsphere} -ne 0 ]; then
+VSPHERECSI=2.3.1
+else
+govc about | grep 7.0.3
+retvspherever=$?
+if [ ${retvspherever} -eq 0 ]; then
+VSPHERECSI=2.5.0
+else
+VSPHERECSI=2.4.1
+fi
+echo $VSPHERECSI
 fi
 
 # Configure vsphere-cloud-controller-manager
