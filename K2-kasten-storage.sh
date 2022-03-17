@@ -10,12 +10,22 @@ VBRPASSWORD="YOUR_VBR_PASSWORD"
 VBRREPONAME="YOUR_DEFAULT Backup Repository 1"
 
 # Minio Immutable setting
-ERASURE_CODING=0
+#ERASURE_CODING=0
 MINIOLOCK_PERIOD=30d
 PROTECTION_PERIOD=240h
 
 #FORCE_LOCALIP=192.168.16.2
 #########################################################
+
+if [ -z ${ERASURE_CODING} ]; then
+mc admin info minio2 | grep Pool
+retvalec=$?
+if [ ${retvalec} -eq 0 ]; then
+ERASURE_CODING=1
+else
+ERASURE_CODING=0
+fi
+fi
 
 #### LOCALIP (from kubectl) #########
 if [ -z ${FORCE_LOCALIP} ]; then
