@@ -137,21 +137,14 @@ apt -y install fzf
 fi
 
 # Install kubecolor
-if [ ! -f /usr/bin/go ]; then
-apt -y install golang-go
-export GOPATH=$HOME/go
-echo 'export GOPATH=$HOME/go' >>/etc/profile
-echo 'export PATH=$PATH:/usr/lib/go/bin:$GOPATH/bin' >>/etc/profile
-export PATH=$PATH:/usr/lib/go/bin:$GOPATH/bin
-fi
-if [ ! -f /root/go/bin/kubecolor ]; then
-go get github.com/dty1er/kubecolor/cmd/kubecolor
-if [ -z $SUDO_USER ]; then
-  echo "there is no sudo login"
-else
-  echo "Installing kubecolor to login user"
-  sudo -u $SUDO_USER go get github.com/dty1er/kubecolor/cmd/kubecolor
-fi
+if [ ! -f /usr/local/bin/kubecolor ]; then
+KUBECOLORVER=0.0.20
+curl --retry 10 --retry-delay 3 --retry-connrefused -sSOL https://github.com/hidetatz/kubecolor/releases/download/v${KUBECOLORVER}/kubecolor_${KUBECOLORVER}_$(uname -s)_$(arch).tar.gz
+mkdir ~/kubecolor
+tar xfz kubecolor_${KUBECOLORVER}_$(uname -s)_$(arch).tar.gz -C ~/kubecolor
+mv ~/kubecolor/kubecolor /usr/local/bin/
+chmod +x /usr/local/bin/kubecolor
+rm -rf kubecolor_${KUBECOLORVER}_$(uname -s)_$(arch).tar.gz ~/kubecolor
 cat << EOF >> /etc/profile
 command -v kubecolor >/dev/null 2>&1 && alias kubectl="kubecolor"
 EOF
