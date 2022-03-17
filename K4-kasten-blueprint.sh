@@ -4,19 +4,22 @@
 kubectl --namespace kasten-io apply -f \
     https://raw.githubusercontent.com/kanisterio/kanister/master/examples/stable/mongodb/blueprint-v2/mongo-blueprint.yaml
 kubectl --namespace kasten-io apply -f \
-    https://raw.githubusercontent.com/kanisterio/kanister/master/examples/stable/mysql/blueprint-v2/mysql-blueprint.yaml
+    https://raw.githubusercontent.com/kanisterio/kanister/master/examples/mysql/blueprint-v2/mysql-blueprint.yaml
 kubectl --namespace kasten-io apply -f \
-    https://raw.githubusercontent.com/kanisterio/kanister/master/examples/stable/postgresql/blueprint-v2/postgres-blueprint.yaml
+    https://raw.githubusercontent.com/kanisterio/kanister/master/examples/postgresql/blueprint-v2/postgres-blueprint.yaml
 kubectl --namespace kasten-io apply -f \
-    https://raw.githubusercontent.com/kanisterio/kanister/master/examples/stable/elasticsearch/blueprint-v2/elasticsearch-blueprint.yaml
+    https://raw.githubusercontent.com/kanisterio/kanister/master/examples/elasticsearch/blueprint-v2/elasticsearch-blueprint.yaml
 kubectl --namespace kasten-io apply -f \
     https://raw.githubusercontent.com/kanisterio/kanister/master/examples/etcd/etcd-in-cluster/k8s/etcd-incluster-blueprint.yaml
 kubectl --namespace kasten-io apply -f \
-    https://raw.githubusercontent.com/kanisterio/kanister/master/examples/stable/couchbase/blueprint-v2/couchbase-blueprint.yaml
+    https://raw.githubusercontent.com/kanisterio/kanister/master/examples/couchbase/blueprint-v2/couchbase-blueprint.yaml
 kubectl --namespace kasten-io apply -f \
-    https://raw.githubusercontent.com/kanisterio/kanister/master/examples/stable/foundationdb/blueprint-v2/foundationdb-blueprint.yaml
+    https://raw.githubusercontent.com/kanisterio/kanister/master/examples/foundationdb/blueprint-v2/foundationdb-blueprint.yaml
 kubectl --namespace kasten-io apply -f \
-    https://raw.githubusercontent.com/kanisterio/kanister/master/examples/stable/maria/blueprint-v2/maria-blueprint.yaml
+    https://raw.githubusercontent.com/kanisterio/kanister/master/examples/maria/blueprint-v2/maria-blueprint.yaml
+kubectl --namespace kasten-io apply -f \
+    https://raw.githubusercontent.com/kanisterio/kanister/master/examples/csi-snapshot/csi-snapshot-blueprint.yaml
+
 
 #kubectl --namespace kafka-test apply -f \
 #     https://raw.githubusercontent.com/kanisterio/kanister/master/examples/kafka/adobe-s3-connector/kafka-blueprint.yaml
