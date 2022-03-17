@@ -209,10 +209,8 @@ kubectl get secret vsphere-config-secret --namespace=vmware-system-csi
 cd
 
 curl --retry 10 --retry-delay 3 --retry-connrefused -sSOL https://raw.githubusercontent.com/kubernetes-sigs/vsphere-csi-driver/v${VSPHERECSI}/manifests/vanilla/vsphere-csi-driver.yaml
-# v2.4.0 fix
-if [ ${VSPHERECSI}="2.4.1" ]; then 
+# Single control plane setting
 sed -i -e "s/replicas: 3/replicas: 1/g" vsphere-csi-driver.yaml
-fi
 kubectl apply -f vsphere-csi-driver.yaml
 rm -rf vsphere-csi-driver.yaml
 
@@ -266,9 +264,10 @@ metadata:
   annotations:
     storageclass.kubernetes.io/is-default-class: "true"
 provisioner: csi.vsphere.vmware.com
+allowVolumeExpansion: true
 parameters:
   storagepolicyname: "${VSPHERESTGPOLICY}"
-  fstype: ext4
+  csi.storage.k8s.io/fstype: "ext4"
 EOF
 
 kubectl taint nodes --all node-role.kubernetes.io/master-
@@ -283,29 +282,7 @@ govc about | grep 7.0.3
 retvspherever=$?
 if [ ${retvspherever} -eq 0 ]; then
 curl -s https://raw.githubusercontent.com/kubernetes-sigs/vsphere-csi-driver/v${VSPHERECSI}/manifests/vanilla/deploy-csi-snapshot-components.sh | bash
-cat <<EOF | kubectl apply -f -
-kind: StorageClass
-apiVersion: storage.k8s.io/v1
-metadata:
-  name: example-vanilla-rwo-filesystem-sc
-  annotations:
-#    storageclass.kubernetes.io/is-default-class: "true"  # Optional
-provisioner: csi.vsphere.vmware.com
-allowVolumeExpansion: true  # Optional: only applicable to vSphere 7.0U1 and above
-#parameters:
-#  datastoreurl: "ds:///vmfs/volumes/vsan:52cdfa80721ff516-ea1e993113acfc77/"  # Optional Parameter
-#  storagepolicyname: "vSAN Default Storage Policy"  # Optional Parameter
-#  csi.storage.k8s.io/fstype: "ext4"  # Optional Parameter
-EOF
-kubectl get sc
-cat <<EOF | kubectl apply -f -
-apiVersion: snapshot.storage.k8s.io/v1
-kind: VolumeSnapshotClass
-metadata:
-  name: example-vanilla-rwo-filesystem-snapshotclass
-driver: csi.vsphere.vmware.com
-deletionPolicy: Delete
-EOF
+kubectl apply -f https://raw.githubusercontent.com/kubernetes-sigs/vsphere-csi-driver/master/example/vanilla-k8s-RWO-filesystem-volumes/example-snapshotclass.yaml
 kubectl get volumesnapshotclass
 
 #kubectl patch storageclass  example-vanilla-rwo-filesystem-sc \
