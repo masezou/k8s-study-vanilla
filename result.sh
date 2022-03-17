@@ -19,12 +19,12 @@ echo "Here is cluster context."
 echo -e "\e[1mkubectl config get-contexts \e[m"
 kubectl config get-contexts
 echo ""
-echo "vSphere CSI Driver info
+echo "vSphere CSI Driver info"
 kubectl get sc | grep vsphere
 retvspheredriver=$?
 if [ ${retvspheredriver} -eq 0 ]; then
 kubectl -n vmware-system-csi describe pod $(kubectl -n vmware-system-csi get pod -l app=vsphere-csi-controller -o custom-columns=:metadata.name)  | grep driver
-fi"
+fi
 echo ""
 echo -e "\e[1mmetallb loadbalancer IP address range \e[m"
 kubectl -n metallb-system get configmaps config -o jsonpath='{.data.config}'
