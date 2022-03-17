@@ -111,20 +111,7 @@ fi
 
 # kubernetes  and vSphere version check
 if [ -z ${VSPHERECSI} ]; then
-kubectl version | grep Server | grep 1.22
-retvsphere=$?
-if [ ${retvsphere} -ne 0 ]; then
-VSPHERECSI=2.3.1
-else
-govc about | grep 7.0.3
-retvspherever=$?
-if [ ${retvspherever} -eq 0 ]; then
 VSPHERECSI=2.5.0
-else
-VSPHERECSI=2.4.1
-fi
-echo $VSPHERECSI
-fi
 fi
 
 # Configure vsphere-cloud-controller-manager
@@ -290,8 +277,11 @@ kubectl label node `hostname` node-role.kubernetes.io/worker=worker
 echo "Wating for deploy csi driver to node..."
 kubectl -n vmware-system-csi wait pod -l app=vsphere-csi-node --for condition=Ready
 
-#Snapshot support in 2.5.0
+#Snapshot support in 2.5.0 with vSphere7U3
 if [ ${VSPHERECSI} = 2.5.0 ]; then
+govc about | grep 7.0.3
+retvspherever=$?
+if [ ${retvspherever} -eq 0 ]; then
 curl -s https://raw.githubusercontent.com/kubernetes-sigs/vsphere-csi-driver/v${VSPHERECSI}/manifests/vanilla/deploy-csi-snapshot-components.sh | bash
 cat <<EOF | kubectl apply -f -
 kind: StorageClass
@@ -320,6 +310,7 @@ kubectl get volumesnapshotclass
 
 #kubectl patch storageclass  example-vanilla-rwo-filesystem-sc \
 #    -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"true"}}}'
+fi
 fi
 
 kubectl patch storageclass csi-hostpath-sc \
