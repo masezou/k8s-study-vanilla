@@ -210,7 +210,10 @@ cd
 
 curl --retry 10 --retry-delay 3 --retry-connrefused -sSOL https://raw.githubusercontent.com/kubernetes-sigs/vsphere-csi-driver/v${VSPHERECSI}/manifests/vanilla/vsphere-csi-driver.yaml
 # Single control plane setting
+CTLCOUNT=`kubectl get node | grep control-plane | wc -l`
+if [ ${CTLCOUNT} -lt 3 ]; then
 sed -i -e "s/replicas: 3/replicas: 1/g" vsphere-csi-driver.yaml
+fi
 kubectl apply -f vsphere-csi-driver.yaml
 rm -rf vsphere-csi-driver.yaml
 
