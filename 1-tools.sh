@@ -19,6 +19,12 @@ CLIENT=0
 #########################################################
 
 if [ ${CLIENT} -eq 1 ]; then
+dpkg -l kubeadm
+CLIENTCHK=$?
+if [ ${CLIENTCHK} -eq 0 ];then
+echo -e "\e[31m Client tools is not install to kubernetes node host! \e[m"
+exit 255
+fi
 DOCKER=1
 # Only tested on amd64. arm64 is experimental
 CLOUDUTILS=1
