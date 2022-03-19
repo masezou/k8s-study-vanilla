@@ -1,6 +1,11 @@
 #!/usr/bin/env bash
 #########################################################
 
+# For Install from Registry
+ONLINE=1
+#REGISTRY="192.168.133.2:5000"
+#KASTENVER=4.5.11
+
 SC=nfs-csi
 KASTENHOSTNAME=kasten-`hostname`
 KASTENINGRESS=k10-`hostname`
@@ -83,6 +88,7 @@ k10tools primer
 DNSDOMAINNAME=`kubectl -n external-dns get deployments.apps  --output="jsonpath={.items[*].spec.template.spec.containers }" | jq |grep rfc2136-zone | cut -d "=" -f 2 | cut -d "\"" -f 1`
 KASTENFQDN=${KASTENHOSTNAME}.${DNSDOMAINNAME}
 KASTENFQDNINGRESS=${KASTENINGRESS}.${DNSDOMAINNAME}
+if [ ${ONLINE} -eq 1 ]; then
 kubectl create ns kasten-io
 helm install k10 kasten/k10 --namespace=kasten-io \
 --set global.persistence.size=40G \
@@ -99,6 +105,36 @@ helm install k10 kasten/k10 --namespace=kasten-io \
 --set ingress.host=${KASTENFQDNINGRESS} \
 --set injectKanisterSidecar.enabled=true \
 --set-string injectKanisterSidecar.namespaceSelector.matchLabels.k10/injectKanisterSidecar=true 
+else
+if [ -z ${REGISTRY} ]; then
+LOCALIPADDR=`kubectl get nodes -o jsonpath='{.items[*].status.addresses[?(@.type=="InternalIP")].address}'`
+REGISTRY="${LOCALIPADDR}:5000"
+fi
+if [ -z ${KASTENVER} ]; then
+KASTENVER=`grep KASTENVER= ./K0-kasten-tools.sh | cut -d "=" -f2`
+fi
+helm repo add kasten https://charts.kasten.io/
+helm repo update && \
+    helm fetch kasten/k10
+ls k10-${KASTENVER}.tgz
+kubectl create ns kasten-io
+helm install k10 k10-${KASTENVER}.tgz --namespace kasten-io \
+--set global.airgapped.repository=${REGISTRY} \
+--set global.persistence.size=40G \
+--set global.persistence.storageClass=${SC} \
+--set grafana.enabled=true \
+--set vmWare.taskTimeoutMin=200 \
+--set auth.tokenAuth.enabled=true \
+--set externalGateway.create=true \
+--set externalGateway.fqdn.name=${KASTENFQDN} \
+--set externalGateway.fqdn.type=external-dns \
+--set gateway.insecureDisableSSLVerify=true \
+--set ingress.create=true \
+--set ingress.class=nginx \
+--set ingress.host=${KASTENFQDNINGRESS} \
+--set injectKanisterSidecar.enabled=true \
+--set-string injectKanisterSidecar.namespaceSelector.matchLabels.k10/injectKanisterSidecar=true
+fi
 
 sleep 2
 kubectl get deployment -n kasten-io gateway
