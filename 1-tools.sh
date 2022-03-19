@@ -277,6 +277,7 @@ usermod -aG docker ${SUDO_USER}
 sudo -u $SUDO_USER mkdir -p /home/${SUDO_USER}/.docker
 fi
 if [ ! -z ${REGISTRY} ]; then
+mkdir -p /etc/docker/certs.d/${REGISTRY}
 cat << EOF > /etc/docker/daemon.json
 { "insecure-registries":["${REGISTRY}"] }
 EOF
