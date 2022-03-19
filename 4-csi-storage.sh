@@ -198,7 +198,15 @@ kubectl -n kube-system apply -f https://raw.githubusercontent.com/kubernetes-csi
 ##Install the CSI Hostpath Driver
 git clone  --depth 1 https://github.com/kubernetes-csi/csi-driver-host-path.git
 cd csi-driver-host-path
+# kubernetes version check
+kubectl version | grep Server | grep 1.22
+retcsihostpath=$?
+if [ ${retcsihostpath} -eq 0 ]; then
+./deploy/kubernetes-1.22/deploy.sh
+else
 ./deploy/kubernetes-1.21/deploy.sh
+fi
+
 kubectl apply -f ./examples/csi-storageclass.yaml
 kubectl patch storageclass csi-hostpath-sc \
     -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"true"}}}'
