@@ -1,6 +1,11 @@
 #!/usr/bin/env bash
 
 #########################################################
+# Offline Install
+#OFFLINE=1
+#REGISTRYHOST=192.168.133.2
+#REGISTRYURL=${REGISTRYHOST}:5000
+
 # namespace. namespace will be used with hostname
 NAMESPACE=blog1
 
@@ -8,6 +13,10 @@ NAMESPACE=blog1
 SC=vsphere-sc
 
 #########################################################
+
+if [ -z ${OFFLINE} ]; then
+OFFLINE=0
+fi
 
 DNSDOMAINNAME=`kubectl -n external-dns get deployments.apps  --output="jsonpath={.items[*].spec.template.spec.containers }" | jq |grep rfc2136-zone | cut -d "=" -f 2 | cut -d "\"" -f 1`
 WPHOST=${NAMESPACE}
@@ -37,11 +46,21 @@ helm repo update
 fi
 fi
 
+helm repo add bitnami https://charts.bitnami.com/bitnami
+helm repo update
 kubectl create namespace ${NAMESPACE}
 mkdir ${NAMESPACE}
 cd  ${NAMESPACE}
+
+if [ ${OFFLINE} -eq 1 ]; then
+if [ -z ${REGISTRYHOST} ]; then
+REGISTRYHOST=`kubectl get nodes -o jsonpath='{.items[*].status.addresses[?(@.type=="InternalIP")].address}'`
+REGISTRYURL=${REGISTRYHOST}:5000
+fi
 #helm fetch bitnami/mysql
-#MYSQLCHART=`ls mysql-*.tgz`
+helm fetch bitnami/mysql --version=8.8.27
+MYSQLCHART=`ls mysql-*.tgz`
+fi
 
 cat << EOF > wordpress-pvc.yaml
 apiVersion: v1
@@ -59,6 +78,54 @@ spec:
     requests:
       storage: 5Gi
 EOF
+
+if [ ${OFFLINE} -eq 1 ]; then
+cat << EOF > wordpress.yaml
+apiVersion: apps/v1 # for versions before 1.9.0 use apps/v1beta2
+kind: Deployment
+metadata:
+  name: wordpress
+  labels:
+    app: wordpress
+spec:
+  selector:
+    matchLabels:
+      app: wordpress
+      tier: frontend
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: wordpress
+        tier: frontend
+    spec:
+      containers:
+      - image: ${REGISTRYURL}/library/wordpress:4.8-apache
+        imagePullPolicy: Always
+        name: wordpress
+        env:
+        - name: WORDPRESS_DB_HOST
+          value: mysql-release
+        - name: WORDPRESS_DB_PASSWORD
+          valueFrom:
+              secretKeyRef:
+                name: mysql-release
+                key: mysql-root-password
+        ports:
+        - containerPort: 80
+          name: wordpress
+        volumeMounts:
+        - name: wordpress-persistent-storage
+          mountPath: /var/www/html
+      volumes:
+      - name: wordpress-persistent-storage
+        persistentVolumeClaim:
+          claimName: wp-pv-claim
+EOF
+
+else
+
 cat << EOF > wordpress.yaml
 apiVersion: apps/v1 # for versions before 1.9.0 use apps/v1beta2
 kind: Deployment
@@ -82,8 +149,6 @@ spec:
       containers:
       - image: wordpress:4.8-apache
         imagePullPolicy: IfNotPresent
-#      - image: 192.168.17.2:5000/library/wordpress:4.8-apache
-#        imagePullPolicy: Always
         name: wordpress
         env:
         - name: WORDPRESS_DB_HOST
@@ -104,6 +169,7 @@ spec:
         persistentVolumeClaim:
           claimName: wp-pv-claim
 EOF
+fi
 cat << EOF > wordpress-service.yaml
 apiVersion: v1
 kind: Service
@@ -121,13 +187,18 @@ spec:
     app: wordpress
 EOF
 
-helm repo add bitnami https://charts.bitnami.com/bitnami
+if [ ${OFFLINE} -eq 1 ]; then
+if [ ${SC} = csi-hostpath-sc ]; then
+helm install mysql-release ${MYSQLCHART}  -n ${NAMESPACE} --set volumePermissions.enabled=true --set global.storageClass=${SC} --set global.imageRegistry=${REGISTRYURL}
+else
+helm install mysql-release ${MYSQLCHART}  -n ${NAMESPACE} --set global.storageClass=${SC} --set global.imageRegistry=${REGISTRYURL}
+fi
+else
 if [ ${SC} = csi-hostpath-sc ]; then
 helm install mysql-release bitnami/mysql -n ${NAMESPACE} --set volumePermissions.enabled=true --set global.storageClass=${SC}
-#helm install mysql-release ${MYSQLCHART}  -n ${NAMESPACE} --set volumePermissions.enabled=true --set global.storageClass=${SC} --set global.imageRegistry=192.168.17.2:5000
 else
 helm install mysql-release bitnami/mysql -n ${NAMESPACE} --set global.storageClass=${SC}
-#helm install mysql-release ${MYSQLCHART}  -n ${NAMESPACE} --set global.storageClass=${SC} --set global.imageRegistry=192.168.17.2:5000
+fi
 fi
 sleep 5
 kubectl get pod,pvc -n ${NAMESPACE} 
@@ -162,6 +233,7 @@ host ${WPHOST}.${DNSDOMAINNAME}. ${DNSHOSTIP}
 retvaldns=$?
 echo ""
 echo "*************************************************************************************"
+kubectl images -n ${NAMESPACE} 
 echo "Next Step"
 echo "Confirm wordpress pod and mysql pod are running with kubectl get pod -A"
 echo "Open http://${EXTERNALIP}"
