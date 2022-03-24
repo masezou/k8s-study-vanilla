@@ -12,7 +12,7 @@ VSPHERESERVER="YOUR_VCENTER_FQDN"
 VSPHERESERVERIP="YOUR_VCENTER_IP"
 VSPPHEREDATASTORE="YOUR_DATASTORE"
 
-#VSPHERECSI=2.4.0
+#VSPHERECSI=2.5.1
 #########################################################
 
 if [ ${EUID:-${UID}} != 0 ]; then
@@ -111,7 +111,7 @@ fi
 
 # kubernetes  and vSphere version check
 if [ -z ${VSPHERECSI} ]; then
-VSPHERECSI=2.5.0
+VSPHERECSI=2.5.1
 fi
 
 # Configure vsphere-cloud-controller-manager
@@ -280,7 +280,7 @@ echo "Wating for deploy csi driver to node..."
 kubectl -n vmware-system-csi wait pod -l app=vsphere-csi-node --for condition=Ready
 
 #Snapshot support in 2.5.0 with vSphere7U3
-if [ ${VSPHERECSI} = 2.5.0 ]; then
+if [ ${VSPHERECSI} = 2.5.1 ]; then
 govc about | grep 7.0.3
 retvspherever=$?
 if [ ${retvspherever} -eq 0 ]; then
