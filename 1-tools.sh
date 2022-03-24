@@ -157,6 +157,31 @@ EOF
 alias kubectl=kubecolor
 fi
 
+# Install krew
+mkdir /tmp/krew.temp
+cd /tmp/krew.temp
+OS="$(uname | tr '[:upper:]' '[:lower:]')" &&
+#ARCH="$(uname -m | sed -e 's/x86_64/amd64/' -e 's/\(arm\)\(64\)\?.*/\1\2/' -e 's/aarch64$/arm64/')" &&
+KREW="krew-${OS}_${ARCH}" &&
+curl -fsSLO "https://github.com/kubernetes-sigs/krew/releases/latest/download/${KREW}.tar.gz" &&
+tar zxvf "${KREW}.tar.gz"
+rm -rf LICENSE
+chmod ugo+x ./"${KREW}"
+./"${KREW}" install krew
+cat << 'EOF' >>  /etc/profile.d/krew.sh
+export PATH="$HOME/.krew/bin:$PATH"
+EOF
+if [ -z $SUDO_USER ]; then
+   echo "there is no sudo login"
+else
+sudo -u $SUDO_USER ./"${KREW}" install krew
+fi
+rm -rf krew-linux* 
+unset OS
+unset KREW
+cd ${BASEPWD}
+rm -rf /tmp/krew.temp
+
 # Install Helm
 if [ ! -f /usr/local/bin/helm ]; then
 curl -s -O https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3
@@ -280,6 +305,10 @@ if [ ! -z ${REGISTRY} ]; then
 mkdir -p /etc/docker/certs.d/${REGISTRY}
 cat << EOF > /etc/docker/daemon.json
 { "insecure-registries":["${REGISTRY}"] }
+EOF
+else
+cat << EOF > /etc/docker/daemon.json.orig
+{ "insecure-registries":["127.0.0.1:5000"] }
 EOF
 fi
 systemctl enable docker
