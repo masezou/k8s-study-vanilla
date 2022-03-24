@@ -156,7 +156,7 @@ curl --retry 10 --retry-delay 3 --retry-connrefused -sS https://raw.githubuserco
 else
 echo "Install containerd.io latest version"
 apt -y install containerd.io
-curl --retry 10 --retry-delay 3 --retry-connrefused -sS https://raw.githubusercontent.com/containerd/containerd/v1.5.10/contrib/autocomplete/ctr -o /etc/bash_completion.d/ctr
+curl --retry 10 --retry-delay 3 --retry-connrefused -sS https://raw.githubusercontent.com/containerd/containerd/v1.5.11/contrib/autocomplete/ctr -o /etc/bash_completion.d/ctr
 fi
 
 if [ ! -f /usr/local/bin/nerdctl ]; then
