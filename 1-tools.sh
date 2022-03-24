@@ -158,6 +158,7 @@ alias kubectl=kubecolor
 fi
 
 # Install krew
+if [ -d /root/.krew/store/ ]; then
 mkdir /tmp/krew.temp
 cat << EOF > /tmp/krew.temp/krew-plugin.sh 
 #!/usr/bin/env bash
@@ -211,6 +212,7 @@ unset OS
 unset KREW
 cd ${BASEPWD}
 rm -rf /tmp/krew.temp
+fi
 
 # Install Helm
 if [ ! -f /usr/local/bin/helm ]; then
