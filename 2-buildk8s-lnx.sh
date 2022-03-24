@@ -233,11 +233,11 @@ ctr images push --platform linux/${ARCH} --plain-http ${REGISTRY}/bitnami/mongod
 ctr images rm docker.io/bitnami/mongodb:4.4.8
 ctr images rm ${REGISTRY}/bitnami/mongodb:4.4.8
 
-ctr images pull --platform linux/${ARCH} docker.io/bitnami/mysql:8.0.27-debian-10-r8
-ctr images tag docker.io/bitnami/mysql:8.0.27-debian-10-r8 ${REGISTRY}/bitnami/mysql:8.0.27-debian-10-r8
-ctr images push --platform linux/${ARCH} --plain-http ${REGISTRY}/bitnami/mysql:8.0.27-debian-10-r8
-ctr images rm docker.io/bitnami/mysql:8.0.27-debian-10-r8
-ctr images rm ${REGISTRY}/bitnami/mysql:8.0.27-debian-10-r8
+ctr images pull --platform linux/${ARCH} docker.io/bitnami/mysql:8.0.28-debian-10-r41
+ctr images tag docker.io/bitnami/mysql:8.0.28-debian-10-r41 ${REGISTRY}/bitnami/mysql:8.0.28-debian-10-r41
+ctr images push --platform linux/${ARCH} --plain-http ${REGISTRY}/bitnami/mysql:8.0.28-debian-10-r41
+ctr images rm docker.io/bitnami/mysql:8.0.28-debian-10-r41
+ctr images rm ${REGISTRY}/bitnami/mysql:8.0.28-debian-10-r41
 
 ctr images pull --platform linux/${ARCH} docker.io/bitnami/postgresql:11.13.0-debian-10-r89
 ctr images tag docker.io/bitnami/postgresql:11.13.0-debian-10-r89 ${REGISTRY}/bitnami/postgresql:11.13.0-debian-10-r89
