@@ -159,27 +159,54 @@ fi
 
 # Install krew
 mkdir /tmp/krew.temp
+cat << EOF > /tmp/krew.temp/krew-plugin.sh 
+#!/usr/bin/env bash
+source /etc/profile.d/krew.sh
+kubectl krew install ctx
+kubectl krew install ns
+kubectl krew install iexec
+kubectl krew install status
+kubectl krew install neat
+kubectl krew install view-secret
+kubectl krew install images
+kubectl krew install rolesum
+kubectl krew install open-svc
+
+kubectl krew install tree
+kubectl krew install exec-as
+kubectl krew install modify-secret
+kubectl krew install view-serviceaccount-kubeconfig
+kubectl krew install get-all
+kubectl krew install node-shell
+kubectl krew install ca-cert
+kubectl krew install who-can
+
+kubectl krew install outdated
+kubectl krew install df-pv
+kubectl krew install resource-capacity
+kubectl krew install fleet
+kubectl krew install prompt
+
+kubectl krew list
+EOF
+chmod +x  /tmp/krew.temp/krew-plugin.sh
 cd /tmp/krew.temp
 OS="$(uname | tr '[:upper:]' '[:lower:]')" &&
-#ARCH="$(uname -m | sed -e 's/x86_64/amd64/' -e 's/\(arm\)\(64\)\?.*/\1\2/' -e 's/aarch64$/arm64/')" &&
 KREW="krew-${OS}_${ARCH}" &&
 curl -fsSLO "https://github.com/kubernetes-sigs/krew/releases/latest/download/${KREW}.tar.gz" &&
 tar zxvf "${KREW}.tar.gz"
-rm -rf LICENSE
 chmod ugo+x ./"${KREW}"
 ./"${KREW}" install krew
 cat << 'EOF' >>  /etc/profile.d/krew.sh
 export PATH="$HOME/.krew/bin:$PATH"
 EOF
-./krew-plugin.sh
-cp ./krew-plugin.sh /tmp
+/tmp/krew.temp/krew-plugin.sh
 if [ -z $SUDO_USER ]; then
    echo "there is no sudo login"
 else
 sudo -u $SUDO_USER ./"${KREW}" install krew
-sudo -u $SUDO_USER /tmp/krew-plugin.sh
+sudo -u $SUDO_USER /tmp/krew.temp/krew-plugin.sh
 fi
-rm -rf krew-linux* 
 unset OS
 unset KREW
 cd ${BASEPWD}
