@@ -171,10 +171,13 @@ chmod ugo+x ./"${KREW}"
 cat << 'EOF' >>  /etc/profile.d/krew.sh
 export PATH="$HOME/.krew/bin:$PATH"
 EOF
+./krew-plugin.sh
+cp ./krew-plugin.sh /tmp
 if [ -z $SUDO_USER ]; then
    echo "there is no sudo login"
 else
 sudo -u $SUDO_USER ./"${KREW}" install krew
+sudo -u $SUDO_USER /tmp/krew-plugin.sh
 fi
 rm -rf krew-linux* 
 unset OS
