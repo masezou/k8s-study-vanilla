@@ -158,7 +158,7 @@ alias kubectl=kubecolor
 fi
 
 # Install krew
-if [ -d /root/.krew/store/ ]; then
+if [ ! -d /root/.krew/store/ ]; then
 mkdir /tmp/krew.temp
 cat << EOF > /tmp/krew.temp/krew-plugin.sh 
 #!/usr/bin/env bash
