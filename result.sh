@@ -13,6 +13,8 @@ echo "" >> dashboard.token
 DASHBOARD_FQDN=`kubectl -n kubernetes-dashboard get svc dashboard-service-lb --output="jsonpath={.metadata.annotations}" | jq | grep external | cut -d "\"" -f 4`
 REGISTRY_EXTERNALIP=`kubectl -n registry get service pregistry-frontend-clusterip | awk '{print $4}' | tail -n 1`
 REGISTRY_FQDN=`kubectl -n registry get svc pregistry-frontend-clusterip --output="jsonpath={.metadata.annotations}" | jq | grep external | cut -d "\"" -f 4`
+KEYCLOAK_EXTERNALIP=`kubectl -n keycloak get service keycloak  | awk '{print $4}' | tail -n 1`
+KEYCLOAK_FQDN=`kubectl -n keycloak get svc keycloak --output="jsonpath={.metadata.annotations}" | jq | grep external | cut -d "\"" -f 4`
 
 echo "*************************************************************************************"
 echo "Here is cluster context."
@@ -60,14 +62,13 @@ echo -e "\e[32m http://${REGISTRY_EXTERNALIP}  \e[m"
 echo "or"
 echo -e "\e[32m http://${REGISTRY_FQDN} \e[m"
 echo ""
-echo "If you have set KEYCLOAK=1,"
 echo -e "\e[1mKeycloak  \e[m"
-echo -e "\e[32m https://${DNSHOSTIP}:8080/auth  \e[m"
+echo -e "\e[32m https://${KEYCLOAK_FQDN}:8080/auth \e[m"
 echo "or"
-echo -e "\e[32m https://keycloak.${DNSDOMAINNAME}:8080/auth \e[m"
+echo -e "\e[32m https://${KEYCLOAK_EXTERNALIP}:8080/auth  \e[m"
 echo ""
 echo -n " login credential is "
-echo -e "\e[32m keycloakadmin/keycloak123! \e[m"
+echo -e "\e[32m admin/admin! \e[m"
 echo ""
 kubectl get ns kasten-io  > /dev/null 2>&1
 HAS_KASTEN=$?

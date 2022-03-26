@@ -13,9 +13,6 @@ DNSDOMAINNAME="k8slab.internal"
 # IF you have internal DNS, please comment out and set your own DNS server
 #FORWARDDNS=192.168.8.1
 
-# external authentication
-KEYCLOAK=0
-
 #FORCE_LOCALIP=192.168.16.2
 #########################################################
 ### UID Check ###
@@ -342,7 +339,6 @@ xip		IN NS		ns-gce.sslip.io.
 xip		IN NS		ns-azure.sslip.io.
 minio IN A ${DNSHOSTIP}
 mail IN A ${DNSHOSTIP}
-keycloak IN A ${DNSHOSTIP}
 EOF
 if [ ! -z ${INGRESS_IP} ]; then
 cat << EOF >>/var/cache/bind/${DNSDOMAINNAME}.lan
@@ -751,47 +747,29 @@ kubectl -n registry annotate service pregistry-frontend-clusterip \
 sleep 10
 host registryfe.${DNSDOMAINNAME}. ${DNSHOSTIP}
 fi
-rndc freeze ${DNSDOMAINNAME}
-rndc thaw ${DNSDOMAINNAME}
 
-if [ ${KEYCLOAK} -eq 1 ]; then
-KEYCLOAKUSER=keycloakadmin
-KEYCLOAKPASSWORD="keycloak123!"
-KEYCLOAKVER=16.1.1
-apt -y install openjdk-17-jdk
-java -version
+# Keycloadk
 debconf-set-selections <<< "postfix postfix/mailname string ${DNSHOSTNAME}.${DNSDOMAINNAME}"
 debconf-set-selections <<< "postfix postfix/main_mailer_type string 'Local only'"
 apt -y install postfix mailutils
-echo "downloaing keycloak"
-curl --retry 10 --retry-delay 3 --retry-connrefused -sSOL https://github.com/keycloak/keycloak/releases/download/${KEYCLOAKVER}/keycloak-${KEYCLOAKVER}.tar.gz
-tar xfz keycloak-${KEYCLOAKVER}.tar.gz -C /opt
-rm keycloak-${KEYCLOAKVER}.tar.gz
-mv /opt/keycloak-${KEYCLOAKVER}/ /opt/keycloak
-groupadd keycloak
-useradd -r -g keycloak -d /opt/keycloak -s /sbin/nologin keycloak
-chown -R keycloak:keycloak /opt/keycloak
-cp /opt/keycloak/docs/contrib/scripts/systemd/wildfly.service /etc/systemd/system/keycloak.service
-sed -i -e "s/The WildFly Application Server/Keycloak Server/g" /etc/systemd/system/keycloak.service
-sed -i -e "s/wildfly/keycloak/g" /etc/systemd/system/keycloak.service
-sed -i -e "9a Group=keycloak" /etc/systemd/system/keycloak.service
-mkdir -p /etc/keycloak
-cp /opt/keycloak/docs/contrib/scripts/systemd/wildfly.conf /etc/keycloak/keycloak.conf
-cp /opt/keycloak/docs/contrib/scripts/systemd/launch.sh /opt/keycloak/bin/
-chown keycloak:keycloak /opt/keycloak/bin/launch.sh
-sed -i -e "s/wildfly/keycloak/g" /opt/keycloak/bin/launch.sh
-systemctl daemon-reload
-systemctl start keycloak
-echo "starting keycloak"
-sleep 20
-systemctl status keycloak --no-pager
-/opt/keycloak/bin/add-user-keycloak.sh -r master -u ${KEYCLOAKUSER} -p ${KEYCLOAKPASSWORD}
-systemctl restart keycloak
-systemctl enable keycloak
-echo "re-starting keycloak"
-sleep 20
-systemctl status keycloak --no-pager
-fi
+kubectl create ns keycloak
+kubectl -n keycloak create -f https://raw.githubusercontent.com/keycloak/keycloak-quickstarts/latest/kubernetes-examples/keycloak.yaml
+kubectl -n keycloak  get deployments.apps keycloak
+while [ "$(kubectl -n keycloak  get deployments.apps keycloak  --output="jsonpath={.status.conditions[*].status}" | cut -d' ' -f1)" != "True" ]; do
+         echo "Deploying Keycloak  Please wait...."
+     kubectl -n keycloak  get deployments.apps keycloak
+         sleep 30
+done
+     kubectl -n keycloak  get deployments.apps keycloak
+KEYCLOAK_EXTERNALIP=`kubectl -n keycloak get service keycloak  | awk '{print $4}' | tail -n 1`
+kubectl -n keycloak annotate service keycloak \
+     external-dns.alpha.kubernetes.io/hostname=keycloak.${DNSDOMAINNAME}
+sleep 10
+host keycloak.${DNSDOMAINNAME}. ${DNSHOSTIP}
+
+rndc freeze ${DNSDOMAINNAME}
+rndc thaw ${DNSDOMAINNAME}
+
 apt clean
 apt update
 echo "*************************************************************************************"
@@ -830,15 +808,12 @@ echo -e "\e[32m http://${REGISTRY_EXTERNALIP}  \e[m"
 echo "or"
 echo -e "\e[32m http://registryfe.${DNSDOMAINNAME} \e[m"
 echo ""
-echo ""
-if [ ${KEYCLOAK} -eq 1 ]; then
 echo "Keycloak"
 echo -e "\e[32m http://keycloak.${DNSDOMAINNAME}:8080/auth \e[m"
 echo "or"
-echo -e "\e[32m http://${LOCALIPADDR}:8080/auth  \e[m"
-echo -e "\e[32m username: ${KEYCLOAKCKUSER} / password: ${KEYCLOAKKPASSWORD} \e[m"
+echo -e "\e[32m http://${KEYCLOAK_EXTERNALIP}:8080/auth  \e[m"
+echo -e "\e[32m username: admin / password: admin \e[m"
 echo "and postfix was configured."
-fi
 echo ""
 echo " Copy HOME/.kube/config to your Windows/Mac/Linux desktop."
 echo " You can access Kubernetes from your desktop!"
