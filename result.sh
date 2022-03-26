@@ -68,7 +68,7 @@ echo "or"
 echo -e "\e[32m https://${KEYCLOAK_EXTERNALIP}:8080/auth  \e[m"
 echo ""
 echo -n " login credential is "
-echo -e "\e[32m admin/admin! \e[m"
+echo -e "\e[32m admin/admin  \e[m"
 echo ""
 kubectl get ns kasten-io  > /dev/null 2>&1
 HAS_KASTEN=$?
