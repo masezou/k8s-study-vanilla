@@ -98,6 +98,7 @@ rm -rf govcbin
 curl --retry 10 --retry-delay 3 --retry-connrefused -sSOL https://raw.githubusercontent.com/vmware/govmomi/master/scripts/govc_bash_completion
 mv govc_bash_completion /etc/bash_completion.d/
 fi
+cp ~/govc-vcenter.sh /etc/profile.d/
 source ~/govc-vcenter.sh
 
 # Verify vCenter connectivity
