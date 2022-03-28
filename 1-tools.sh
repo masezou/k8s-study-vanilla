@@ -505,6 +505,9 @@ fi
 # I like vi in less.
 echo "export VISUAL=vi" >/etc/profile.d/less-pager.sh
 
+cd ${BASEPWD}
+chmod -x $0
+
 echo ""
 echo "*************************************************************************************"
 echo "Next Step"
@@ -525,10 +528,10 @@ echo "Powercli"
 echo "pwsh then Install\-Module VMware.PowerCLI \-Scope CurrentUser"
 echo ""
 echo ""
-if [ ${CLIENT} -eq 1 ]; then
+if [ ${DOCKER} -eq 1 ]; then
 echo "If you are using Ubuntu Desktop with X Window, plase reboot your Ubuntu desktop."
 echo "If you want to use nerdctl, once reboot, then execute containerd-rootless-setuptool.sh install in normal user."
+read -p "Press enter to continue for reboot"
+reboot
 fi
 fi
-cd ${BASEPWD}
-chmod -x $0
