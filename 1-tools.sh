@@ -108,6 +108,14 @@ source /etc/bash_completion.d/kubectl
 echo 'export KUBE_EDITOR=vi' >>~/.bashrc
 fi
 
+# Install kube-bench
+if [ ! -f /usr/local/bin/kube-bench ]; then
+KUBEBENCHVER=0.6.6
+curl --retry 10 --retry-delay 3 --retry-connrefused -sSOL https://github.com/aquasecurity/kube-bench/releases/download/v${KUBEBENCHVER}/kube-bench_${KUBEBENCHVER}_linux_${ARCH}.deb
+dpkg -i kube-bench_${KUBEBENCHVER}_linux_${ARCH}.deb
+rm -rf kube-bench_${KUBEBENCHVER}_linux_${ARCH}.deb
+fi
+
 # Install etcd-client
 apt -y install etcd-client
 curl --retry 10 --retry-delay 3 --retry-connrefused -sSOL https://gist.githubusercontent.com/swynter-ladbrokes/9960fe1a1f2467bfe6e6/raw/7a92e7d92b68d67f958d28af880e6561037c33c1/etcdctl
@@ -346,6 +354,11 @@ fi
 systemctl enable docker
 systemctl daemon-reload
 systemctl restart docker
+
+#Portainer_
+docker volume create portainer_data
+docker run -d -p 8001:8001 -p 9443:9443 --name portainer --restart=always -v /var/run/docker.sock:/var/run/docker.sock -v portainer_data:/data portainer/portainer-ce
+
 if [ ${CLIENT} -eq 1 ]; then
 containerd config default | sudo tee /etc/containerd/config.toml
 dpkg -l | grep containerd | grep 1.4  > /dev/null
