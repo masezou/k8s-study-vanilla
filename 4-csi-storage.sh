@@ -196,15 +196,40 @@ kubectl -n kube-system apply -f https://raw.githubusercontent.com/kubernetes-csi
 kubectl -n kube-system apply -f https://raw.githubusercontent.com/kubernetes-csi/external-snapshotter/${SNAPSHOTTER_VERSION}/deploy/kubernetes/snapshot-controller/setup-snapshot-controller.yaml
 
 ##Install the CSI Hostpath Driver
-git clone  --depth 1 https://github.com/kubernetes-csi/csi-driver-host-path.git
-cd csi-driver-host-path
 # kubernetes version check
-kubectl version | grep Server | grep 1.22
-retcsihostpath=$?
-if [ ${retcsihostpath} -eq 0 ]; then
-./deploy/kubernetes-1.22/deploy.sh
-else
-./deploy/kubernetes-1.21/deploy.sh
+kubectl get node -o wide|grep v1.19  > /dev/null 2>&1 && KUBEVER=1.19
+kubectl get node -o wide|grep v1.20  > /dev/null 2>&1 && KUBEVER=1.20
+kubectl get node -o wide|grep v1.21  > /dev/null 2>&1 && KUBEVER=1.21
+kubectl get node -o wide|grep v1.22  > /dev/null 2>&1 && KUBEVER=1.22
+kubectl get node -o wide|grep v1.23  > /dev/null 2>&1 && KUBEVER=1.23
+
+if [ ${KUBEVER}=1.19 ]; then
+CSIHOSTPATHVER=1.7.3
+git clone https://github.com/kubernetes-csi/csi-driver-host-path -b v${CSIHOSTPATHVER} --depth 1
+cd csi-driver-host-path
+./deploy/kubernetes-${KUBEVER}/deploy.sh
+fi
+
+if [ ${KUBEVER}=1.20 ]; then
+CSIHOSTPATHVER=1.7.3
+git clone https://github.com/kubernetes-csi/csi-driver-host-path -b v${CSIHOSTPATHVER} --depth 1
+cd csi-driver-host-path
+./deploy/kubernetes-${KUBEVER}/deploy.sh
+fi
+
+if [ ${KUBEVER}=1.21 ]; then
+git clone https://github.com/kubernetes-csi/csi-driver-host-path --depth 1
+cd csi-driver-host-path
+./deploy/kubernetes-${KUBEVER}/deploy.sh
+fi
+
+if [ ${KUBEVER}=1.22 ]; then
+git clone https://github.com/kubernetes-csi/csi-driver-host-path --depth 1
+cd csi-driver-host-path
+./deploy/kubernetes-${KUBEVER}/deploy.sh
+fi
+
+if [ ${KUBEVER}=1.23 ]; then
 fi
 
 kubectl apply -f ./examples/csi-storageclass.yaml
@@ -212,6 +237,7 @@ kubectl patch storageclass csi-hostpath-sc \
     -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"true"}}}'
 cd ..
 rm -rf csi-driver-host-path
+
 # Permission fix
 chmod -R 1777 /var/lib/docker/volumes/
 fi
