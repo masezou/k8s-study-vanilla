@@ -116,6 +116,14 @@ dpkg -i kube-bench_${KUBEBENCHVER}_linux_${ARCH}.deb
 rm -rf kube-bench_${KUBEBENCHVER}_linux_${ARCH}.deb
 fi
 
+# Install trivy 
+#apt -y  install wget apt-transport-https gnupg lsb-release
+wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | pt-key add -
+echo deb https://aquasecurity.github.io/trivy-repo/deb $(lsb_release -sc) main | tee -a /etc/apt/sources.list.d/trivy.list
+apt update
+apt -y install trivy
+
+
 # Install etcd-client
 apt -y install etcd-client
 curl --retry 10 --retry-delay 3 --retry-connrefused -sSOL https://gist.githubusercontent.com/swynter-ladbrokes/9960fe1a1f2467bfe6e6/raw/7a92e7d92b68d67f958d28af880e6561037c33c1/etcdctl
@@ -301,6 +309,9 @@ if [ ${retvalsnap} -eq 0 ]; then
    systemctl disable --now snapd
    systemctl disable --now snapd.socket
    systemctl disable --now snapd.seeded
+   systemctl stop snapd
+   apt remove --purge snapd gnome-software-plugin-snap
+
 fi
 # Remove docker from Ubuntu
 apt -y purge docker docker.io
@@ -513,6 +524,9 @@ if [ ${retvalsnap} -eq 0 ]; then
    systemctl disable --now snapd
    systemctl disable --now snapd.socket
    systemctl disable --now snapd.seeded
+   systemctl stop snapd
+   apt remove --purge snapd gnome-software-plugin-snap
+
 fi
 
 # I like vi in less.
