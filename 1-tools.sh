@@ -529,6 +529,20 @@ if [ ${retvalsnap} -eq 0 ]; then
 
 fi
 
+# Install cfssljson - openssl alternative
+if [ ! -f /usr/local/bin/cfssl ]; then
+wget -q --show-progress --https-only --timestamping \
+  https://storage.googleapis.com/kubernetes-the-hard-way/cfssl/1.4.1/linux/cfssl \
+mv cfssl /usr/local/bin
+chmod +x /usr/local/bin/cfssl
+fi
+if [ ! -f /usr/local/bin/cfssljson ]; then
+wget -q --show-progress --https-only --timestamping \
+  https://storage.googleapis.com/kubernetes-the-hard-way/cfssl/1.4.1/linux/cfssljson
+mv cfssljson /usr/local/bin
+chmod +x /usr/local/bin/cfssljson
+fi
+
 # I like vi in less.
 echo "export VISUAL=vi" >/etc/profile.d/less-pager.sh
 
