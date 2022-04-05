@@ -110,7 +110,7 @@ fi
 
 # Install kube-bench
 if [ ! -f /usr/local/bin/kube-bench ]; then
-KUBEBENCHVER=0.6.6
+KUBEBENCHVER=0.6.7
 curl --retry 10 --retry-delay 3 --retry-connrefused -sSOL https://github.com/aquasecurity/kube-bench/releases/download/v${KUBEBENCHVER}/kube-bench_${KUBEBENCHVER}_linux_${ARCH}.deb
 dpkg -i kube-bench_${KUBEBENCHVER}_linux_${ARCH}.deb
 rm -rf kube-bench_${KUBEBENCHVER}_linux_${ARCH}.deb
@@ -407,7 +407,7 @@ systemctl restart containerd.service
 fi
 # Install Docker Compose
 if [ ! -f /usr/local/bin/docker-compose ]; then
-DOCKERCOMPOSEVER=2.4.0
+DOCKERCOMPOSEVER=2.4.1
 if [ ${ARCH} = amd64 ]; then
   curl --retry 10 --retry-delay 3 --retry-connrefused -sSOL https://github.com/docker/compose/releases/download/v${DOCKERCOMPOSEVER}/docker-compose-linux-$(uname -i)
   mv docker-compose-linux-$(uname -i) /usr/local/bin/docker-compose
