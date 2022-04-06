@@ -3,7 +3,7 @@
 
 # For Install from Registry
 ONLINE=1
-#REGISTRY="192.168.133.2:5000"
+#REGISTRYURL="192.168.133.2:5000"
 #KASTENVER=4.5.12
 
 SC=nfs-csi
@@ -98,9 +98,10 @@ helm install k10 kasten/k10 --namespace=kasten-io \
 --set injectKanisterSidecar.enabled=true \
 --set-string injectKanisterSidecar.namespaceSelector.matchLabels.k10/injectKanisterSidecar=true 
 else
-if [ -z ${REGISTRY} ]; then
-LOCALIPADDR=`kubectl get nodes -o jsonpath='{.items[*].status.addresses[?(@.type=="InternalIP")].address}'`
-REGISTRY="${LOCALIPADDR}:5000"
+if [ -z ${REGISTRYURL} ]; then
+#LOCALIPADDR=`kubectl get nodes -o jsonpath='{.items[*].status.addresses[?(@.type=="InternalIP")].address}'`
+#REGISTRYURL="${LOCALIPADDR}:5000"
+REGISTRYURL=`ls -1 /etc/containerd/certs.d/ | grep -v docker.io`
 fi
 if [ -z ${KASTENVER} ]; then
 KASTENVER=`grep KASTENVER= ./K0-kasten-tools.sh | cut -d "=" -f2`
@@ -111,7 +112,7 @@ helm repo update && \
 ls k10-${KASTENVER}.tgz
 kubectl create ns kasten-io
 helm install k10 k10-${KASTENVER}.tgz --namespace kasten-io \
---set global.airgapped.repository=${REGISTRY} \
+--set global.airgapped.repository=${REGISTRYURL} \
 --set global.persistence.size=40G \
 --set global.persistence.storageClass=${SC} \
 --set grafana.enabled=true \
