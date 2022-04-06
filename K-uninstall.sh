@@ -37,6 +37,8 @@ kubectl delete clusterrolebinding backupview-rolebinding
 kubectl delete clusterrolebinding nsadmin-rolebinding
 kubectl delete namespace kasten-io-mc
 
+rm -rf k10-*.tgz
+
 if [ -f K1-kasten.sh ]; then
 chmod +x K1-kasten.sh
 fi
