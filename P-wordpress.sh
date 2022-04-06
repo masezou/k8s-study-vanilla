@@ -234,7 +234,9 @@ host ${WPHOST}.${DNSDOMAINNAME}. ${DNSHOSTIP}
 retvaldns=$?
 echo ""
 echo "*************************************************************************************"
-kubectl images -n ${NAMESPACE} 
+if [ ${OFFLINE} -eq 1 ]; then
+kubectl images -n ${NAMESPACE}
+fi 
 echo "Next Step"
 echo "Confirm wordpress pod and mysql pod are running with kubectl get pod -A"
 echo "Open http://${EXTERNALIP}"

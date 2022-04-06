@@ -163,6 +163,9 @@ retvaldns2=$?
 
 echo ""
 echo "*************************************************************************************"
+if [ ${ONLINE} -ne 1 ]; then
+kubectl images -n kasten-io
+fi
 echo "Next Step"
 echo "Confirm wordpress kasten is running with kubectl get pods --namespace kasten-io"
 echo -e "\e[32m Open your browser \e[m"
