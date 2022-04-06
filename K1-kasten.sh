@@ -4,7 +4,7 @@
 # For Install from Registry
 ONLINE=1
 #REGISTRY="192.168.133.2:5000"
-#KASTENVER=4.5.11
+#KASTENVER=4.5.12
 
 SC=nfs-csi
 KASTENHOSTNAME=kasten-`hostname`
@@ -65,14 +65,6 @@ kubectl get volumesnapshotclass | grep longhorn
 retval4=$?
 if [ ${retval4} -eq 0 ]; then
 kubectl annotate volumesnapshotclass longhorn \
-    k10.kasten.io/is-snapshot-class=true
-fi
-
-# Trial
-kubectl get volumesnapshotclass | grep example-vanilla-rwo-filesystem-sc
-retval5=$?
-if [ ${retval5} -eq 0 ]; then
-kubectl annotate volumesnapshotclass example-vanilla-rwo-filesystem-sc \
     k10.kasten.io/is-snapshot-class=true
 fi
 
