@@ -230,6 +230,7 @@ cd csi-driver-host-path
 fi
 
 if [ ${KUBEVER}=1.23 ]; then
+echo "${KUBEVER} is not supported yet."
 fi
 
 kubectl apply -f ./examples/csi-storageclass.yaml
