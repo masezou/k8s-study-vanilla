@@ -101,6 +101,12 @@ else
 if [ -z ${REGISTRYURL} ]; then
 #LOCALIPADDR=`kubectl get nodes -o jsonpath='{.items[*].status.addresses[?(@.type=="InternalIP")].address}'`
 #REGISTRYURL="${LOCALIPADDR}:5000"
+ls -1 /etc/containerd/certs.d/ | grep -v docker.io
+retchk=$?
+if [ ${retchk} -ne 0 ]; then
+echo -e "\e[31m Registry is not configured on this host. Exit. \e[m"
+exit 255
+fi
 REGISTRYURL=`ls -1 /etc/containerd/certs.d/ | grep -v docker.io`
 fi
 if [ -z ${KASTENVER} ]; then
@@ -163,7 +169,7 @@ retvaldns2=$?
 
 echo ""
 echo "*************************************************************************************"
-if [ ${ONLINE} -ne 1 ]; then
+if [ -z ${ONLINE} ]; then
 kubectl images -n kasten-io
 fi
 echo "Next Step"

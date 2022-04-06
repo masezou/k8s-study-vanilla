@@ -56,6 +56,12 @@ if [ ${OFFLINE} -eq 1 ]; then
 if [ -z ${REGISTRYURL} ]; then
 #REGISTRYHOST=`kubectl get nodes -o jsonpath='{.items[*].status.addresses[?(@.type=="InternalIP")].address}'`
 #REGISTRYURL=${REGISTRYHOST}:5000
+ls -1 /etc/containerd/certs.d/ | grep -v docker.io
+retchk=$?
+if [ ${retchk} -ne 0 ]; then
+echo -e "\e[31m Registry is not configured on this host. Exit. \e[m"
+exit 255
+fi
 REGISTRYURL=`ls -1 /etc/containerd/certs.d/ | grep -v docker.io`
 fi
 #helm fetch bitnami/mysql
