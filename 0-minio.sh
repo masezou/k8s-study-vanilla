@@ -12,8 +12,10 @@ MINIOPATH=/disk/minio
 #########################################################
 
 # Uninstall
+#systemctl stop minio.service
+#systemctl disable  minio.service
 #rm -rf /usr/local/bin/minio /usr/local/bin/mc
-#rm -rf /disk/minio/ /etc/systemd/system/minio.service /etc/default/minio
+#rm -rf /disk/minio/ /etc/systemd/system/minio.service /etc/default/minio /root/.mc
 
 #########################################################
 MINIOBINPATH=/usr/local/bin
