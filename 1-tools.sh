@@ -310,8 +310,8 @@ if [ ${retvalsnap} -eq 0 ]; then
    systemctl disable --now snapd.socket
    systemctl disable --now snapd.seeded
    systemctl stop snapd
-   apt remove --purge snapd gnome-software-plugin-snap
-
+   apt -y remove --purge snapd gnome-software-plugin-snap
+   apt -y autoremove 
 fi
 # Remove docker from Ubuntu
 apt -y purge docker docker.io
