@@ -6,6 +6,7 @@ MCLOGINUSER=miniologinuser
 MCLOGINPASSWORD=miniologinuser
 # If you want to use erasure coding, before running this script, please mount at least a disk (/dev/sdc1) to MINIOPATH with xfs.
 MINIOPATH=/disk/minio
+MINIOIMAGESIZE=50G
 
 #FORCE_LOCALIP=192.168.16.2
 
@@ -122,24 +123,16 @@ else
 mc update
 fi
 
-# Device /dev/sdc check
-df | grep sdc
-retvalmount=$?
-if [ ${retvalmount} -ne 0 ]; then
-pvscan | grep sdc
-retvallvm=$?
-if [ ${retvallvm} -ne 0 ]; then
-if [  -b /dev/sdc ]; then
-echo "Initilize /dev/sdc....."
-sgdisk -Z /dev/sdc
-parted /dev/sdc --script 'mklabel gpt mkpart primary 0% 100% print quit'
-sleep 3
-mkfs.xfs -b size=4096 -m reflink=1,crc=1 /dev/sdc1
+# Minio image disk
+if [ ! -z ${MINIOIMAGESIZE} ]; then
+mkdir -p /disk
+fallocate -l ${MINIOIMAGESIZE} /disk/minio.img
+mkfs.xfs -b size=4096 -m crc=1,reflink=1 /disk/minio.img
 mkdir -p ${MINIOPATH}
-echo "/dev/sdc1       ${MINIOPATH}  xfs     defaults 0 0" >>/etc/fstab
+cat << EOF >> /etc/fstab
+/disk/minio.img ${MINIOPATH} xfs defaults 0 0
+EOF
 mount -a
-fi
-fi
 fi
 
 # Erasure Coding
