@@ -18,7 +18,7 @@ PROTECTION_PERIOD=240h
 #########################################################
 
 if [ -z ${ERASURE_CODING} ]; then
-mc admin info minio2 | grep Pool
+mc admin info local | grep Pool
 retvalec=$?
 if [ ${retvalec} -eq 0 ]; then
 ERASURE_CODING=1
@@ -40,12 +40,13 @@ else
 echo ${LOCALIPADDR}
 fi
 
+MINIOBINPATH=/usr/local/bin
+if [ -f ${MINIOBINPATH}/minio ]; then
 MINIOIP=${LOCALIPADDR}
 MCLOGINUSER=miniologinuser
 MCLOGINPASSWORD=miniologinuser
 BUCKETNAME=`hostname`
 MINIOLOCK_BUCKET_NAME=`hostname`-lock
-KASTENNFSPVC=kastenbackup-pvc
 
 mc alias rm local
 MINIO_ENDPOINT=https://${MINIOIP}:9000
@@ -121,7 +122,9 @@ spec:
       protectionPeriod: ${PROTECTION_PERIOD}
 EOF
 fi
+fi
 # NFS Storage
+KASTENNFSPVC=kastenbackup-pvc
 kubectl get sc | grep nfs-csi
 retval3=$?
 if [ ${retval3} -eq 0 ]; then
@@ -154,7 +157,7 @@ EOF
 fi
 
 # Configure vbr setup
-if [ ${VBRADDRESS} != "VBR_ADDRESS" ]; then
+if [ ${VBRADDRESS} != "YOUR_VBR_ADDRESS" ]; then
 kubectl get sc | grep csi.vsphere.vmware.com
 retvalvbr=$?
 if [ ${retvalvbr} -eq 0 ]; then
