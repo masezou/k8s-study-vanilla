@@ -20,6 +20,12 @@ echo -e "\e[31m please set vCenter setting.  \e[m"
 exit 255
 fi
 
+if [ -z ${VSPHERESERVER} ]; then
+echo "vSphere profile is not set"
+exit 0
+fi
+
+
 kubectl get sc | grep csi.vsphere
 retval1=$?
 if [ ${retval1} -ne 0 ]; then
