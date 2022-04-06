@@ -53,9 +53,10 @@ mkdir ${NAMESPACE}
 cd  ${NAMESPACE}
 
 if [ ${OFFLINE} -eq 1 ]; then
-if [ -z ${REGISTRYHOST} ]; then
-REGISTRYHOST=`kubectl get nodes -o jsonpath='{.items[*].status.addresses[?(@.type=="InternalIP")].address}'`
-REGISTRYURL=${REGISTRYHOST}:5000
+if [ -z ${REGISTRYURL} ]; then
+#REGISTRYHOST=`kubectl get nodes -o jsonpath='{.items[*].status.addresses[?(@.type=="InternalIP")].address}'`
+#REGISTRYURL=${REGISTRYHOST}:5000
+REGISTRYURL=`ls -1 /etc/containerd/certs.d/ | grep -v docker.io`
 fi
 #helm fetch bitnami/mysql
 helm fetch bitnami/mysql --version=8.8.27
