@@ -41,7 +41,7 @@ echo ${LOCALIPADDR}
 fi
 
 MINIOBINPATH=/usr/local/bin
-if [ -f ${MINIOBINPATH}/minio ]; then
+if [ -f ${MINIOBINPATH}/mc ]; then
 MINIOIP=${LOCALIPADDR}
 MCLOGINUSER=miniologinuser
 MCLOGINPASSWORD=miniologinuser
