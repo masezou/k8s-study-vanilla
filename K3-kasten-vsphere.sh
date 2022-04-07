@@ -14,17 +14,10 @@ echo $VSPHEREPASSWORD
 echo $VSPHERESERVER
 
 # Forget trap!
-if [ ${VSPHERESERVER} = "YOUR_VCENTER_FQDN" ]; then
-echo -e "\e[31m You haven't set environment value.  \e[m"
-echo -e "\e[31m please set vCenter setting.  \e[m"
-exit 255
-fi
-
 if [ -z ${VSPHERESERVER} ]; then
 echo "vSphere profile is not set"
 exit 0
 fi
-
 
 kubectl get sc | grep csi.vsphere
 retval1=$?
