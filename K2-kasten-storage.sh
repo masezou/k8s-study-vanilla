@@ -14,6 +14,8 @@ ERASURE_CODING=1
 MINIOLOCK_PERIOD=30d
 PROTECTION_PERIOD=240h
 
+#MINIOIP=192.168.16.3
+
 #FORCE_LOCALIP=192.168.16.2
 #########################################################
 
@@ -42,7 +44,9 @@ fi
 
 MINIOBINPATH=/usr/local/bin
 if [ -f ${MINIOBINPATH}/mc ]; then
+if [ -z ${MINIOIP} ];then
 MINIOIP=${LOCALIPADDR}
+fi
 MCLOGINUSER=miniologinuser
 MCLOGINPASSWORD=miniologinuser
 BUCKETNAME=`hostname`
