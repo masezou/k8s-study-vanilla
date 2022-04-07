@@ -72,6 +72,10 @@ cd ..
 rm -rf temp
 fi
 
+if [ ! -f /usr/bin/docker ]; then
+   rm ./K-kasten-registry.sh
+fi
+
 echo "*************************************************************************************"
 echo "K10tool/K10multicluster/kubestr were installed"
 echo ""
