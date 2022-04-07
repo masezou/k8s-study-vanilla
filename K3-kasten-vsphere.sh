@@ -64,6 +64,8 @@ spec:
     type: VSphere
     vsphere:
       serverAddress: ${VSPHERESERVER}
+      taggingEnabled: true
+      categoryName: k8sCategory
     credential:
       secretType: VSphereKey
       secret:
