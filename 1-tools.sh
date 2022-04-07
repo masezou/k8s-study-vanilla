@@ -111,6 +111,7 @@ fi
 # Install kube-bench
 if [ ! -f /usr/local/bin/kube-bench ]; then
 KUBEBENCHVER=0.6.7
+wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | apt-key add -
 curl --retry 10 --retry-delay 3 --retry-connrefused -sSOL https://github.com/aquasecurity/kube-bench/releases/download/v${KUBEBENCHVER}/kube-bench_${KUBEBENCHVER}_linux_${ARCH}.deb
 dpkg -i kube-bench_${KUBEBENCHVER}_linux_${ARCH}.deb
 rm -rf kube-bench_${KUBEBENCHVER}_linux_${ARCH}.deb
