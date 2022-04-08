@@ -2,7 +2,7 @@
 #########################################################
 
 # For Install from Registry
-ONLINE=1
+FORCE_ONLINE=1
 #REGISTRYURL="192.168.133.2:5000"
 #KASTENVER=4.5.12
 
@@ -41,6 +41,22 @@ fi
 
 if [ ! -f /usr/local/bin/k10tools ]; then
 bash ./K0-kasten-tools.sh
+fi
+
+if [ -z ${REGISTRYURL} ]; then
+REGISTRYHOST=`kubectl -n registry get configmaps pregistry-configmap -o=jsonpath='{.data.pregistry_host}'`
+REIGSTRYPORT=`kubectl -n registry get configmaps pregistry-configmap -o=jsonpath='{.data.pregistry_port}'`
+REGISTRYURL=${REGISTRYHOST}:${REIGSTRYPORT}
+curl -s  -X GET http://${REGISTRYURL}/v2/_catalog |grep kanister
+retvalcheck=$?
+if [ ${retvalcheck} -eq 0 ]; then
+  ONLINE=0
+  else
+  ONLINE=1
+fi
+if [ ! -z ${FORCE_ONLINE}] ; then
+ONLINE=1
+fi
 fi
 
 # Pre-req Kasten

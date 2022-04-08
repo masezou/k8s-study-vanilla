@@ -1,10 +1,8 @@
 #!/usr/bin/env bash
 
 #########################################################
-# Offline Install
-#OFFLINE=1
-#REGISTRYHOST=192.168.133.2
-#REGISTRYURL=${REGISTRYHOST}:5000
+# Force Online Install
+#FORCE_ONLINE=1
 
 # namespace. namespace will be used with hostname
 NAMESPACE=blog1
@@ -12,10 +10,23 @@ NAMESPACE=blog1
 # SC = csi-hostpath-sc / local-hostpath / nfs-sc / nfs-csi / vsphere-sc / example-vanilla-rwo-filesystem-sc / cstor-csi-disk
 SC=vsphere-sc
 
-#########################################################
+#REGISTRYURL=192.168.133.2:5000
 
-if [ -z ${OFFLINE} ]; then
-OFFLINE=0
+#########################################################
+if [ -z ${REGISTRYURL} ]; then
+REGISTRYHOST=`kubectl -n registry get configmaps pregistry-configmap -o=jsonpath='{.data.pregistry_host}'`
+REIGSTRYPORT=`kubectl -n registry get configmaps pregistry-configmap -o=jsonpath='{.data.pregistry_port}'`
+REGISTRYURL=${REGISTRYHOST}:${REIGSTRYPORT}
+curl -s  -X GET http://${REGISTRYURL}/v2/_catalog |grep wordpress
+retvalcheck=$?
+if [ ${retvalcheck} -eq 0 ]; then
+  ONLINE=0
+  else
+  ONLINE=1
+fi
+if [ ! -z ${FORCE_ONLINE}] ; then
+ONLINE=1
+fi
 fi
 
 DNSDOMAINNAME=`kubectl -n external-dns get deployments.apps  --output="jsonpath={.items[*].spec.template.spec.containers }" | jq |grep rfc2136-zone | cut -d "=" -f 2 | cut -d "\"" -f 1`
@@ -52,22 +63,6 @@ kubectl create namespace ${NAMESPACE}
 mkdir ${NAMESPACE}
 cd  ${NAMESPACE}
 
-if [ ${OFFLINE} -eq 1 ]; then
-if [ -z ${REGISTRYURL} ]; then
-#REGISTRYHOST=`kubectl get nodes -o jsonpath='{.items[*].status.addresses[?(@.type=="InternalIP")].address}'`
-#REGISTRYURL=${REGISTRYHOST}:5000
-ls -1 /etc/containerd/certs.d/ | grep -v docker.io
-retchk=$?
-if [ ${retchk} -ne 0 ]; then
-echo -e "\e[31m Registry is not configured on this host. Exit. \e[m"
-exit 255
-fi
-REGISTRYURL=`ls -1 /etc/containerd/certs.d/ | grep -v docker.io`
-fi
-#helm fetch bitnami/mysql
-helm fetch bitnami/mysql --version=8.8.27
-MYSQLCHART=`ls mysql-*.tgz`
-fi
 
 cat << EOF > wordpress-pvc.yaml
 apiVersion: v1
@@ -86,7 +81,7 @@ spec:
       storage: 5Gi
 EOF
 
-if [ ${OFFLINE} -eq 1 ]; then
+if [ ${ONLINE} -eq 0 ]; then
 cat << EOF > wordpress.yaml
 apiVersion: apps/v1 # for versions before 1.9.0 use apps/v1beta2
 kind: Deployment
@@ -194,7 +189,10 @@ spec:
     app: wordpress
 EOF
 
-if [ ${OFFLINE} -eq 1 ]; then
+if [ ${ONLINE} -eq 0 ]; then
+#helm fetch bitnami/mysql
+helm fetch bitnami/mysql --version=8.8.27
+MYSQLCHART=`ls mysql-*.tgz`
 if [ ${SC} = csi-hostpath-sc ]; then
 helm install mysql-release ${MYSQLCHART}  -n ${NAMESPACE} --set volumePermissions.enabled=true --set global.storageClass=${SC} --set global.imageRegistry=${REGISTRYURL}
 else
@@ -240,7 +238,7 @@ host ${WPHOST}.${DNSDOMAINNAME}. ${DNSHOSTIP}
 retvaldns=$?
 echo ""
 echo "*************************************************************************************"
-if [ ${OFFLINE} -eq 1 ]; then
+if [ ${ONLINE} -eq 0 ]; then
 kubectl images -n ${NAMESPACE}
 fi 
 echo "Next Step"
