@@ -49,8 +49,8 @@ MINIOIP=${LOCALIPADDR}
 fi
 MCLOGINUSER=miniologinuser
 MCLOGINPASSWORD=miniologinuser
-BUCKETNAME=`hostname`
-MINIOLOCK_BUCKET_NAME=`hostname`-lock
+BUCKETNAME=`kubectl get node --output="jsonpath={.items[*].metadata.labels.kubernetes\.io\/hostname}"`
+MINIOLOCK_BUCKET_NAME=`kubectl get node --output="jsonpath={.items[*].metadata.labels.kubernetes\.io\/hostname}"`-lock
 
 mc alias rm local
 MINIO_ENDPOINT=https://${MINIOIP}:9000

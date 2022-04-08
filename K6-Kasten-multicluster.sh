@@ -98,8 +98,8 @@ sed -i -e "s/kastenbackup-pvc/kastenbackup-global-pvc/g" K7-kasten-storage.sh
 sed -i -e "s/vbr-profile/vbr-global-profileg/g" K7-kasten-storage.sh
 sed -i -e '/^BUCKETNAME/d' K7-kasten-storage.sh
 sed -i -e '/^MINIOLOCK_BUCKET_NAME/d' K7-kasten-storage.sh
-sed -i -e '/^MCLOGINPASSWORD/i BUCKETNAME=`hostname`-global'  K7-kasten-storage.sh
-sed -i -e '/^MCLOGINPASSWORD/i MINIOLOCK_BUCKET_NAME=`hostname`-lock-global'  K7-kasten-storage.sh
+sed -i -e '/^MCLOGINPASSWORD/i BUCKETNAME=`kubectl get node --output="jsonpath={.items[*].metadata.labels.kubernetes\.io\/hostname}"`-global'  K7-kasten-storage.sh
+sed -i -e '/^MCLOGINPASSWORD/i MINIOLOCK_BUCKET_NAME=`kubectl get node --output="jsonpath={.items[*].metadata.labels.kubernetes\.io\/hostname}"`-lock-global'  K7-kasten-storage.sh
 bash ./K7-kasten-storage.sh
 rm -rf  ./K7-kasten-storage.sh
 fi

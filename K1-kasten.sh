@@ -7,8 +7,8 @@ ONLINE=1
 #KASTENVER=4.5.12
 
 SC=nfs-csi
-KASTENHOSTNAME=kasten-`hostname`
-KASTENINGRESS=k10-`hostname`
+KASTENHOSTNAME=kasten-`kubectl get node --output="jsonpath={.items[*].metadata.labels.kubernetes\.io\/hostname}"`
+KASTENINGRESS=k10-`kubectl get node --output="jsonpath={.items[*].metadata.labels.kubernetes\.io\/hostname}"`
 
 #########################################################
 
