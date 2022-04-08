@@ -337,8 +337,6 @@ ${DNSHOSTNAME}     IN  A       ${DNSHOSTIP}
 xip		IN NS		ns-aws.sslip.io.
 xip		IN NS		ns-gce.sslip.io.
 xip		IN NS		ns-azure.sslip.io.
-minio IN A ${DNSHOSTIP}
-mail IN A ${DNSHOSTIP}
 EOF
 if [ ! -z ${INGRESS_IP} ]; then
 cat << EOF >>/var/cache/bind/${DNSDOMAINNAME}.lan
@@ -349,6 +347,15 @@ chown bind:bind /var/cache/bind/${DNSDOMAINNAME}.lan
 chmod g+w /var/cache/bind/${DNSDOMAINNAME}.lan
 systemctl restart named
 systemctl status named -l --no-pager 
+sleep 5
+cat << EOF > /tmp/nsupdate.txt
+server ${DNSHOSTIP}
+minio.${DNSDOMAINNAME} IN A ${DNSHOSTIP}
+mail.${DNSDOMAINNAME} IN A ${DNSHOSTIP}
+
+EOF
+nsupdate -k /etc/bind/external.key  /tmp/nsupdate.txt
+rm -rf  /tmp/nsupdate.txt
 sleep 5
 echo ""
 echo "Sanity Test"
@@ -767,8 +774,8 @@ kubectl -n keycloak annotate service keycloak \
 sleep 10
 host keycloak.${DNSDOMAINNAME}. ${DNSHOSTIP}
 
-rndc freeze ${DNSDOMAINNAME}
-rndc thaw ${DNSDOMAINNAME}
+rndc freeze ${DNSDOMAINNAME} ;rndc thaw ${DNSDOMAINNAME}
+rndc sync -clean ${DNSDOMAINNAME}
 
 apt clean
 apt update
