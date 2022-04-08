@@ -4,7 +4,7 @@
 # Specify NFS storage location path
 NFSPATH=/disk/nfs_csi
 NFSSUBPATH=/disk/nfs_sub
-OPENEBS=0
+OPENEBS=1
 
 #FORCE_LOCALIP=192.168.16.2
 
