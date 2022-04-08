@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 #########################################################
+ONLY_PUSH=0
 # Kasten  version
 #KASTENVER=4.5.12
 #REGISTRYHOST=192.168.16.2
@@ -24,11 +25,13 @@ if [ -z ${REGISTRYURL} ]; then
 REGISTRYURL=`ls -1 /etc/containerd/certs.d/ | grep -v docker.io`
 fi
 
+if [ ${ONLY_PUSH} -eq 01 ]; then
 mkdir -p  ~/.docker
 docker run --rm -it --platform linux/amd64 gcr.io/kasten-images/k10offline:${KASTENVER} list-images
 docker images ls
 docker run --rm -it -v /var/run/docker.sock:/var/run/docker.sock \
     --platform linux/amd64 gcr.io/kasten-images/k10offline:${KASTENVER} pull images
+fi
 docker run --rm -ti -v /var/run/docker.sock:/var/run/docker.sock \
     -v ${HOME}/.docker:/root/.docker \
     --platform linux/amd64 gcr.io/kasten-images/k10offline:${KASTENVER} pull images --newrepo ${REGISTRYURL}
