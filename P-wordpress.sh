@@ -24,7 +24,7 @@ if [ ${retvalcheck} -eq 0 ]; then
   else
   ONLINE=1
 fi
-if [ ! -z ${FORCE_ONLINE}] ; then
+if [ ! -z ${FORCE_ONLINE} ] ; then
 ONLINE=1
 fi
 fi
