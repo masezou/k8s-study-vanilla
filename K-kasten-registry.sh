@@ -25,7 +25,14 @@ if [ -z ${REGISTRYURL} ]; then
 REGISTRYURL=`ls -1 /etc/containerd/certs.d/ | grep -v docker.io`
 fi
 
-if [ ${ONLY_PUSH} -eq 01 ]; then
+grep ${REGISTRYURL} /etc/docker/daemon.json
+retvalreg=$?
+if [ ${retvalreg} -ne 0 ]; then
+echo -e "\e[31m Registry is not set in /etc/docker/daemon.json. exit. \e[m"
+exit 255
+fi
+
+if [ ${ONLY_PUSH} -eq 0 ]; then
 mkdir -p  ~/.docker
 docker run --rm -it --platform linux/amd64 gcr.io/kasten-images/k10offline:${KASTENVER} list-images
 docker images ls
