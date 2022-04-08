@@ -2,7 +2,7 @@
 #########################################################
 
 # For Install from Registry
-FORCE_ONLINE=1
+#FORCE_ONLINE=1
 #REGISTRYURL="192.168.133.2:5000"
 #KASTENVER=4.5.12
 
