@@ -13,6 +13,7 @@ echo "" >> dashboard.token
 DASHBOARD_FQDN=`kubectl -n kubernetes-dashboard get svc dashboard-service-lb --output="jsonpath={.metadata.annotations}" | jq | grep external | cut -d "\"" -f 4`
 REGISTRYHOST=`kubectl -n registry get configmaps pregistry-configmap -o=jsonpath='{.data.pregistry_host}'`
 REIGSTRYPORT=`kubectl -n registry get configmaps pregistry-configmap -o=jsonpath='{.data.pregistry_port}'`
+REGISTRYURL=${REGISTRYHOST}:${REIGSTRYPORT}
 REGISTRY_EXTERNALIP=`kubectl -n registry get service pregistry-frontend-clusterip | awk '{print $4}' | tail -n 1`
 REGISTRY_FQDN=`kubectl -n registry get svc pregistry-frontend-clusterip --output="jsonpath={.metadata.annotations}" | jq | grep external | cut -d "\"" -f 4`
 KEYCLOAK_EXTERNALIP=`kubectl -n keycloak get service keycloak  | awk '{print $4}' | tail -n 1`
@@ -58,8 +59,26 @@ echo -e "\e[32m miniologinuser/miniologinuser \e[m"
 echo ""
 echo -e "\e[1mRegistry \e[m"
 echo -e "\e[1mRegistry URL \e[m"
-echo -e "\e[32m http://${REGISTRYHOST}:${REIGSTRYPORT}  \e[m"
-echo "You need to set insecure-registry in your client side docker setting."
+echo -e "\e[32m http://${REGISTRYURL}  \e[m"
+REGISTRYURL=192.168.16.2:5000
+if [ -f /usr/bin/docker ]; then
+grep ${REGISTRYURL} /etc/docker/daemon.json
+retvaldaemon=$?
+if [ ${retvaldaemon} -eq 0 ]; then
+echo -e "\e[32m docker was configured. \e[m"
+else
+echo -e "\e[31m docker was not configured. \e[m"
+echo -e "\e[31m You need to set registry setting in docker. \e[m"
+fi
+fi
+ ls -1 /etc/containerd/certs.d/ | grep -v  docker.io | grep ${REGISTRYURL}
+retvalcontainerd=$?
+ if [ ${retvalcontainerd} -eq 0 ]; then
+echo -e "\e[32m containerd was configured. \e[m"
+else
+echo -e "\e[31m contained was not configured. \e[m"
+echo -e "\e[31m You need to set registry setting in containerd. \e[m"
+fi
 echo -e "\e[1mRegistry frontend UI \e[m"
 echo -e "\e[32m http://${REGISTRY_EXTERNALIP}  \e[m"
 echo "or"
