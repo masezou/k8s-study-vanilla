@@ -4,6 +4,7 @@
 # Specify NFS storage location path
 NFSPATH=/disk/nfs_csi
 NFSSUBPATH=/disk/nfs_sub
+OPENEBS=0
 
 #FORCE_LOCALIP=192.168.16.2
 
@@ -75,6 +76,7 @@ echo -e "\e[31m CNI is not configured. exit. \e[m"
 exit 255
 fi
 
+if [ ${OPENEBS} -eq 1 ]; then
 # Device /dev/sdb check
 df | grep sdb
 retvalmount=$?
@@ -103,12 +105,13 @@ INITDISK=1
 fi
 fi
 fi
-
-if [ -z ${INITDISK} ]; then
-INITDISK=0
 fi
+if [ -z ${INITDISK} ]; then
+OPENEBS=0
+fi
+
 # Install OpenEBS
-if [ ${INITDISK} -eq 1 ]; then
+if [ ${OPENEBS} -eq 1 ]; then
 apt install -y open-iscsi
 systemctl enable iscsid && systemctl start iscsid
 mkdir -p /var/openebs/local
@@ -183,17 +186,19 @@ volumeBindingMode: WaitForFirstConsumer
 EOF
 kubectl patch storageclass cstor-csi-disk -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"true"}}}'
 kubectl -n openebs wait pod  -l app=cstor-pool --for condition=Ready
-else
+fi
+
+if [ ${OPENEBS} -ne 1 ]; then
 # Rancher local driver (Not CSI Storage)
 kubectl apply -f https://raw.githubusercontent.com/rancher/local-path-provisioner/master/deploy/local-path-storage.yaml
-SNAPSHOTTER_VERSION=v5.0.1
+SNAPSHOTTER_VERSION=5.0.1
 # Apply VolumeSnapshot CRDs
-kubectl apply -f https://raw.githubusercontent.com/kubernetes-csi/external-snapshotter/${SNAPSHOTTER_VERSION}/client/config/crd/snapshot.storage.k8s.io_volumesnapshotclasses.yaml
-kubectl apply -f https://raw.githubusercontent.com/kubernetes-csi/external-snapshotter/${SNAPSHOTTER_VERSION}/client/config/crd/snapshot.storage.k8s.io_volumesnapshotcontents.yaml
-kubectl apply -f https://raw.githubusercontent.com/kubernetes-csi/external-snapshotter/${SNAPSHOTTER_VERSION}/client/config/crd/snapshot.storage.k8s.io_volumesnapshots.yaml
+kubectl apply -f https://raw.githubusercontent.com/kubernetes-csi/external-snapshotter/v${SNAPSHOTTER_VERSION}/client/config/crd/snapshot.storage.k8s.io_volumesnapshotclasses.yaml
+kubectl apply -f https://raw.githubusercontent.com/kubernetes-csi/external-snapshotter/v${SNAPSHOTTER_VERSION}/client/config/crd/snapshot.storage.k8s.io_volumesnapshotcontents.yaml
+kubectl apply -f https://raw.githubusercontent.com/kubernetes-csi/external-snapshotter/v${SNAPSHOTTER_VERSION}/client/config/crd/snapshot.storage.k8s.io_volumesnapshots.yaml
 # Create Snapshot Controller
-kubectl -n kube-system apply -f https://raw.githubusercontent.com/kubernetes-csi/external-snapshotter/${SNAPSHOTTER_VERSION}/deploy/kubernetes/snapshot-controller/rbac-snapshot-controller.yaml
-kubectl -n kube-system apply -f https://raw.githubusercontent.com/kubernetes-csi/external-snapshotter/${SNAPSHOTTER_VERSION}/deploy/kubernetes/snapshot-controller/setup-snapshot-controller.yaml
+kubectl -n kube-system apply -f https://raw.githubusercontent.com/kubernetes-csi/external-snapshotter/v${SNAPSHOTTER_VERSION}/deploy/kubernetes/snapshot-controller/rbac-snapshot-controller.yaml
+kubectl -n kube-system apply -f https://raw.githubusercontent.com/kubernetes-csi/external-snapshotter/v${SNAPSHOTTER_VERSION}/deploy/kubernetes/snapshot-controller/setup-snapshot-controller.yaml
 
 ##Install the CSI Hostpath Driver
 # kubernetes version check
@@ -208,6 +213,7 @@ CSIHOSTPATHVER=1.7.3
 git clone https://github.com/kubernetes-csi/csi-driver-host-path -b v${CSIHOSTPATHVER} --depth 1
 cd csi-driver-host-path
 ./deploy/kubernetes-${KUBEVER}/deploy.sh
+CSIHOSTPATHDONE=1
 fi
 
 if [ ${KUBEVER}=1.20 ]; then
@@ -215,24 +221,28 @@ CSIHOSTPATHVER=1.7.3
 git clone https://github.com/kubernetes-csi/csi-driver-host-path -b v${CSIHOSTPATHVER} --depth 1
 cd csi-driver-host-path
 ./deploy/kubernetes-${KUBEVER}/deploy.sh
+CSIHOSTPATHDONE=1
 fi
 
 if [ ${KUBEVER}=1.21 ]; then
 git clone https://github.com/kubernetes-csi/csi-driver-host-path --depth 1
 cd csi-driver-host-path
 ./deploy/kubernetes-${KUBEVER}/deploy.sh
+CSIHOSTPATHDONE=1
 fi
 
 if [ ${KUBEVER}=1.22 ]; then
 git clone https://github.com/kubernetes-csi/csi-driver-host-path --depth 1
 cd csi-driver-host-path
 ./deploy/kubernetes-${KUBEVER}/deploy.sh
+CSIHOSTPATHDONE=1
 fi
 
 if [ ${KUBEVER}=1.23 ]; then
 echo "${KUBEVER} is not supported yet."
 fi
 
+if [ ${CSIHOSTPATHDONE} -eq 1 ]; then
 kubectl apply -f ./examples/csi-storageclass.yaml
 kubectl patch storageclass csi-hostpath-sc \
     -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"true"}}}'
@@ -241,6 +251,7 @@ rm -rf csi-driver-host-path
 
 # Permission fix
 chmod -R 1777 /var/lib/docker/volumes/
+fi
 fi
 
 ##Install NFS-CSI driver
