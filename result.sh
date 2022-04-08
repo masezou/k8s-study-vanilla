@@ -11,6 +11,8 @@ DASHBOARD_EXTERNALIP=`kubectl -n kubernetes-dashboard get service dashboard-serv
 kubectl -n kubernetes-dashboard get secret $(kubectl -n kubernetes-dashboard get sa/admin-user -o jsonpath="{.secrets[0].name}") -o go-template="{{.data.token | base64decode}}" > dashboard.token
 echo "" >> dashboard.token
 DASHBOARD_FQDN=`kubectl -n kubernetes-dashboard get svc dashboard-service-lb --output="jsonpath={.metadata.annotations}" | jq | grep external | cut -d "\"" -f 4`
+REGISTRYHOST=`kubectl -n registry get configmaps pregistry-configmap -o=jsonpath='{.data.pregistry_host}'`
+REIGSTRYPORT=`kubectl -n registry get configmaps pregistry-configmap -o=jsonpath='{.data.pregistry_port}'`
 REGISTRY_EXTERNALIP=`kubectl -n registry get service pregistry-frontend-clusterip | awk '{print $4}' | tail -n 1`
 REGISTRY_FQDN=`kubectl -n registry get svc pregistry-frontend-clusterip --output="jsonpath={.metadata.annotations}" | jq | grep external | cut -d "\"" -f 4`
 KEYCLOAK_EXTERNALIP=`kubectl -n keycloak get service keycloak  | awk '{print $4}' | tail -n 1`
@@ -55,7 +57,7 @@ echo -n " login credential is "
 echo -e "\e[32m miniologinuser/miniologinuser \e[m"
 echo ""
 echo -e "\e[1mRegistry \e[m"
-echo -e "\e[32m http://${DNSHOSTIP}:5000  \e[m"
+echo -e "\e[32m http://${REGISTRYHOST}:${REIGSTRYPORT}  \e[m"
 echo "You need to set insecure-registry in your client side docker setting."
 echo -e "\e[1mRegistry frontend UI \e[m"
 echo -e "\e[32m http://${REGISTRY_EXTERNALIP}  \e[m"
