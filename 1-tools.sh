@@ -556,17 +556,18 @@ if [ ${retvalsnap} -eq 0 ]; then
 fi
 
 # Install cfssljson - openssl alternative
+if [ ${ARCH} = amd64 ]; then
+CFSSLVER=1.6.1
 if [ ! -f /usr/local/bin/cfssl ]; then
-wget -q --show-progress --https-only --timestamping \
-  https://storage.googleapis.com/kubernetes-the-hard-way/cfssl/1.4.1/linux/cfssl \
-mv cfssl /usr/local/bin
+curl --retry 10 --retry-delay 3 --retry-connrefused -sSOL https://github.com/cloudflare/cfssl/releases/download/v${CFSSLVER}/cfssl_${CFSSLVER}_linux_${ARCH}
+mv cfssl_${CFSSLVER}_linux_${ARCH} /usr/local/bin/cfssl
 chmod +x /usr/local/bin/cfssl
 fi
 if [ ! -f /usr/local/bin/cfssljson ]; then
-wget -q --show-progress --https-only --timestamping \
-  https://storage.googleapis.com/kubernetes-the-hard-way/cfssl/1.4.1/linux/cfssljson
-mv cfssljson /usr/local/bin
+curl --retry 10 --retry-delay 3 --retry-connrefused -sSOL https://github.com/cloudflare/cfssl/releases/download/v${CFSSLVER}/cfssljson_${CFSSLVER}_linux_${ARCH}
+mv cfssljson_${CFSSLVER}_linux_${ARCH} /usr/local/bin/cfssljson
 chmod +x /usr/local/bin/cfssljson
+fi
 fi
 
 # I like vi in less.
