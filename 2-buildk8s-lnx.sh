@@ -256,11 +256,23 @@ ctr images push --platform linux/${ARCH} --plain-http ${REGISTRY}/bitnami/mysql:
 ctr images rm docker.io/bitnami/mysql:8.0.28-debian-10-r41
 ctr images rm ${REGISTRY}/bitnami/mysql:8.0.28-debian-10-r41
 
-ctr images pull --platform linux/${ARCH} docker.io/bitnami/postgresql:11.13.0-debian-10-r89
-ctr images tag docker.io/bitnami/postgresql:11.13.0-debian-10-r89 ${REGISTRY}/bitnami/postgresql:11.13.0-debian-10-r89
-ctr images push --platform linux/${ARCH} --plain-http ${REGISTRY}/bitnami/postgresql:11.13.0-debian-10-r89
-ctr images rm docker.io/bitnami/postgresql:11.13.0-debian-10-r89
-ctr images rm ${REGISTRY}/bitnami/postgresql:11.13.0-debian-10-r89
+ctr images pull --platform linux/${ARCH} docker.io/bitnami/postgresql:14.2.0-debian-10-r58
+ctr images tag docker.io/bitnami/postgresql:14.2.0-debian-10-r58 ${REGISTRY}/bitnami/postgresql:14.2.0-debian-10-r58
+ctr images push --platform linux/${ARCH} --plain-http ${REGISTRY}/bitnami/postgresql:14.2.0-debian-10-r58
+ctr images rm docker.io/bitnami/postgresql:14.2.0-debian-10-r58
+ctr images rm ${REGISTRY}/bitnami/postgresql:14.2.0-debian-10-r58
+
+ctr images pull --platform linux/${ARCH} docker.io/bitnami/postgresql:11.8.0-debian-10-r61
+ctr images tag docker.io/bitnami/postgresql:11.8.0-debian-10-r61 ${REGISTRY}/bitnami/postgresql:11.8.0-debian-10-r61
+ctr images push --platform linux/${ARCH} --plain-http ${REGISTRY}/bitnami/postgresql:11.8.0-debian-10-r61
+ctr images rm docker.io/bitnami/postgresql:11.8.0-debian-10-r61
+ctr images rm ${REGISTRY}/bitnami/postgresql:11.8.0-debian-10-r61
+
+ctr images pull --platform linux/${ARCH} quay.io/ifont/pacman-nodejs-app:latest
+ctr images tag quay.io/ifont/pacman-nodejs-app:latest ${REGISTRY}/ifont/pacman-nodejs-app:latest
+ctr images push --platform linux/${ARCH} --plain-http ${REGISTRY}/ifont/pacman-nodejs-app:latest
+ctr images rm quay.io/ifont/pacman-nodejs-app:latest
+ctr images rm ${REGISTRY}/ifont/pacman-nodejs-app:latest
 
 ctr images pull --platform linux/${ARCH} docker.io/library/wordpress:4.8-apache
 ctr images tag docker.io/library/wordpress:4.8-apache ${REGISTRY}/library/wordpress:4.8-apache
