@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 
 #########################################################
+# Force Online Install
+#FORCE_ONLINE=1
 
 PGNAMESPACE=postgresql-lb
 # SC = csi-hostpath-sc / local-path / nfs-csi / vsphere-sc / example-vanilla-rwo-filesystem-sc / cstor-csi-disk
@@ -8,7 +10,25 @@ SC=vsphere-sc
 
 SAMPLEDATA=0
 
+#REGISTRYURL=192.168.133.2:5000
+
 #########################################################
+if [ -z ${REGISTRYURL} ]; then
+REGISTRYHOST=`kubectl -n registry get configmaps pregistry-configmap -o=jsonpath='{.data.pregistry_host}'`
+REIGSTRYPORT=`kubectl -n registry get configmaps pregistry-configmap -o=jsonpath='{.data.pregistry_port}'`
+REGISTRYURL=${REGISTRYHOST}:${REIGSTRYPORT}
+curl -s  -X GET http://${REGISTRYURL}/v2/_catalog |grep postgresql
+retvalcheck=$?
+if [ ${retvalcheck} -eq 0 ]; then
+  ONLINE=0
+  else
+  ONLINE=1
+fi
+if [ ! -z ${FORCE_ONLINE} ] ; then
+ONLINE=1
+fi
+fi
+
 ### Install command check ####
 if type "kubectl" > /dev/null 2>&1
 then
@@ -37,10 +57,20 @@ fi
 helm repo add bitnami https://charts.bitnami.com/bitnami
 helm repo update
 kubectl create namespace ${PGNAMESPACE}
+if [ ${ONLINE} -eq 0 ]; then
+helm fetch bitnami/postgresql --version=9.1.1
+PGSQLCHART=`ls postgresql-9.1.1.tgz`
+if [ ${SC} = csi-hostpath-sc ]; then
+helm install --namespace ${PGNAMESPACE} postgres ${PGSQLCHART} --set volumePermissions.enabled=true --set global.storageClass=${SC} --set global.imageRegistry=${REGISTRYURL}
+else
+helm install --namespace ${PGNAMESPACE} postgres ${PGSQLCHART} --set global.storageClass=${SC} --set global.imageRegistry=${REGISTRYURL}
+fi
+else
 if [ ${SC} = csi-hostpath-sc ]; then
 helm install --namespace ${PGNAMESPACE} postgres bitnami/postgresql --version 9.1.1 --set volumePermissions.enabled=true --set global.storageClass=${SC}
 else
 helm install --namespace ${PGNAMESPACE} postgres bitnami/postgresql --version 9.1.1 --set global.storageClass=${SC}
+fi
 fi
 
 sleep 5
