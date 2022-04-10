@@ -6,6 +6,9 @@
 # 1.21.9-00 was tested also.
 #KUBECTLVER=1.22.6-00
 
+#Timezone
+TIMEZONE="Etc/UTC"
+
 # install as master
 ENABLEK8SMASTER=1
 
@@ -112,9 +115,20 @@ echo $SUDO_USER
 KBHOSTNAME=`hostname`
 hostnamectl set-hostname ${KBHOSTNAME,,} 
 
+#OS Setting : locale timezone
+echo ${TIMEZONE} > /etc/timezone
+timedatectl set-timezone `cat /etc/timezone`
+dpkg-reconfigure --frontend noninteractive tzdata
+cat << EOF >> /etc/environment
+LANG=en_US.utf-8
+LC_ALL=en_US.utf-8
+EOF
+source /etc/environment
+
 # Base setting
 sed -i -e 's@/swap.img@#/swap.img@g' /etc/fstab
 swapoff -a
+rm /swap.img
 echo "vm.swappiness=0" | sudo tee --append /etc/sysctl.conf
 apt -y install iptables arptables ebtables
 update-alternatives --set iptables /usr/sbin/iptables-legacy
