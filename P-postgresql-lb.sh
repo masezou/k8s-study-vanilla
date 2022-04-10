@@ -91,3 +91,7 @@ PGPASSWORD="$POSTGRES_PASSWORD" createdb --host 127.0.0.1 -U postgres pgbenchdb
 PGPASSWORD="$POSTGRES_PASSWORD" pgbench --host 127.0.0.1 -U postgres  -i pgbenchdb
 PGPASSWORD="$POSTGRES_PASSWORD" pgbench --host 127.0.0.1 -U postgres  -c 10 -t 1000  pgbenchdb
 fi
+
+if [ ${ONLINE} -eq 0 ]; then
+kubectl images -n ${PGNAMESPACE}
+fi
