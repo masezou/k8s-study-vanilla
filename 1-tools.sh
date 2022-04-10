@@ -13,8 +13,10 @@ KUBEBASEVER=1.22
 # For Client use. Not to set in cluster environment.
 CLIENT=0
 #Client setting: When you set CLIENT=1, you can set DNS setting."
-#DNSHOSTIP=192.168.16.2
 #DNSDOMAINNAME=k8slab.local
+
+#DNSHOSTIP=192.168.16.2
+
 
 # Force REGISTRY Setting
 # If you haven't set Registry server, the registry server will set to NS server.
@@ -475,6 +477,9 @@ rm /home/${SUDO_USER}/k8s-study-vanilla/1-tools.sh
 chown -R ${SUDO_USER}:${SUDO_USER} /home/${SUDO_USER}/k8s-study-vanilla
 
 # for client network setting
+if [ -z ${DNSHOSTIP} ];then
+DNSHOSTIP=`host -t a ${DNSDOMAINNAME} |cut -d " " -f4`
+fi
 if [ ! -z ${DNSHOSTIP} ];then
 ETHDEV=`grep ens /etc/netplan/00-installer-config.yaml |tr -d ' ' | cut -d ":" -f1`
 netplan set network.ethernets.${ETHDEV}.nameservers.addresses=[${DNSHOSTIP}]
