@@ -347,7 +347,7 @@ chown bind:bind /var/cache/bind/${DNSDOMAINNAME}.lan
 chmod g+w /var/cache/bind/${DNSDOMAINNAME}.lan
 systemctl restart named
 systemctl status named -l --no-pager 
-ETHDEV=`grep ens 00-installer-config.yaml |tr -d ' ' | cut -d ":" -f1`
+ETHDEV=`grep ens /etc/netplan/00-installer-config.yaml |tr -d ' ' | cut -d ":" -f1`
 netplan set network.ethernets.${ETHDEV}.nameservers.addresses=[${DNSHOSTIP}]
 netplan set network.ethernets.${ETHDEV}.nameservers.search=[${DNSDOMAINNAME}]
 netplan apply
