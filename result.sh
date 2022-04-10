@@ -18,6 +18,12 @@ REGISTRY_EXTERNALIP=`kubectl -n registry get service pregistry-frontend-clusteri
 REGISTRY_FQDN=`kubectl -n registry get svc pregistry-frontend-clusterip --output="jsonpath={.metadata.annotations}" | jq | grep external | cut -d "\"" -f 4`
 KEYCLOAK_EXTERNALIP=`kubectl -n keycloak get service keycloak  | awk '{print $4}' | tail -n 1`
 KEYCLOAK_FQDN=`kubectl -n keycloak get svc keycloak --output="jsonpath={.metadata.annotations}" | jq | grep external | cut -d "\"" -f 4`
+host minio.${DNSDOMAINNAME}
+miniochek=$?
+if [ ${miniochek} -eq 0 ]; then
+MINIOHOSTNAME=minio.${DNSDOMAINNAME}
+MINIOIP=`host ${MINIOHOSTNAME} | cut -d " " -f4`
+fi
 
 echo "*************************************************************************************"
 echo "Here is cluster context."
@@ -28,7 +34,7 @@ echo "vSphere CSI Driver info"
 kubectl get sc | grep vsphere
 retvspheredriver=$?
 if [ ${retvspheredriver} -eq 0 ]; then
-kubectl -n vmware-system-csi describe pod $(kubectl -n vmware-system-csi get pod -l app=vsphere-csi-controller -o custom-columns=:metadata.name)  | grep driver
+kubectl -n vmware-system-csi describe pod $(kubectl -n vmware-system-csi get pod -l app=vsphere-csi-controller -o custom-columns=:metadata.name)  | grep driver  | grep Image | grep -v ID
 fi
 echo ""
 echo -e "\e[1mmetallb loadbalancer IP address range \e[m"
@@ -39,8 +45,8 @@ echo -n "DNS Domain Name is "
 echo -e "\e[32m${DNSDOMAINNAME} \e[m"
 echo -n "DNS DNS IP address is "
 echo -e "\e[32m${DNSHOSTIP} \e[m"
-echo " If you change dns server setting in client pc, you can access this server with this FQDN."
 echo ""
+if [ ! -z ${DASHBOARD_EXTERNALIP} ]; then
 echo -e "\e[1mKubernetes dashboard \e[m"
 echo -e "\e[32m https://${DASHBOARD_EXTERNALIP}/#/login  \e[m"
 echo "or"
@@ -49,18 +55,21 @@ echo ""
 echo -e "\e[32m login token is cat ./dashboard.token  \e[m"
 cat ./dashboard.token
 echo ""
+fi
+if [ ! -z ${MINIOIP} ]; then
 echo -e "\e[1mMinio dashboard  \e[m"
-echo -e "\e[32m https://${DNSHOSTIP}:9001  \e[m"
+echo -e "\e[32m https://${MINIOIP}:9001  \e[m"
 echo "or"
 echo -e "\e[32m https://minio.${DNSDOMAINNAME}:9001 \e[m"
 echo ""
 echo -n " login credential is "
 echo -e "\e[32m miniologinuser/miniologinuser \e[m"
 echo ""
+fi
+if [ ! -z ${REGISTRYURL} ]; then
 echo -e "\e[1mRegistry \e[m"
 echo -e "\e[1mRegistry URL \e[m"
 echo -e "\e[32m http://${REGISTRYURL}  \e[m"
-REGISTRYURL=192.168.16.2:5000
 if [ -f /usr/bin/docker ]; then
 grep ${REGISTRYURL} /etc/docker/daemon.json
 retvaldaemon=$?
@@ -79,11 +88,15 @@ else
 echo -e "\e[31m contained was not configured. \e[m"
 echo -e "\e[31m You need to set registry setting in containerd. \e[m"
 fi
+fi
+if [ ! -z ${REGISTRY_EXTERNALIP} ]; then
 echo -e "\e[1mRegistry frontend UI \e[m"
 echo -e "\e[32m http://${REGISTRY_EXTERNALIP}  \e[m"
 echo "or"
 echo -e "\e[32m http://${REGISTRY_FQDN} \e[m"
 echo ""
+fi
+if [ ! -z ${KEYCLOAK_FQDN} ]; then
 echo -e "\e[1mKeycloak  \e[m"
 echo -e "\e[32m http://${KEYCLOAK_FQDN}:8080 \e[m"
 echo "or"
@@ -92,6 +105,7 @@ echo ""
 echo -n " login credential is "
 echo -e "\e[32m admin/admin  \e[m"
 echo ""
+fi
 kubectl get ns kasten-io  > /dev/null 2>&1
 HAS_KASTEN=$?
 if [ ${HAS_KASTEN} -eq 0 ]; then
