@@ -12,6 +12,9 @@ KUBEBASEVER=1.22
 
 # For Client use. Not to set in cluster environment.
 CLIENT=0
+#Client setting
+#DNSHOSTIP=192.168.16.3
+#DNSDOMAINNAME=k8slab.local
 # REGISTRY Setting
 #REGISTRY="IPADDR:5000"
 #REGISTRYURL=http://${REGISTRY}
@@ -460,6 +463,19 @@ rm -rf 00Install-k8s.sh 2-buildk8s-lnx.sh 3-configk8s.sh 4-csi-storage.sh 5-csi-
 cp -rf ../k8s-study-vanilla /home/${SUDO_USER}/
 rm /home/${SUDO_USER}/k8s-study-vanilla/1-tools.sh
 chown -R ${SUDO_USER}:${SUDO_USER} /home/${SUDO_USER}/k8s-study-vanilla
+
+# for client network setting
+if [ ! -z ${DNSHOSTIP} ];then
+ETHDEV=`grep ens 00-installer-config.yaml |tr -d ' ' | cut -d ":" -f1`
+netplan set network.ethernets.${ETHDEV}.nameservers.addresses=[${DNSHOSTIP}]
+netplan apply
+fi
+if [ ! -z $DNSDOMAINNAME} ];then
+ETHDEV=`grep ens 00-installer-config.yaml |tr -d ' ' | cut -d ":" -f1`
+netplan set network.ethernets.${ETHDEV}.nameservers.search=[${DNSDOMAINNAME}]
+netplan apply
+fi
+
 fi
 
 # Install Cloud Utility
