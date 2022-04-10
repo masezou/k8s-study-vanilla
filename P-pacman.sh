@@ -9,7 +9,7 @@ else
     exit 255
 fi
 
-git clone https://github.com/saintdle/pacman-tanzu
+git clone https://github.com/saintdle/pacman-tanzu --depth 1
 cd pacman-tanzu/
 bash ./pacman-install.sh
 kubectl get pvc -n pacman
