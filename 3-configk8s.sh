@@ -353,9 +353,12 @@ netplan set network.ethernets.${ETHDEV}.nameservers.search=[${DNSDOMAINNAME}]
 netplan apply
 sleep 5
 cat << EOF > /tmp/nsupdate.txt
-server ${DNSHOSTIP}
-minio.${DNSDOMAINNAME} IN A ${DNSHOSTIP}
-mail.${DNSDOMAINNAME} IN A ${DNSHOSTIP}
+server 192.168.16.2
+
+update delete minio.${DNSDOMAINNAME}
+update add minio.${DNSDOMAINNAME} 300 IN A ${DNSHOSTIP}
+update delete mail.${DNSDOMAINNAME}
+update add mail.${DNSDOMAINNAME} 3600 IN A ${DNSHOSTIP}
 
 EOF
 nsupdate -k /etc/bind/external.key  /tmp/nsupdate.txt
