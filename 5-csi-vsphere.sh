@@ -9,7 +9,7 @@
 VSPHEREUSERNAME="administrator@vsphere.local"
 VSPHEREPASSWORD="YOUR_VCENTER_PASSWORD"
 VSPHERESERVER="YOUR_VCENTER_FQDN"
-VSPHERESERVERIP="YOUR_VCENTER_IP"
+#VSPHERESERVERIP="YOUR_VCENTER_IP"
 VSPPHEREDATASTORE="YOUR_DATASTORE"
 
 #VSPHERECSI=2.5.1
@@ -121,6 +121,9 @@ kubectl get node -o wide|grep v1.23  > /dev/null 2>&1 && VSPHERECSI=2.5.1
 fi
 
 # Configure vsphere-cloud-controller-manager
+if [ -z ${VSPHERESERVERIP} ]; then 
+VSPHERESERVERIP=`host -t a ${VSPHERESERVER} |cut -d " " -f 4`
+fi
 cat << EOF >  /etc/kubernetes/vsphere.conf
 # Global properties in this section will be used for all specified vCenters unless overriden in VirtualCenter section.
 global:
