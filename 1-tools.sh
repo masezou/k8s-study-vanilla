@@ -472,12 +472,12 @@ chown -R ${SUDO_USER}:${SUDO_USER} /home/${SUDO_USER}/k8s-study-vanilla
 
 # for client network setting
 if [ ! -z ${DNSHOSTIP} ];then
-ETHDEV=`grep ens 00-installer-config.yaml |tr -d ' ' | cut -d ":" -f1`
+ETHDEV=`grep ens /etc/netplan/00-installer-config.yaml |tr -d ' ' | cut -d ":" -f1`
 netplan set network.ethernets.${ETHDEV}.nameservers.addresses=[${DNSHOSTIP}]
 netplan apply
 fi
 if [ ! -z $DNSDOMAINNAME} ];then
-ETHDEV=`grep ens 00-installer-config.yaml |tr -d ' ' | cut -d ":" -f1`
+ETHDEV=`grep ens /etc/netplan/00-installer-config.yaml |tr -d ' ' | cut -d ":" -f1`
 netplan set network.ethernets.${ETHDEV}.nameservers.search=[${DNSDOMAINNAME}]
 netplan apply
 fi
