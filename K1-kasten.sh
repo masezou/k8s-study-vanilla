@@ -4,7 +4,7 @@
 # For Install from Registry
 #FORCE_ONLINE=1
 #REGISTRYURL="192.168.133.2:5000"
-#KASTENVER=4.5.12
+#KASTENVER=4.5.13
 
 SC=nfs-csi
 KASTENHOSTNAME=kasten-`kubectl get node --output="jsonpath={.items[*].metadata.labels.kubernetes\.io\/hostname}"`
