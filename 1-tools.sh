@@ -368,6 +368,10 @@ REGISTRY="${REGISTRYIP}:5000"
 fi
 fi
 
+if [ -z ${REGISTRYURL} ];then
+REGISTRYURL=http://${REGISTRY}
+fi
+
 if [ ! -z ${REGISTRY} ]; then
 mkdir -p /etc/docker/certs.d/${REGISTRY}
 cat << EOF > /etc/docker/daemon.json
