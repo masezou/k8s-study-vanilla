@@ -150,7 +150,7 @@ if [ ${retvalsnap} -eq 0 ]; then
    apt -y autoremove
 fi
 # Remove docker. We will use containerd!!!!
-apt -y purge docker docker.io docker-ce-cli docker-ce docker-ce-rootless-extras
+apt -y purge docker docker.io docker-ce-cli docker-ce docker-ce-rootless-extra podman
 
 if [ ! -f /usr/bin/containerd ]; then
 apt -y install apt-transport-https ca-certificates curl gnupg-agent software-properties-common
