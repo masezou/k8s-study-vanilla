@@ -359,9 +359,9 @@ usermod -aG docker ${SUDO_USER}
 sudo -u $SUDO_USER mkdir -p /home/${SUDO_USER}/.docker
 fi
 
-if [ ! -z ${DNSDOMAINAME} ]; then
+if [ ! -z ${DNSDOMAINNAME} ]; then
 if [ -z ${REGISTRY} ]; then
-REGISTRYIP=`host -t a ${DNSDOMAINAME} |cut -d " " -f4`
+REGISTRYIP=`host -t a ${DNSDOMAINNAME} |cut -d " " -f4`
 REGISTRY="${REGISTRYIP}:5000"
 fi
 fi
