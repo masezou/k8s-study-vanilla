@@ -12,10 +12,11 @@ KUBEBASEVER=1.22
 
 # For Client use. Not to set in cluster environment.
 CLIENT=0
-#Client setting
+#Client setting: When you set CLIENT=1, you can set DNS setting."
 #DNSHOSTIP=192.168.16.3
 #DNSDOMAINNAME=k8slab.local
-# REGISTRY Setting
+
+# ForceREGISTRY Setting
 #REGISTRY="IPADDR:5000"
 #REGISTRYURL=http://${REGISTRY}
 
@@ -356,7 +357,12 @@ else
 usermod -aG docker ${SUDO_USER}
 sudo -u $SUDO_USER mkdir -p /home/${SUDO_USER}/.docker
 fi
-if [ ! -z ${REGISTRY} ]; then
+
+if [ ! -z ${DNSDOMAINAME} ]; then
+if [ -z ${REGISTRY} ]; then
+REGISTRYIP=`host `host -t ns  ${DNSDOMAINAME} |cut -d " " -f4` | cut -d " " -f 4`
+REGISTRY="${REGISTRYIP}:5000"
+fi
 mkdir -p /etc/docker/certs.d/${REGISTRY}
 cat << EOF > /etc/docker/daemon.json
 { "insecure-registries":["${REGISTRY}"] }
