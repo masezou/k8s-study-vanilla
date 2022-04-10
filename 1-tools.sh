@@ -13,10 +13,11 @@ KUBEBASEVER=1.22
 # For Client use. Not to set in cluster environment.
 CLIENT=0
 #Client setting: When you set CLIENT=1, you can set DNS setting."
-#DNSHOSTIP=192.168.16.3
+#DNSHOSTIP=192.168.16.2
 #DNSDOMAINNAME=k8slab.local
 
-# ForceREGISTRY Setting
+# Force REGISTRY Setting
+# If you haven't set Registry server, the registry server will set to NS server.
 #REGISTRY="IPADDR:5000"
 #REGISTRYURL=http://${REGISTRY}
 
