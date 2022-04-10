@@ -28,8 +28,8 @@ cd ..
 echo ""
 echo "*************************************************************************************"
 echo "Next Step"
-echo "kubectl -n pacman get svc"
-echo "http://EXTERNAL-IP/"
+PACMAN_EXTERNALIP=`kubectl -n pacman get svc pacman| awk '{print $4}' | tail -n 1`
+echo "http://${PACMAN_EXTERNALIP}/"
 if [ ${retvaldns} -eq 0 ]; then 
 echo "or"
 echo "http://pacman.${DNSDOMAINNAME}/"
