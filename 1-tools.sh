@@ -361,9 +361,12 @@ fi
 
 if [ ! -z ${DNSDOMAINAME} ]; then
 if [ -z ${REGISTRY} ]; then
-REGISTRYIP=`host `host -t ns  ${DNSDOMAINAME} |cut -d " " -f4` | cut -d " " -f 4`
+REGISTRYIP=`host -t a ${DNSDOMAINAME} |cut -d " " -f4`
 REGISTRY="${REGISTRYIP}:5000"
 fi
+fi
+
+if [ ! -z ${REGISTRY} ]; then
 mkdir -p /etc/docker/certs.d/${REGISTRY}
 cat << EOF > /etc/docker/daemon.json
 { "insecure-registries":["${REGISTRY}"] }
