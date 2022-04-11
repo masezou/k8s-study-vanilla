@@ -582,6 +582,15 @@ chmod +x /usr/local/bin/cfssljson
 fi
 fi
 
+# MSSQL Client
+if [ ${ARCH} = amd64 ]; then
+curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add -
+curl https://packages.microsoft.com/config/ubuntu/20.04/prod.list | tee /etc/apt/sources.list.d/msprod.list
+apt update 
+apt -y install mssql-tools unixodbc-dev
+echo 'export PATH="$PATH:/opt/mssql-tools/bin"' >> /etc/profile.d/mssql.sh
+fi
+
 # I like vi in less.
 echo "export VISUAL=vi" >/etc/profile.d/less-pager.sh
 
