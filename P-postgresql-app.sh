@@ -110,6 +110,10 @@ echo "Postgresql Host: ${PGNAMESPACE}.${DNSDOMAINNAME} / ${EXTERNALIP}"
 echo "Credential: postgres / ${POSTGRES_PASSWORD}"
 echo ""
 echo "How to connect"
-echo 'export POSTGRES_PASSWORD=$(kubectl get secret --namespace <NANMESPACE> postgres-postgresql -o jsonpath="{.data.postgres-password}" | base64 --decode)'
-echo 'PGPASSWORD=${POSTGRES_PASSWORD} psql --host <hostname> -U postgres -d postgres -p 5432'
+echo -n 'export POSTGRES_PASSWORD=$(kubectl get secret --namespace '
+echo -n "${PGNAMESPACE} "
+echo -n 'postgres-postgresql -o jsonpath="{.data.postgres-password}" | base64 --decode)'
+echo ""
+echo -n 'PGPASSWORD=${POSTGRES_PASSWORD} '
+echo "psql --host ${EXTERNALIP} -U postgres -d postgres -p 5432"
 echo ""
