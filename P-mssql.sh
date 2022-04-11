@@ -8,6 +8,8 @@ SC=vsphere-sc
 
 SAMPLEDATA=1
 
+#REGISTRYURL=192.168.133.2:5000
+
 #########################################################
 kubectl create ns ${MSSQLNAMESPACE}
 kubectl create secret generic mssql --from-literal=SA_PASSWORD=${MSQSQLPASSWORD} -n ${MSSQLNAMESPACE}
