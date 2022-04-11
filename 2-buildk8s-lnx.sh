@@ -285,6 +285,13 @@ ctr images tag docker.io/library/wordpress:4.8-apache ${REGISTRY}/library/wordpr
 ctr images push --platform linux/${ARCH} --plain-http ${REGISTRY}/library/wordpress:4.8-apache
 ctr images rm docker.io/library/wordpress:4.8-apache
 ctr images rm ${REGISTRY}/library/wordpress:4.8-apache
+
+ctr images pull --platform linux/${ARCH} mcr.microsoft.com/mssql/server:2019-CU15-ubuntu-20.04
+ctr images tag mcr.microsoft.com/mssql/server:2019-CU15-ubuntu-20.04 ${REGISTRY}/mssql/server:2019-CU15-ubuntu-20.04
+ctr images push --platform linux/${ARCH} --plain-http ${REGISTRY}/mssql/server:2019-CU15-ubuntu-20.04
+ctr images rm mcr.microsoft.com/mssql/server:2019-CU15-ubuntu-20.04
+ctr images rm ${REGISTRY}/mssql/server:2019-CU15-ubuntu-20.04
+
 echo "Registry result"
 curl -X GET ${REGISTRYURL}/v2/_catalog
 ctr images ls
