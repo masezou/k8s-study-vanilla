@@ -3,6 +3,9 @@
 MSSQLNAMESPACE=sqlserver
 MSQSQLPASSWORD="MyC0m9l&xP@ssw0rd"
 
+# SC = csi-hostpath-sc / local-hostpath / nfs-sc / nfs-csi / vsphere-sc / example-vanilla-rwo-filesystem-sc / cstor-csi-disk
+SC=vsphere-sc
+
 SAMPLEDATA=1
 
 #########################################################
@@ -20,6 +23,7 @@ cat <<EOF | kubectl create -f -
     resources:
        requests:
           storage: 8Gi
+    storageClassName: ${SC}
 EOF
 cat <<EOF | kubectl create -f -
  apiVersion: apps/v1
