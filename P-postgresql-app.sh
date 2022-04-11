@@ -55,20 +55,21 @@ fi
 fi
 
 helm repo add bitnami https://charts.bitnami.com/bitnami
+# https://artifacthub.io/packages/helm/bitnami/postgresql
 kubectl create namespace ${PGNAMESPACE}
 if [ ${ONLINE} -eq 0 ]; then
 helm fetch bitnami/postgresql --version=11.1.19
 PGSQLCHART=`ls postgresql-11.1.19.tgz`
 if [ ${SC} = csi-hostpath-sc ]; then
-helm install --namespace ${PGNAMESPACE} postgres-postgresql ${PGSQLCHART} --set volumePermissions.enabled=true --set global.storageClass=${SC} --set global.imageRegistry=${REGISTRYURL}
+helm install --namespace ${PGNAMESPACE} postgres-postgresql ${PGSQLCHART} --set primary.service.type=LoadBalancer --set volumePermissions.enabled=true --set global.storageClass=${SC} --set global.imageRegistry=${REGISTRYURL}
 else
-helm install --namespace ${PGNAMESPACE} postgres-postgresql ${PGSQLCHART} --set global.storageClass=${SC} --set global.imageRegistry=${REGISTRYURL}
+helm install --namespace ${PGNAMESPACE} postgres-postgresql ${PGSQLCHART} --set primary.service.type=LoadBalancer --set global.storageClass=${SC} --set global.imageRegistry=${REGISTRYURL}
 fi
 else
 if [ ${SC} = csi-hostpath-sc ]; then
-helm install --namespace ${PGNAMESPACE} postgres bitnami/postgresql --set volumePermissions.enabled=true --set global.storageClass=${SC}
+helm install --namespace ${PGNAMESPACE} postgres bitnami/postgresql --set primary.service.type=LoadBalancer --set volumePermissions.enabled=true --set global.storageClass=${SC}
 else
-helm install --namespace ${PGNAMESPACE} postgres bitnami/postgresql --set global.storageClass=${SC}
+helm install --namespace ${PGNAMESPACE} postgres bitnami/postgresql --set primary.service.type=LoadBalancer --set global.storageClass=${SC}
 fi
 fi
 
@@ -82,6 +83,13 @@ done
     kubectl get pod,pvc -n ${PGNAMESPACE}
 sleep 5
 
+PGNAMESPACE=postgresql-app
+EXTERNALIP=`kubectl -n ${PGNAMESPACE} get svc postgres-postgresql | awk '{print $4}' | tail -n 1`
+echo $EXTERNALIP
+DNSDOMAINNAME=`kubectl -n external-dns get deployments.apps  --output="jsonpath={.items[*].spec.template.spec.containers }" | jq |grep rfc2136-zone | cut -d "=" -f 2 | cut -d "\"" -f 1`
+kubectl -n ${PGNAMESPACE} annotate service postgres-postgresql \
+    external-dns.alpha.kubernetes.io/hostname=${PGNAMESPACE}.${DNSDOMAINNAME}
+
 if [ ${SAMPLEDATA} -eq 1 ]; then
 export POSTGRES_PASSWORD=$(kubectl get secret --namespace ${PGNAMESPACE} postgres-postgresql -o jsonpath="{.data.postgresql-password}" | base64 --decode)
 kubectl port-forward --namespace  ${PGNAMESPACE} svc/postgres-postgresql 5432:5432 &
@@ -90,6 +98,19 @@ PGPASSWORD="$POSTGRES_PASSWORD" pgbench --host 127.0.0.1 -U postgres  -i pgbench
 PGPASSWORD="$POSTGRES_PASSWORD" pgbench --host 127.0.0.1 -U postgres  -c 10 -t 1000  pgbenchdb
 fi
 
+
 if [ ${ONLINE} -eq 0 ]; then
 kubectl images -n ${PGNAMESPACE}
 fi
+
+echo ""
+echo "*************************************************************************************"
+export POSTGRES_PASSWORD=$(kubectl get secret --namespace postgresql-app postgres-postgresql -o jsonpath="{.data.postgres-password}" | base64 --decode)
+echo ""
+echo "Postgresql Host: ${PGNAMESPACE}.${DNSDOMAINNAME} / ${EXTERNALIP}"
+echo "Credential: postgres / ${POSTGRES_PASSWORD}"
+echo ""
+echo "How to connect"
+echo 'export POSTGRES_PASSWORD=$(kubectl get secret --namespace postgresql-app postgres-postgresql -o jsonpath="{.data.postgres-password}" | base64 --decode)'
+echo 'PGPASSWORD=${POSTGRES_PASSWORD} psql --host <hostname> -U postgres -d postgres -p 5432'
+echo ""
