@@ -83,7 +83,6 @@ done
     kubectl get pod,pvc -n ${PGNAMESPACE}
 sleep 5
 
-PGNAMESPACE=postgresql-app
 EXTERNALIP=`kubectl -n ${PGNAMESPACE} get svc postgres-postgresql | awk '{print $4}' | tail -n 1`
 echo $EXTERNALIP
 DNSDOMAINNAME=`kubectl -n external-dns get deployments.apps  --output="jsonpath={.items[*].spec.template.spec.containers }" | jq |grep rfc2136-zone | cut -d "=" -f 2 | cut -d "\"" -f 1`
