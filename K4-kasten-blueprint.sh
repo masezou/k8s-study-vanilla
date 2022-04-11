@@ -19,6 +19,8 @@ kubectl --namespace kasten-io apply -f \
     https://raw.githubusercontent.com/kanisterio/kanister/master/examples/maria/blueprint-v2/maria-blueprint.yaml
 kubectl --namespace kasten-io apply -f \
     https://raw.githubusercontent.com/kanisterio/kanister/master/examples/csi-snapshot/csi-snapshot-blueprint.yaml
+kubectl --namespace kasten-io apply -f \
+    https://raw.githubusercontent.com/kanisterio/kanister/master/examples/mssql/blueprint-v2/mssql-blueprint.yaml
 
 
 #kubectl --namespace kafka-test apply -f \
