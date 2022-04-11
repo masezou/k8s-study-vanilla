@@ -8,7 +8,7 @@ MYSQL_NAMESPACE=maria-db
 # SC = csi-hostpath-sc / local-path / nfs-csi / vsphere-sc / example-vanilla-rwo-filesystem-sc / cstor-csi-disk
 SC=vsphere-sc
 
-SAMPLEDATA=0
+SAMPLEDATA=1
 
 #REGISTRYURL=192.168.133.2:5000
 
@@ -87,6 +87,17 @@ kubectl -n ${MYSQL_NAMESPACE} wait pod -l app.kubernetes\.io\/name=mariadb --for
 
 EXTERNALIP=`kubectl -n ${MYSQL_NAMESPACE} get svc mariadb-release | awk '{print $4}' | tail -n 1`
 echo $EXTERNALIP
+
+if [ ${SAMPLEDATA} -eq 1 ]; then
+echo "Import Test data (world)"
+wget https://downloads.mysql.com/docs/world-db.tar.gz
+tar xfz world-db.tar.gz
+MYSQL_ROOT_PASSWORD=$(kubectl get secret --namespace ${MYSQL_NAMESPACE} mariadb-release -o jsonpath="{.data.mariadb-root-password}" | base64 --decode)
+mysql -h $EXTERNALIP -uroot -p"$MYSQL_ROOT_PASSWORD" <  world-db/world.sql
+rm -rf ./world-db/  ./world-db.tar.gz
+fi
+
+
 DNSDOMAINNAME=`kubectl -n external-dns get deployments.apps  --output="jsonpath={.items[*].spec.template.spec.containers }" | jq |grep rfc2136-zone | cut -d "=" -f 2 | cut -d "\"" -f 1`
 kubectl -n ${MYSQL_NAMESPACE} annotate service  mariadb-release  \
     external-dns.alpha.kubernetes.io/hostname=${MYSQL_NAMESPACE}.${DNSDOMAINNAME}

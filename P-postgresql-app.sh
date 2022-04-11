@@ -8,7 +8,7 @@ PGNAMESPACE=postgresql-app
 # SC = csi-hostpath-sc / local-path / nfs-csi / vsphere-sc / example-vanilla-rwo-filesystem-sc / cstor-csi-disk
 SC=vsphere-sc
 
-SAMPLEDATA=0
+SAMPLEDATA=1
 
 #REGISTRYURL=192.168.133.2:5000
 
@@ -90,11 +90,19 @@ kubectl -n ${PGNAMESPACE} annotate service postgres-postgresql \
     external-dns.alpha.kubernetes.io/hostname=${PGNAMESPACE}.${DNSDOMAINNAME}
 
 if [ ${SAMPLEDATA} -eq 1 ]; then
-export POSTGRES_PASSWORD=$(kubectl get secret --namespace ${PGNAMESPACE} postgres-postgresql -o jsonpath="{.data.postgresql-password}" | base64 --decode)
-kubectl port-forward --namespace  ${PGNAMESPACE} svc/postgres-postgresql 5432:5432 &
-PGPASSWORD="$POSTGRES_PASSWORD" createdb --host 127.0.0.1 -U postgres pgbenchdb
-PGPASSWORD="$POSTGRES_PASSWORD" pgbench --host 127.0.0.1 -U postgres  -i pgbenchdb
-PGPASSWORD="$POSTGRES_PASSWORD" pgbench --host 127.0.0.1 -U postgres  -c 10 -t 1000  pgbenchdb
+echo "Import Test data (dvdrental)"
+#export POSTGRES_PASSWORD=$(kubectl get secret --namespace ${PGNAMESPACE} postgres-postgresql -o jsonpath="{.data.postgresql-password}" | base64 --decode)
+#kubectl port-forward --namespace  ${PGNAMESPACE} svc/postgres-postgresql 5432:5432 &
+#PGPASSWORD="$POSTGRES_PASSWORD" createdb --host 127.0.0.1 -U postgres pgbenchdb
+#PGPASSWORD="$POSTGRES_PASSWORD" pgbench --host 127.0.0.1 -U postgres  -i pgbenchdb
+#PGPASSWORD="$POSTGRES_PASSWORD" pgbench --host 127.0.0.1 -U postgres  -c 10 -t 1000  pgbenchdb
+
+export POSTGRES_PASSWORD=$(kubectl get secret --namespace ${PGNAMESPACE} postgres-postgresql -o jsonpath="{.data.postgres-password}" | base64 --decode)
+PGPASSWORD=${POSTGRES_PASSWORD} psql --host $EXTERNALIP -U postgres -d postgres -p 5432 -c "create database dvdrental"
+wget https://www.postgresqltutorial.com/wp-content/uploads/2019/05/dvdrental.zip
+unzip dvdrental.zip
+PGPASSWORD=${POSTGRES_PASSWORD} pg_restore --host $EXTERNALIP -U postgres -d dvdrental ./dvdrental.tar
+rm -rf ./dvdrental.zip ./dvdrental.tar
 fi
 
 
