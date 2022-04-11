@@ -256,6 +256,12 @@ ctr images push --platform linux/${ARCH} --plain-http ${REGISTRY}/bitnami/mysql:
 ctr images rm docker.io/bitnami/mysql:8.0.28-debian-10-r41
 ctr images rm ${REGISTRY}/bitnami/mysql:8.0.28-debian-10-r41
 
+ctr images pull --platform linux/${ARCH} docker.io/bitnami/mysql:8.0.28-debian-10-r63
+ctr images tag docker.io/bitnami/mysql:8.0.28-debian-10-r63 ${REGISTRY}/bitnami/mysql:8.0.28-debian-10-r63
+ctr images push --platform linux/${ARCH} --plain-http ${REGISTRY}/bitnami/mysql:8.0.28-debian-10-r63
+ctr images rm docker.io/bitnami/mysql:8.0.28-debian-10-r63
+ctr images rm ${REGISTRY}/bitnami/mysql:8.0.28-debian-10-r63
+
 ctr images pull --platform linux/${ARCH} docker.io/bitnami/postgresql:14.2.0-debian-10-r58
 ctr images tag docker.io/bitnami/postgresql:14.2.0-debian-10-r58 ${REGISTRY}/bitnami/postgresql:14.2.0-debian-10-r58
 ctr images push --platform linux/${ARCH} --plain-http ${REGISTRY}/bitnami/postgresql:14.2.0-debian-10-r58
