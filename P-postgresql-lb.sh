@@ -87,9 +87,10 @@ sleep 5
 EXTERNALIP=`kubectl -n ${PGNAMESPACE} get svc postgres-postgresql | awk '{print $4}' | tail -n 1`
 echo $EXTERNALIP
 DNSDOMAINNAME=`kubectl -n external-dns get deployments.apps  --output="jsonpath={.items[*].spec.template.spec.containers }" | jq |grep rfc2136-zone | cut -d "=" -f 2 | cut -d "\"" -f 1`
+if [ ! -z ${DNSDOMAINNAME} ]; then
 kubectl -n ${PGNAMESPACE} annotate service postgres-postgresql \
     external-dns.alpha.kubernetes.io/hostname=${PGNAMESPACE}.${DNSDOMAINNAME}
-
+fi
 
 if [ ${SAMPLEDATA} -eq 1 ]; then
 echo "Import Test data (dvdrental)"
@@ -107,9 +108,7 @@ PGPASSWORD=${POSTGRES_PASSWORD} pg_restore --host $EXTERNALIP -U postgres -d dvd
 rm -rf ./dvdrental.zip ./dvdrental.tar
 fi
 
-if [ ${ONLINE} -eq 0 ]; then
 kubectl images -n ${PGNAMESPACE}
-fi
 
 echo ""
 echo "*************************************************************************************"
@@ -125,4 +124,6 @@ echo -n 'postgres-postgresql -o jsonpath="{.data.postgresql-password}" | base64 
 echo ""
 echo -n 'PGPASSWORD=${POSTGRES_PASSWORD} '
 echo "psql --host ${EXTERNALIP} -U postgres -d postgres -p 5432"
+echo ""
+echo ""
 echo ""

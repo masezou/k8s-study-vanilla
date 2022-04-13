@@ -29,8 +29,6 @@ ONLINE=1
 fi
 fi
 
-DNSDOMAINNAME=`kubectl -n external-dns get deployments.apps  --output="jsonpath={.items[*].spec.template.spec.containers }" | jq |grep rfc2136-zone | cut -d "=" -f 2 | cut -d "\"" -f 1`
-WPHOST=${NAMESPACE}
 
 ### Install command check ####
 if type "kubectl" > /dev/null 2>&1
@@ -229,23 +227,25 @@ cd ..
 mv ${NAMESPACE} ${NAMESPACE}-`date "+%Y%m%d_%H%M%S"`
 EXTERNALIP=`kubectl -n ${NAMESPACE} get service wordpress |awk '{print $4}' | tail -n 1`
 
+WPHOST=${NAMESPACE}
+DNSDOMAINNAME=`kubectl -n external-dns get deployments.apps  --output="jsonpath={.items[*].spec.template.spec.containers }" | jq |grep rfc2136-zone | cut -d "=" -f 2 | cut -d "\"" -f 1`
+if [ ! -z ${DNSDOMAINNAME} ]; then
 kubectl -n ${NAMESPACE} annotate service wordpress \
     external-dns.alpha.kubernetes.io/hostname=${WPHOST}.${DNSDOMAINNAME}
+fi
 kubectl -n blog1 wait pod -l app=wordpress --for condition=Ready --timeout 180s
 
 sleep 30
-host ${WPHOST}.${DNSDOMAINNAME}. ${DNSHOSTIP}
-retvaldns=$?
+kubectl images -n ${NAMESPACE}
 echo ""
 echo "*************************************************************************************"
-if [ ${ONLINE} -eq 0 ]; then
-kubectl images -n ${NAMESPACE}
-fi 
 echo "Next Step"
 echo "Confirm wordpress pod and mysql pod are running with kubectl get pod -A"
-echo "Open http://${EXTERNALIP}"
-if [ ${retvaldns} -eq 0 ]; then 
+echo "Open http://${EXTERNALIP}/wp-admin/install.php"
+if [ ! -z ${DNSDOMAINNAME} ]; then
 echo "or"
 echo "Open http://${WPHOST}.${DNSDOMAINNAME}/wp-admin/install.php"
 fi
+echo ""
+echo ""
 echo ""

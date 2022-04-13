@@ -99,8 +99,10 @@ fi
 
 
 DNSDOMAINNAME=`kubectl -n external-dns get deployments.apps  --output="jsonpath={.items[*].spec.template.spec.containers }" | jq |grep rfc2136-zone | cut -d "=" -f 2 | cut -d "\"" -f 1`
+if [ ! -z ${DNSDOMAINNAME} ]; then
 kubectl -n ${MYSQL_NAMESPACE} annotate service  mariadb-release  \
     external-dns.alpha.kubernetes.io/hostname=${MYSQL_NAMESPACE}.${DNSDOMAINNAME}
+fi
 kubectl images -n ${MYSQL_NAMESPACE}
 echo ""
 echo "*************************************************************************************"
@@ -116,5 +118,7 @@ echo -n 'mariadb-release -o jsonpath="{.data.mariadb-root-password}" | base64 --
 echo ""
 echo -n "mysql -h $EXTERNALIP -uroot -p"
 echo -n '"$MYSQL_ROOT_PASSWORD"'
+echo ""
+echo ""
 echo ""
 

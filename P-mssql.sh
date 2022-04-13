@@ -91,8 +91,10 @@ EOF
 kubectl -n ${MSSQLNAMESPACE} wait pod -l app=mssql --for condition=Ready --timeout 180s
 EXTERNALIP=`kubectl -n ${MSSQLNAMESPACE} get service mssql-deployment | awk '{print $4}' | tail -n 1`
 DNSDOMAINNAME=`kubectl -n external-dns get deployments.apps  --output="jsonpath={.items[*].spec.template.spec.containers }" | jq |grep rfc2136-zone | cut -d "=" -f 2 | cut -d "\"" -f 1`
+if [ ! -z ${DNSDOMAINNAME} ]; then
 kubectl -n ${MSSQLNAMESPACE} annotate service mssql-deployment \
     external-dns.alpha.kubernetes.io/hostname=${MSSQLNAMESPACE}.${DNSDOMAINNAME}
+fi
 
 if [ ${SAMPLEDATA} -eq 1 ]; then
 sleep 5
@@ -104,11 +106,12 @@ fi
 
 echo ""
 echo "*************************************************************************************"
-echo "IP address: ${EXTERNALIP}"
-echo "hostname: ${MSSQLNAMESPACE}.${DNSDOMAINNAME}"
-echo "login credential with SA"
-echo " sa / ${MSQSQLPASSWORD}"
+echo "MSSQL Host: ${MSSQLNAMESPACE}.${DNSDOMAINNAME} / ${EXTERNALIP}"
+echo "Credential: sa / ${MSQSQLPASSWORD}"
 if [ ${SAMPLEDATA} -eq 1 ]; then
 echo ""
 echo "Database: AdventureWorks2019 was imported"
 fi
+echo ""
+echo ""
+echo ""

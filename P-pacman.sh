@@ -48,28 +48,25 @@ kubectl get pvc -n ${NAMESPACE}
 kubectl get svc -n ${NAMESPACE}
 
 DNSDOMAINNAME=`kubectl -n external-dns get deployments.apps  --output="jsonpath={.items[*].spec.template.spec.containers }" | jq |grep rfc2136-zone | cut -d "=" -f 2 | cut -d "\"" -f 1`
+if [ ! -z ${DNSDOMAINNAME} ]; then
 kubectl -n pacman annotate service pacman external-dns.alpha.kubernetes.io/hostname=pacman.${DNSDOMAINNAME}
+fi
 kubectl -n pacman wait pod -l name=${NAMESPACE} --for condition=Ready
 
 sleep 30
-host pacman.${DNSDOMAINNAME}
-retvaldns=$?
-
 cd ..
 
+kubectl images -n ${NAMESPACE}
 echo ""
 echo "*************************************************************************************"
 echo "Next Step"
 PACMAN_EXTERNALIP=`kubectl -n ${NAMESPACE} get svc pacman| awk '{print $4}' | tail -n 1`
 echo "http://${PACMAN_EXTERNALIP}/"
-if [ ${retvaldns} -eq 0 ]; then 
+if [ ! -z ${DNSDOMAINNAME} ]; then
 echo "or"
 echo "http://pacman.${DNSDOMAINNAME}/"
 fi
 echo ""
-if [ ${ONLINE} -eq 0 ]; then
-kubectl images -n ${NAMESPACE}
-fi
 echo ""
 
 chmod -x P-pacman.sh

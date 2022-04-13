@@ -98,8 +98,10 @@ rm -rf ./world-db/  ./world-db.tar.gz
 fi
 
 DNSDOMAINNAME=`kubectl -n external-dns get deployments.apps  --output="jsonpath={.items[*].spec.template.spec.containers }" | jq |grep rfc2136-zone | cut -d "=" -f 2 | cut -d "\"" -f 1`
+if [ ! -z ${DNSDOMAINNAME} ]; then
 kubectl -n ${MYSQL_NAMESPACE} annotate service  mysql-release  \
     external-dns.alpha.kubernetes.io/hostname=${MYSQL_NAMESPACE}.${DNSDOMAINNAME}
+fi
 kubectl images -n ${MYSQL_NAMESPACE}
 echo ""
 echo "*************************************************************************************"
