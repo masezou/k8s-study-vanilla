@@ -10,6 +10,9 @@ SC=nfs-csi
 KASTENHOSTNAME=kasten-`kubectl get node --output="jsonpath={.items[*].metadata.labels.kubernetes\.io\/hostname}"`
 KASTENINGRESS=k10-`kubectl get node --output="jsonpath={.items[*].metadata.labels.kubernetes\.io\/hostname}"`
 
+STORAGECONFIG=1
+VSPHERECONFIG=1
+
 #########################################################
 
 ### Install command check ####
@@ -164,8 +167,12 @@ done
 kubectl wait --for=condition=ready --timeout=360s -n kasten-io pod -l component=jobs
 kubectl wait --for=condition=ready --timeout=360s -n kasten-io pod -l component=catalog
 # configure profile/blueprint automatically
+if [ ${STORAGECONFIG} -eq 1 ]
 bash ./K2-kasten-storage.sh
+fi
+if [ ${VSPHERECONFIG} -eq 1 ]
 bash ./K3-kasten-vsphere.sh
+fi
 bash ./K4-kasten-blueprint.sh
 bash ./K5-kasten-local-rbac.sh
 
