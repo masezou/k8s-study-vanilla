@@ -105,9 +105,11 @@ fi
 fi
 
 DNSDOMAINNAME=`kubectl -n external-dns get deployments.apps  --output="jsonpath={.items[*].spec.template.spec.containers }" | jq |grep rfc2136-zone | cut -d "=" -f 2 | cut -d "\"" -f 1`
+if [ ${retvalsvc} -ne 0 ]; then
 if [ ! -z ${DNSDOMAINNAME} ]; then
 kubectl -n ${MYSQL_NAMESPACE} annotate service  mariadb-release  \
     external-dns.alpha.kubernetes.io/hostname=${MYSQL_NAMESPACE}.${DNSDOMAINNAME}
+fi
 fi
 kubectl images -n ${MYSQL_NAMESPACE}
 echo ""

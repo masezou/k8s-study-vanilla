@@ -49,12 +49,14 @@ fi
 bash ./pacman-install.sh
 kubectl get pvc -n ${NAMESPACE}
 kubectl get svc -n ${NAMESPACE}
+kubectl -n pacman wait pod -l name=${NAMESPACE} --for condition=Ready
 
 DNSDOMAINNAME=`kubectl -n external-dns get deployments.apps  --output="jsonpath={.items[*].spec.template.spec.containers }" | jq |grep rfc2136-zone | cut -d "=" -f 2 | cut -d "\"" -f 1`
+if [ ${retvalsvc} -ne 0 ]; then
 if [ ! -z ${DNSDOMAINNAME} ]; then
 kubectl -n pacman annotate service pacman external-dns.alpha.kubernetes.io/hostname=pacman.${DNSDOMAINNAME}
 fi
-kubectl -n pacman wait pod -l name=${NAMESPACE} --for condition=Ready
+fi
 
 sleep 30
 cd ..

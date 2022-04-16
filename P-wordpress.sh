@@ -226,20 +226,21 @@ kubectl label statefulset mysql-release  app=wordpress -n ${NAMESPACE}
 kubectl get svc -l app=wordpress -n ${NAMESPACE}
 kubectl get pod -n ${NAMESPACE}
 cd ..
-
+fi
 mv ${NAMESPACE} ${NAMESPACE}-`date "+%Y%m%d_%H%M%S"`
 EXTERNALIP=`kubectl -n ${NAMESPACE} get service wordpress |awk '{print $4}' | tail -n 1`
 
 WPHOST=${NAMESPACE}
 DNSDOMAINNAME=`kubectl -n external-dns get deployments.apps  --output="jsonpath={.items[*].spec.template.spec.containers }" | jq |grep rfc2136-zone | cut -d "=" -f 2 | cut -d "\"" -f 1`
+if [ ${retvalsvc} -ne 0 ]; then
 if [ ! -z ${DNSDOMAINNAME} ]; then
 kubectl -n ${NAMESPACE} annotate service wordpress \
     external-dns.alpha.kubernetes.io/hostname=${WPHOST}.${DNSDOMAINNAME}
 fi
 kubectl -n blog1 wait pod -l app=wordpress --for condition=Ready --timeout 180s
+fi
 
 sleep 30
-fi
 kubectl images -n ${NAMESPACE}
 echo ""
 echo "*************************************************************************************"

@@ -87,15 +87,16 @@ done
     kubectl get pod,pvc -n ${PGNAMESPACE}
 sleep 5
 
+fi
 EXTERNALIP=`kubectl -n ${PGNAMESPACE} get svc postgres-postgresql | awk '{print $4}' | tail -n 1`
 echo $EXTERNALIP
 DNSDOMAINNAME=`kubectl -n external-dns get deployments.apps  --output="jsonpath={.items[*].spec.template.spec.containers }" | jq |grep rfc2136-zone | cut -d "=" -f 2 | cut -d "\"" -f 1`
+if [ ${retvalsvc} -ne 0 ]; then
 if [ ! -z ${DNSDOMAINNAME} ]; then
 kubectl -n ${PGNAMESPACE} annotate service postgres-postgresql \
     external-dns.alpha.kubernetes.io/hostname=${PGNAMESPACE}.${DNSDOMAINNAME}
 fi
 fi
-
 if [ ${retvalsvc} -ne 0 ]; then
 if [ ${SAMPLEDATA} -eq 1 ]; then
 echo "Import Test data (dvdrental)"
