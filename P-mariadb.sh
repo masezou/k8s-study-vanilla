@@ -13,6 +13,10 @@ SAMPLEDATA=1
 #REGISTRYURL=192.168.133.2:5000
 
 #########################################################
+kubectl get ns | grep ${MYSQL_NAMESPACE}
+retvalsvc=$?
+if [ ${retvalsvc} -ne 0 ]; then
+
 if [ -z ${REGISTRYURL} ]; then
 REGISTRYHOST=`kubectl -n registry get configmaps pregistry-configmap -o=jsonpath='{.data.pregistry_host}'`
 REIGSTRYPORT=`kubectl -n registry get configmaps pregistry-configmap -o=jsonpath='{.data.pregistry_port}'`
@@ -84,10 +88,12 @@ sleep 5
 
 
 kubectl -n ${MYSQL_NAMESPACE} wait pod -l app.kubernetes\.io\/name=mariadb --for condition=Ready
+fi
 
 EXTERNALIP=`kubectl -n ${MYSQL_NAMESPACE} get svc mariadb-release | awk '{print $4}' | tail -n 1`
 echo $EXTERNALIP
 
+if [ ${retvalsvc} -ne 0 ]; then
 if [ ${SAMPLEDATA} -eq 1 ]; then
 echo "Import Test data (world)"
 wget https://downloads.mysql.com/docs/world-db.tar.gz
@@ -96,7 +102,7 @@ MYSQL_ROOT_PASSWORD=$(kubectl get secret --namespace ${MYSQL_NAMESPACE} mariadb-
 mysql -h $EXTERNALIP -uroot -p"$MYSQL_ROOT_PASSWORD" <  world-db/world.sql
 rm -rf ./world-db/  ./world-db.tar.gz
 fi
-
+fi
 
 DNSDOMAINNAME=`kubectl -n external-dns get deployments.apps  --output="jsonpath={.items[*].spec.template.spec.containers }" | jq |grep rfc2136-zone | cut -d "=" -f 2 | cut -d "\"" -f 1`
 if [ ! -z ${DNSDOMAINNAME} ]; then

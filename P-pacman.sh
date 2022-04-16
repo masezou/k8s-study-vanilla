@@ -11,6 +11,9 @@ SC=vsphere-sc
 #REGISTRYURL=192.168.133.2:5000
 
 #########################################################
+kubectl get ns | grep ${NAMESPACE}
+retvalsvc=$?
+if [ ${retvalsvc} -ne 0 ]; then
 if [ -z ${REGISTRYURL} ]; then
 REGISTRYHOST=`kubectl -n registry get configmaps pregistry-configmap -o=jsonpath='{.data.pregistry_host}'`
 REIGSTRYPORT=`kubectl -n registry get configmaps pregistry-configmap -o=jsonpath='{.data.pregistry_port}'`
@@ -55,6 +58,7 @@ kubectl -n pacman wait pod -l name=${NAMESPACE} --for condition=Ready
 
 sleep 30
 cd ..
+fi
 
 kubectl images -n ${NAMESPACE}
 echo ""

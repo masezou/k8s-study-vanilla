@@ -13,6 +13,10 @@ SAMPLEDATA=1
 #REGISTRYURL=192.168.133.2:5000
 
 #########################################################
+kubectl get ns | grep ${PGNAMESPACE}
+retvalsvc=$?
+if [ ${retvalsvc} -ne 0 ]; then
+
 if [ -z ${REGISTRYURL} ]; then
 REGISTRYHOST=`kubectl -n registry get configmaps pregistry-configmap -o=jsonpath='{.data.pregistry_host}'`
 REIGSTRYPORT=`kubectl -n registry get configmaps pregistry-configmap -o=jsonpath='{.data.pregistry_port}'`
@@ -90,7 +94,9 @@ if [ ! -z ${DNSDOMAINNAME} ]; then
 kubectl -n ${PGNAMESPACE} annotate service postgres-postgresql \
     external-dns.alpha.kubernetes.io/hostname=${PGNAMESPACE}.${DNSDOMAINNAME}
 fi
+fi
 
+if [ ${retvalsvc} -ne 0 ]; then
 if [ ${SAMPLEDATA} -eq 1 ]; then
 echo "Import Test data (dvdrental)"
 #export POSTGRES_PASSWORD=$(kubectl get secret --namespace ${PGNAMESPACE} postgres-postgresql -o jsonpath="{.data.postgresql-password}" | base64 --decode)
@@ -105,6 +111,7 @@ wget https://www.postgresqltutorial.com/wp-content/uploads/2019/05/dvdrental.zip
 unzip dvdrental.zip
 PGPASSWORD=${POSTGRES_PASSWORD} pg_restore --host $EXTERNALIP -U postgres -d dvdrental ./dvdrental.tar
 rm -rf ./dvdrental.zip ./dvdrental.tar
+fi
 fi
 
 kubectl images -n ${PGNAMESPACE}

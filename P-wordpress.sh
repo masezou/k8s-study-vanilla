@@ -13,6 +13,9 @@ SC=vsphere-sc
 #REGISTRYURL=192.168.133.2:5000
 
 #########################################################
+kubectl get ns | grep ${NAMESPACE}
+retvalsvc=$?
+if [ ${retvalsvc} -ne 0 ]; then
 if [ -z ${REGISTRYURL} ]; then
 REGISTRYHOST=`kubectl -n registry get configmaps pregistry-configmap -o=jsonpath='{.data.pregistry_host}'`
 REIGSTRYPORT=`kubectl -n registry get configmaps pregistry-configmap -o=jsonpath='{.data.pregistry_port}'`
@@ -236,6 +239,7 @@ fi
 kubectl -n blog1 wait pod -l app=wordpress --for condition=Ready --timeout 180s
 
 sleep 30
+fi
 kubectl images -n ${NAMESPACE}
 echo ""
 echo "*************************************************************************************"

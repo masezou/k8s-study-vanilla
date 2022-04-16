@@ -11,6 +11,10 @@ SAMPLEDATA=1
 #REGISTRYURL=192.168.133.2:5000
 
 #########################################################
+kubectl get ns | grep ${MSSQLNAMESPACE}
+retvalsvc=$?
+if [ ${retvalsvc} -ne 0 ]; then
+
 kubectl create ns ${MSSQLNAMESPACE}
 kubectl create secret generic mssql --from-literal=SA_PASSWORD=${MSQSQLPASSWORD} -n ${MSSQLNAMESPACE}
 cat <<EOF | kubectl create -f -
@@ -87,6 +91,7 @@ cat <<EOF | kubectl create -f -
       targetPort: 1433
     type: LoadBalancer
 EOF
+fi
 
 kubectl -n ${MSSQLNAMESPACE} wait pod -l app=mssql --for condition=Ready --timeout 180s
 EXTERNALIP=`kubectl -n ${MSSQLNAMESPACE} get service mssql-deployment | awk '{print $4}' | tail -n 1`
@@ -96,12 +101,14 @@ kubectl -n ${MSSQLNAMESPACE} annotate service mssql-deployment \
     external-dns.alpha.kubernetes.io/hostname=${MSSQLNAMESPACE}.${DNSDOMAINNAME}
 fi
 
+if [ ${retvalsvc} -ne 0 ]; then
 if [ ${SAMPLEDATA} -eq 1 ]; then
 sleep 5
 kubectl exec $(kubectl -n${MSSQLNAMESPACE} get pod -l app=mssql -o custom-columns=:metadata.name) -n ${MSSQLNAMESPACE}  -- wget https://github.com/Microsoft/sql-server-samples/releases/download/adventureworks/AdventureWorks2019.bak -O /var/opt/mssql/data/AdventureWorks2019.bak
 kubectl exec $(kubectl -n${MSSQLNAMESPACE} get pod -l app=mssql -o custom-columns=:metadata.name) -n ${MSSQLNAMESPACE}  -- /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P ${MSQSQLPASSWORD}  -Q "RESTORE DATABASE AdventureWorks2019 FROM  DISK = N'/var/opt/mssql/data/AdventureWorks2019.bak' WITH MOVE 'AdventureWorks2017' TO '/var/opt/mssql/data/AdventureWorks2019.mdf', MOVE 'AdventureWorks2017_Log' TO '/var/opt/mssql/data/AdventureWorks2019_Log.ldf'"
 
 kubectl exec $(kubectl -n${MSSQLNAMESPACE} get pod -l app=mssql -o custom-columns=:metadata.name) -n ${MSSQLNAMESPACE}  -- /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P ${MSQSQLPASSWORD}  -Q "ALTER DATABASE AdventureWorks2019 SET recovery FULL SELECT CONVERT(nvarchar(50), DATABASEPROPERTYEX('AdventureWorks2019', 'recovery')) AS recovery"
+fi
 fi
 
 echo ""
