@@ -240,6 +240,7 @@ fi
 
 if [ ${KUBEVER}=1.23 ]; then
 echo "${KUBEVER} is not supported yet."
+CSIHOSTPATHDONE=0
 fi
 
 if [ ${CSIHOSTPATHDONE} -eq 1 ]; then
