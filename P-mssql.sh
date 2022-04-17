@@ -131,7 +131,7 @@ echo ""
 echo "How to connect"
 echo ""
 echo "sqlcmd -S ${EXTERNALIP} -U sa -P \"${MSQSQLPASSWORD}\""
-echo "1> use AdventureWorks2019"
+echo "1> select name from sys.databases;
 echo "2> go"
 echo ""
 if [ ${SAMPLEDATA} -eq 1 ]; then
