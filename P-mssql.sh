@@ -131,13 +131,11 @@ echo ""
 echo "How to connect"
 echo ""
 echo "sqlcmd -S ${EXTERNALIP} -U sa -P \"${MSQSQLPASSWORD}\""
-echo "1> select name from sys.databases;
+echo "1> select name from sys.databases;"
 echo "2> go"
 echo ""
 if [ ${SAMPLEDATA} -eq 1 ]; then
 echo ""
 echo "Database: AdventureWorks2019 was imported"
 fi
-echo ""
-echo ""
 echo ""
