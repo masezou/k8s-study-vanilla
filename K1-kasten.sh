@@ -95,6 +95,16 @@ kubectl annotate volumesnapshotclass csi-cstor-snapshotclass \
 fi
 k10tools primer
 
+# Checking Storage Class availability
+SCDEFAULT=`kubectl get sc | grep default | cut -d " " -f1`
+kubectl get sc | grep ${SC}
+retvalsc=$?
+if [ ${retvalsc} -ne 0 ]; then
+echo -e "\e[31m Switching to default storage class \e[m"
+SC=${SCDEFAULT}
+echo ${SC}
+fi
+
 # Install Kasten
 DNSDOMAINNAME=`kubectl -n external-dns get deployments.apps  --output="jsonpath={.items[*].spec.template.spec.containers }" | jq |grep rfc2136-zone | cut -d "=" -f 2 | cut -d "\"" -f 1`
 KASTENFQDN=${KASTENHOSTNAME}.${DNSDOMAINNAME}

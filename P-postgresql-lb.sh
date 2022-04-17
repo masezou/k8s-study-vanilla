@@ -16,6 +16,17 @@ SAMPLEDATA=1
 kubectl get ns | grep ${PGNAMESPACE}
 retvalsvc=$?
 if [ ${retvalsvc} -ne 0 ]; then
+
+# Checking Storage Class availability
+SCDEFAULT=`kubectl get sc | grep default | cut -d " " -f1`
+kubectl get sc | grep ${SC}
+retvalsc=$?
+if [ ${retvalsc} -ne 0 ]; then
+echo -e "\e[31m Switching to default storage class \e[m"
+SC=${SCDEFAULT}
+echo ${SC}
+fi
+
 if [ -z ${REGISTRYURL} ]; then
 REGISTRYHOST=`kubectl -n registry get configmaps pregistry-configmap -o=jsonpath='{.data.pregistry_host}'`
 REIGSTRYPORT=`kubectl -n registry get configmaps pregistry-configmap -o=jsonpath='{.data.pregistry_port}'`
