@@ -24,14 +24,19 @@ else
 fi
 
 ### Distribution Check ###
-lsb_release -d | grep Ubuntu | grep 20.04
-DISTVER=$?
-if [ ${DISTVER} = 1 ]; then
-    echo "only supports Ubuntu 20.04 server"
-    exit 1
-else
-    echo "Ubuntu 20.04=OK"
-fi
+UBUNTUVER=`grep DISTRIB_RELEASE /etc/lsb-release | cut -d "=" -f2`
+case ${UBUNTUVER} in
+    "20.04")
+       echo ${UBUNTUVER}  is OK.
+       ;;
+    "22.04")
+       echo ${UBUNTUVER}  is OK.
+       ;;
+    *)
+       echo ${UBUNTUVER}  is NG.
+        ;;
+esac
+
 
 ### ARCH Check ###
 PARCH=`arch`

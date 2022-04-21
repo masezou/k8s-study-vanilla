@@ -32,14 +32,19 @@ else
 fi
 
 ### Distribution Check ###
-lsb_release -d | grep Ubuntu | grep 20.04
-DISTVER=$?
-if [ ${DISTVER} = 1 ]; then
-    echo "only supports Ubuntu 20.04 server"
-    exit 1
-else
-    echo "Ubuntu 20.04=OK"
-fi
+UBUNTUVER=`grep DISTRIB_RELEASE /etc/lsb-release | cut -d "=" -f2`
+case ${UBUNTUVER} in
+    "20.04")
+       echo ${UBUNTUVER}  is OK.
+       ;;
+    "22.04")
+       echo ${UBUNTUVER}  is OK.
+       ;;
+    *)
+       echo ${UBUNTUVER}  is NG.
+        ;;
+esac
+
 if [ ! -f /usr/share/doc/ubuntu-server/copyright ]; then
 echo -e "\e[31m It seemed his VM is installed Ubuntu Desktop media. VM which is installed from Ubuntu Desktop media is not supported. Please re-create VM from Ubuntu Server media! \e[m"
 exit 255

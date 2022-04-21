@@ -53,14 +53,19 @@ else
 fi
 
 ### Distribution Check ###
-lsb_release -d | grep Ubuntu | grep 20.04
-DISTVER=$?
-if [ ${DISTVER} = 1 ]; then
-    echo "only supports Ubuntu 20.04 server"
-    exit 1
-else
-    echo "Ubuntu 20.04=OK"
-fi
+UBUNTUVER=`grep DISTRIB_RELEASE /etc/lsb-release | cut -d "=" -f2`
+case ${UBUNTUVER} in
+    "20.04")
+       echo ${UBUNTUVER}  is OK.
+       ;;
+    "22.04")
+       echo ${UBUNTUVER}  is OK.
+       ;;
+    *)
+       echo ${UBUNTUVER}  is NG.
+        ;;
+esac
+
 
 ### ARCH Check ###
 PARCH=`arch`
@@ -294,7 +299,7 @@ fi
 if [ ${POWERSHELL} -eq 1 ]; then
 if [ ${ARCH} = amd64 ]; then
 if [ ! -f /usr/bin/pwsh ]; then
-curl --retry 10 --retry-delay 3 --retry-connrefused -sSOL https://packages.microsoft.com/config/ubuntu/20.04/packages-microsoft-prod.deb
+curl --retry 10 --retry-delay 3 --retry-connrefused -sSOL https://packages.microsoft.com/config/ubuntu/${UBUNTUVER}/packages-microsoft-prod.deb
 dpkg -i packages-microsoft-prod.deb
 rm packages-microsoft-prod.deb
 apt update
@@ -585,7 +590,11 @@ fi
 # MSSQL Client
 if [ ${ARCH} = amd64 ]; then
 curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add -
-curl https://packages.microsoft.com/config/ubuntu/20.04/prod.list | tee /etc/apt/sources.list.d/msprod.list
+# Waiting for 22.04 supports...
+if [ ${UBUNTUVER} = "22.04" ]; then
+UBUNTUVER=20.04
+fi
+curl https://packages.microsoft.com/config/ubuntu/${UBUNTUVER}/prod.list | tee /etc/apt/sources.list.d/msprod.list
 apt update 
 apt -y install mssql-tools unixodbc-dev
 echo 'export PATH="$PATH:/opt/mssql-tools/bin"' >> /etc/profile.d/mssql.sh
