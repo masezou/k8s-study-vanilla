@@ -545,7 +545,8 @@ fi
 
 # Misc
 if [ ! -f /usr/lib/postgresql/12/bin/pgbench ]; then
-apt -y install postgresql-client postgresql-contrib mysql-client jq apache2-utils mongodb-clients lynx scsitools
+#apt -y install postgresql-client postgresql-contrib mysql-client jq apache2-utils mongodb-clients lynx scsitools
+apt -y install postgresql-client postgresql-contrib mariadb-client jq apache2-utils mongodb-clients lynx scsitools
 systemctl stop postgresql
 systemctl disable postgresql
 # I want to use only pgbench!
@@ -589,15 +590,13 @@ fi
 
 # MSSQL Client
 if [ ${ARCH} = amd64 ]; then
+if [ ${UBUNTUVER} = "20.04" ]; then
 curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add -
-# Waiting for 22.04 supports...
-if [ ${UBUNTUVER} = "22.04" ]; then
-UBUNTUVER=20.04
-fi
 curl https://packages.microsoft.com/config/ubuntu/${UBUNTUVER}/prod.list | tee /etc/apt/sources.list.d/msprod.list
 apt update 
 apt -y install mssql-tools unixodbc-dev
 echo 'export PATH="$PATH:/opt/mssql-tools/bin"' >> /etc/profile.d/mssql.sh
+fi
 fi
 
 # I like vi in less.
