@@ -479,6 +479,9 @@ else
  rm /home/${SUDO_USER}/k8s-study-vanilla/5-csi-vsphere.sh
 fi
 
+# Waiting for booting kubectl 
+sleep 10
+
 #########################################################################
 
 echo ""
