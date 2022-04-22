@@ -63,16 +63,17 @@ fi
 UBUNTUVER=`grep DISTRIB_RELEASE /etc/lsb-release | cut -d "=" -f2`
 case ${UBUNTUVER} in
     "20.04")
-       echo ${UBUNTUVER}  is OK.
+       echo -e "\e[32m${UBUNTUVER} is OK. \e[m"
        ;;
     "22.04")
-       echo ${UBUNTUVER}  is OK.
+       echo "${UBUNTUVER} is experimental."
+      #exit 255
        ;;
     *)
-       echo ${UBUNTUVER}  is NG.
+       echo -e "\e[31m${UBUNTUVER} is NG. \e[m"
+      exit 255
         ;;
 esac
-
 
 ### ARCH Check ###
 PARCH=`arch`
@@ -556,8 +557,7 @@ fi
 
 # Misc
 if [ ! -f /usr/lib/postgresql/12/bin/pgbench ]; then
-#apt -y install postgresql-client postgresql-contrib mysql-client jq apache2-utils mongodb-clients lynx scsitools
-apt -y install postgresql-client postgresql-contrib mariadb-client jq apache2-utils mongodb-clients lynx scsitools
+apt -y install postgresql-client postgresql-contrib mysql-client jq apache2-utils mongodb-clients lynx scsitools
 systemctl stop postgresql
 systemctl disable postgresql
 # I want to use only pgbench!
@@ -605,7 +605,11 @@ if [ ${UBUNTUVER} = "20.04" ]; then
 curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add -
 curl https://packages.microsoft.com/config/ubuntu/${UBUNTUVER}/prod.list | tee /etc/apt/sources.list.d/msprod.list
 apt update 
-apt -y install mssql-tools unixodbc-dev
+#apt -y install mssql-tools unixodbc-dev
+export DEBIAN_FRONTEND=noninteractive
+yes '' | apt -y -o DPkg::options::="--force-confdef" \
+    -o DPkg::options::="--force-confold" install mssql-tools unixodbc-dev
+unset DEBIAN_FRONTEND
 echo 'export PATH="$PATH:/opt/mssql-tools/bin"' >> /etc/profile.d/mssql.sh
 fi
 fi

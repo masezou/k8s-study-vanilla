@@ -17,16 +17,17 @@ fi
 UBUNTUVER=`grep DISTRIB_RELEASE /etc/lsb-release | cut -d "=" -f2`
 case ${UBUNTUVER} in
     "20.04")
-       echo ${UBUNTUVER}  is OK.
+       echo -e "\e[32m${UBUNTUVER} is OK. \e[m"
        ;;
     "22.04")
-       echo ${UBUNTUVER}  is OK.
+       echo "${UBUNTUVER} is experimental."
+      #exit 255
        ;;
     *)
-       echo ${UBUNTUVER}  is NG.
+       echo -e "\e[31m${UBUNTUVER} is NG. \e[m"
+      exit 255
         ;;
 esac
-
 
 ### ARCH Check ###
 PARCH=`arch`
