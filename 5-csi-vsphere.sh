@@ -22,6 +22,13 @@ else
     echo "I am root user."
 fi
 
+# HOSTNAME check
+ping -c 3 `hostname`
+retvalping=$?
+if [ ${retvalping} -ne 0 ]; then
+echo -e "\e[31m HOSTNAME was not configured correctly. \e[m"
+fi
+
 ### Install command check ####
 if type "kubeadm" > /dev/null 2>&1
 then

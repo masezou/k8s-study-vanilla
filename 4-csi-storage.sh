@@ -27,6 +27,13 @@ else
     echo "I am root user."
 fi
 
+# HOSTNAME check
+ping -c 3 `hostname`
+retvalping=$?
+if [ ${retvalping} -ne 0 ]; then
+echo -e "\e[31m HOSTNAME was not configured correctly. \e[m"
+fi
+
 ### Distribution Check ###
 UBUNTUVER=`grep DISTRIB_RELEASE /etc/lsb-release | cut -d "=" -f2`
 case ${UBUNTUVER} in
