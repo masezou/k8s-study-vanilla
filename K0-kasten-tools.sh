@@ -64,6 +64,14 @@ chmod +x /usr/local/bin/k10multicluster
 k10multicluster completion bash > /etc/bash_completion.d/k10multicluster
 
 # Install kanctl
+if type "go" > /dev/null 2>&1
+then
+    echo "golang was already installed"
+else
+    echo "golang was not installed"
+    apt -y install golang
+fi
+
 if [ ! -f /usr/local/bin/kanctl ]; then
 curl https://raw.githubusercontent.com/kanisterio/kanister/master/scripts/get.sh | bash
 kanctl completion bash > /etc/bash_completion.d/kanctl
