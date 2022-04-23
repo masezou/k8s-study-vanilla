@@ -234,6 +234,8 @@ kubectl krew install resource-capacity
 kubectl krew install fleet
 kubectl krew install prompt
 
+kubectl krew install minio
+
 kubectl krew list
 EOF
 chmod +x  /tmp/krew.temp/krew-plugin.sh
