@@ -63,6 +63,14 @@ rm -rf k10multicluster_${KASTENVER}_linux_${ARCH}.tar.gz
 chmod +x /usr/local/bin/k10multicluster
 k10multicluster completion bash > /etc/bash_completion.d/k10multicluster
 
+# Install kanctl
+if [ ! -f /usr/local/bin/kanctl ]; then
+curl https://raw.githubusercontent.com/kanisterio/kanister/master/scripts/get.sh | bash
+kanctl completion bash > /etc/bash_completion.d/kanctl
+kando completion bash > /etc/bash_completion.d/kando
+fi
+
+# Install kubestr
 KUBESTRVER=0.4.31
 if [ ! -f /usr/local/bin/kubestr ]; then
 rm -rf /usr/local/bin/kubestr
