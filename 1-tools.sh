@@ -599,6 +599,9 @@ chmod +x /usr/local/bin/cfssljson
 fi
 fi
 
+# Installing golang
+apt -y install golang
+
 # MSSQL Client
 if [ ${ARCH} = amd64 ]; then
 if [ ${UBUNTUVER} = "20.04" ]; then
