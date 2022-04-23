@@ -235,6 +235,7 @@ kubectl krew install fleet
 kubectl krew install prompt
 
 kubectl krew install minio
+kubectl krew install directpv
 
 kubectl krew list
 EOF
