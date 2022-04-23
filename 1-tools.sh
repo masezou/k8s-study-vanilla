@@ -10,13 +10,14 @@ KUBEBASEVER=1.22
 # 1.21.9-00 was tested also.
 #KUBECTLVER=1.22.6-00
 
+MSSQLCMD=1
+
 # For Client use. Not to set in cluster environment.
 CLIENT=0
 #Client setting: When you set CLIENT=1, you can set DNS setting."
 #DNSDOMAINNAME=k8slab.local
 
 #DNSHOSTIP=192.168.16.2
-
 
 # Force REGISTRY Setting
 # If you haven't set Registry server, the registry server will set to NS server.
@@ -602,23 +603,21 @@ fi
 # Installing golang
 apt -y install golang
 
+# I like vi in less.
+echo "export VISUAL=vi" >/etc/profile.d/less-pager.sh
+
 # MSSQL Client
+if [ $MSSQLCMD -eq 1 ]; then
 if [ ${ARCH} = amd64 ]; then
 if [ ${UBUNTUVER} = "20.04" ]; then
 curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add -
 curl https://packages.microsoft.com/config/ubuntu/${UBUNTUVER}/prod.list | tee /etc/apt/sources.list.d/msprod.list
 apt update 
-#apt -y install mssql-tools unixodbc-dev
-export DEBIAN_FRONTEND=noninteractive
-yes '' | apt -y -o DPkg::options::="--force-confdef" \
-    -o DPkg::options::="--force-confold" install mssql-tools unixodbc-dev
-unset DEBIAN_FRONTEND
+apt -y install mssql-tools unixodbc-dev
 echo 'export PATH="$PATH:/opt/mssql-tools/bin"' >> /etc/profile.d/mssql.sh
 fi
 fi
-
-# I like vi in less.
-echo "export VISUAL=vi" >/etc/profile.d/less-pager.sh
+fi
 
 cd ${BASEPWD}
 chmod -x $0
