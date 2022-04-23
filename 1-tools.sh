@@ -58,6 +58,14 @@ ping -c 3 `hostname`
 retvalping=$?
 if [ ${retvalping} -ne 0 ]; then
 echo -e "\e[31m HOSTNAME was not configured correctly. \e[m"
+exit 255
+fi
+# Internet connectivity
+ping -c 3 www.yahoo.co.jp
+retvalping2=$?
+if [ ${retvalping2} -ne 0 ]; then
+echo -e "\e[31m There is no internet connectivity. \e[m"
+exit 255
 fi
 
 ### Distribution Check ###

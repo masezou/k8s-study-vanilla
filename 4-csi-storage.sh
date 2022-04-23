@@ -32,6 +32,7 @@ ping -c 3 `hostname`
 retvalping=$?
 if [ ${retvalping} -ne 0 ]; then
 echo -e "\e[31m HOSTNAME was not configured correctly. \e[m"
+exit 255
 fi
 
 ### Distribution Check ###
