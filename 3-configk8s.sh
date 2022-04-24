@@ -798,6 +798,7 @@ host keycloak.${DNSDOMAINNAME}. ${DNSHOSTIP}
 rndc freeze ${DNSDOMAINNAME} ;rndc thaw ${DNSDOMAINNAME}
 rndc sync -clean ${DNSDOMAINNAME}
 
+apt -y autoremove
 apt clean
 apt update
 echo "*************************************************************************************"

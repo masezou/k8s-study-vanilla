@@ -590,6 +590,7 @@ echo "Installing k10tools"
 bash ./K0-kasten-tools.sh
 fi
 
+apt -y autoremove
 apt clean
 # disable snapd
 systemctl status snapd.service --no-pager

@@ -57,6 +57,7 @@ if [ ${retavalvm} -ne 0 ];then
    exit 0
 else
 apt -y install open-vm-tools
+apt -y autoremove
 apt clean
 fi
 

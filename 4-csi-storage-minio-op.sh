@@ -299,6 +299,7 @@ kubectl get sc | grep nfs
 retvalnfssc=$?
 if [ ${retvalnfssc} -ne 0 ]; then
 apt -y install nfs-kernel-server
+apt -y autoremove
 apt clean
 mkdir -p ${NFSPATH}
 chmod -R 1777 ${NFSPATH}
