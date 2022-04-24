@@ -367,10 +367,8 @@ netplan set network.ethernets.${ETHDEV}.nameservers.search=[${DNSDOMAINNAME}]
 netplan apply
 sleep 5
 cat << EOF > /tmp/nsupdate.txt
-server 192.168.16.2
+server ${DNSHOSTIP}
 
-update delete minio.${DNSDOMAINNAME}
-update add minio.${DNSDOMAINNAME} 300 IN A ${DNSHOSTIP}
 update delete mail.${DNSDOMAINNAME}
 update add mail.${DNSDOMAINNAME} 3600 IN A ${DNSHOSTIP}
 
