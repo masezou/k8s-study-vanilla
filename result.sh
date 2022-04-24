@@ -56,6 +56,25 @@ echo -e "\e[32m login token is cat ./dashboard.token  \e[m"
 cat ./dashboard.token
 echo ""
 fi
+
+kubectl get ns minio-operator
+retvalminioope=$?
+if ${retvalminioope} -eq 0 ]; then
+echo "Minio Operator"
+echo "http://minio-console.${DNSDOMAINNAME}:9090/login"
+echo "Or"
+echo "http://${MINIO_EXTERNALIP}:9090/login"
+echo ""
+echo "Login with JWT"
+echo "JWT"
+sa_secret=$(kubectl get serviceaccount console-sa -o jsonpath="{.secrets[0].name}" --namespace minio-operator)
+kubectl get secret $sa_secret --namespace minio-operator -ojsonpath="{.data.token}{'\n'}" | base64 --decode > minio-operator.token
+echo "" >> minio-operator.token
+cat minio-operator.token
+echo ""
+echo ""
+fi
+
 if [ ! -z ${MINIOIP} ]; then
 echo -e "\e[1mMinio dashboard  \e[m"
 echo -e "\e[32m https://${MINIOIP}:9001  \e[m"

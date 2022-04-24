@@ -6,7 +6,7 @@ git clone https://github.com/masezou/k8s-study-vanilla --depth 1
 cd k8s-study-vanilla
 vi 3-configk8s.sh
  -> IPレンジを設定
-./0-minio.sh ; ./1-tools.sh ; ./2-buildk8s-lnx.sh ; ./3-configk8s.sh ; ./4-csi-storage.sh
+./1-tools.sh ; ./2-buildk8s-lnx.sh ; ./3-configk8s.sh ; ./4-csi-storage.sh
 vi 5-csi-vsphere.sh
  ->vSphereの情報を入力
 ./5-csi-vsphere.sh

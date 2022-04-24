@@ -5,7 +5,7 @@
 NFSPATH=/disk/nfs_csi
 NFSSUBPATH=/disk/nfs_sub
 OPENEBS=1
-
+MINIO_OPERATOR=1
 #FORCE_LOCALIP=192.168.16.2
 
 # Experimental
@@ -368,6 +368,20 @@ kubectl -n synology-csi wait pod  -l app=synology-csi-snapshotter --for conditio
 fi
 
 kubectl -n openebs wait pod  -l app=cstor-pool --for condition=Ready
+
+# Minio Operator
+if [ ! -f /usr/local/bin/minio ]; then
+MINIO_OPERATOR=1
+if [ ${MINIO_OPERATOR} -eq 1]; then
+kubectl minio init
+sleep 10
+kubectl -n minio-operator patch service console -p '{"spec":{"type": "LoadBalancer"}}'
+DNSDOMAINNAME=`kubectl -n external-dns get deployments.apps  --output="jsonpath={.items[*].spec.template.spec.containers }" | jq |grep rfc2136-zone | cut -d "=" -f 2 | cut -d "\"" -f 1`
+kubectl -n minio-operator annotate service console external-dns.alpha.kubernetes.io/hostname=minio-console.${DNSDOMAINNAME}
+fi
+fi
+
+
 echo ""
 echo "*************************************************************************************"
 echo "CSI storage was created"
@@ -378,6 +392,25 @@ echo "kubernetes deployment without vSphere CSI driver was successfully. The env
 echo ""
 echo -e "\e[32m If you want to use vSphere CSI Driver on ESX/vCenter environment, run ./5-csi-vsphere.sh \e[m"
 echo ""
+if [ ${MINIO_OPERATOR} -eq 1]; then
+DNSDOMAINNAME=`kubectl -n external-dns get deployments.apps  --output="jsonpath={.items[*].spec.template.spec.containers }" | jq |grep rfc2136-zone | cut -d "=" -f 2 | cut -d "\"" -f 1`
+MINIO_EXTERNALIP=`kubectl -n minio-operator get service console | awk '{print $4}' | tail -n 1`
+
+echo "Minio needs additonal manual setup"
+echo "Open following URL"
+echo "http://minio-console.${DNSDOMAINNAME}:9090/login"
+echo "Or"
+echo "http://${MINIO_EXTERNALIP}:9090/login"
+echo ""
+echo "Login with JWT"
+echo "JWT"
+sa_secret=$(kubectl get serviceaccount console-sa -o jsonpath="{.secrets[0].name}" --namespace minio-operator)
+kubectl get secret $sa_secret --namespace minio-operator -ojsonpath="{.data.token}{'\n'}" | base64 --decode > minio-operator.token
+echo "" >> minio-operator.token
+cat minio-operator.token
+echo ""
+echo ""
+fi
 
 cd ${BASEPWD}
 chmod -x $0
