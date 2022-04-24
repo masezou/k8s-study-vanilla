@@ -109,6 +109,8 @@ fi
 fi
 fi
 fi
+fi
+
 # Device /dev/sdc check
 df | grep sdc
 retvalmount=$?
@@ -123,14 +125,13 @@ INITDISK=1
 fi
 fi
 fi
-fi
 if [ -z ${INITDISK} ]; then
 OPENEBS=0
 fi
 
 # Install OpenEBS
-if [ ${retvalopenebs} -ne 1 ]; then
-if [ ${OPENEBS} -eq 1 ]; then
+if [ ${retvalopenebs} -ne 0 ]; then
+if [ ${OPENEBS} -ne 0 ]; then
 apt install -y open-iscsi
 systemctl enable iscsid && systemctl start iscsid
 mkdir -p /var/openebs/local
