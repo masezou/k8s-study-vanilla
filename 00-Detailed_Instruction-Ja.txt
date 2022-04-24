@@ -6,7 +6,7 @@ git clone https://github.com/masezou/k8s-study-vanilla --depth 1
 cd k8s-study-vanilla
 vi 3-configk8s.sh
  -> IPレンジを設定
-./1-tools.sh ; ./2-buildk8s-lnx.sh ; ./3-configk8s.sh ; ./4-csi-storage.sh
+./1-tools.sh ; ./2-buildk8s-lnx.sh ; ./3-configk8s.sh ; ./4-csi-storage-minio-op.sh
 vi 5-csi-vsphere.sh
  ->vSphereの情報を入力
 ./5-csi-vsphere.sh
@@ -90,7 +90,7 @@ cd k8s-study-vanilla
        VSPPHEREDATASTORE="YOUR_DATASTORE"
 
  4. スクリプトを実行して、 Kubernetes環境を構築
-    ./0-minio.sh ; ./1-tools.sh ; ./2-buildk8s-lnx.sh ; ./3-configk8s.sh ; ./4-csi-storage.sh
+    ./0-minio.sh ; ./1-tools.sh ; ./2-buildk8s-lnx.sh ; ./3-configk8s.sh ; ./4-csi-storage-minio-op.sh
 
  5. Kubernetes環境の確認
    kubectl get nodes

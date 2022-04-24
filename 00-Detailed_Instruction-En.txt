@@ -5,7 +5,7 @@ git clone https://github.com/masezou/k8s-study-vanilla --depth 1
 cd k8s-study-vanilla
 vi 3-configk8s.sh
  -> Specify IP range
-./1-tools.sh ; ./2-buildk8s-lnx.sh ; ./3-configk8s.sh ; ./4-csi-storage.sh
+./1-tools.sh ; ./2-buildk8s-lnx.sh ; ./3-configk8s.sh ; ./4-csi-storage-minio-op.sh
 vi 5-csi-vsphere.sh
  ->Input vSphere configuration.
 ./5-csi-vsphere.sh
@@ -88,7 +88,7 @@ cd k8s-study-vanilla
        VSPPHEREDATASTORE="YOUR_DATASTORE"
 
 4. Execute script for building Kubernetes
-  ./0-minio.sh ; ./1-tools.sh ; ./2-buildk8s-lnx.sh ; ./3-configk8s.sh ; ./4-csi-storage.sh
+  ./0-minio.sh ; ./1-tools.sh ; ./2-buildk8s-lnx.sh ; ./3-configk8s.sh ; ./4-csi-storage-minio-op.sh
 
 5. Verify for Kubernetes
   kubectl get nodes
