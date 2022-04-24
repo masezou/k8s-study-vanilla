@@ -73,6 +73,7 @@ else
 fi
 
 if [ ! -f /usr/local/bin/kanctl ]; then
+echo "downloaing kanctl and kando"
 curl https://raw.githubusercontent.com/kanisterio/kanister/master/scripts/get.sh | bash
 kanctl completion bash > /etc/bash_completion.d/kanctl
 kando completion bash > /etc/bash_completion.d/kando
@@ -99,7 +100,7 @@ if [ ! -f /usr/bin/docker ]; then
 fi
 
 echo "*************************************************************************************"
-echo "K10tool/K10multicluster/kubestr were installed"
+echo "K10tool/K10multicluster/kanctl/kando/kubestr were installed"
 echo ""
 
 chmod -x $0

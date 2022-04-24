@@ -582,7 +582,11 @@ apt -y autoremove
 mv /tmp/pgbench /usr/lib/postgresql/12/bin/
 fi
 
+# Installing golang
+apt -y install golang
+
 if [ ! -f /usr/local/bin/k10tools ]; then
+echo "Installing k10tools"
 bash ./K0-kasten-tools.sh
 fi
 
@@ -614,8 +618,6 @@ chmod +x /usr/local/bin/cfssljson
 fi
 fi
 
-# Installing golang
-apt -y install golang
 
 # I like vi in less.
 echo "export VISUAL=vi" >/etc/profile.d/less-pager.sh
@@ -626,6 +628,7 @@ if [ ${ARCH} = amd64 ]; then
 if [ ${UBUNTUVER} = "20.04" ]; then
 curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add -
 curl https://packages.microsoft.com/config/ubuntu/${UBUNTUVER}/prod.list | tee /etc/apt/sources.list.d/msprod.list
+apt -y autoremove
 apt update 
 apt -y install mssql-tools unixodbc-dev
 echo 'export PATH="$PATH:/opt/mssql-tools/bin"' >> /etc/profile.d/mssql.sh
