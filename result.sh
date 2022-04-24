@@ -63,11 +63,12 @@ if [ ${retvalminioope} -eq 0 ]; then
 MINIOOP_EXTERNALIP=`kubectl -n minio-operator get service console | awk '{print $4}' | tail -n 1`
 echo -e "\e[1mMinio Operator \e[m"
 echo ""
-echo "http://minio-console.${DNSDOMAINNAME}:9090/login"
+echo -e "\e[32m http://minio-console.${DNSDOMAINNAME}:9090/login \e[m"
 echo "Or"
-echo "http://${MINIOOP_EXTERNALIP}:9090/login"
+echo -e "\e[32m http://${MINIOOP_EXTERNALIP}:9090/login \e[m"
 echo ""
 echo "Login with JWT token"
+echo -e "\e[32m login token is cat ./minio-operator.token  \e[m"
 echo ""
 sa_secret=$(kubectl get serviceaccount console-sa -o jsonpath="{.secrets[0].name}" --namespace minio-operator)
 kubectl get secret $sa_secret --namespace minio-operator -ojsonpath="{.data.token}{'\n'}" | base64 --decode > minio-operator.token
