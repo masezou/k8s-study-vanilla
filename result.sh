@@ -57,13 +57,14 @@ cat ./dashboard.token
 echo ""
 fi
 
-kubectl get ns minio-operator
+kubectl get ns minio-operator > /dev/null 2>&1
 retvalminioope=$?
-if ${retvalminioope} -eq 0 ]; then
-echo "Minio Operator"
+if [ ${retvalminioope} -eq 0 ]; then
+MINIOOP_EXTERNALIP=`kubectl -n minio-operator get service console | awk '{print $4}' | tail -n 1`
+echo -e "\e[1mMinio Operator \e[m"
 echo "http://minio-console.${DNSDOMAINNAME}:9090/login"
 echo "Or"
-echo "http://${MINIO_EXTERNALIP}:9090/login"
+echo "http://${MINIOOP_EXTERNALIP}:9090/login"
 echo ""
 echo "Login with JWT"
 echo "JWT"

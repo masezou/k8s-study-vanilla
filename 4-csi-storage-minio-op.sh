@@ -394,13 +394,13 @@ echo -e "\e[32m If you want to use vSphere CSI Driver on ESX/vCenter environment
 echo ""
 if [ ${MINIO_OPERATOR} -eq 1]; then
 DNSDOMAINNAME=`kubectl -n external-dns get deployments.apps  --output="jsonpath={.items[*].spec.template.spec.containers }" | jq |grep rfc2136-zone | cut -d "=" -f 2 | cut -d "\"" -f 1`
-MINIO_EXTERNALIP=`kubectl -n minio-operator get service console | awk '{print $4}' | tail -n 1`
+MINIOOP_EXTERNALIP=`kubectl -n minio-operator get service console | awk '{print $4}' | tail -n 1`
 
 echo "Minio needs additonal manual setup"
 echo "Open following URL"
 echo "http://minio-console.${DNSDOMAINNAME}:9090/login"
 echo "Or"
-echo "http://${MINIO_EXTERNALIP}:9090/login"
+echo "http://${MINIOOP_EXTERNALIP}:9090/login"
 echo ""
 echo "Login with JWT"
 echo "JWT"

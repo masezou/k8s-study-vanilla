@@ -15,7 +15,7 @@ MSSQLCMD=1
 # For Client use. Not to set in cluster environment.
 CLIENT=0
 #Client setting: When you set CLIENT=1, you can set DNS setting."
-#DNSDOMAINNAME=k8slab.internal
+DNSDOMAINNAME=k8slab.internal
 
 #DNSHOSTIP=192.168.16.2
 
