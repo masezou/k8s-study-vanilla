@@ -90,6 +90,9 @@ echo -e "\e[31m CNI is not configured. exit. \e[m"
 exit 255
 fi
 
+kubectl get sc | grep openebs
+retvalopenebs=$?
+if [ ${retvalopenebs} -ne 0 ]; then
 if [ ${OPENEBS} -eq 1 ]; then
 # Device /dev/sdb check
 df | grep sdb
@@ -102,6 +105,7 @@ if [  -b /dev/sdb ]; then
 echo "Initilize /dev/sdb....."
 sgdisk -Z /dev/sdb
 INITDISK=1
+fi
 fi
 fi
 fi
@@ -125,6 +129,7 @@ OPENEBS=0
 fi
 
 # Install OpenEBS
+if [ ${retvalopenebs} -ne 1 ]; then
 if [ ${OPENEBS} -eq 1 ]; then
 apt install -y open-iscsi
 systemctl enable iscsid && systemctl start iscsid
@@ -201,6 +206,7 @@ EOF
 kubectl patch storageclass cstor-csi-disk -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"true"}}}'
 kubectl -n openebs wait pod  -l app=cstor-pool --for condition=Ready
 fi
+fi
 
 if [ ${OPENEBS} -ne 1 ]; then
 # Rancher local driver (Not CSI Storage)
@@ -270,6 +276,9 @@ fi
 fi
 
 ##Install NFS-CSI driver
+kubectl get sc | grep nfs
+retvalnfssc=$?
+if [ ${retvalnfssc} -ne 0 ]; then
 apt -y install nfs-kernel-server
 apt clean
 mkdir -p ${NFSPATH}
@@ -336,6 +345,7 @@ helm install nfs-subdir-external-provisioner nfs-subdir-external-provisioner/nfs
     --set nfs.server=${LOCALIPADDR} \
     --set nfs.path=${NFSSUBPATH} \
     --set storageClass.name=nfs-sc
+fi
 
 # Install Synology CSI (Experimental)
 if [ ${SYNOLOGY} -eq 1 ]; then
@@ -397,7 +407,7 @@ DNSDOMAINNAME=`kubectl -n external-dns get deployments.apps  --output="jsonpath=
 MINIOOP_EXTERNALIP=`kubectl -n minio-operator get service console | awk '{print $4}' | tail -n 1`
 
 echo "Minio needs additonal manual setup"
-echo "Open following URL"
+echo "Open following URL with Chrome browser"
 echo "http://minio-console.${DNSDOMAINNAME}:9090/login"
 echo "Or"
 echo "http://${MINIOOP_EXTERNALIP}:9090/login"
