@@ -428,20 +428,23 @@ echo ""
 if [ ${MINIO_OPERATOR} -eq 1 ]; then
 DNSDOMAINNAME=`kubectl -n external-dns get deployments.apps  --output="jsonpath={.items[*].spec.template.spec.containers }" | jq |grep rfc2136-zone | cut -d "=" -f 2 | cut -d "\"" -f 1`
 MINIOOP_EXTERNALIP=`kubectl -n minio-operator get service console | awk '{print $4}' | tail -n 1`
-
-echo "Minio needs additonal manual setup"
-echo "Open following URL with Chrome browser"
+echo ""
+echo -e "\e[1mMinio needs additonal manual setup. \e[m"
+echo ""
+echo -e "\e[32mOpen following URL with Chrome browser.  \e[m"
+echo ""
 echo "http://minio-console.${DNSDOMAINNAME}:9090/login"
 echo "Or"
 echo "http://${MINIOOP_EXTERNALIP}:9090/login"
 echo ""
-echo "Login with JWT"
-echo "JWT"
+echo "Login with JWT token"
+echo ""
 sa_secret=$(kubectl get serviceaccount console-sa -o jsonpath="{.secrets[0].name}" --namespace minio-operator)
 kubectl get secret $sa_secret --namespace minio-operator -ojsonpath="{.data.token}{'\n'}" | base64 --decode > minio-operator.token
 echo "" >> minio-operator.token
 cat minio-operator.token
 echo ""
+echo "Add you minio tenant in Minio operator."
 echo ""
 fi
 
