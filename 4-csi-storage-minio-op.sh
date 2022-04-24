@@ -403,6 +403,7 @@ kubectl -n openebs wait pod  -l app=cstor-pool --for condition=Ready
 if [ ! -f /usr/local/bin/minio ]; then
 MINIO_OPERATOR=1
 if [ ${MINIO_OPERATOR} -eq 1 ]; then
+source /etc/profile.d/krew.sh
 kubectl minio init
 sleep 10
 kubectl -n minio-operator patch service console -p '{"spec":{"type": "LoadBalancer"}}'
