@@ -209,8 +209,12 @@ fi
 fi
 
 if [ ${OPENEBS} -ne 1 ]; then
+kubectl get sc | grep local-path
+retvallocalpath=$?
+if [ ${retvallocalpath} -ne 0 ]; then
 # Rancher local driver (Not CSI Storage)
 kubectl apply -f https://raw.githubusercontent.com/rancher/local-path-provisioner/master/deploy/local-path-storage.yaml
+fi
 SNAPSHOTTER_VERSION=5.0.1
 # Apply VolumeSnapshot CRDs
 kubectl apply -f https://raw.githubusercontent.com/kubernetes-csi/external-snapshotter/v${SNAPSHOTTER_VERSION}/client/config/crd/snapshot.storage.k8s.io_volumesnapshotclasses.yaml
@@ -221,6 +225,10 @@ kubectl -n kube-system apply -f https://raw.githubusercontent.com/kubernetes-csi
 kubectl -n kube-system apply -f https://raw.githubusercontent.com/kubernetes-csi/external-snapshotter/v${SNAPSHOTTER_VERSION}/deploy/kubernetes/snapshot-controller/setup-snapshot-controller.yaml
 
 ##Install the CSI Hostpath Driver
+kubectl get sc | grep csi-hostpath-sc
+retvalcsihostpathsc=$?
+if [ ${retvalcsihostpathsc} -ne 0 ]; then
+ 
 # kubernetes version check
 kubectl get node -o wide|grep v1.19  > /dev/null 2>&1 && KUBEVER=1.19
 kubectl get node -o wide|grep v1.20  > /dev/null 2>&1 && KUBEVER=1.20
@@ -229,38 +237,48 @@ kubectl get node -o wide|grep v1.22  > /dev/null 2>&1 && KUBEVER=1.22
 kubectl get node -o wide|grep v1.23  > /dev/null 2>&1 && KUBEVER=1.23
 
 if [ ${KUBEVER}=1.19 ]; then
+if [ -z ${CSIHOSTPATHDONE} ]; then
 CSIHOSTPATHVER=1.7.3
 git clone https://github.com/kubernetes-csi/csi-driver-host-path -b v${CSIHOSTPATHVER} --depth 1
 cd csi-driver-host-path
 ./deploy/kubernetes-${KUBEVER}/deploy.sh
 CSIHOSTPATHDONE=1
+fi
 fi
 
 if [ ${KUBEVER}=1.20 ]; then
+if [ -z ${CSIHOSTPATHDONE} ]; then
 CSIHOSTPATHVER=1.7.3
 git clone https://github.com/kubernetes-csi/csi-driver-host-path -b v${CSIHOSTPATHVER} --depth 1
 cd csi-driver-host-path
 ./deploy/kubernetes-${KUBEVER}/deploy.sh
 CSIHOSTPATHDONE=1
 fi
+fi
 
 if [ ${KUBEVER}=1.21 ]; then
+if [ -z ${CSIHOSTPATHDONE} ]; then
 git clone https://github.com/kubernetes-csi/csi-driver-host-path --depth 1
 cd csi-driver-host-path
 ./deploy/kubernetes-${KUBEVER}/deploy.sh
 CSIHOSTPATHDONE=1
+fi
 fi
 
 if [ ${KUBEVER}=1.22 ]; then
+if [ -z ${CSIHOSTPATHDONE} ]; then
 git clone https://github.com/kubernetes-csi/csi-driver-host-path --depth 1
 cd csi-driver-host-path
 ./deploy/kubernetes-${KUBEVER}/deploy.sh
 CSIHOSTPATHDONE=1
 fi
+fi
 
 if [ ${KUBEVER}=1.23 ]; then
+if [ -z ${CSIHOSTPATHDONE} ]; then
 echo "${KUBEVER} is not supported yet."
 CSIHOSTPATHDONE=0
+fi
 fi
 
 if [ ${CSIHOSTPATHDONE} -eq 1 ]; then
@@ -269,6 +287,7 @@ kubectl patch storageclass csi-hostpath-sc \
     -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"true"}}}'
 cd ..
 rm -rf csi-driver-host-path
+fi
 
 # Permission fix
 chmod -R 1777 /var/lib/docker/volumes/
@@ -382,7 +401,7 @@ kubectl -n openebs wait pod  -l app=cstor-pool --for condition=Ready
 # Minio Operator
 if [ ! -f /usr/local/bin/minio ]; then
 MINIO_OPERATOR=1
-if [ ${MINIO_OPERATOR} -eq 1]; then
+if [ ${MINIO_OPERATOR} -eq 1 ]; then
 kubectl minio init
 sleep 10
 kubectl -n minio-operator patch service console -p '{"spec":{"type": "LoadBalancer"}}'
@@ -402,7 +421,7 @@ echo "kubernetes deployment without vSphere CSI driver was successfully. The env
 echo ""
 echo -e "\e[32m If you want to use vSphere CSI Driver on ESX/vCenter environment, run ./5-csi-vsphere.sh \e[m"
 echo ""
-if [ ${MINIO_OPERATOR} -eq 1]; then
+if [ ${MINIO_OPERATOR} -eq 1 ]; then
 DNSDOMAINNAME=`kubectl -n external-dns get deployments.apps  --output="jsonpath={.items[*].spec.template.spec.containers }" | jq |grep rfc2136-zone | cut -d "=" -f 2 | cut -d "\"" -f 1`
 MINIOOP_EXTERNALIP=`kubectl -n minio-operator get service console | awk '{print $4}' | tail -n 1`
 
