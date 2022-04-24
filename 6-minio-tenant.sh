@@ -5,6 +5,8 @@
 #TENANTNAMESPACE=minio-tenant1
 #DNSDOMAINNAME=k8slab.internal
 #DNSHOST=12.168.133.2
+#MCLOGINUSER=miniologinuser
+#MCLOGINPASSWORD=miniologinuser
 
 #########################################################
 
@@ -46,7 +48,51 @@ cp public.crt ~/.mc/certs/CAs/
 cp public.crt /usr/share/ca-certificates/${TENANTNAMESPAC}.crt
 echo "${TENANTNAMESPAC}.crt">>/etc/ca-certificates.conf
 update-ca-certificates
-
+if [ ! -z ${MCLOGINUSER} ]; then
+mc alias set ${TENANTNAMESPACE} https://${LOCALIPADDRAPI} ${MCLOGINUSER} ${MCLOGINPASSWORD} --api S3v4
+cat << EOF > s3user.json
+{
+        "Version": "2012-10-17",
+        "Statement": [{
+                        "Action": [
+                                "admin:ServerInfo"
+                        ],
+                        "Effect": "Allow",
+                        "Sid": ""
+                },
+                {
+                        "Action": [
+                                "s3:ListenBucketNotification",
+                                "s3:PutBucketNotification",
+                                "s3:GetBucketNotification",
+                                "s3:ListMultipartUploadParts",
+                                "s3:ListBucketMultipartUploads",
+                                "s3:ListBucket",
+                                "s3:HeadBucket",
+                                "s3:GetObject",
+                                "s3:GetBucketLocation",
+                                "s3:AbortMultipartUpload",
+                                "s3:CreateBucket",
+                                "s3:PutObject",
+                                "s3:DeleteObject",
+                                "s3:DeleteBucket",
+                                "s3:PutBucketPolicy",
+                                "s3:DeleteBucketPolicy",
+                                "s3:GetBucketPolicy"
+                        ],
+                        "Effect": "Allow",
+                        "Resource": [
+                                "arn:aws:s3:::*"
+                        ],
+                        "Sid": ""
+                }
+        ]
+}
+EOF
+mc admin policy add ${TENANTNAMESPACE}/ s3user s3user.json
+rm s3user.json
+mc admin info ${TENANTNAMESPACE}
+fi
 echo ""
 echo "*************************************************************************************"
 echo "Upload following certificate to Minio Tenant"
