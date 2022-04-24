@@ -139,6 +139,7 @@ LANG=en_US.utf-8
 LC_ALL=en_US.utf-8
 EOF
 source /etc/environment
+source /etc/profile
 
 # Base setting
 sed -i -e 's@/swap.img@#/swap.img@g' /etc/fstab

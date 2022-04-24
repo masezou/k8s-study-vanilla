@@ -47,6 +47,7 @@ exit 255
 fi
 
 BASEPWD=`pwd`
+source /etc/profile
 
 # vSphere environment check
 lspci -tv | grep VMware

@@ -82,6 +82,7 @@ echo ${LOCALIPADDR}
 fi
 
 BASEPWD=`pwd`
+source /etc/profile
 
 kubectl get node | grep "NotReady"
 retvalstatus=$?

@@ -64,6 +64,7 @@ else
 fi
 
 BASEPWD=`pwd`
+source /etc/profile
 
 ### Cluster check ####
 kubectl get pod 
@@ -381,7 +382,7 @@ echo "Sanity Test"
 echo ""
 host ${DNSHOSTNAME}.${DNSDOMAINNAME}. ${DNSHOSTIP}
 echo ""
-host minio.${DNSDOMAINNAME}. ${DNSHOSTIP}
+host mail.${DNSDOMAINNAME}. ${DNSHOSTIP}
 echo ""
 host abcd.apps.${DNSDOMAINNAME}. ${DNSHOSTIP}
 echo ""
