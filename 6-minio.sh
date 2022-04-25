@@ -2,7 +2,7 @@
 
 #########################################################
 
-TENANTNAMESPACE=minio-tenant4
+TENANTNAMESPACE=minio-tenant1
 #DNSDOMAINNAME=k8slab.internal
 #DNSHOST=12.168.133.2
 #MCLOGINUSER=miniologinuser
