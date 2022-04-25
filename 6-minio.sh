@@ -168,3 +168,5 @@ echo "Credential"
 echo "${MCLOGINUSER} / ${MCLOGINPASSWORD}"
 fi
 echo ""
+
+chmod -x $0
