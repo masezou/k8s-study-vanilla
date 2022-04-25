@@ -18,12 +18,6 @@ REGISTRY_EXTERNALIP=`kubectl -n registry get service pregistry-frontend-clusteri
 REGISTRY_FQDN=`kubectl -n registry get svc pregistry-frontend-clusterip --output="jsonpath={.metadata.annotations}" | jq | grep external | cut -d "\"" -f 4`
 KEYCLOAK_EXTERNALIP=`kubectl -n keycloak get service keycloak  | awk '{print $4}' | tail -n 1`
 KEYCLOAK_FQDN=`kubectl -n keycloak get svc keycloak --output="jsonpath={.metadata.annotations}" | jq | grep external | cut -d "\"" -f 4`
-host minio.${DNSDOMAINNAME}
-miniochek=$?
-if [ ${miniochek} -eq 0 ]; then
-MINIOHOSTNAME=minio.${DNSDOMAINNAME}
-MINIOIP=`host ${MINIOHOSTNAME} | cut -d " " -f4`
-fi
 
 echo "*************************************************************************************"
 echo "Here is cluster context."
@@ -77,17 +71,29 @@ cat minio-operator.token
 echo ""
 echo ""
 fi
+TENANTNAMESPACE=`kubectl get tenant -A | grep Initialized | cut -d " " -f 1`
+if [ ! -z ${TENANTNAMESPACE} ]; then
+LOCALHOSTNAMEAPI=${TENANTNAMESPACE}-api.${DNSDOMAINNAME}
+LOCALHOSTNAMECONSOLE=${TENANTNAMESPACE}-console.${DNSDOMAINNAME}
+LOCALIPADDRAPI=`kubectl -n ${TENANTNAMESPACE} get service minio-loadbalancer | awk '{print $4}' | tail -n 1`
+LOCALIPADDRCONSOLE=`kubectl -n ${TENANTNAMESPACE} get service console-loadbalancer | awk '{print $4}' | tail -n 1`
+MCLOGINUSER=`kubectl -n ${TENANTNAMESPACE} get secret ${TENANTNAMESPACE}-user-1 -ojsonpath="{.data."CONSOLE_ACCESS_KEY"}{'\n'}" |base64 --decode`
+MCLOGINPASSWORD=`kubectl -n ${TENANTNAMESPACE} get secret ${TENANTNAMESPACE}-user-1 -ojsonpath="{.data."CONSOLE_SECRET_KEY"}{'\n'}" |base64 --decode`
 
-if [ ! -z ${MINIOIP} ]; then
-echo -e "\e[1mMinio dashboard  \e[m"
-echo -e "\e[32m https://${MINIOIP}:9001  \e[m"
+echo -e "\e[1mMinio tenant ${TENANTNAMESPACE}"  \e[m"
+echo "API endpoint"
+echo -e "\e[32m https://${LOCALHOSTNAMEAPI}:9000"  \e[m"
 echo "or"
-echo -e "\e[32m https://minio.${DNSDOMAINNAME}:9001 \e[m"
+echo -e "\e[32m https://${LOCALIPADDRAPI}:9000"  \e[m"
+echo "Console"
+echo -e "\e[32m https://${LOCALHOSTNAMECONSOLE}:9443"  \e[m"
+echo "or"
+echo -e "\e[32m https://${LOCALIPADDRCONSOLE}:9443"  \e[m"
 echo ""
-echo -n " login credential is "
-echo -e "\e[32m miniologinuser/miniologinuser \e[m"
-echo ""
+echo "Credential"
+echo "${MCLOGINUSER} / ${MCLOGINPASSWORD}"
 fi
+
 if [ ! -z ${REGISTRYURL} ]; then
 echo -e "\e[1mRegistry \e[m"
 echo -e "\e[1mRegistry URL \e[m"
