@@ -59,7 +59,7 @@ if [ ! -z ${MCLOGINUSER} ]; then
 BUCKETNAME=`kubectl get node --output="jsonpath={.items[*].metadata.labels.kubernetes\.io\/hostname}"`
 MINIOLOCK_BUCKET_NAME=`kubectl get node --output="jsonpath={.items[*].metadata.labels.kubernetes\.io\/hostname}"`-lock
 
-MINIO_ENDPOINT=https://${MINIOIP}:9000
+MINIO_ENDPOINT=https://${MINIOIP}
 mc alias set ${TENANTNAMESPACE} ${MINIO_ENDPOINT} ${MCLOGINUSER} ${MCLOGINPASSWORD} --api S3v4
 
 # Configure local minio setup
