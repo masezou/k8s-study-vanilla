@@ -43,19 +43,24 @@ else
 echo ${LOCALIPADDR}
 fi
 
-MINIOBINPATH=/usr/local/bin
-if [ -f ${MINIOBINPATH}/mc ]; then
-if [ -z ${MINIOIP} ];then
-MINIOIP=${LOCALIPADDR}
+kubectl get ns | grep minio-operator
+retvalmpo=$?
+if [ ${retvalmpo} -eq 0 ]; then
+TENANTNAMESPACE=`kubectl get tenant -A | grep Initialized | cut -d " " -f 1`
+LOCALHOSTNAMEAPI=${TENANTNAMESPACE}-api.${DNSDOMAINNAME}
+LOCALIPADDRAPI=`kubectl -n ${TENANTNAMESPACE} get service minio-loadbalancer | awk '{print $4}' | tail -n 1`
+MCLOGINUSER=`kubectl -n ${TENANTNAMESPACE} get secret ${TENANTNAMESPACE}-user-1 -ojsonpath="{.data."CONSOLE_ACCESS_KEY"}{'\n'}" |base64 --decode`
+MCLOGINPASSWORD=`kubectl -n ${TENANTNAMESPACE} get secret ${TENANTNAMESPACE}-user-1 -ojsonpath="{.data."CONSOLE_SECRET_KEY"}{'\n'}" |base64 --decode`
+alias mc="mc --insecure"
+MINIOIP=${LOCALIPADDRAPI}
 fi
-MCLOGINUSER=miniologinuser
-MCLOGINPASSWORD=miniologinuser
+
+if [ ! -z ${MCLOGINUSER} ]; then
 BUCKETNAME=`kubectl get node --output="jsonpath={.items[*].metadata.labels.kubernetes\.io\/hostname}"`
 MINIOLOCK_BUCKET_NAME=`kubectl get node --output="jsonpath={.items[*].metadata.labels.kubernetes\.io\/hostname}"`-lock
 
-mc alias rm local
 MINIO_ENDPOINT=https://${MINIOIP}:9000
-mc alias set local ${MINIO_ENDPOINT} ${MCLOGINUSER} ${MCLOGINPASSWORD} --api S3v4
+mc alias set ${TENANTNAMESPACE} ${MINIO_ENDPOINT} ${MCLOGINUSER} ${MCLOGINPASSWORD} --api S3v4
 
 # Configure local minio setup
 AWS_ACCESS_KEY_ID=` echo -n "${MCLOGINUSER}" | base64`
@@ -92,15 +97,15 @@ spec:
     objectStore:
       name: ${BUCKETNAME}
       objectStoreType: S3
-      endpoint: 'https://${MINIOIP}:9000'
+      endpoint: '${MINIO_ENDPOINT}'
       skipSSLVerify: true
       region: us-east-1
 EOF
 
 # Minio immutable setting
 if [ ${ERASURE_CODING} -eq 1 ]; then
-mc mb --with-lock --region=us-east1 local/${MINIOLOCK_BUCKET_NAME}
-mc retention set --default compliance ${MINIOLOCK_PERIOD} local/${MINIOLOCK_BUCKET_NAME}
+mc mb --with-lock --region=us-east1 ${TENANTNAMESPACE}/${MINIOLOCK_BUCKET_NAME}
+mc retention set --default compliance ${MINIOLOCK_PERIOD} ${TENANTNAMESPACE}/${MINIOLOCK_BUCKET_NAME}
 cat <<EOF | kubectl -n kasten-io create -f -
 apiVersion: config.kio.kasten.io/v1alpha1
 kind: Profile
@@ -128,6 +133,7 @@ spec:
 EOF
 fi
 fi
+
 # NFS Storage
 KASTENNFSPVC=kastenbackup-pvc
 kubectl get sc | grep nfs-csi
