@@ -177,10 +177,10 @@ done
 kubectl wait --for=condition=ready --timeout=360s -n kasten-io pod -l component=jobs
 kubectl wait --for=condition=ready --timeout=360s -n kasten-io pod -l component=catalog
 # configure profile/blueprint automatically
-if [ ${STORAGECONFIG} -eq 1 ]
+if [ ${STORAGECONFIG} -eq 1 ]; then
 bash ./K2-kasten-storage.sh
 fi
-if [ ${VSPHERECONFIG} -eq 1 ]
+if [ ${VSPHERECONFIG} -eq 1 ]; then
 bash ./K3-kasten-vsphere.sh
 fi
 bash ./K4-kasten-blueprint.sh
