@@ -40,6 +40,9 @@ sleep 10
 kubectl -n minio-operator patch service console -p '{"spec":{"type": "LoadBalancer"}}'
 DNSDOMAINNAME=`kubectl -n external-dns get deployments.apps  --output="jsonpath={.items[*].spec.template.spec.containers }" | jq |grep rfc2136-zone | cut -d "=" -f 2 | cut -d "\"" -f 1`
 kubectl -n minio-operator annotate service console external-dns.alpha.kubernetes.io/hostname=minio-console.${DNSDOMAINNAME}
+
+kubectl -n minio-operator patch deployment minio-operator -p '{"spec":{"replicas": 1}}'
+
 echo "Under deploying Minio Operator"
 sleep 30
 echo "done"
@@ -71,7 +74,7 @@ apiVersion: v1
 kind: Service
 metadata:
   namespace: ${TENANTNAMESPACE} 
-  name: minio-loadbalancer
+  name: minio
   labels:
     component: ${TENANTNAMESPACE} 
   annotations:
@@ -90,7 +93,7 @@ apiVersion: v1
 kind: Service
 metadata:
   namespace: ${TENANTNAMESPACE} 
-  name: console-loadbalancer
+  name:  ${TENANTNAMESPACE}-console
   annotations:
     external-dns.alpha.kubernetes.io/hostname: minio-console.${LOCALHOSTNAMECONSOLE}
 spec:
