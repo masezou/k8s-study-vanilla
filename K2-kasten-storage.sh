@@ -20,15 +20,6 @@ PROTECTION_PERIOD=240h
 #FORCE_LOCALIP=192.168.16.2
 #########################################################
 
-if [ -z ${ERASURE_CODING} ]; then
-mc admin info local | grep Pool
-retvalec=$?
-if [ ${retvalec} -eq 0 ]; then
-ERASURE_CODING=1
-else
-ERASURE_CODING=0
-fi
-fi
 
 #### LOCALIP (from kubectl) #########
 if [ -z ${FORCE_LOCALIP} ]; then
@@ -53,6 +44,15 @@ MCLOGINUSER=`kubectl -n ${TENANTNAMESPACE} get secret ${TENANTNAMESPACE}-user-1 
 MCLOGINPASSWORD=`kubectl -n ${TENANTNAMESPACE} get secret ${TENANTNAMESPACE}-user-1 -ojsonpath="{.data."CONSOLE_SECRET_KEY"}{'\n'}" |base64 --decode`
 alias mc="mc --insecure"
 MINIOIP=${LOCALIPADDRAPI}
+if [ -z ${ERASURE_CODING} ]; then
+mc admin info ${TENANTNAMESPACE} | grep Pool
+retvalec=$?
+if [ ${retvalec} -eq 0 ]; then
+ERASURE_CODING=1
+else
+ERASURE_CODING=0
+fi
+fi
 fi
 
 if [ ! -z ${MCLOGINUSER} ]; then
