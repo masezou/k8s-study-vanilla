@@ -9,6 +9,7 @@ vi 3-configk8s.sh
 vi 5-csi-vsphere.sh
  ->Input vSphere configuration.
 ./5-csi-vsphere.sh
+./6-minio.sh
 ./K1-kasten.sh ; ./K3-kasten-vsphere.sh
 ```
 
@@ -106,6 +107,9 @@ cd k8s-study-vanilla
 7. Verify for vSphere CSI Driver
   kubectl get sc
    You can see csi-hostpath-sc or cstor-csi-disk, nfs-csi, vsphere-sc(default)
+
+8. Deply Minio
+  ./6-minio.sh
    
    Trouble Shooting
        Check Storage Policy in vCenter.

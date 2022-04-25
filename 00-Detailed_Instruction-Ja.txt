@@ -10,7 +10,7 @@ vi 3-configk8s.sh
 vi 5-csi-vsphere.sh
  ->vSphereの情報を入力
 ./5-csi-vsphere.sh
-
+./6-minio.sh
 ./K1-kasten.sh ; ./K3-kasten-vsphere.sh
 ```
 
@@ -114,6 +114,9 @@ cd k8s-study-vanilla
          k8s-policyがStorage Policyに設定されているかを確認。
        ls -l /dev/disk/by-id/wwn-*
          ファイルがない場合は、DISKUUIDの設定がVMにされていない。
+
+8. Minioのデプロイ
+   ./6-minio.sh
          
  これでKubernetes環境の構築が完了
 
