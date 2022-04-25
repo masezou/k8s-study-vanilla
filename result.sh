@@ -75,8 +75,8 @@ TENANTNAMESPACE=`kubectl get tenant -A | grep Initialized | cut -d " " -f 1`
 if [ ! -z ${TENANTNAMESPACE} ]; then
 LOCALHOSTNAMEAPI=${TENANTNAMESPACE}-api.${DNSDOMAINNAME}
 LOCALHOSTNAMECONSOLE=${TENANTNAMESPACE}-console.${DNSDOMAINNAME}
-LOCALIPADDRAPI=`kubectl -n ${TENANTNAMESPACE} get service minio-loadbalancer | awk '{print $4}' | tail -n 1`
-LOCALIPADDRCONSOLE=`kubectl -n ${TENANTNAMESPACE} get service console-loadbalancer | awk '{print $4}' | tail -n 1`
+LOCALIPADDRAPI=`kubectl -n ${TENANTNAMESPACE} get service minio | awk '{print $4}' | tail -n 1`
+LOCALIPADDRCONSOLE=`kubectl -n ${TENANTNAMESPACE} get service ${TENANTNAMESPACE}-console | awk '{print $4}' | tail -n 1`
 MCLOGINUSER=`kubectl -n ${TENANTNAMESPACE} get secret ${TENANTNAMESPACE}-user-1 -ojsonpath="{.data."CONSOLE_ACCESS_KEY"}{'\n'}" |base64 --decode`
 MCLOGINPASSWORD=`kubectl -n ${TENANTNAMESPACE} get secret ${TENANTNAMESPACE}-user-1 -ojsonpath="{.data."CONSOLE_SECRET_KEY"}{'\n'}" |base64 --decode`
 
@@ -93,7 +93,7 @@ echo ""
 echo "Credential"
 echo "${MCLOGINUSER} / ${MCLOGINPASSWORD}"
 fi
-
+echo ""
 if [ ! -z ${REGISTRYURL} ]; then
 echo -e "\e[1mRegistry \e[m"
 echo -e "\e[1mRegistry URL \e[m"
