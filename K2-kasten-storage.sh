@@ -48,7 +48,7 @@ retvalmpo=$?
 if [ ${retvalmpo} -eq 0 ]; then
 TENANTNAMESPACE=`kubectl get tenant -A | grep Initialized | cut -d " " -f 1`
 LOCALHOSTNAMEAPI=${TENANTNAMESPACE}-api.${DNSDOMAINNAME}
-LOCALIPADDRAPI=`kubectl -n ${TENANTNAMESPACE} get service minio-loadbalancer | awk '{print $4}' | tail -n 1`
+LOCALIPADDRAPI=`kubectl -n ${TENANTNAMESPACE} get service minio | awk '{print $4}' | tail -n 1`
 MCLOGINUSER=`kubectl -n ${TENANTNAMESPACE} get secret ${TENANTNAMESPACE}-user-1 -ojsonpath="{.data."CONSOLE_ACCESS_KEY"}{'\n'}" |base64 --decode`
 MCLOGINPASSWORD=`kubectl -n ${TENANTNAMESPACE} get secret ${TENANTNAMESPACE}-user-1 -ojsonpath="{.data."CONSOLE_SECRET_KEY"}{'\n'}" |base64 --decode`
 alias mc="mc --insecure"
