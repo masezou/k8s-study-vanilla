@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 #########################################################
-
+TENANTCREATE=1
 TENANTNAMESPACE=minio-tenant1
 #DNSDOMAINNAME=k8slab.internal
 #DNSHOST=12.168.133.2
@@ -45,7 +45,7 @@ sleep 30
 echo "done"
 fi
 fi
-
+if [ ${TENANTCREATE} -eq 1 ]; then
 echo "Deploying Minio Tenant $TENANTNAMESPACE"
 kubectl create ns ${TENANTNAMESPACE} 
 kubectl minio tenant create ${TENANTNAMESPACE} \
@@ -98,7 +98,7 @@ spec:
   ports:
     - name: https-console
       port: 9443
-      pr/otocol: TCP
+      protocol: TCP
       targetPort: 9443
   selector:
     v1.min.io/console: ${TENANTNAMESPACE}-console
@@ -112,7 +112,7 @@ openssl req -x509 -new -nodes -key rootCA.key -sha256 -days 1825 -out rootCA.pem
 openssl genrsa -out private.key 2048
 openssl req -subj "/CN=${LOCALIPADDRAPI}" -sha256 -new -key private.key -out cert.csr
 cat << EOF > extfile.conf
-subjectAltName = DNS:${LOCALHOSTNAMEAPI}, DNS:${LOCALHOSTNAMECONSOLE}, IP:${LOCALIPADDRAPI}, IP:${LOCALIPADDRCONSOLE}
+subjectAltName = DNS.1:${LOCALHOSTNAMEAPI}, DNS.2:${LOCALHOSTNAMECONSOLE}, IP.1:${LOCALIPADDRAPI}, IP.2:${LOCALIPADDRCONSOLE}
 EOF
 openssl x509 -req -days 365 -sha256 -in cert.csr -CA rootCA.pem -CAkey rootCA.key -CAcreateserial -out public.crt -extfile extfile.conf
 chmod 600 ./private.key
@@ -128,6 +128,7 @@ MCLOGINUSER=`kubectl -n ${TENANTNAMESPACE} get secret ${TENANTNAMESPACE}-user-1 
 MCLOGINPASSWORD=`kubectl -n ${TENANTNAMESPACE} get secret ${TENANTNAMESPACE}-user-1 -ojsonpath="{.data."CONSOLE_SECRET_KEY"}{'\n'}" |base64 --decode`
 mc --insecure alias set ${TENANTNAMESPACE} https://${LOCALIPADDRAPI}:9000 ${MCLOGINUSER} ${MCLOGINPASSWORD} --api S3v4
 mc --insecure admin info ${TENANTNAMESPACE}
+fi
 echo ""
 echo "*************************************************************************************"
 if [ ${MINIO_OPERATOR} -eq 1 ]; then
@@ -147,6 +148,7 @@ cat minio-operator.token
 echo ""
 echo ""
 fi
+if [ ${TENANTCREATE} -eq 1 ]; then
 echo "Upload following certificate to Minio Tenant"
 echo "private.key / public.crt / rootCA.pem"
 echo ""
@@ -161,5 +163,5 @@ echo "https://${LOCALIPADDRCONSOLE}:9443"
 echo ""
 echo "Credential"
 echo "${MCLOGINUSER} / ${MCLOGINPASSWORD}"
-
+fi
 echo ""
