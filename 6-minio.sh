@@ -40,9 +40,7 @@ sleep 10
 kubectl -n minio-operator patch service console -p '{"spec":{"type": "LoadBalancer"}}'
 DNSDOMAINNAME=`kubectl -n external-dns get deployments.apps  --output="jsonpath={.items[*].spec.template.spec.containers }" | jq |grep rfc2136-zone | cut -d "=" -f 2 | cut -d "\"" -f 1`
 kubectl -n minio-operator annotate service console external-dns.alpha.kubernetes.io/hostname=minio-console.${DNSDOMAINNAME}
-
 kubectl -n minio-operator patch deployment minio-operator -p '{"spec":{"replicas": 1}}'
-
 echo "Under deploying Minio Operator"
 sleep 30
 echo "done"
@@ -82,7 +80,8 @@ metadata:
 spec:
   type: LoadBalancer
   ports:
-    - port: 9000
+    - name: https-minio
+      port: 443
       targetPort: 9000
       protocol: TCP
   selector:
@@ -106,10 +105,10 @@ spec:
   selector:
     v1.min.io/console: ${TENANTNAMESPACE}-console
 EOF
-
+sleep 5
 # Create certificate for tenant
-LOCALIPADDRAPI=`kubectl -n ${TENANTNAMESPACE} get service minio-loadbalancer | awk '{print $4}' | tail -n 1`
-LOCALIPADDRCONSOLE=`kubectl -n ${TENANTNAMESPACE} get service console-loadbalancer | awk '{print $4}' | tail -n 1`
+LOCALIPADDRAPI=`kubectl -n ${TENANTNAMESPACE} get service minio | awk '{print $4}' | tail -n 1`
+LOCALIPADDRCONSOLE=`kubectl -n ${TENANTNAMESPACE} get service ${TENANTNAMESPACE}-console | awk '{print $4}' | tail -n 1`
 openssl genrsa -out rootCA.key 4096
 openssl req -x509 -new -nodes -key rootCA.key -sha256 -days 1825 -out rootCA.pem -subj "/C=JP/ST=Tokyo/L=Shibuya/O=cloudshift.corp/OU=development/CN=exmaple CA"
 openssl genrsa -out private.key 2048
@@ -129,7 +128,8 @@ echo "${TENANTNAMESPACE}.crt">>/etc/ca-certificates.conf
 update-ca-certificates
 MCLOGINUSER=`kubectl -n ${TENANTNAMESPACE} get secret ${TENANTNAMESPACE}-user-1 -ojsonpath="{.data."CONSOLE_ACCESS_KEY"}{'\n'}" |base64 --decode`
 MCLOGINPASSWORD=`kubectl -n ${TENANTNAMESPACE} get secret ${TENANTNAMESPACE}-user-1 -ojsonpath="{.data."CONSOLE_SECRET_KEY"}{'\n'}" |base64 --decode`
-mc --insecure alias set ${TENANTNAMESPACE} https://${LOCALIPADDRAPI}:9000 ${MCLOGINUSER} ${MCLOGINPASSWORD} --api S3v4
+mc --insecure alias set ${TENANTNAMESPACE} https://${LOCALIPADDRAPI} ${MCLOGINUSER} ${MCLOGINPASSWORD} --api S3v4
+sleep 30
 mc --insecure admin info ${TENANTNAMESPACE}
 fi
 echo ""
@@ -156,9 +156,9 @@ echo "Upload following certificate to Minio Tenant"
 echo "private.key / public.crt / rootCA.pem"
 echo ""
 echo "API endpoint"
-echo "https://${LOCALHOSTNAMEAPI}:9000"
+echo "https://${LOCALHOSTNAMEAPI}"
 echo "or"
-echo "https://${LOCALIPADDRAPI}:9000"
+echo "https://${LOCALIPADDRAPI}"
 echo "Console"
 echo "https://${LOCALHOSTNAMECONSOLE}:9443"
 echo "or"
