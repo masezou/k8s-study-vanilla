@@ -82,9 +82,9 @@ MCLOGINPASSWORD=`kubectl -n ${TENANTNAMESPACE} get secret ${TENANTNAMESPACE}-use
 
 echo -e "\e[1mMinio tenant ${TENANTNAMESPACE}  \e[m"
 echo "API endpoint"
-echo -e "\e[32m https://${LOCALHOSTNAMEAPI}:9000  \e[m"
+echo -e "\e[32m https://${LOCALHOSTNAMEAPI} \e[m"
 echo "or"
-echo -e "\e[32m https://${LOCALIPADDRAPI}:9000  \e[m"
+echo -e "\e[32m https://${LOCALIPADDRAPI} \e[m"
 echo "Console"
 echo -e "\e[32m https://${LOCALHOSTNAMECONSOLE}:9443  \e[m"
 echo "or"
