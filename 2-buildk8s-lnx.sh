@@ -490,7 +490,7 @@ else
  rm /home/${SUDO_USER}/k8s-study-vanilla/1-tools.sh
  rm /home/${SUDO_USER}/k8s-study-vanilla/2-buildk8s-lnx.sh
  rm /home/${SUDO_USER}/k8s-study-vanilla/3-configk8s.sh
- rm /home/${SUDO_USER}/k8s-study-vanilla/4-csi-storage-minio-op.sh
+ rm /home/${SUDO_USER}/k8s-study-vanilla/4-csi-storage.sh
  rm /home/${SUDO_USER}/k8s-study-vanilla/5-csi-vsphere.sh
 fi
 
