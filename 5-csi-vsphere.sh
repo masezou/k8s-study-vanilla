@@ -227,14 +227,12 @@ rm /etc/kubernetes/csi-vsphere.conf
 kubectl get secret vsphere-config-secret --namespace=vmware-system-csi
 cd
 
-curl --retry 10 --retry-delay 3 --retry-connrefused -sSOL https://raw.githubusercontent.com/kubernetes-sigs/vsphere-csi-driver/v${VSPHERECSI}/manifests/vanilla/vsphere-csi-driver.yaml
+kubectl apply -f https://raw.githubusercontent.com/kubernetes-sigs/vsphere-csi-driver/v${VSPHERECSI}/manifests/vanilla/vsphere-csi-driver.yaml
 # Single control plane setting
 CTLCOUNT=`kubectl get node | grep control-plane | wc -l`
 if [ ${CTLCOUNT} -lt 3 ]; then
-sed -i -e "s/replicas: 3/replicas: 1/g" vsphere-csi-driver.yaml
+kubectl -n vmware-system-csi  patch deployment vsphere-csi-controller -p '{"spec":{"replicas": 1}}'
 fi
-kubectl apply -f vsphere-csi-driver.yaml
-rm -rf vsphere-csi-driver.yaml
 
 sleep 2
 kubectl -n vmware-system-csi get deployments.apps vsphere-csi-controller
