@@ -171,21 +171,25 @@ if [ ${VBRADDRESS} != "YOUR_VBR_ADDRESS" ]; then
 kubectl get sc | grep csi.vsphere.vmware.com
 retvalvbr=$?
 if [ ${retvalvbr} -eq 0 ]; then
-VBRUSER=` echo -n "${VBRUSERNAME}" | base64`
-VBRPASS=` echo -n "${VBRPASSWORD}" | base64`
-
-cat << EOF | kubectl -n kasten-io create -f -
-apiVersion: v1
-data:
-  vbr_password:  ${VBRPASS}
-  vbr_user: ${VBRUSER}
-kind: Secret
-metadata:
-  name: k10-vbr-secret
-  namespace: kasten-io
-type: Opaque
-
-EOF
+#VBRUSER=` echo -n "${VBRUSERNAME}" | base64`
+#VBRPASS=` echo -n "${VBRPASSWORD}" | base64`
+#
+#cat << EOF | kubectl -n kasten-io create -f -
+#apiVersion: v1
+#data:
+#  vbr_password:  ${VBRPASS}
+#  vbr_user: ${VBRUSER}
+#kind: Secret
+#metadata:
+#  name: k10-vbr-secret
+#  namespace: kasten-io
+#type: Opaque
+#
+#EOF
+kubectl create secret generic k10-vbr-secret \
+  --namespace kasten-io \
+  --from-literal=vbr_user="${VBRUSERNAME}" \
+  --from-literal=vbr_password="${VBRPASSWORD}"
 cat <<EOF | kubectl -n kasten-io create -f -
 apiVersion: config.kio.kasten.io/v1alpha1
 kind: Profile
@@ -211,7 +215,6 @@ spec:
 EOF
 fi
 fi
-
 
 echo "*************************************************************************************"
 echo "Kasten Backup storages were configured"
