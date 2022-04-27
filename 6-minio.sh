@@ -35,14 +35,13 @@ echo "Minio operator was not deployed. please deploy Minio Operator at first."
 # Minio Operator
 MINIO_OPERATOR=1
 if [ ${MINIO_OPERATOR} -eq 1 ]; then
+echo "Under deploying Minio Operator"
 kubectl minio init
-sleep 10
+kubectl -n minio-operator wait pod -l operator=leader --for condition=Ready
 kubectl -n minio-operator patch service console -p '{"spec":{"type": "LoadBalancer"}}'
 DNSDOMAINNAME=`kubectl -n external-dns get deployments.apps  --output="jsonpath={.items[*].spec.template.spec.containers }" | jq |grep rfc2136-zone | cut -d "=" -f 2 | cut -d "\"" -f 1`
 kubectl -n minio-operator annotate service console external-dns.alpha.kubernetes.io/hostname=minio-console.${DNSDOMAINNAME}
 kubectl -n minio-operator patch deployment minio-operator -p '{"spec":{"replicas": 1}}'
-echo "Under deploying Minio Operator"
-sleep 30
 echo "done"
 fi
 fi
@@ -56,7 +55,7 @@ kubectl minio tenant create ${TENANTNAMESPACE} \
     --namespace ${TENANTNAMESPACE} \
     --storage-class nfs-sc
 echo "Under deploying minio tenant ${TENANTNAMESPACE}"
-sleep 30
+kubectl -n ${TENANTCREATE} wait pod -l v1\.min\.io\/tenant=${TENANTCREATE} --for condition=Ready
 #kubectl -n ${TENANTNAMESPACE} get pod ${TENANTNAMESPACE}-pool-0-0
 #while [ "$(kubectl -n ${TENANTNAMESPACE} get pod ${TENANTNAMESPACE}-pool-0-0 --output="jsonpath={.status.phase}")" != "Running" ]; do
 ##    echo "Under deploying minio tenant ${TENANTNAMESPACE}"
@@ -105,7 +104,6 @@ spec:
   selector:
     v1.min.io/console: ${TENANTNAMESPACE}-console
 EOF
-sleep 5
 # Create certificate for tenant
 LOCALIPADDRAPI=`kubectl -n ${TENANTNAMESPACE} get service minio | awk '{print $4}' | tail -n 1`
 LOCALIPADDRCONSOLE=`kubectl -n ${TENANTNAMESPACE} get service ${TENANTNAMESPACE}-console | awk '{print $4}' | tail -n 1`
@@ -129,7 +127,6 @@ update-ca-certificates
 MCLOGINUSER=`kubectl -n ${TENANTNAMESPACE} get secret ${TENANTNAMESPACE}-user-1 -ojsonpath="{.data."CONSOLE_ACCESS_KEY"}{'\n'}" |base64 --decode`
 MCLOGINPASSWORD=`kubectl -n ${TENANTNAMESPACE} get secret ${TENANTNAMESPACE}-user-1 -ojsonpath="{.data."CONSOLE_SECRET_KEY"}{'\n'}" |base64 --decode`
 mc --insecure alias set ${TENANTNAMESPACE} https://${LOCALIPADDRAPI} ${MCLOGINUSER} ${MCLOGINPASSWORD} --api S3v4
-sleep 30
 mc --insecure admin info ${TENANTNAMESPACE}
 fi
 echo ""
