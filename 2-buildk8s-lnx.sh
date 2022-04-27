@@ -418,12 +418,12 @@ retvalcluster=$?
 if [ ${retvalcluster} -ne 0 ]; then
 if [ ${ENABLEK8SMASTER} = 1 ]; then
 cat << EOF > k8sconfig.yaml
-apiVersion: kubeadm.k8s.io/v1beta2
+apiVersion: kubeadm.k8s.io/v1beta3
 kind: InitConfiguration
 nodeRegistration:
   criSocket: "/var/run/containerd/containerd.sock"
 ---
-apiVersion: kubeadm.k8s.io/v1beta2
+apiVersion: kubeadm.k8s.io/v1beta3
 kind: ClusterConfiguration
 controlPlaneEndpoint: ${LOCALIPADDR}
 clusterName: ${CLUSTERNAME}
