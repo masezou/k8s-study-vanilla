@@ -871,3 +871,4 @@ else
  chmod +x /home/${SUDO_USER}/k8s-study-vanilla/result.sh
 fi
 chmod -x $0
+ls

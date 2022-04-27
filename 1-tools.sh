@@ -641,7 +641,6 @@ fi
 fi
 
 cd ${BASEPWD}
-chmod -x $0
 
 echo ""
 echo "*************************************************************************************"
@@ -670,3 +669,5 @@ read -p "Press enter to continue for reboot"
 reboot
 fi
 fi
+chmod -x $0
+ls

@@ -517,3 +517,4 @@ echo -e "\e[32m Run ./3-configk8s.sh. \e[m"
 echo ""
 
 chmod -x $0
+ls

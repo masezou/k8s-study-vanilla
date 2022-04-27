@@ -178,3 +178,4 @@ fi
 echo ""
 
 chmod -x $0
+ls
