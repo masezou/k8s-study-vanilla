@@ -42,10 +42,9 @@ LOCALHOSTNAMEAPI=${TENANTNAMESPACE}-api.${DNSDOMAINNAME}
 LOCALIPADDRAPI=`kubectl -n ${TENANTNAMESPACE} get service minio | awk '{print $4}' | tail -n 1`
 MCLOGINUSER=`kubectl -n ${TENANTNAMESPACE} get secret ${TENANTNAMESPACE}-user-1 -ojsonpath="{.data."CONSOLE_ACCESS_KEY"}{'\n'}" |base64 --decode`
 MCLOGINPASSWORD=`kubectl -n ${TENANTNAMESPACE} get secret ${TENANTNAMESPACE}-user-1 -ojsonpath="{.data."CONSOLE_SECRET_KEY"}{'\n'}" |base64 --decode`
-alias mc="mc --insecure"
 MINIOIP=${LOCALIPADDRAPI}
 if [ -z ${ERASURE_CODING} ]; then
-mc admin info ${TENANTNAMESPACE} | grep Pool
+mc --insecure admin info ${TENANTNAMESPACE} | grep Pool
 retvalec=$?
 if [ ${retvalec} -eq 0 ]; then
 ERASURE_CODING=1
@@ -60,7 +59,7 @@ BUCKETNAME=`kubectl get node --output="jsonpath={.items[*].metadata.labels.kuber
 MINIOLOCK_BUCKET_NAME=`kubectl get node --output="jsonpath={.items[*].metadata.labels.kubernetes\.io\/hostname}"`-lock
 
 MINIO_ENDPOINT=https://${MINIOIP}
-mc alias set ${TENANTNAMESPACE} ${MINIO_ENDPOINT} ${MCLOGINUSER} ${MCLOGINPASSWORD} --api S3v4
+mc --insecure alias set ${TENANTNAMESPACE} ${MINIO_ENDPOINT} ${MCLOGINUSER} ${MCLOGINPASSWORD} --api S3v4
 
 # Configure local minio setup
 AWS_ACCESS_KEY_ID=` echo -n "${MCLOGINUSER}" | base64`
@@ -104,8 +103,8 @@ EOF
 
 # Minio immutable setting
 if [ ${ERASURE_CODING} -eq 1 ]; then
-mc mb --with-lock --region=us-east1 ${TENANTNAMESPACE}/${MINIOLOCK_BUCKET_NAME}
-mc retention set --default compliance ${MINIOLOCK_PERIOD} ${TENANTNAMESPACE}/${MINIOLOCK_BUCKET_NAME}
+mc --insecure mb --with-lock --region=us-east1 ${TENANTNAMESPACE}/${MINIOLOCK_BUCKET_NAME}
+mc --insecure retention set --default compliance ${MINIOLOCK_PERIOD} ${TENANTNAMESPACE}/${MINIOLOCK_BUCKET_NAME}
 cat <<EOF | kubectl -n kasten-io create -f -
 apiVersion: config.kio.kasten.io/v1alpha1
 kind: Profile
