@@ -17,6 +17,14 @@ echo -e "\e[31m Kubernetes cluster is not found. \e[m"
 exit 255
 fi
 
+# Taint Check
+kubectl describe node `hostname` | grep Taint | grep none
+retvaltaint=$?
+if [ ${retvaltaint} -ne 0 ]; then
+echo -e "\e[31m It seemed taint was set. Exit. \e[m"
+exit 255
+fi
+
 source /etc/profile.d/krew.sh
 if [ -z ${DNSDOMAINNAME} ]; then
 DNSDOMAINNAME=`kubectl -n external-dns get deployments.apps  --output="jsonpath={.items[*].spec.template.spec.containers }" | jq |grep rfc2136-zone | cut -d "=" -f 2 | cut -d "\"" -f 1`
