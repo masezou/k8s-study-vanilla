@@ -2,7 +2,7 @@
 
 #Install blueprint
 kubectl --namespace kasten-io apply -f \
-    https://raw.githubusercontent.com/kanisterio/kanister/master/examples/stable/mongodb/blueprint-v2/mongo-blueprint.yaml
+    https://raw.githubusercontent.com/kanisterio/kanister/master/examples/mongodb/blueprint-v2/mongo-blueprint.yaml
 kubectl --namespace kasten-io apply -f \
     https://raw.githubusercontent.com/kanisterio/kanister/master/examples/mysql/blueprint-v2/mysql-blueprint.yaml
 kubectl --namespace kasten-io apply -f \
