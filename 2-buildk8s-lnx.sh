@@ -429,9 +429,6 @@ controlPlaneEndpoint: ${LOCALIPADDR}
 clusterName: ${CLUSTERNAME}
 networking:
   podSubnet: 10.244.0.0/16
-etcd:
-  local:
-    imageTag: 3.5.4-0
 ---
 apiVersion: kubelet.config.k8s.io/v1beta1
 kind: KubeletConfiguration
@@ -505,6 +502,7 @@ sleep 10
 echo ""
 echo "*************************************************************************************"
 echo "Kubernetes ${KUBECTLVER} was installed"
+kubeadm config images list
 echo ""
 kubectl cluster-info
 echo "Kubeconfig was copied ${KUBECONFIGNAME}_kubeconfig"
