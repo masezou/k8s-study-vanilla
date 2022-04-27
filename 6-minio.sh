@@ -37,6 +37,7 @@ MINIO_OPERATOR=1
 if [ ${MINIO_OPERATOR} -eq 1 ]; then
 echo "Under deploying Minio Operator"
 kubectl minio init
+sleep 2
 kubectl -n minio-operator wait pod -l operator=leader --for condition=Ready
 kubectl -n minio-operator patch service console -p '{"spec":{"type": "LoadBalancer"}}'
 DNSDOMAINNAME=`kubectl -n external-dns get deployments.apps  --output="jsonpath={.items[*].spec.template.spec.containers }" | jq |grep rfc2136-zone | cut -d "=" -f 2 | cut -d "\"" -f 1`
@@ -55,6 +56,7 @@ kubectl minio tenant create ${TENANTNAMESPACE} \
     --namespace ${TENANTNAMESPACE} \
     --storage-class nfs-sc
 echo "Under deploying minio tenant ${TENANTNAMESPACE}"
+sleep 2
 kubectl -n ${TENANTCREATE} wait pod -l v1\.min\.io\/tenant=${TENANTCREATE} --for condition=Ready
 #kubectl -n ${TENANTNAMESPACE} get pod ${TENANTNAMESPACE}-pool-0-0
 #while [ "$(kubectl -n ${TENANTNAMESPACE} get pod ${TENANTNAMESPACE}-pool-0-0 --output="jsonpath={.status.phase}")" != "Running" ]; do
@@ -126,6 +128,7 @@ echo "${TENANTNAMESPACE}.crt">>/etc/ca-certificates.conf
 update-ca-certificates
 MCLOGINUSER=`kubectl -n ${TENANTNAMESPACE} get secret ${TENANTNAMESPACE}-user-1 -ojsonpath="{.data."CONSOLE_ACCESS_KEY"}{'\n'}" |base64 --decode`
 MCLOGINPASSWORD=`kubectl -n ${TENANTNAMESPACE} get secret ${TENANTNAMESPACE}-user-1 -ojsonpath="{.data."CONSOLE_SECRET_KEY"}{'\n'}" |base64 --decode`
+sleep 5
 mc --insecure alias set ${TENANTNAMESPACE} https://${LOCALIPADDRAPI} ${MCLOGINUSER} ${MCLOGINPASSWORD} --api S3v4
 mc --insecure admin info ${TENANTNAMESPACE}
 fi
