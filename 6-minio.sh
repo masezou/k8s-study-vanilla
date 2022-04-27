@@ -74,8 +74,6 @@ kubectl -n ${TENANTCREATE} wait pod -l v1\.min\.io\/tenant=${TENANTCREATE} --for
 #done
 #    kubectl -n ${TENANTNAMESPACE} get pod ${TENANTNAMESPACE}-pool-0-0
 
-LOCALHOSTNAMEAPI=${TENANTNAMESPACE}-api.${DNSDOMAINNAME}
-LOCALHOSTNAMECONSOLE=${TENANTNAMESPACE}-console.${DNSDOMAINNAME}
 cat <<EOF | kubectl apply -n ${TENANTNAMESPACE} -f -
 apiVersion: v1
 kind: Service
@@ -84,8 +82,6 @@ metadata:
   name: minio
   labels:
     component: ${TENANTNAMESPACE} 
-  annotations:
-    external-dns.alpha.kubernetes.io/hostname: ${LOCALHOSTNAMEAPI}
 spec:
   type: LoadBalancer
   ports:
@@ -102,8 +98,6 @@ kind: Service
 metadata:
   namespace: ${TENANTNAMESPACE} 
   name:  ${TENANTNAMESPACE}-console
-  annotations:
-    external-dns.alpha.kubernetes.io/hostname: ${LOCALHOSTNAMECONSOLE}
 spec:
   type: LoadBalancer
   ports:
@@ -114,6 +108,10 @@ spec:
   selector:
     v1.min.io/console: ${TENANTNAMESPACE}-console
 EOF
+LOCALHOSTNAMEAPI=${TENANTNAMESPACE}-api.${DNSDOMAINNAME}
+LOCALHOSTNAMECONSOLE=${TENANTNAMESPACE}-console.${DNSDOMAINNAME}
+kubectl -n ${TENANTNAMESPACE} annotate service minio external-dns.alpha.kubernetes.io/hostname=${LOCALHOSTNAMEAPI}
+kubectl -n ${TENANTNAMESPACE} annotate service ${TENANTNAMESPACE}-console external-dns.alpha.kubernetes.io/hostname=${LOCALHOSTNAMECONSOLE}
 # Create certificate for tenant
 LOCALIPADDRAPI=`kubectl -n ${TENANTNAMESPACE} get service minio | awk '{print $4}' | tail -n 1`
 LOCALIPADDRCONSOLE=`kubectl -n ${TENANTNAMESPACE} get service ${TENANTNAMESPACE}-console | awk '{print $4}' | tail -n 1`
@@ -125,21 +123,42 @@ cat << EOF > extfile.conf
 subjectAltName = DNS.1:${LOCALHOSTNAMEAPI}, DNS.2:${LOCALHOSTNAMECONSOLE}, IP.1:${LOCALIPADDRAPI}, IP.2:${LOCALIPADDRCONSOLE}
 EOF
 openssl x509 -req -days 365 -sha256 -in cert.csr -CA rootCA.pem -CAkey rootCA.key -CAcreateserial -out public.crt -extfile extfile.conf
+mkdir -p ${TENANTNAMESPACE}-cert
+cd ${TENANTNAMESPACE}-cert
+mv ../private.key .
+mv ../public.crt .
+mv ../rootCA.pem .
 chmod 600 ./private.key
 chmod 600 ./public.crt
 chmod 600 ./rootCA.pem
+cd ..
 
-mkdir -p ~/.mc/certs/CAs/
-cp public.crt ~/.mc/certs/CAs/
-cp public.crt /usr/share/ca-certificates/${TENANTNAMESPACE}.crt
+if [ ${EUID:-${UID}} = 0 ]; then
+cp ${TENANTNAMESPACE}-cert/public.crt /usr/share/ca-certificates/${TENANTNAMESPACE}.crt
 echo "${TENANTNAMESPACE}.crt">>/etc/ca-certificates.conf
 update-ca-certificates
+fi
+
 MCLOGINUSER=`kubectl -n ${TENANTNAMESPACE} get secret ${TENANTNAMESPACE}-user-1 -ojsonpath="{.data."CONSOLE_ACCESS_KEY"}{'\n'}" |base64 --decode`
 MCLOGINPASSWORD=`kubectl -n ${TENANTNAMESPACE} get secret ${TENANTNAMESPACE}-user-1 -ojsonpath="{.data."CONSOLE_SECRET_KEY"}{'\n'}" |base64 --decode`
 sleep 5
+mkdir -p ~/.mc/certs/CAs/
+cp ${TENANTNAMESPACE}-cert/public.crt ~/.mc/certs/CAs/
 mc --insecure alias set ${TENANTNAMESPACE} https://${LOCALIPADDRAPI} ${MCLOGINUSER} ${MCLOGINPASSWORD} --api S3v4
-mc --insecure admin info ${TENANTNAMESPACE}
+if [ -z $SUDO_USER ]; then
+   echo "there is no sudo login"
+else
+cp -rf ${TENANTNAMESPACE}-cert /home/${SUDO_USER}/
+chown -R ${SUDO_USER}:${SUDO_USER} /home/${SUDO_USER}/${TENANTNAMESPACE}-cert
+sudo -u $SUDO_USER mkdir -p /home/$SUDO_USER/.mc/certs/CAs/
+sudo -u $SUDO_USER cp /home/${SUDO_USER}/${TENANTNAMESPACE}-cert/public.crt /home/$SUDO_USER/.mc/certs/CAs/
+sudo -u $SUDO_USER mc --insecure alias set ${TENANTNAMESPACE} https://${LOCALIPADDRAPI} ${MCLOGINUSER} ${MCLOGINPASSWORD} --api S3v4
 fi
+
+mc --insecure admin info ${TENANTNAMESPACE}
+
+fi
+
 echo ""
 echo "*************************************************************************************"
 if [ ${MINIO_OPERATOR} -eq 1 ]; then

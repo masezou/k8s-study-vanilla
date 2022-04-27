@@ -486,7 +486,6 @@ else
  # copy scripts to user area
  cp -rf ../k8s-study-vanilla /home/${SUDO_USER}/
  chown -R ${SUDO_USER}:${SUDO_USER} /home/${SUDO_USER}/k8s-study-vanilla
-# rm /home/${SUDO_USER}/k8s-study-vanilla/0-minio.sh
  rm /home/${SUDO_USER}/k8s-study-vanilla/1-tools.sh
  rm /home/${SUDO_USER}/k8s-study-vanilla/2-buildk8s-lnx.sh
  rm /home/${SUDO_USER}/k8s-study-vanilla/3-configk8s.sh
