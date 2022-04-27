@@ -94,7 +94,7 @@ metadata:
   namespace: ${TENANTNAMESPACE} 
   name:  ${TENANTNAMESPACE}-console
   annotations:
-    external-dns.alpha.kubernetes.io/hostname: minio-console.${LOCALHOSTNAMECONSOLE}
+    external-dns.alpha.kubernetes.io/hostname: ${LOCALHOSTNAMECONSOLE}
 spec:
   type: LoadBalancer
   ports:
