@@ -147,12 +147,13 @@ rm -rf kube-bench_${KUBEBENCHVER}_linux_${ARCH}.deb
 fi
 
 # Install trivy 
+if [ ${UBUNTUVER} = "20.04" ]; then
 #apt -y  install wget apt-transport-https gnupg lsb-release
 wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | apt-key add -
 echo deb https://aquasecurity.github.io/trivy-repo/deb $(lsb_release -sc) main | tee -a /etc/apt/sources.list.d/trivy.list
 apt update
 apt -y install trivy
-
+fi
 
 # Install etcd-client
 apt -y install etcd-client
