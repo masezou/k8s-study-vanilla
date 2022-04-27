@@ -368,11 +368,13 @@ if [ ${ARCH} = amd64 ]; then
  exit 1
 fi
 apt -y install docker-ce-cli docker-ce
-curl --retry 10 --retry-delay 3 --retry-connrefused -sS https://raw.githubusercontent.com/containerd/containerd/v1.5.10/contrib/autocomplete/ctr -o /etc/bash_completion.d/ctr
+CONTAINERDVER=`/usr/bin/containerd -v | cut -d " " -f3`
+curl --retry 10 --retry-delay 3 --retry-connrefused -sS https://raw.githubusercontent.com/containerd/containerd/v${CONTAINERDVER}/contrib/autocomplete/ctr -o /etc/bash_completion.d/ctr
 if [ ! -f /usr/local/bin/nerdctl ]; then
 apt -y install uidmap
-NERDCTLVER=0.18.0
-curl --retry 10 --retry-delay 3 --retry-connrefused -sSOL https://github.com/containerd/nerdctl/releases/download/v${NERDCTLVER}/nerdctl-full-${NERDCTLVER}-linux-${ARCH}.tar.gz
+NERDCTLVER=0.19.0
+#curl --retry 10 --retry-delay 3 --retry-connrefused -sSOL https://github.com/containerd/nerdctl/releases/download/v${NERDCTLVER}/nerdctl-full-${NERDCTLVER}-linux-${ARCH}.tar.gz
+curl --retry 10 --retry-delay 3 --retry-connrefused -sSOL https://github.com/containerd/nerdctl/releases/download/v${NERDCTLVER}/nerdctl-${NERDCTLVER}-linux-${ARCH}.tar.gz
 tar xfz nerdctl-full-${NERDCTLVER}-linux-${ARCH}.tar.gz -C /usr/local
 rm -rf nerdctl-full-${NERDCTLVER}-linux-${ARCH}.tar.gz
 nerdctl completion bash > /etc/bash_completion.d/nerdctl
