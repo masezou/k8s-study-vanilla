@@ -348,3 +348,4 @@ chown ${SUDO_USER}:${SUDO_USER} /home/${SUDO_USER}/govc-vcenter.sh
 fi
 fi
 chmod -x $0
+ls

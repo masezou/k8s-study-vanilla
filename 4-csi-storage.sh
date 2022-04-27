@@ -411,3 +411,4 @@ echo ""
 
 cd ${BASEPWD}
 chmod -x $0
+ls
