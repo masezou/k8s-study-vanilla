@@ -57,6 +57,8 @@ if [ ${retvalminioope} -eq 0 ]; then
 MINIOOP_EXTERNALIP=`kubectl -n minio-operator get service console | awk '{print $4}' | tail -n 1`
 echo -e "\e[1mMinio Operator \e[m"
 echo ""
+echo "This is use for adding/delete/manage Minio tenant"
+echo ""
 echo -e "\e[32m http://minio-console.${DNSDOMAINNAME}:9090/login \e[m"
 echo "Or"
 echo -e "\e[32m http://${MINIOOP_EXTERNALIP}:9090/login \e[m"
