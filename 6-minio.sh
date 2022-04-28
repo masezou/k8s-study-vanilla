@@ -1,8 +1,12 @@
 #!/usr/bin/env bash
 
 #########################################################
+# If you want to create Minio Tenant
 TENANTCREATE=1
 TENANTNAMESPACE=minio-tenant1
+TENANTCAPCITY=200Gi
+# SC = csi-hostpath-sc / local-hostpath / nfs-sc / nfs-csi / vsphere-sc / example-vanilla-rwo-filesystem-sc / cstor-csi-disk
+TENANTSC=nfs-sc
 #DNSDOMAINNAME=k8slab.internal
 #DNSHOST=12.168.133.2
 #MCLOGINUSER=miniologinuser
@@ -60,9 +64,9 @@ kubectl create ns ${TENANTNAMESPACE}
 kubectl minio tenant create ${TENANTNAMESPACE} \
     --servers 1 \
     --volumes 4 \
-    --capacity 200Gi \
+    --capacity ${TENANTCAPCITY} \
     --namespace ${TENANTNAMESPACE} \
-    --storage-class nfs-sc
+    --storage-class ${TENANTSC}
 echo "Under deploying minio tenant ${TENANTNAMESPACE}"
 sleep 2
 kubectl -n ${TENANTCREATE} wait pod -l v1\.min\.io\/tenant=${TENANTCREATE} --for condition=Ready
@@ -179,7 +183,7 @@ echo ""
 echo ""
 fi
 if [ ${TENANTCREATE} -eq 1 ]; then
-echo "Upload following certificate to Minio Tenant"
+echo "Upload following certificate to Minio Tenant in Minio Operator UI"
 echo "private.key / public.crt / rootCA.pem"
 echo ""
 echo "API endpoint"
