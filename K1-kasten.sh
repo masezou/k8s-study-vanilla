@@ -4,14 +4,18 @@
 # For Install from Registry
 #FORCE_ONLINE=1
 #REGISTRYURL="192.168.133.2:5000"
-#KASTENVER=4.5.13
+#KASTENVER=4.5.14
 
+# SC = csi-hostpath-sc / local-hostpath / nfs-sc / nfs-csi / vsphere-sc / example-vanilla-rwo-filesystem-sc / cstor-csi-disk
 SC=nfs-csi
 KASTENHOSTNAME=kasten-`kubectl get node --output="jsonpath={.items[*].metadata.labels.kubernetes\.io\/hostname}"`
 KASTENINGRESS=k10-`kubectl get node --output="jsonpath={.items[*].metadata.labels.kubernetes\.io\/hostname}"`
 
 STORAGECONFIG=1
 VSPHERECONFIG=1
+BLUEPRINT=1
+RBAC=1
+MULTICLUSTER=1
 
 #########################################################
 
@@ -183,9 +187,15 @@ fi
 if [ ${VSPHERECONFIG} -eq 1 ]; then
 bash ./K3-kasten-vsphere.sh
 fi
+if [ ${BLUEPRINT} -eq 1 ]; then
 bash ./K4-kasten-blueprint.sh
+fi
+if [ ${RBAC} -eq 1 ]; then
 bash ./K5-kasten-local-rbac.sh
-
+fi
+if [ ${MULTICLUSTER} -eq 1 ]; then
+bash ./K6-Kasten-multicluster.sh
+fi
 sa_secret=$(kubectl get serviceaccount k10-k10 -o jsonpath="{.secrets[0].name}" --namespace kasten-io)
 kubectl get secret $sa_secret --namespace kasten-io -ojsonpath="{.data.token}{'\n'}" | base64 --decode > k10-k10.token
 echo "" >> k10-k10.token
