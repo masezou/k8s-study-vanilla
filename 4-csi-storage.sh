@@ -2,15 +2,25 @@
 #########################################################
 
 # Specify NFS storage location path
+# Localhost server
+NFSSC=1
+# NFSSVER=1:local 0:external 
+NFSSVR=1
 NFSPATH=/disk/nfs_csi
 NFSSUBPATH=/disk/nfs_sub
+# External nfs server
+EXNFSSVRIPADDR=192.168.10.4
+EXNFSPATH=/k8s_share
+EXNFSSUBPATH=/k8s_sharedyn
+
 OPENEBS=1
+CSILOCALHOSTPATH=1
+
 #FORCE_LOCALIP=192.168.16.2
 
 # Experimental
 
 SYNOLOGY=0
-
 SYNOLOGYHOST="YOUR_SYNOLOGY_HOST"
 SYNOLOGYPORT="5001"
 SYNOLOGYHTTPS="true"
@@ -18,6 +28,7 @@ SYNOLOGYUSERNAME="YOUR_SYNOLOGY_USER"
 SYNOLOGYPASSWORD="YOUR_SYNOLOGY_PASSWORD"
 
 #########################################################
+if [ ${NFSSVR} -eq 1 ]; then
 ### UID Check ###
 if [ ${EUID:-${UID}} != 0 ]; then
     echo "This script must be run as root"
@@ -25,7 +36,6 @@ if [ ${EUID:-${UID}} != 0 ]; then
 else
     echo "I am root user."
 fi
-
 # HOSTNAME check
 ping -c 3 `hostname`
 retvalping=$?
@@ -49,6 +59,19 @@ case ${UBUNTUVER} in
       exit 255
         ;;
 esac
+#### LOCALIP (from kubectl) #########
+if [ -z ${FORCE_LOCALIP} ]; then
+LOCALIPADDR=`kubectl get nodes -o jsonpath='{.items[*].status.addresses[?(@.type=="InternalIP")].address}'`
+else
+LOCALIPADDR=${FORCE_LOCALIP}
+fi
+if [ -z ${LOCALIPADDR} ]; then
+echo -e "\e[31m Local IP address setting was failed, please set FORCE_LOCALIP and re-run.  \e[m"
+exit 255
+else
+echo ${LOCALIPADDR}
+fi
+fi
 
 ### Install command check ####
 if type "kubectl" > /dev/null 2>&1
@@ -67,18 +90,6 @@ echo -e "\e[31m Kubernetes cluster is not found. \e[m"
 exit 255
 fi
 
-#### LOCALIP (from kubectl) #########
-if [ -z ${FORCE_LOCALIP} ]; then
-LOCALIPADDR=`kubectl get nodes -o jsonpath='{.items[*].status.addresses[?(@.type=="InternalIP")].address}'`
-else
-LOCALIPADDR=${FORCE_LOCALIP}
-fi
-if [ -z ${LOCALIPADDR} ]; then
-echo -e "\e[31m Local IP address setting was failed, please set FORCE_LOCALIP and re-run.  \e[m"
-exit 255
-else
-echo ${LOCALIPADDR}
-fi
 
 BASEPWD=`pwd`
 source /etc/profile
@@ -209,13 +220,15 @@ kubectl -n openebs wait pod  -l app=cstor-pool --for condition=Ready
 fi
 fi
 
-if [ ${OPENEBS} -ne 1 ]; then
+if [ ${OPENEBS} -eq 0 ]; then
 kubectl get sc | grep local-path
 retvallocalpath=$?
 if [ ${retvallocalpath} -ne 0 ]; then
 # Rancher local driver (Not CSI Storage)
 kubectl apply -f https://raw.githubusercontent.com/rancher/local-path-provisioner/master/deploy/local-path-storage.yaml
 fi
+
+if [ ${CSILOCALHOSTPATH} -eq 1 ]; then
 SNAPSHOTTER_VERSION=5.0.1
 # Apply VolumeSnapshot CRDs
 kubectl apply -f https://raw.githubusercontent.com/kubernetes-csi/external-snapshotter/v${SNAPSHOTTER_VERSION}/client/config/crd/snapshot.storage.k8s.io_volumesnapshotclasses.yaml
@@ -294,8 +307,11 @@ fi
 chmod -R 1777 /var/lib/docker/volumes/
 fi
 fi
+fi
 
-##Install NFS-CSI driver
+if [ ${NFSSC} -eq 1 ]; then
+##Install local NFS Server
+if [ ${NFSSVR} -eq 1 ]; then
 kubectl get sc | grep nfs
 retvalnfssc=$?
 if [ ${retvalnfssc} -ne 0 ]; then
@@ -319,6 +335,8 @@ EOF
 systemctl restart nfs-server
 systemctl enable nfs-server
 showmount -e
+fi
+fi
 
 # Install NFS-CSI driver for single node
 kubectl apply -f https://raw.githubusercontent.com/kubernetes-csi/csi-driver-nfs/master/deploy/rbac-csi-nfs-controller.yaml
@@ -337,8 +355,15 @@ done
 kubectl -n kube-system wait pod -l app=csi-nfs-node --for condition=Ready --timeout 180s
 
 curl --retry 10 --retry-delay 3 --retry-connrefused -sSOL https://raw.githubusercontent.com/kubernetes-csi/csi-driver-nfs/master/deploy/example/storageclass-nfs.yaml
+if [ ${NFSSVR} -eq 1 ]; then
 sed -i -e "s/nfs-server.default.svc.cluster.local/${LOCALIPADDR}/g" storageclass-nfs.yaml
 sed -i -e "s@share: /@share: ${NFSPATH}@g" storageclass-nfs.yaml
+else
+if [ ! -z ${EXNFSSVRIPADDR} ]; then
+sed -i -e "s/nfs-server.default.svc.cluster.local/${EXNFSSVRIPADDR}/g" storageclass-nfs.yaml
+sed -i -e "s@share: /@share: ${EXNFSPATH}@g" storageclass-nfs.yaml
+fi
+fi
 kubectl create -f storageclass-nfs.yaml
 kubectl create secret generic mount-options --from-literal mountOptions="nfsvers=3,hard"
 rm -rf storageclass-nfs.yaml
@@ -360,10 +385,19 @@ EOF
 kubectl create namespace nfs-subdir
 helm repo add nfs-subdir-external-provisioner https://kubernetes-sigs.github.io/nfs-subdir-external-provisioner/
 helm repo update
+if [ ${NFSSVR} -eq 1 ]; then
 helm install nfs-subdir-external-provisioner nfs-subdir-external-provisioner/nfs-subdir-external-provisioner -n nfs-subdir \
     --set nfs.server=${LOCALIPADDR} \
     --set nfs.path=${NFSSUBPATH} \
     --set storageClass.name=nfs-sc
+else
+if [ ! -z ${EXNFSSVRIPADDR} ]; then
+helm install nfs-subdir-external-provisioner nfs-subdir-external-provisioner/nfs-subdir-external-provisioner -n nfs-subdir \
+    --set nfs.server=${EXNFSSVRIPADDR} \
+    --set nfs.path=${EXNFSSUBPATH} \
+    --set storageClass.name=nfs-sc
+fi
+fi
 fi
 
 # Install Synology CSI (Experimental)
