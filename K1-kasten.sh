@@ -110,11 +110,25 @@ echo ${SC}
 fi
 
 # Install Kasten
+kubectl create ns kasten-io
+
+# k3s check
+kubectl get node | grep k3s
+retvalk3s=$?
+if [ ${retvalk3s} -eq 0 ]; then
+echo "It is k3s"
+helm install k10 kasten/k10 --namespace=kasten-io \
+--set global.persistence.size=40G \
+--set global.persistence.storageClass=local-path \
+--set grafana.enabled=true \
+--set auth.tokenAuth.enabled=true \
+--set injectKanisterSidecar.enabled=true \
+--set-string injectKanisterSidecar.namespaceSelector.matchLabels.k10/injectKanisterSidecar=true 
+else
 DNSDOMAINNAME=`kubectl -n external-dns get deployments.apps  --output="jsonpath={.items[*].spec.template.spec.containers }" | jq |grep rfc2136-zone | cut -d "=" -f 2 | cut -d "\"" -f 1`
 KASTENFQDN=${KASTENHOSTNAME}.${DNSDOMAINNAME}
 KASTENFQDNINGRESS=${KASTENINGRESS}.${DNSDOMAINNAME}
 if [ ${ONLINE} -eq 1 ]; then
-kubectl create ns kasten-io
 helm install k10 kasten/k10 --namespace=kasten-io \
 --set global.persistence.size=40G \
 --set global.persistence.storageClass=${SC} \
@@ -167,6 +181,7 @@ helm install k10 k10-${KASTENVER}.tgz --namespace kasten-io \
 --set injectKanisterSidecar.enabled=true \
 --set-string injectKanisterSidecar.namespaceSelector.matchLabels.k10/injectKanisterSidecar=true
 fi
+fi
 
 sleep 2
 kubectl get deployment -n kasten-io gateway
@@ -200,6 +215,7 @@ sa_secret=$(kubectl get serviceaccount k10-k10 -o jsonpath="{.secrets[0].name}" 
 kubectl get secret $sa_secret --namespace kasten-io -ojsonpath="{.data.token}{'\n'}" | base64 --decode > k10-k10.token
 echo "" >> k10-k10.token
 
+if [ ${retvalk3s} -ne 0 ]; then
 EXTERNALIP=`kubectl -n kasten-io get svc gateway-ext | awk '{print $4}' | tail -n 1`
 INGRESSIP=`kubectl get ingress -n kasten-io --output="jsonpath={.items[*].status.loadBalancer.ingress[*].ip}"`
 KASTENFQDNURL=`kubectl -n kasten-io  get svc gateway-ext --output="jsonpath={.metadata.annotations}" | jq | grep external-dns | cut -d "\"" -f 4`
@@ -209,7 +225,7 @@ host ${KASTENFQDNURL}
 retvaldns1=$?
 host ${KASTENFQDNINGRESS}
 retvaldns2=$?
-
+fi
 echo ""
 echo "*************************************************************************************"
 if [ -z ${ONLINE} ]; then
