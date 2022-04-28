@@ -5,7 +5,7 @@
 TENANTCREATE=1
 TENANTNAMESPACE=minio-tenant1
 TENANTCAPCITY=200Gi
-# SC = csi-hostpath-sc / local-hostpath / nfs-sc / nfs-csi / vsphere-sc / example-vanilla-rwo-filesystem-sc / cstor-csi-disk
+# SC = csi-hostpath-sc / local-hostpath / local-path / nfs-sc / nfs-csi / vsphere-sc / example-vanilla-rwo-filesystem-sc / cstor-csi-disk
 TENANTSC=nfs-sc
 #DNSDOMAINNAME=k8slab.internal
 #DNSHOST=12.168.133.2

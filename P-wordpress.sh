@@ -7,7 +7,7 @@
 # namespace. namespace will be used with hostname
 NAMESPACE=blog1
 
-# SC = csi-hostpath-sc / local-hostpath / nfs-sc / nfs-csi / vsphere-sc / example-vanilla-rwo-filesystem-sc / cstor-csi-disk
+# SC = csi-hostpath-sc / local-hostpath / local-path / nfs-sc / nfs-csi / vsphere-sc / example-vanilla-rwo-filesystem-sc / cstor-csi-disk
 SC=vsphere-sc
 
 #REGISTRYURL=192.168.133.2:5000
