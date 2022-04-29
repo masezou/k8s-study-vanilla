@@ -235,12 +235,16 @@ echo "Next Step"
 echo "Confirm wordpress kasten is running with kubectl get pods --namespace kasten-io"
 echo -e "\e[32m Open your browser \e[m"
 echo -e "\e[32m http://${EXTERNALIP}/k10/ \e[m"
+if [ ! -z  ${retvaldns1} ]; then
 if [ ${retvaldns1} -eq 0 ]; then
 echo -e "\e[32m http://${KASTENFQDNURL}/k10/ \e[m"
 fi
+fi
+if [ ! -z ${retvaldns2} ]; then
 if [ ${retvaldns2} -eq 0 ]; then
 echo -e "\e[32m http://${KASTENFQDNINGRESS}/k10/ \e[m"
 echo -e "\e[32m https://${KASTENFQDNINGRESS}/k10/ \e[m"
+fi
 fi
 echo "then input login token"
 echo -e "\e[32m cat ./k10-k10.token \e[m"
