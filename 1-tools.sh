@@ -295,7 +295,7 @@ fi
 # Install govc
 if [ ${GOVC} -eq 1 ]; then
 if [ ! -f /usr/local/bin/govc ]; then
-GOVCVER=0.27.4
+GOVCVER=0.28.0
 mkdir govcbin
 if [ ${ARCH} = amd64 ]; then
 curl --retry 10 --retry-delay 3 --retry-connrefused -sSOL https://github.com/vmware/govmomi/releases/download/v${GOVCVER}/govc_$(uname -s)_$(uname -i).tar.gz
