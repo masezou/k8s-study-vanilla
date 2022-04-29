@@ -15,7 +15,9 @@ MINIOLOCK_PERIOD=30d
 PROTECTION_PERIOD=240h
 
 # For external minio server.
-#MINIOIP=192.168.16.3
+#EXTERNALMINIOIP=192.168.10.4:9000
+#EXTERNALMCLOGINUSER=miniologinuser
+#EXTERNALMCLOGINPASSWORD=miniologinuser
 
 #FORCE_LOCALIP=192.168.16.2
 #########################################################
@@ -42,6 +44,7 @@ LOCALHOSTNAMEAPI=${TENANTNAMESPACE}-api.${DNSDOMAINNAME}
 LOCALIPADDRAPI=`kubectl -n ${TENANTNAMESPACE} get service minio | awk '{print $4}' | tail -n 1`
 MCLOGINUSER=`kubectl -n ${TENANTNAMESPACE} get secret ${TENANTNAMESPACE}-user-1 -ojsonpath="{.data."CONSOLE_ACCESS_KEY"}{'\n'}" |base64 --decode`
 MCLOGINPASSWORD=`kubectl -n ${TENANTNAMESPACE} get secret ${TENANTNAMESPACE}-user-1 -ojsonpath="{.data."CONSOLE_SECRET_KEY"}{'\n'}" |base64 --decode`
+mc --insecure alias set ${TENANTNAMESPACE} ${MINIO_ENDPOINT} ${MCLOGINUSER} ${MCLOGINPASSWORD} --api S3v4
 MINIOIP=${LOCALIPADDRAPI}
 if [ -z ${ERASURE_CODING} ]; then
 mc --insecure admin info ${TENANTNAMESPACE} | grep Pool
@@ -54,12 +57,25 @@ fi
 fi
 fi
 
+# If there is externl minio.
+if [ ! -z ${EXTERNALMINIOIP} ]; then
+MINIOIP=${EXTERNALMINIOIP}
+fi
+if [ ! -z ${EXTERNALMCLOGINUSER} ]; then
+MCLOGINUSER=${EXTERNALMCLOGINUSER}
+fi
+if [ ! -z ${EXTERNALMCLOGINPASSWORD} ]; then
+MCLOGINPASSWORD=${EXTERNALMCLOGINPASSWORD}
+fi
+
 if [ ! -z ${MCLOGINUSER} ]; then
 BUCKETNAME=`kubectl get node --output="jsonpath={.items[*].metadata.labels.kubernetes\.io\/hostname}"`
 MINIOLOCK_BUCKET_NAME=`kubectl get node --output="jsonpath={.items[*].metadata.labels.kubernetes\.io\/hostname}"`-lock
+if [ ! -z ${MINIOIP} ]; then
+MINIOIP=${LOCALIPADDR}:9000
+fi
 
 MINIO_ENDPOINT=https://${MINIOIP}
-mc --insecure alias set ${TENANTNAMESPACE} ${MINIO_ENDPOINT} ${MCLOGINUSER} ${MCLOGINPASSWORD} --api S3v4
 
 # Configure local minio setup
 AWS_ACCESS_KEY_ID=` echo -n "${MCLOGINUSER}" | base64`
@@ -103,8 +119,13 @@ EOF
 
 # Minio immutable setting
 if [ ${ERASURE_CODING} -eq 1 ]; then
+if [ ! -z ${LOCALIPADDRAPI} ];then
 mc --insecure mb --with-lock --region=us-east1 ${TENANTNAMESPACE}/${MINIOLOCK_BUCKET_NAME}
 mc --insecure retention set --default compliance ${MINIOLOCK_PERIOD} ${TENANTNAMESPACE}/${MINIOLOCK_BUCKET_NAME}
+else
+mc --insecure mb --with-lock --region=us-east1 local/${MINIOLOCK_BUCKET_NAME}
+mc --insecure retention set --default compliance ${MINIOLOCK_PERIOD} local/${MINIOLOCK_BUCKET_NAME}
+fi
 cat <<EOF | kubectl -n kasten-io create -f -
 apiVersion: config.kio.kasten.io/v1alpha1
 kind: Profile
