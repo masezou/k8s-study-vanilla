@@ -13,6 +13,10 @@ EXNFSSVRIPADDR=192.168.10.4
 EXNFSPATH=/k8s_share
 EXNFSSUBPATH=/k8s_sharedyn
 
+SMBSC=0
+SMBHOST=192.168.10.4
+SMBSHARE=/k8s_smb
+
 OPENEBS=1
 CSILOCALHOSTPATH=1
 
@@ -398,6 +402,11 @@ helm install nfs-subdir-external-provisioner nfs-subdir-external-provisioner/nfs
     --set storageClass.name=nfs-sc
 fi
 fi
+fi
+
+if [ ${SMBSC} -eq 1 ]; then
+echo ${SMBHOST}
+echo ${SMBSHARE}
 fi
 
 # Install Synology CSI (Experimental)
