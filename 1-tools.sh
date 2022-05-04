@@ -703,7 +703,8 @@ rm octant_${OCTANTVER}_`uname -s`-ARM64.deb
 else
 echo "${ARCH} platform is not supported"
 fi
-echo "export OCTANT_LISTENER_ADDR=0.0.0.0:8090" >> /etc/profile.d/octant.sh
+echo "export OCTANT_LISTENER_ADDR=0.0.0.0:8090" > /etc/profile.d/octant.sh
+echo "export OCTANT_DISABLE_OPEN_BROWSER=true" >> /etc/profile.d/octant.sh
 fi
 
 if [[ -z "${SUDO_USER}" ]]; then
