@@ -21,8 +21,6 @@ DNSDOMAINNAME=k8slab.internal
 
 #DNSHOSTIP=192.168.16.2
 
-NERDCTL=0
-
 # Force REGISTRY Setting
 # If you haven't set Registry server, the registry server will set to NS server.
 #REGISTRY="IPADDR:5000"
@@ -38,6 +36,7 @@ echo -e "\e[31m Client tools is not able to install to kubernetes node host! \e[
 exit 255
 fi
 DOCKER=1
+NERDCTL=1
 # Only tested on amd64. arm64 is experimental
 CLOUDUTILS=1
 # Powershell
@@ -434,18 +433,21 @@ systemctl daemon-reload
 fi
 fi
 
-if [ ! -z ${DNSDOMAINNAME} ]; then
+
 if [ -z ${REGISTRY} ]; then
 REGISTRYIP=`host -t a ${DNSDOMAINNAME} |cut -d " " -f4`
+echo ${REGISTRYIP} | grep out
+retvalregcheck=$?
+
+if [ ${retvalregcheck} -eq 0 ]; then
+REGISTRYIP=127.0.0.1
+fi
 REGISTRY="${REGISTRYIP}:5000"
-fi
-fi
 
 if [ -z ${REGISTRYURL} ];then
 REGISTRYURL=http://${REGISTRY}
 fi
 
-if [ ! -z ${REGISTRY} ]; then
 mkdir -p /etc/docker/certs.d/${REGISTRY}
 cat << EOF > /etc/docker/daemon.json
 { "insecure-registries":["${REGISTRY}"] }
@@ -455,6 +457,9 @@ cat << EOF > /etc/docker/daemon.json.orig
 { "insecure-registries":["127.0.0.1:5000"] }
 EOF
 fi
+
+fi
+
 systemctl enable docker
 systemctl daemon-reload
 systemctl restart docker
@@ -553,9 +558,9 @@ fi
 
 # for client installation
 echo -e "\e[31mk8s installation is prohibited if you install docker to this mathine. this script removes deploying k8s scripts. \e[m"
-rm -rf 00Install-k8s.sh 2-buildk8s-lnx.sh 3-configk8s.sh 4-csi-storage.sh 5-csi-vsphere.sh
-
 if [ -d ../k8s-study-vanilla ]; then
+rm -rf ./00Install-k8s.sh ./2-buildk8s-lnx.sh ./3-configk8s.sh ./4-csi-storage.sh ./5-csi-vsphere.sh
+
 cp -rf ../k8s-study-vanilla /home/${SUDO_USER}/
 rm /home/${SUDO_USER}/k8s-study-vanilla/1-tools.sh
 chown -R ${SUDO_USER}:${SUDO_USER} /home/${SUDO_USER}/k8s-study-vanilla
@@ -574,7 +579,6 @@ if [ ! -z $DNSDOMAINNAME} ];then
 ETHDEV=`grep ens /etc/netplan/00-installer-config.yaml |tr -d ' ' | cut -d ":" -f1`
 netplan set network.ethernets.${ETHDEV}.nameservers.search=[${DNSDOMAINNAME}]
 netplan apply
-fi
 fi
 fi
 
