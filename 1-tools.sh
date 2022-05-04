@@ -26,6 +26,7 @@ DNSDOMAINNAME=k8slab.internal
 #REGISTRY="IPADDR:5000"
 #REGISTRYURL=http://${REGISTRY}
 
+TCE=1
 #########################################################
 
 if [ ${CLIENT} -eq 1 ]; then
@@ -672,6 +673,58 @@ fi
 
 # I like vi in less.
 echo "export VISUAL=vi" >/etc/profile.d/less-pager.sh
+
+
+# Install tanzu tools
+if [ ${TCE} -eq 1 ]; then
+apt -y install make
+
+# Install Velero
+if [ ! -f /usr/local/bin/velero ]; then
+VELEROVER=1.8.1
+curl -OL https://github.com/vmware-tanzu/velero/releases/download/v${VELEROVER}/velero-v${VELEROVER}-linux-${ARCH}.tar.gz
+tar xfz velero-v${VELEROVER}-linux-${ARCH}.tar.gz
+rm velero-v${VELEROVER}-linux-${ARCH}.tar.gz
+mv velero-v${VELEROVER}-linux-${ARCH}/velero /usr/local/bin/
+velero completion bash > /etc/bash_completion.d/velero
+fi
+
+# Install Octant
+if [ ! -f /usr/local/bin/octant ]; then
+OCTANTVER=0.25.1
+if [ ${ARCH} = amd64 ]; then
+curl -OL https://github.com/vmware-tanzu/octant/releases/download/v${OCTANTVER}/octant_${OCTANTVER}_`uname -s`-64bit.deb
+dpkg -i octant_${OCTANTVER}_`uname -s`-64bit.deb
+rm octant_${OCTANTVER}_`uname -s`-64bit.deb
+elif [ ${ARCH} = arm64 ]; then
+curl -OL https://github.com/vmware-tanzu/octant/releases/download/v${OCTANTVER}/octant_${OCTANTVER}_`uname -s`-ARM64.deb
+dpkg -i octant_${OCTANTVER}_`uname -s`-ARM64.deb
+rm octant_${OCTANTVER}_`uname -s`-ARM64.deb
+else
+echo "${ARCH} platform is not supported"
+fi
+echo "export OCTANT_LISTENER_ADDR=0.0.0.0:8090" >> /etc/profile.d/octant.sh
+fi
+
+if [[ -z "${SUDO_USER}" ]]; then
+   echo "there is no sudo login"
+else
+sudo -u $SUDO_USER mkdir -p ~/.config/octant/plugins/ && \
+sudo -u $SUDO_USER curl -L https://github.com/bloodorangeio/octant-helm/releases/download/v0.2.0/octant-helm_0.2.0_linux_amd64.tar.gz | tar xz -C ~/.config/octant/plugins/ octant-helm
+cd /tmp
+sudo -u $SUDO_USER curl -OL https://github.com/vmware-tanzu/octant-plugin-for-kind/releases/download/v0.0.1/octant-plugin-for-kind_0.0.1_Linux-64bit.tar.gz 
+sudo -u $SUDO_USER tar xfz octant-plugin-for-kind_0.0.1_Linux-64bit.tar.gz
+sudo -u $SUDO_USER mv octant-plugin-for-kind_0.0.1_Linux-64bit/octant ~/.config/octant/plugins/octant-kind
+rm -rf octant-plugin-for-kind_0.0.1_Linux-64bit*
+sudo -u $SUDO_USER git clone https://github.com/ashish-amarnath/octant-velero-plugin
+sudo -u $SUDO_USER cd octant-velero-plugin
+sudo -u $SUDO_USER make install
+cd ..
+rm -rf octant-velero-plugin
+cd ${BASEPWD}
+fi
+
+fi
 
 cd ${BASEPWD}
 
