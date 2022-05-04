@@ -12,6 +12,8 @@ KUBEBASEVER=1.22
 
 MSSQLCMD=1
 
+NTPSVR=1
+
 # For Client use. Not to set in cluster environment.
 CLIENT=0
 #Client setting: When you set CLIENT=1, you can set DNS setting."
@@ -318,6 +320,19 @@ mv govc_bash_completion /etc/bash_completion.d/
 fi
 fi
 
+# Install NTP Server
+if [ ${NTPSVR} -eq 1 ]; then
+apt -y install ntp
+sed -i -e "s/pool 0.ubuntu/pool 0.jp/g" /etc/ntp.conf
+sed -i -e "s/pool 1.ubuntu/pool 1.jp/g" /etc/ntp.conf
+sed -i -e "s/pool 2.ubuntu/pool 2.jp/g" /etc/ntp.conf
+sed -i -e "s/pool 3.ubuntu/pool 3.jp/g" /etc/ntp.conf
+sed -i -e "s/pool ntp.ubuntu.com/pool ntp.nict.jp iburst/g" /etc/ntp.conf
+systemctl enable ntp
+systemctl restart ntp
+ntpq -p
+fi
+
 # Install powershell
 if [ ${POWERSHELL} -eq 1 ]; then
 if [ ${ARCH} = amd64 ]; then
@@ -490,9 +505,15 @@ kompose completion bash > /etc/bash_completion.d/kompose
 source /etc/bash_completion.d/kompose
 fi
 # Install Kind
-KINDVER=0.12.0
 if [ ! -f /usr/local/bin/kind ]; then
-curl -s -Lo ./kind https://github.com/kubernetes-sigs/kind/releases/download/v${KINDVER}/kind-linux-${ARCH}
+#KINDVER=0.12.0
+#curl -s -Lo ./kind https://github.com/kubernetes-sigs/kind/releases/download/v${KINDVER}/kind-linux-${ARCH}
+DOWNLOAD_URL=$(curl -s https://api.github.com/repos/kubernetes-sigs/kind/releases/latest \
+        | grep browser_download_url \
+        | grep kind-darwin-${ARCH} \
+        | grep -v sha256sum \
+        | cut -d '"' -f 4)
+curl -s -Lo ${DOWNLOAD_URL}
 mv ./kind /usr/local/bin/kind
 chmod +x /usr/local/bin/kind
 kind completion bash > /etc/bash_completion.d/kind
