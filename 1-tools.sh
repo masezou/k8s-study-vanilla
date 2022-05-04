@@ -695,7 +695,7 @@ echo "Powercli"
 echo "pwsh then Install\-Module VMware.PowerCLI \-Scope CurrentUser"
 echo ""
 echo ""
-if [ ${DOCKER} -eq 1 ]; then
+if [ ${NERDCTL} -eq 1 ]; then
 echo "If you are using Ubuntu Desktop with X Window, plase reboot your Ubuntu desktop."
 echo "If you want to use nerdctl, once reboot, then execute containerd-rootless-setuptool.sh install in normal user."
 read -p "Press enter to continue for reboot"
