@@ -689,6 +689,16 @@ mv velero-v${VELEROVER}-linux-${ARCH}/velero /usr/local/bin/
 velero completion bash > /etc/bash_completion.d/velero
 fi
 
+# Install imgpkg
+if [ ! -f /usr/local/bin/imgpkg ]; then
+IMGPKGVER=0.28.0
+curl -OL https://github.com/vmware-tanzu/carvel-imgpkg/releases/download/v${IMGPKGVER}/imgpkg-linux-${ARCH}
+mv imgpkg-linux-${ARCH} /usr/local/bin/imgpkg
+chmod +x /usr/local/bin/imgpkg
+imgpkg completion bash > /etc/bash_completion.d/imgpkg
+fi
+
+
 # Install Octant
 if [ ! -f /usr/local/bin/octant ]; then
 OCTANTVER=0.25.1
