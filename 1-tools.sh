@@ -698,6 +698,14 @@ chmod +x /usr/local/bin/imgpkg
 imgpkg completion bash > /etc/bash_completion.d/imgpkg
 fi
 
+# Install yq
+if [ ! -f /usr/local/bin/yq ]; then
+YQVER=4.25.1
+curl -OL https://github.com/mikefarah/yq/releases/download/v${YQVER}/yq_linux_${ARCH}
+mv yq_linux_${ARCH} /usr/local/bin/yq
+chmod +x /usr/local/bin/yq
+yq shell-completion bash > /etc/bash_completion.d/yq 
+fi
 
 # Install Octant
 if [ ! -f /usr/local/bin/octant ]; then
