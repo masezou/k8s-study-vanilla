@@ -21,6 +21,8 @@ DNSDOMAINNAME=k8slab.internal
 
 #DNSHOSTIP=192.168.16.2
 
+NERDCTL=0
+
 # Force REGISTRY Setting
 # If you haven't set Registry server, the registry server will set to NS server.
 #REGISTRY="IPADDR:5000"
@@ -404,13 +406,22 @@ fi
 apt -y install docker-ce-cli docker-ce
 CONTAINERDVER=`/usr/bin/containerd -v | cut -d " " -f3`
 curl --retry 10 --retry-delay 3 --retry-connrefused -sS https://raw.githubusercontent.com/containerd/containerd/v${CONTAINERDVER}/contrib/autocomplete/ctr -o /etc/bash_completion.d/ctr
+groupadd docker
+if [ -z $SUDO_USER ]; then
+  echo "there is no sudo login"
+else
+usermod -aG docker ${SUDO_USER}
+sudo -u $SUDO_USER mkdir -p /home/${SUDO_USER}/.docker
+fi
+
+# Install nerdctl
+if [ ${NERDCTL} -eq 1 ]; then
 if [ ! -f /usr/local/bin/nerdctl ]; then
 apt -y install uidmap
 NERDCTLVER=0.19.0
-#curl --retry 10 --retry-delay 3 --retry-connrefused -sSOL https://github.com/containerd/nerdctl/releases/download/v${NERDCTLVER}/nerdctl-full-${NERDCTLVER}-linux-${ARCH}.tar.gz
-curl --retry 10 --retry-delay 3 --retry-connrefused -sSOL https://github.com/containerd/nerdctl/releases/download/v${NERDCTLVER}/nerdctl-${NERDCTLVER}-linux-${ARCH}.tar.gz
-tar xfz nerdctl-${NERDCTLVER}-linux-${ARCH}.tar.gz -C /usr/local
-rm -rf nerdctl-${NERDCTLVER}-linux-${ARCH}.tar.gz
+curl --retry 10 --retry-delay 3 --retry-connrefused -sSOL https://github.com/containerd/nerdctl/releases/download/v${NERDCTLVER}/nerdctl-full-${NERDCTLVER}-linux-${ARCH}.tar.gz
+tar xfz nerdctl-full-${NERDCTLVER}-linux-${ARCH}.tar.gz -C /usr/local/bin
+rm -rf nerdctl-full-${NERDCTLVER}-linux-${ARCH}.tar.gz
 nerdctl completion bash > /etc/bash_completion.d/nerdctl
 sed -i -e 's/GRUB_CMDLINE_LINUX=""/GRUB_CMDLINE_LINUX="systemd.unified_cgroup_hierarchy=1"/g' /etc/default/grub
 update-grub
@@ -421,12 +432,6 @@ Delegate=cpu cpuset io memory pids
 EOF
 systemctl daemon-reload
 fi
-groupadd docker
-if [ -z $SUDO_USER ]; then
-  echo "there is no sudo login"
-else
-usermod -aG docker ${SUDO_USER}
-sudo -u $SUDO_USER mkdir -p /home/${SUDO_USER}/.docker
 fi
 
 if [ ! -z ${DNSDOMAINNAME} ]; then
