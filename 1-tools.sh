@@ -409,8 +409,8 @@ apt -y install uidmap
 NERDCTLVER=0.19.0
 #curl --retry 10 --retry-delay 3 --retry-connrefused -sSOL https://github.com/containerd/nerdctl/releases/download/v${NERDCTLVER}/nerdctl-full-${NERDCTLVER}-linux-${ARCH}.tar.gz
 curl --retry 10 --retry-delay 3 --retry-connrefused -sSOL https://github.com/containerd/nerdctl/releases/download/v${NERDCTLVER}/nerdctl-${NERDCTLVER}-linux-${ARCH}.tar.gz
-tar xfz nerdctl-full-${NERDCTLVER}-linux-${ARCH}.tar.gz -C /usr/local
-rm -rf nerdctl-full-${NERDCTLVER}-linux-${ARCH}.tar.gz
+tar xfz nerdctl-${NERDCTLVER}-linux-${ARCH}.tar.gz -C /usr/local
+rm -rf nerdctl-${NERDCTLVER}-linux-${ARCH}.tar.gz
 nerdctl completion bash > /etc/bash_completion.d/nerdctl
 sed -i -e 's/GRUB_CMDLINE_LINUX=""/GRUB_CMDLINE_LINUX="systemd.unified_cgroup_hierarchy=1"/g' /etc/default/grub
 update-grub
