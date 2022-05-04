@@ -199,9 +199,9 @@ fi
 if [ ! -f /usr/local/bin/nerdctl ]; then
 apt -y install uidmap
 NERDCTLVER=`grep NERDCTLVER= 1-tools.sh | cut -d "=" -f2`
-curl --retry 10 --retry-delay 3 --retry-connrefused -sSOL https://github.com/containerd/nerdctl/releases/download/v${NERDCTLVER}/nerdctl-full-${NERDCTLVER}-linux-${ARCH}.tar.gz
-tar xfz nerdctl-full-${NERDCTLVER}-linux-${ARCH}.tar.gz -C /usr/local
-rm -rf nerdctl-full-${NERDCTLVER}-linux-${ARCH}.tar.gz
+curl --retry 10 --retry-delay 3 --retry-connrefused -sSOL https://github.com/containerd/nerdctl/releases/download/v${NERDCTLVER}/nerdctl-${NERDCTLVER}-linux-${ARCH}.tar.gz
+tar xfz nerdctl-${NERDCTLVER}-linux-${ARCH}.tar.gz -C /usr/local/bin
+rm -rf nerdctl-${NERDCTLVER}-linux-${ARCH}.tar.gz
 nerdctl completion bash > /etc/bash_completion.d/nerdctl
 fi
 

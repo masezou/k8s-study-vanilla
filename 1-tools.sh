@@ -419,7 +419,7 @@ if [ ! -f /usr/local/bin/nerdctl ]; then
 apt -y install uidmap
 NERDCTLVER=0.19.0
 curl --retry 10 --retry-delay 3 --retry-connrefused -sSOL https://github.com/containerd/nerdctl/releases/download/v${NERDCTLVER}/nerdctl-full-${NERDCTLVER}-linux-${ARCH}.tar.gz
-tar xfz nerdctl-full-${NERDCTLVER}-linux-${ARCH}.tar.gz -C /usr/local/bin
+tar xfz nerdctl-full-${NERDCTLVER}-linux-${ARCH}.tar.gz -C /usr/local
 rm -rf nerdctl-full-${NERDCTLVER}-linux-${ARCH}.tar.gz
 nerdctl completion bash > /etc/bash_completion.d/nerdctl
 sed -i -e 's/GRUB_CMDLINE_LINUX=""/GRUB_CMDLINE_LINUX="systemd.unified_cgroup_hierarchy=1"/g' /etc/default/grub
@@ -532,14 +532,8 @@ source /etc/bash_completion.d/kompose
 fi
 # Install Kind
 if [ ! -f /usr/local/bin/kind ]; then
-#KINDVER=0.12.0
-#curl -s -Lo ./kind https://github.com/kubernetes-sigs/kind/releases/download/v${KINDVER}/kind-linux-${ARCH}
-DOWNLOAD_URL=$(curl -s https://api.github.com/repos/kubernetes-sigs/kind/releases/latest \
-        | grep browser_download_url \
-        | grep kind-darwin-${ARCH} \
-        | grep -v sha256sum \
-        | cut -d '"' -f 4)
-curl -s -Lo ${DOWNLOAD_URL}
+KINDVER=0.12.0
+curl -s -Lo ./kind https://github.com/kubernetes-sigs/kind/releases/download/v${KINDVER}/kind-linux-${ARCH}
 mv ./kind /usr/local/bin/kind
 chmod +x /usr/local/bin/kind
 kind completion bash > /etc/bash_completion.d/kind
