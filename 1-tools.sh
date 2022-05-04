@@ -634,8 +634,10 @@ if [ ! -f /usr/bin/go ]; then
 apt -y install golang
 fi
 if [ ! -f /usr/local/bin/k10tools ]; then
+if [ -f ./K0-kasten-tools.sh ]; then
 echo "Installing k10tools"
 bash ./K0-kasten-tools.sh
+fi
 fi
 
 apt -y autoremove
