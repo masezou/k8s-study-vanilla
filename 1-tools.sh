@@ -156,10 +156,12 @@ apt -y install trivy
 fi
 
 # Install etcd-client
+if [ ! -f /usr/bin/etcdctl ]; then
 apt -y install etcd-client
 curl --retry 10 --retry-delay 3 --retry-connrefused -sSOL https://gist.githubusercontent.com/swynter-ladbrokes/9960fe1a1f2467bfe6e6/raw/7a92e7d92b68d67f958d28af880e6561037c33c1/etcdctl
 mv etcdctl /etc/bash_completion.d/
 source /etc/bash_completion.d/etcdctl
+fi
 
 # Install kubectx and kubens
 if [ ! -f /usr/local/bin/kubectx ]; then
@@ -464,7 +466,7 @@ systemctl restart containerd.service
 fi
 # Install Docker Compose
 if [ ! -f /usr/local/bin/docker-compose ]; then
-DOCKERCOMPOSEVER=2.4.1
+DOCKERCOMPOSEVER=2.5.0
 if [ ${ARCH} = amd64 ]; then
   curl --retry 10 --retry-delay 3 --retry-connrefused -sSOL https://github.com/docker/compose/releases/download/v${DOCKERCOMPOSEVER}/docker-compose-linux-$(uname -i)
   mv docker-compose-linux-$(uname -i) /usr/local/bin/docker-compose
@@ -586,8 +588,9 @@ mv /tmp/pgbench /usr/lib/postgresql/12/bin/
 fi
 
 # Installing golang
+if [ ! -f /usr/bin/go ]; then
 apt -y install golang
-
+fi
 if [ ! -f /usr/local/bin/k10tools ]; then
 echo "Installing k10tools"
 bash ./K0-kasten-tools.sh
