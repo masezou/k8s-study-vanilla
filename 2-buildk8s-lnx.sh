@@ -196,6 +196,7 @@ apt -y install containerd.io
 curl --retry 10 --retry-delay 3 --retry-connrefused -sS https://raw.githubusercontent.com/containerd/containerd/v1.5.11/contrib/autocomplete/ctr -o /etc/bash_completion.d/ctr
 fi
 
+# Install nerdctl (cmd version)
 if [ ! -f /usr/local/bin/nerdctl ]; then
 apt -y install uidmap
 NERDCTLVER=`grep NERDCTLVER= 1-tools.sh | cut -d "=" -f2`

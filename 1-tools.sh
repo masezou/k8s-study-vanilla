@@ -413,7 +413,7 @@ usermod -aG docker ${SUDO_USER}
 sudo -u $SUDO_USER mkdir -p /home/${SUDO_USER}/.docker
 fi
 
-# Install nerdctl
+# Install nerdctl (Full version)
 if [ ${NERDCTL} -eq 1 ]; then
 if [ ! -f /usr/local/bin/nerdctl ]; then
 apt -y install uidmap
