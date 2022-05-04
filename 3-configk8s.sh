@@ -10,6 +10,8 @@ IPRANGE="fixme"
 # If you want to change DNS domain name, you can chage it.
 DNSDOMAINNAME="k8slab.internal"
 
+DNSSVR=1
+
 # IF you have internal DNS, please comment out and set your own DNS server
 #FORWARDDNS=192.168.8.1
 
@@ -186,6 +188,7 @@ done
 INGRESS_IP=$(kubectl -n ingress-system get svc ingress-nginx-controller -ojsonpath='{.status.loadBalancer.ingress[0].ip}')
 
 # Configutr local DNS Server
+if [ ${DNSSVR} -eq 1 ]; then
 apt -y install bind9 bind9utils
 echo 'include "/etc/bind/named.conf.internal-zones";' >> /etc/bind/named.conf
 mv /etc/bind/named.conf.options /etc/bind/named.conf.options.orig
@@ -388,6 +391,7 @@ host abcd.apps.${DNSDOMAINNAME}. ${DNSHOSTIP}
 echo ""
 host www.yahoo.co.jp. ${DNSHOSTIP}
 echo ""
+fi
 
 # minio cert update
 if [ -f /root/.minio/certs/private.key ]; then
