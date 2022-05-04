@@ -333,6 +333,21 @@ systemctl restart ntp
 ntpq -p
 fi
 
+# MSSQL Client
+if [ ${UBUNTUVER} = "20.04" ]; then
+if [ $MSSQLCMD -eq 1 ]; then
+if [ ! -f /opt/mssql-tools/bin/sqlcmd ]; then
+if [ ${ARCH} = amd64 ]; then
+curl --retry 10 --retry-delay 3 --retry-connrefused -sSOL https://packages.microsoft.com/config/ubuntu/${UBUNTUVER}/packages-microsoft-prod.deb
+dpkg -i packages-microsoft-prod.deb
+rm packages-microsoft-prod.deb
+apt update
+apt -y install mssql-tools unixodbc-dev
+echo 'export PATH="$PATH:/opt/mssql-tools/bin"' >> /etc/profile.d/mssql.sh
+fi
+fi
+fi
+
 # Install powershell
 if [ ${POWERSHELL} -eq 1 ]; then
 if [ ${ARCH} = amd64 ]; then
@@ -346,6 +361,7 @@ fi
 fi
 if [ ${ARCH} = arm64 ]; then
 curl --retry 10 --retry-delay 3 --retry-connrefused -sS -L https://aka.ms/InstallAzureCli | sudo bash
+fi
 fi
 fi
 
@@ -534,11 +550,13 @@ fi
 echo -e "\e[31mk8s installation is prohibited if you install docker to this mathine. this script removes deploying k8s scripts. \e[m"
 rm -rf 00Install-k8s.sh 2-buildk8s-lnx.sh 3-configk8s.sh 4-csi-storage.sh 5-csi-vsphere.sh
 
+if [ -d ../k8s-study-vanilla ]; then
 cp -rf ../k8s-study-vanilla /home/${SUDO_USER}/
 rm /home/${SUDO_USER}/k8s-study-vanilla/1-tools.sh
 chown -R ${SUDO_USER}:${SUDO_USER} /home/${SUDO_USER}/k8s-study-vanilla
-
+fi
 # for client network setting
+if [ ${CLIENT} -eq 0 ]; then
 if [ -z ${DNSHOSTIP} ];then
 DNSHOSTIP=`host -t a ${DNSDOMAINNAME} |cut -d " " -f4`
 fi
@@ -552,7 +570,7 @@ ETHDEV=`grep ens /etc/netplan/00-installer-config.yaml |tr -d ' ' | cut -d ":" -
 netplan set network.ethernets.${ETHDEV}.nameservers.search=[${DNSDOMAINNAME}]
 netplan apply
 fi
-
+fi
 fi
 
 # Install Cloud Utility
@@ -649,20 +667,6 @@ fi
 
 # I like vi in less.
 echo "export VISUAL=vi" >/etc/profile.d/less-pager.sh
-
-# MSSQL Client
-if [ $MSSQLCMD -eq 1 ]; then
-if [ ${ARCH} = amd64 ]; then
-if [ ${UBUNTUVER} = "20.04" ]; then
-curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add -
-curl https://packages.microsoft.com/config/ubuntu/${UBUNTUVER}/prod.list | tee /etc/apt/sources.list.d/msprod.list
-apt -y autoremove
-apt update 
-apt -y install mssql-tools unixodbc-dev
-echo 'export PATH="$PATH:/opt/mssql-tools/bin"' >> /etc/profile.d/mssql.sh
-fi
-fi
-fi
 
 cd ${BASEPWD}
 
