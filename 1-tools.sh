@@ -43,9 +43,12 @@ CLOUDUTILS=1
 # Powershell
 POWERSHELL=1
 else
+DOCKER=0
+NERDCTL=0
 CLOUDUTILS=0
 POWERSHELL=0
 fi
+
 # Govc
 GOVC=1
 
@@ -558,20 +561,15 @@ source /etc/bash_completion.d/minikube
 fi
 fi
 
-# for client installation
-if [ ${CLIENT} -eq 1 ]; then
-echo -e "\e[31mk8s installation is prohibited if you install docker to this mathine. this script removes deploying k8s scripts. \e[m"
-if [ -d ../k8s-study-vanilla ]; then
-rm -rf ./2-buildk8s-lnx.sh ./3-configk8s.sh ./4-csi-storage.sh ./5-csi-vsphere.sh
-cp -rf ../k8s-study-vanilla /home/${SUDO_USER}/
-rm /home/${SUDO_USER}/k8s-study-vanilla/1-tools.sh
-chown -R ${SUDO_USER}:${SUDO_USER} /home/${SUDO_USER}/k8s-study-vanilla
-fi
-fi
 # for client network setting
 if [ ${CLIENT} -eq 0 ]; then
 if [ -z ${DNSHOSTIP} ];then
 DNSHOSTIP=`host -t a ${DNSDOMAINNAME} |cut -d " " -f4`
+echo ${DNSHOSTIP} | grep out
+retvaldnsip=$?
+if [ ${retvaldnsip} -eq 0 ]; then
+unset DNSHOSTIP
+fi
 fi
 if [ ! -z ${DNSHOSTIP} ];then
 ETHDEV=`grep ens /etc/netplan/00-installer-config.yaml |tr -d ' ' | cut -d ":" -f1`
@@ -801,6 +799,16 @@ cd ${BASEPWD}
 fi
 fi
 
+# for client installation
+if [ ${CLIENT} -eq 1 ]; then
+echo -e "\e[31mk8s installation is prohibited if you install docker to this mathine. this script removes deploying k8s scripts. \e[m"
+if [ -d ../k8s-study-vanilla ]; then
+rm -rf ./2-buildk8s-lnx.sh ./3-configk8s.sh ./4-csi-storage.sh ./5-csi-vsphere.sh
+cp -rf ../k8s-study-vanilla /home/${SUDO_USER}/
+rm /home/${SUDO_USER}/k8s-study-vanilla/1-tools.sh
+chown -R ${SUDO_USER}:${SUDO_USER} /home/${SUDO_USER}/k8s-study-vanilla
+fi
+fi
 cd ${BASEPWD}
 
 echo ""
