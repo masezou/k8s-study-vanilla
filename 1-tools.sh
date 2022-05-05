@@ -24,8 +24,9 @@ DNSDOMAINNAME=k8slab.internal
 
 MSSQLCMD=1
 NTPSVR=1
-TCE=1
-OC=1
+TCE=0
+TCECLI=0
+OC=0
 #########################################################
 
 if [ ${CLIENT} -eq 1 ]; then
@@ -477,7 +478,7 @@ docker run -d -p 8001:8001 -p 9443:9443 --name portainer --restart=always -v /va
 #nerdctl run -d -p 8001:8001 -p 9443:9443 --name portainer --restart=always -v /var/run/docker.sock:/var/run/docker.sock -v portainer_data:/data portainer/portainer-ce
 fi
 
-if [ ${CLIENT} -eq 1 ]; then
+if [ ${DOCKER} -eq 1 ]; then
 containerd config default | sudo tee /etc/containerd/config.toml
 dpkg -l | grep containerd | grep 1.4  > /dev/null
 retvalcd14=$?
@@ -753,6 +754,9 @@ cd ${BASEPWD}
 fi
 fi
 
+fi
+
+if [ ${TCECLI} -eq 1 ]; then
 if [ ${DOCKER} -eq 1 ]; then
 if [ ${ARCH} = "amd64" ]; then
 if [ ! -f /usr/local/bin/tanzu ]; then
@@ -767,19 +771,24 @@ cd ${BASEPWD}
 fi
 fi
 fi
-
 fi
 
 if [ ${OC} -eq 1 ]; then
-if [ ${ARCH} = "amd64" ]; then
 if [ ! -f /usr/local/bin/oc ]; then
 mkdir /tmp/oc
 cd /tmp/oc
-curl --retry 10 --retry-delay 3 --retry-connrefused -sSOL https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/ocp/stable-4.10/openshift-client-linux.tar.gz
+OCPVER=stable-4.10
+if [ ${ARCH} = "amd64" ]; then
+OCPARCH=x86_64
+fi
+if [ ${ARCH} = "arm64" ]; then
+OCPARCH=arm64
+fi
+curl --retry 10 --retry-delay 3 --retry-connrefused -sSOL https://mirror.openshift.com/pub/openshift-v4/${OCPARCH}/clients/ocp/${OCPVER}/openshift-client-linux.tar.gz
+curl --retry 10 --retry-delay 3 --retry-connrefused -sSOL https://mirror.openshift.com/pub/openshift-v4/${OCPARCH}/clients/ocp/${OCPVER}/openshift-install-linux.tar.gz
 tar xfz openshift-client-linux.tar.gz
 mv oc /usr/local/bin
 chmod -x /usr/local/bin/oc
-curl --retry 10 --retry-delay 3 --retry-connrefused -sSOL https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/ocp/stable-4.10/openshift-install-linux.tar.gz
 tar xfz openshift-install-linux.tar.gz
 mv openshift-install /usr/local/bin
 chmod +x /usr/local/bin/openshift-install
@@ -788,7 +797,6 @@ rm -rf /tmp/oc
 openshift-install completion bash > /etc/bash_completion.d/openshift-install
 oc completion bash > /etc/bash_completion.d/oc
 cd ${BASEPWD}
-fi
 fi
 fi
 
