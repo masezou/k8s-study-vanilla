@@ -690,8 +690,8 @@ if [ ! -f /usr/local/bin/velero ]; then
 VELEROVER=1.8.1
 curl --retry 10 --retry-delay 3 --retry-connrefused -sSOL https://github.com/vmware-tanzu/velero/releases/download/v${VELEROVER}/velero-v${VELEROVER}-linux-${ARCH}.tar.gz
 tar xfz velero-v${VELEROVER}-linux-${ARCH}.tar.gz
-rm velero-v${VELEROVER}-linux-${ARCH}.tar.gz
 mv velero-v${VELEROVER}-linux-${ARCH}/velero /usr/local/bin/
+rm velero-v${VELEROVER}-linux-${ARCH}.tar.gz
 velero completion bash > /etc/bash_completion.d/velero
 fi
 
