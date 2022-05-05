@@ -1,25 +1,20 @@
 #!/usr/bin/env bash
 
 #########################################################
-# AMD64/ARM64 Linux would be worked
-# Kubernetes client version
-# Only supports 1.21.x and 1.22
+# AMD64/ARM64 Linux would be worked.
+# Kubernetes client version.
+# Only supports 1.21.x and 1.22. 1.23/1.24 are experimental.
 KUBEBASEVER=1.22
 
 # If you want to set certain version....
 # 1.21.9-00 was tested also.
 #KUBECTLVER=1.22.6-00
 
-MSSQLCMD=1
-
-NTPSVR=1
-
 # For Client use. Not to set in cluster environment.
 CLIENT=0
 PORTAINER=1
 #Client setting: When you set CLIENT=1, you can set DNS setting."
 DNSDOMAINNAME=k8slab.internal
-
 #DNSHOSTIP=192.168.16.2
 
 # Force REGISTRY Setting
@@ -27,7 +22,10 @@ DNSDOMAINNAME=k8slab.internal
 #REGISTRY="IPADDR:5000"
 #REGISTRYURL=http://${REGISTRY}
 
+MSSQLCMD=1
+NTPSVR=1
 TCE=1
+OC=1
 #########################################################
 
 if [ ${CLIENT} -eq 1 ]; then
@@ -685,12 +683,11 @@ echo "export VISUAL=vi" >/etc/profile.d/less-pager.sh
 
 # Install tanzu tools
 if [ ${TCE} -eq 1 ]; then
-apt -y install make
 
 # Install Velero
 if [ ! -f /usr/local/bin/velero ]; then
 VELEROVER=1.8.1
-curl -OL https://github.com/vmware-tanzu/velero/releases/download/v${VELEROVER}/velero-v${VELEROVER}-linux-${ARCH}.tar.gz
+curl --retry 10 --retry-delay 3 --retry-connrefused -sSOL https://github.com/vmware-tanzu/velero/releases/download/v${VELEROVER}/velero-v${VELEROVER}-linux-${ARCH}.tar.gz
 tar xfz velero-v${VELEROVER}-linux-${ARCH}.tar.gz
 rm velero-v${VELEROVER}-linux-${ARCH}.tar.gz
 mv velero-v${VELEROVER}-linux-${ARCH}/velero /usr/local/bin/
@@ -700,7 +697,7 @@ fi
 # Install imgpkg
 if [ ! -f /usr/local/bin/imgpkg ]; then
 IMGPKGVER=0.28.0
-curl -OL https://github.com/vmware-tanzu/carvel-imgpkg/releases/download/v${IMGPKGVER}/imgpkg-linux-${ARCH}
+curl --retry 10 --retry-delay 3 --retry-connrefused -sSOL https://github.com/vmware-tanzu/carvel-imgpkg/releases/download/v${IMGPKGVER}/imgpkg-linux-${ARCH}
 mv imgpkg-linux-${ARCH} /usr/local/bin/imgpkg
 chmod +x /usr/local/bin/imgpkg
 imgpkg completion bash > /etc/bash_completion.d/imgpkg
@@ -709,7 +706,7 @@ fi
 # Install yq
 if [ ! -f /usr/local/bin/yq ]; then
 YQVER=4.25.1
-curl -OL https://github.com/mikefarah/yq/releases/download/v${YQVER}/yq_linux_${ARCH}
+curl --retry 10 --retry-delay 3 --retry-connrefused -sSOL https://github.com/mikefarah/yq/releases/download/v${YQVER}/yq_linux_${ARCH}
 mv yq_linux_${ARCH} /usr/local/bin/yq
 chmod +x /usr/local/bin/yq
 yq shell-completion bash > /etc/bash_completion.d/yq 
@@ -719,11 +716,11 @@ fi
 if [ ! -f /usr/local/bin/octant ]; then
 OCTANTVER=0.25.1
 if [ ${ARCH} = amd64 ]; then
-curl -OL https://github.com/vmware-tanzu/octant/releases/download/v${OCTANTVER}/octant_${OCTANTVER}_`uname -s`-64bit.deb
+curl --retry 10 --retry-delay 3 --retry-connrefused -sSOL https://github.com/vmware-tanzu/octant/releases/download/v${OCTANTVER}/octant_${OCTANTVER}_`uname -s`-64bit.deb
 dpkg -i octant_${OCTANTVER}_`uname -s`-64bit.deb
 rm octant_${OCTANTVER}_`uname -s`-64bit.deb
 elif [ ${ARCH} = arm64 ]; then
-curl -OL https://github.com/vmware-tanzu/octant/releases/download/v${OCTANTVER}/octant_${OCTANTVER}_`uname -s`-ARM64.deb
+curl --retry 10 --retry-delay 3 --retry-connrefused -sSOL https://github.com/vmware-tanzu/octant/releases/download/v${OCTANTVER}/octant_${OCTANTVER}_`uname -s`-ARM64.deb
 dpkg -i octant_${OCTANTVER}_`uname -s`-ARM64.deb
 rm octant_${OCTANTVER}_`uname -s`-ARM64.deb
 else
@@ -736,21 +733,63 @@ fi
 if [[ -z "${SUDO_USER}" ]]; then
    echo "there is no sudo login"
 else
+if [ ${ARCH} = "amd64" ]; then
 sudo -u $SUDO_USER mkdir -p ~/.config/octant/plugins/ && \
-sudo -u $SUDO_USER curl -L https://github.com/bloodorangeio/octant-helm/releases/download/v0.2.0/octant-helm_0.2.0_linux_amd64.tar.gz | tar xz -C ~/.config/octant/plugins/ octant-helm
+OCTANT_HELMVER=0.2.0
+sudo -u $SUDO_USER curl --retry 10 --retry-delay 3 --retry-connrefused -sSOL https://github.com/bloodorangeio/octant-helm/releases/download/v${OCTANT_HELMVER}/octant-helm_${OCTANT_HELMVER}_linux_${ARCH}.tar.gz | tar xz -C ~/.config/octant/plugins/ octant-helm
 cd /tmp
-sudo -u $SUDO_USER curl -OL https://github.com/vmware-tanzu/octant-plugin-for-kind/releases/download/v0.0.1/octant-plugin-for-kind_0.0.1_Linux-64bit.tar.gz 
-sudo -u $SUDO_USER tar xfz octant-plugin-for-kind_0.0.1_Linux-64bit.tar.gz
-sudo -u $SUDO_USER mv octant-plugin-for-kind_0.0.1_Linux-64bit/octant ~/.config/octant/plugins/octant-kind
-rm -rf octant-plugin-for-kind_0.0.1_Linux-64bit*
-sudo -u $SUDO_USER git clone https://github.com/ashish-amarnath/octant-velero-plugin
+OCTANT_KINDVER=0.0.1
+sudo -u $SUDO_USER curl --retry 10 --retry-delay 3 --retry-connrefused -sSOL https://github.com/vmware-tanzu/octant-plugin-for-kind/releases/download/v${OCTANT_KINDVER}/octant-plugin-for-kind_${OCTANT_KINDVER}_Linux-64bit.tar.gz 
+sudo -u $SUDO_USER tar xfz octant-plugin-for-kind_${OCTANT_KINDVER}_Linux-64bit.tar.gz
+sudo -u $SUDO_USER mv octant-plugin-for-kind_${OCTANT_KINDVER}_Linux-64bit/octant ~/.config/octant/plugins/octant-kind
+rm -rf octant-plugin-for-kind_${OCTANT_KINDVER}_Linux-64bit*
+sudo -u $SUDO_USER git clone https://github.com/ashish-amarnath/octant-velero-plugin --depth 1
 sudo -u $SUDO_USER cd octant-velero-plugin
+apt -y install make
 sudo -u $SUDO_USER make install
 cd ..
 rm -rf octant-velero-plugin
 cd ${BASEPWD}
 fi
+fi
 
+if [ ${DOCKER} -eq 1 ]; then
+if [ ${ARCH} = "amd64" ]; then
+if [ ! -f /usr/local/bin/tanzu ]; then
+TANZUCLIVER=0.11.0
+cd /tmp
+curl --retry 10 --retry-delay 3 --retry-connrefused -sSOL https://github.com/vmware-tanzu/community-edition/releases/download/v${TANZUCLIVER}/tce-linux-${ARCH}-v${TANZUCLIVER}.tar.gz
+sudo -u $SUDO_USER tar zxf tce-linux-${ARCH}-v${TANZUCLIVER}.tar.gz
+cd tce-linux-${ARCH}-v${TANZUCLIVER}
+sudo -u $SUDO_USER ./install.sh
+tanzu completion bash > /etc/bash_completion.d/tanzu
+cd ${BASEPWD}
+fi
+fi
+fi
+
+fi
+
+if [ ${OC} -eq 1 ]; then
+if [ ${ARCH} = "amd64" ]; then
+if [ ! -f /usr/local/bin/oc ]; then
+mkdir /tmp/oc
+cd /tmp/oc
+curl --retry 10 --retry-delay 3 --retry-connrefused -sSOL https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/ocp/stable-4.10/openshift-client-linux.tar.gz
+tar xfz openshift-client-linux.tar.gz
+mv oc /usr/local/bin
+chmod -x /usr/local/bin/oc
+curl --retry 10 --retry-delay 3 --retry-connrefused -sSOL https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/ocp/stable-4.10/openshift-install-linux.tar.gz
+tar xfz openshift-install-linux.tar.gz
+mv openshift-install /usr/local/bin
+chmod +x /usr/local/bin/openshift-install
+cd ..
+rm -rf /tmp/oc
+openshift-install completion bash > /etc/bash_completion.d/openshift-install
+oc completion bash > /etc/bash_completion.d/oc
+cd ${BASEPWD}
+fi
+fi
 fi
 
 cd ${BASEPWD}
@@ -777,7 +816,7 @@ echo ""
 echo ""
 if [ ${PORTAINER} -eq 1 ]; then
 echo "portainer-ce was installed"
-echo "https://<This HOST>:9443/
+echo "https://<This HOST>:9443/"
 fi
 if [ ${NERDCTL} -eq 1 ]; then
 echo "If you are using Ubuntu Desktop with X Window, plase reboot your Ubuntu desktop."
