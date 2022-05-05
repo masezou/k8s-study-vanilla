@@ -143,6 +143,7 @@ echo 'export KUBE_EDITOR=vi' >>~/.bashrc
 if [ ! -f /usr/local/bin/kubectl-convert ]; then
 curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/${ARCH}/kubectl-convert"
 install -o root -g root -m 0755 kubectl-convert /usr/local/bin/kubectl-convert
+rm ./kubectl-convert
 fi
 fi
 
