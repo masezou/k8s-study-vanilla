@@ -416,7 +416,7 @@ cd external-snapshotter
 kubectl kustomize client/config/crd | kubectl create -f -
 kubectl -n kube-system kustomize deploy/kubernetes/snapshot-controller | kubectl create -f -
 cd ..
-apt -y install make golang-go
+apt -y install make golang-go smbclient cifs-utils
 git clone --depth 1 git@github.com:SynologyOpenSource/synology-csi.git
 cd synology-csi
 cat << EOF > config/client-info.yml
