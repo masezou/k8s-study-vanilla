@@ -559,7 +559,7 @@ fi
 fi
 
 # for client installation
-if [ ${CLIENT} -eq 0 ]; then
+if [ ${CLIENT} -eq 1 ]; then
 echo -e "\e[31mk8s installation is prohibited if you install docker to this mathine. this script removes deploying k8s scripts. \e[m"
 if [ -d ../k8s-study-vanilla ]; then
 rm -rf ./2-buildk8s-lnx.sh ./3-configk8s.sh ./4-csi-storage.sh ./5-csi-vsphere.sh
