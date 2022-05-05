@@ -16,6 +16,7 @@ NTPSVR=1
 
 # For Client use. Not to set in cluster environment.
 CLIENT=0
+PORTAINER=1
 #Client setting: When you set CLIENT=1, you can set DNS setting."
 DNSDOMAINNAME=k8slab.internal
 
@@ -469,11 +470,13 @@ systemctl enable docker
 systemctl daemon-reload
 systemctl restart docker
 
-#Portainer_
+#Portainer CE
+if [ ${PORTAINER} -eq 1 ]; then
 #nerdctl volume create portainer_data
 docker volume create portainer_data
 docker run -d -p 8001:8001 -p 9443:9443 --name portainer --restart=always -v /var/run/docker.sock:/var/run/docker.sock -v portainer_data:/data portainer/portainer-ce
 #nerdctl run -d -p 8001:8001 -p 9443:9443 --name portainer --restart=always -v /var/run/docker.sock:/var/run/docker.sock -v portainer_data:/data portainer/portainer-ce
+fi
 
 if [ ${CLIENT} -eq 1 ]; then
 containerd config default | sudo tee /etc/containerd/config.toml
@@ -771,6 +774,10 @@ echo "Powercli"
 echo "pwsh then Install\-Module VMware.PowerCLI \-Scope CurrentUser"
 echo ""
 echo ""
+if [ ${PORTAINER} -eq 1 ]; then
+echo "portainer-ce was installed"
+echo "https://<This HOST>:9443/
+fi
 if [ ${NERDCTL} -eq 1 ]; then
 echo "If you are using Ubuntu Desktop with X Window, plase reboot your Ubuntu desktop."
 echo "If you want to use nerdctl, once reboot, then execute containerd-rootless-setuptool.sh install in normal user."
