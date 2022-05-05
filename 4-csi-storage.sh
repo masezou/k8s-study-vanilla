@@ -432,8 +432,41 @@ EOF
 ./scripts/deploy.sh install --all
 cd ..
 kubectl get pods -n synology-csi
-kubectl apply -f deploy/kubernetes/v1.19/storage-class.yml
-kubectl apply -f deploy/kubernetes/v1.19/snapshotter/volume-snapshot-class.yml
+kubectl get node -o wide|grep v1.19  > /dev/null
+retvalkube19=$?
+if [ ${retvalkube1} -eq 0 ]; then
+KUBEVER=v1.19
+else
+KUBEVER=v1.20
+fi
+kubectl apply -f deploy/kubernetes/${KUBEVER}/storage-class.yml
+kubectl apply -f deploy/kubernetes/${KUBEVER}/snapshotter/volume-snapshot-class.yml
+cat <<EOF | kubectl apply -n synology-csi -f -
+apiVersion: v1
+kind: Secret
+metadata:
+  name: cifs-csi-credentials
+  namespace: default
+type: Opaque
+stringData:
+  username: ${SYNOLOGYUSERNAME}
+  password: ${SYNOLOGYPASSWORD}
+EOF
+cat <<EOF | kubectl apply -n synology-csi -f -
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: synostorage-smb
+provisioner: csi.san.synology.com
+parameters:
+  protocol: "smb"
+  dsm: '${SYNOLOGYHOST}'
+  location: '/volume1'
+  csi.storage.k8s.io/node-stage-secret-name: "cifs-csi-credentials"
+  csi.storage.k8s.io/node-stage-secret-namespace: "synology-csi"
+reclaimPolicy: Delete
+allowVolumeExpansion: true
+EOF
 kubectl -n synology-csi wait pod  -l app=synology-csi-controller --for condition=Ready
 kubectl -n synology-csi wait pod  -l app=synology-csi-node --for condition=Ready
 kubectl -n synology-csi wait pod  -l app=synology-csi-snapshotter --for condition=Ready
