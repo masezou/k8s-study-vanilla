@@ -5,7 +5,7 @@
 #FORCE_ONLINE=1
 
 PGNAMESPACE=postgresql-app
-# SC = csi-hostpath-sc / local-hostpath / local-path / nfs-sc / nfs-csi / vsphere-sc / example-vanilla-rwo-filesystem-sc / cstor-csi-disk
+# SC = csi-hostpath-sc / local-hostpath / local-path / nfs-sc / nfs-csi / vsphere-sc / example-vanilla-rwo-filesystem-sc / cstor-csi-disk / synology-iscsi-storage / synostorage-smb
 SC=vsphere-sc
 
 SAMPLEDATA=1

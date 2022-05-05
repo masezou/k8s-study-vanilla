@@ -411,7 +411,7 @@ fi
 
 # Install Synology CSI (Experimental)
 if [ ${SYNOLOGY} -eq 1 ]; then
-git clone https://github.com/kubernetes-csi/external-snapshotter
+git clone --depth 1 https://github.com/kubernetes-csi/external-snapshotter
 cd external-snapshotter
 kubectl kustomize client/config/crd | kubectl create -f -
 kubectl -n kube-system kustomize deploy/kubernetes/snapshot-controller | kubectl create -f -
@@ -434,7 +434,7 @@ cd ..
 kubectl get pods -n synology-csi
 kubectl get node -o wide|grep v1.19  > /dev/null
 retvalkube19=$?
-if [ ${retvalkube1} -eq 0 ]; then
+if [ ${retvalkube19} -eq 0 ]; then
 KUBEVER=v1.19
 else
 KUBEVER=v1.20
@@ -446,7 +446,7 @@ apiVersion: v1
 kind: Secret
 metadata:
   name: cifs-csi-credentials
-  namespace: default
+  namespace: synology-csi
 type: Opaque
 stringData:
   username: ${SYNOLOGYUSERNAME}
