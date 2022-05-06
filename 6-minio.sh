@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-
+echo -e "\e[32mStarting $0 ....\e[m"
 #########################################################
 # If you want to create Minio Tenant
 TENANTCREATE=1

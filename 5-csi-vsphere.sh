@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+echo -e "\e[32mStarting $0 ....\e[m"
 #########################################################
 # Pre-requirement
 # vCenter needs to be 6.7U3 above and to be set DISKUUID.

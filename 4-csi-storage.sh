@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+echo -e "\e[32mStarting $0 ....\e[m"
 #########################################################
 
 # Specify NFS storage location path

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-
+echo -e "\e[32mStarting $0 ....\e[m"
 #########################################################
 # kubeadm version
 # Kubernetes version is refered in 1-tool.sh. If you want to set certain version, set this.

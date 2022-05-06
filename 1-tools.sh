@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-
+echo -e "\e[32mStarting $0 ....\e[m"
 #########################################################
 # AMD64/ARM64 Linux would be worked.
 # Kubernetes client version.
