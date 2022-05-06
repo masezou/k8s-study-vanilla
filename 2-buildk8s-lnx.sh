@@ -208,7 +208,7 @@ fi
 
 # Containerd settings
 containerd config default | sudo tee /etc/containerd/config.toml
-sed -i -e "s/SystemdCgroup = false/SystemdCgroup = true/g" config.toml
+sed -i -e "s/SystemdCgroup = false/SystemdCgroup = true/g" /etc/containerd/config.toml
 
 dpkg -l | grep containerd | grep 1.4  > /dev/null
 retvalcd14=$?
