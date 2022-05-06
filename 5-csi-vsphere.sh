@@ -297,7 +297,7 @@ echo "Wating for deploy csi driver to node..."
 kubectl -n vmware-system-csi wait pod -l app=vsphere-csi-node --for condition=Ready
 
 #Snapshot support in 2.5.0 with vSphere7U3
-if [ ${VSPHERECSI} = 2.5.1 ]; then
+if [ ${VSPHERECSI} = "2.5.1" ]; then
 govc about | grep 7.0.3
 retvspherever=$?
 if [ ${retvspherever} -eq 0 ]; then

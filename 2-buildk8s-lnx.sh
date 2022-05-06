@@ -245,7 +245,7 @@ fi
 
 # Install Registry
 if [ ! -f /usr/bin/docker-registry ]; then
-if [ ${ENABLEREG} = 1 ]; then
+if [ ${ENABLEREG} -eq 1 ]; then
 echo "install private registry"
 mkdir -p ${REGDIR}
 ln -s ${REGDIR} /var/lib/docker-registry
@@ -258,7 +258,7 @@ systemctl restart docker-registry
 fi
 fi
 # pull/push images
-if [ ${IMAGEDL} = 1 ]; then
+if [ ${IMAGEDL} -eq 1 ]; then
 ctr images pull --platform linux/${ARCH} docker.io/bitnami/bitnami-shell:10-debian-10-r158
 ctr images tag docker.io/bitnami/bitnami-shell:10-debian-10-r158 ${REGISTRY}/bitnami/bitnami-shell:10-debian-10-r158
 ctr images push --platform linux/${ARCH} --plain-http ${REGISTRY}/bitnami/bitnami-shell:10-debian-10-r158
@@ -417,7 +417,7 @@ else
 kubectl cluster-info
 retvalcluster=$?
 if [ ${retvalcluster} -ne 0 ]; then
-if [ ${ENABLEK8SMASTER} = 1 ]; then
+if [ ${ENABLEK8SMASTER} -eq 1 ]; then
 cat << EOF > k8sconfig.yaml
 apiVersion: kubeadm.k8s.io/v1beta3
 kind: InitConfiguration
@@ -448,7 +448,7 @@ fi
 fi
 fi
 
-if [ ${SYSSTAT} = 1 ]; then
+if [ ${SYSSTAT} -eq 1 ]; then
 apt -y install sysstat
 sed -i -e 's/ENABLED="false"/ENABLED="true"/g' /etc/default/sysstat
 systemctl restart sysstat.service
