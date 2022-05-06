@@ -569,6 +569,7 @@ echo ${DNSHOSTIP} | grep out
 retvaldnsip=$?
 if [ ${retvaldnsip} -eq 0 ]; then
 unset DNSHOSTIP
+unset DNSDOMAINNAME
 fi
 fi
 if [ ! -z ${DNSHOSTIP} ];then
@@ -576,7 +577,7 @@ ETHDEV=`grep ens /etc/netplan/00-installer-config.yaml |tr -d ' ' | cut -d ":" -
 netplan set network.ethernets.${ETHDEV}.nameservers.addresses=[${DNSHOSTIP}]
 netplan apply
 fi
-if [ ! -z $DNSDOMAINNAME} ];then
+if [ ! -z ${DNSDOMAINNAME} ];then
 ETHDEV=`grep ens /etc/netplan/00-installer-config.yaml |tr -d ' ' | cut -d ":" -f1`
 netplan set network.ethernets.${ETHDEV}.nameservers.search=[${DNSDOMAINNAME}]
 netplan apply
