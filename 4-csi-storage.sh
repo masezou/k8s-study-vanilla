@@ -254,7 +254,7 @@ kubectl get node -o wide|grep v1.21  > /dev/null 2>&1 && KUBEVER=1.21
 kubectl get node -o wide|grep v1.22  > /dev/null 2>&1 && KUBEVER=1.22
 kubectl get node -o wide|grep v1.23  > /dev/null 2>&1 && KUBEVER=1.23
 
-if [ ${KUBEVER}=1.19 ]; then
+if [ ${KUBEVER} = "1.19" ]; then
 if [ -z ${CSIHOSTPATHDONE} ]; then
 CSIHOSTPATHVER=1.7.3
 git clone https://github.com/kubernetes-csi/csi-driver-host-path -b v${CSIHOSTPATHVER} --depth 1
@@ -264,7 +264,7 @@ CSIHOSTPATHDONE=1
 fi
 fi
 
-if [ ${KUBEVER}=1.20 ]; then
+if [ ${KUBEVER} = "1.20" ]; then
 if [ -z ${CSIHOSTPATHDONE} ]; then
 CSIHOSTPATHVER=1.7.3
 git clone https://github.com/kubernetes-csi/csi-driver-host-path -b v${CSIHOSTPATHVER} --depth 1
@@ -274,7 +274,7 @@ CSIHOSTPATHDONE=1
 fi
 fi
 
-if [ ${KUBEVER}=1.21 ]; then
+if [ ${KUBEVER} = "1.21" ]; then
 if [ -z ${CSIHOSTPATHDONE} ]; then
 git clone https://github.com/kubernetes-csi/csi-driver-host-path --depth 1
 cd csi-driver-host-path
@@ -283,7 +283,7 @@ CSIHOSTPATHDONE=1
 fi
 fi
 
-if [ ${KUBEVER}=1.22 ]; then
+if [ ${KUBEVER} = "1.22" ]; then
 if [ -z ${CSIHOSTPATHDONE} ]; then
 git clone https://github.com/kubernetes-csi/csi-driver-host-path --depth 1
 cd csi-driver-host-path
@@ -292,7 +292,7 @@ CSIHOSTPATHDONE=1
 fi
 fi
 
-if [ ${KUBEVER}=1.23 ]; then
+if [ ${KUBEVER} = "1.23" ]; then
 if [ -z ${CSIHOSTPATHDONE} ]; then
 echo "${KUBEVER} is not supported yet."
 CSIHOSTPATHDONE=0
