@@ -348,5 +348,10 @@ chown ${SUDO_USER}:${SUDO_USER} /home/${SUDO_USER}/k8s-study-vanilla/K3-kasten-v
 chown ${SUDO_USER}:${SUDO_USER} /home/${SUDO_USER}/govc-vcenter.sh
 fi
 fi
+# Remove taint
+for NODES in `kubectl get node |grep -v NAME|  cut -d " " -f 1`; do
+    echo ${NODES}
+    kubectl taint nodes ${NODES} node.cloudprovider.kubernetes.io/uninitialized-
+done
 chmod -x $0
 ls
