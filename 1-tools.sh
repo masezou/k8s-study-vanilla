@@ -352,7 +352,7 @@ curl --retry 10 --retry-delay 3 --retry-connrefused -sSOL https://packages.micro
 dpkg -i packages-microsoft-prod.deb
 rm packages-microsoft-prod.deb
 apt update
-apt -y install mssql-tools unixodbc-dev
+ACCEPT_EULA=Y apt -y install  mssql-tools unixodbc-dev
 echo 'export PATH="$PATH:/opt/mssql-tools/bin"' >> /etc/profile.d/mssql.sh
 fi
 fi
