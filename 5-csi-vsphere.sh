@@ -243,7 +243,7 @@ while [ "$(kubectl -n vmware-system-csi get deployments.apps vsphere-csi-control
      sleep 30
 done
      kubectl -n vmware-system-csi get deployments.apps vsphere-csi-controller
-kubectl  -n vmware-system-csi wait all -l app=vsphere-csi-node --for condition=Ready
+kubectl -n vmware-system-csi wait all -l app=vsphere-csi-node --for condition=Ready --timeout 600s
 
 retvalvspherecsinode=$?
 if [ ${retvalvspherecsinode} -ne 0 ]; then
