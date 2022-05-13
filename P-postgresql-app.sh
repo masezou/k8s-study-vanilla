@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
-
+# Copyright (c) 2022 masezou. All rights reserved.
 #########################################################
 # Force Online Install
 #FORCE_ONLINE=1
 
 PGNAMESPACE=postgresql-app
-# SC = csi-hostpath-sc / local-hostpath / local-path / nfs-sc / nfs-csi / vsphere-sc / example-vanilla-rwo-filesystem-sc / cstor-csi-disk / synology-iscsi-storage / synostorage-smb
+# SC = csi-hostpath-sc / local-hostpath / local-path / nfs-sc / nfs-csi / vsphere-sc / example-vanilla-rwo-filesystem-sc / cstor-csi-disk / longhorn / rook-ceph-block / rook-cephfs / synostorage / synostorage-smb
 SC=vsphere-sc
 
 SAMPLEDATA=1
@@ -98,7 +98,7 @@ done
 sleep 5
 
 fi
-EXTERNALIP=`kubectl -n ${PGNAMESPACE} get svc postgres-postgresql | awk '{print $4}' | tail -n 1`
+EXTERNALIP=`kubectl -n ${PGNAMESPACE} get svc postgres-postgresql -o jsonpath="{.status.loadBalancer.ingress[*].ip}"`
 echo $EXTERNALIP
 DNSDOMAINNAME=`kubectl -n external-dns get deployments.apps  --output="jsonpath={.items[*].spec.template.spec.containers }" | jq |grep rfc2136-zone | cut -d "=" -f 2 | cut -d "\"" -f 1`
 if [ ${retvalsvc} -ne 0 ]; then

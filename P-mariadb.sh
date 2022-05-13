@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
-
+# Copyright (c) 2022 masezou. All rights reserved.
 #########################################################
 # Force Online Install
 #FORCE_ONLINE=1
 
 MYSQL_NAMESPACE=maria-db
-# SC = csi-hostpath-sc / local-hostpath / local-path / nfs-sc / nfs-csi / vsphere-sc / example-vanilla-rwo-filesystem-sc / cstor-csi-disk / synology-iscsi-storage / synostorage-smb
+# SC = csi-hostpath-sc / local-hostpath / local-path / nfs-sc / nfs-csi / vsphere-sc / example-vanilla-rwo-filesystem-sc / cstor-csi-disk / longhorn / rook-ceph-block / rook-cephfs / synostorage / synostorage-smb
 SC=vsphere-sc
 
 SAMPLEDATA=1
@@ -100,7 +100,7 @@ sleep 5
 kubectl -n ${MYSQL_NAMESPACE} wait pod -l app.kubernetes\.io\/name=mariadb --for condition=Ready
 fi
 
-EXTERNALIP=`kubectl -n ${MYSQL_NAMESPACE} get svc mariadb-release | awk '{print $4}' | tail -n 1`
+EXTERNALIP=`kubectl -n ${MYSQL_NAMESPACE} get svc mariadb-release -o jsonpath="{.status.loadBalancer.ingress[*].ip}"`
 echo $EXTERNALIP
 
 if [ ${retvalsvc} -ne 0 ]; then

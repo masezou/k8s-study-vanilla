@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# Copyright (c) 2022 masezou. All rights reserved.
 
 if [ ! -f ~/.kube/config ] ; then
 echo "There is no kubeconfig. exit ..."
@@ -7,16 +8,16 @@ fi
 
 DNSDOMAINNAME=`kubectl -n external-dns get deployments.apps  --output="jsonpath={.items[*].spec.template.spec.containers }" | jq |grep rfc2136-zone | cut -d "=" -f 2 | cut -d "\"" -f 1`
 DNSHOSTIP=`kubectl get nodes -o jsonpath='{.items[*].status.addresses[?(@.type=="InternalIP")].address}'`
-DASHBOARD_EXTERNALIP=`kubectl -n kubernetes-dashboard get service dashboard-service-lb| awk '{print $4}' | tail -n 1`
+DASHBOARD_EXTERNALIP=`kubectl -n kubernetes-dashboard get service kubernetes-dashboard -o jsonpath="{.status.loadBalancer.ingress[*].ip}"`
 kubectl -n kubernetes-dashboard get secret $(kubectl -n kubernetes-dashboard get sa/admin-user -o jsonpath="{.secrets[0].name}") -o go-template="{{.data.token | base64decode}}" > dashboard.token
 echo "" >> dashboard.token
-DASHBOARD_FQDN=`kubectl -n kubernetes-dashboard get svc dashboard-service-lb --output="jsonpath={.metadata.annotations}" | jq | grep external | cut -d "\"" -f 4`
+DASHBOARD_FQDN=`kubectl -n kubernetes-dashboard get svc kubernetes-dashboard --output="jsonpath={.metadata.annotations}" | jq | grep external | cut -d "\"" -f 4`
 REGISTRYHOST=`kubectl -n registry get configmaps pregistry-configmap -o=jsonpath='{.data.pregistry_host}'`
 REIGSTRYPORT=`kubectl -n registry get configmaps pregistry-configmap -o=jsonpath='{.data.pregistry_port}'`
 REGISTRYURL=${REGISTRYHOST}:${REIGSTRYPORT}
-REGISTRY_EXTERNALIP=`kubectl -n registry get service pregistry-frontend-clusterip | awk '{print $4}' | tail -n 1`
+REGISTRY_EXTERNALIP=`kubectl -n registry get service pregistry-frontend-clusterip -o jsonpath="{.status.loadBalancer.ingress[*].ip}"`
 REGISTRY_FQDN=`kubectl -n registry get svc pregistry-frontend-clusterip --output="jsonpath={.metadata.annotations}" | jq | grep external | cut -d "\"" -f 4`
-KEYCLOAK_EXTERNALIP=`kubectl -n keycloak get service keycloak  | awk '{print $4}' | tail -n 1`
+KEYCLOAK_EXTERNALIP=`kubectl -n keycloak get service keycloak -o jsonpath="{.status.loadBalancer.ingress[*].ip}"`
 KEYCLOAK_FQDN=`kubectl -n keycloak get svc keycloak --output="jsonpath={.metadata.annotations}" | jq | grep external | cut -d "\"" -f 4`
 
 echo "*************************************************************************************"
@@ -54,7 +55,7 @@ fi
 kubectl get ns minio-operator > /dev/null 2>&1
 retvalminioope=$?
 if [ ${retvalminioope} -eq 0 ]; then
-MINIOOP_EXTERNALIP=`kubectl -n minio-operator get service console | awk '{print $4}' | tail -n 1`
+MINIOOP_EXTERNALIP=`kubectl -n minio-operator get service console -o jsonpath="{.status.loadBalancer.ingress[*].ip}"`
 echo -e "\e[1mMinio Operator \e[m"
 echo ""
 echo "This is use for adding/delete/manage Minio tenant"
@@ -77,8 +78,8 @@ TENANTNAMESPACE=`kubectl get tenant -A | grep Initialized | cut -d " " -f 1`
 if [ ! -z ${TENANTNAMESPACE} ]; then
 LOCALHOSTNAMEAPI=${TENANTNAMESPACE}-api.${DNSDOMAINNAME}
 LOCALHOSTNAMECONSOLE=${TENANTNAMESPACE}-console.${DNSDOMAINNAME}
-LOCALIPADDRAPI=`kubectl -n ${TENANTNAMESPACE} get service minio | awk '{print $4}' | tail -n 1`
-LOCALIPADDRCONSOLE=`kubectl -n ${TENANTNAMESPACE} get service ${TENANTNAMESPACE}-console | awk '{print $4}' | tail -n 1`
+LOCALIPADDRAPI=`kubectl -n ${TENANTNAMESPACE} get service minio -o jsonpath="{.status.loadBalancer.ingress[*].ip}"`
+LOCALIPADDRCONSOLE=`kubectl -n ${TENANTNAMESPACE} get service ${TENANTNAMESPACE}-console -o jsonpath="{.status.loadBalancer.ingress[*].ip}"`
 MCLOGINUSER=`kubectl -n ${TENANTNAMESPACE} get secret ${TENANTNAMESPACE}-user-1 -ojsonpath="{.data."CONSOLE_ACCESS_KEY"}{'\n'}" |base64 --decode`
 MCLOGINPASSWORD=`kubectl -n ${TENANTNAMESPACE} get secret ${TENANTNAMESPACE}-user-1 -ojsonpath="{.data."CONSOLE_SECRET_KEY"}{'\n'}" |base64 --decode`
 
@@ -139,7 +140,7 @@ fi
 kubectl get ns kasten-io  > /dev/null 2>&1
 HAS_KASTEN=$?
 if [ ${HAS_KASTEN} -eq 0 ]; then
-KASTENEXTERNALIP=`kubectl -n kasten-io get svc gateway-ext | awk '{print $4}' | tail -n 1`
+KASTENEXTERNALIP=`kubectl -n kasten-io get svc gateway-ext -o jsonpath="{.status.loadBalancer.ingress[*].ip}"`
 KASTENFQDNURL=`kubectl -n kasten-io  get svc gateway-ext --output="jsonpath={.metadata.annotations}" | jq | grep external-dns | cut -d "\"" -f 4`
 KASTENINGRESSIP=`kubectl get ingress -n kasten-io --output="jsonpath={.items[*].status.loadBalancer.ingress[*].ip}"`
 K10INGRESHOST=`kubectl -n kasten-io get ingress k10-ingress --output="jsonpath={.spec.rules[*].host }"`

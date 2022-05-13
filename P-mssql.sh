@@ -1,9 +1,10 @@
 #!/usr/bin/env bash
+# Copyright (c) 2022 masezou. All rights reserved.
 #########################################################
 MSSQLNAMESPACE=sqlserver
 MSQSQLPASSWORD="MyC0m9l&xP@ssw0rd"
 
-# SC = csi-hostpath-sc / local-hostpath / local-path / nfs-sc / nfs-csi / vsphere-sc / example-vanilla-rwo-filesystem-sc / cstor-csi-disk / synology-iscsi-storage / synostorage-smb
+# SC = csi-hostpath-sc / local-hostpath / local-path / nfs-sc / nfs-csi / vsphere-sc / example-vanilla-rwo-filesystem-sc / cstor-csi-disk / longhorn / rook-ceph-block / rook-cephfs / synostorage / synostorage-smb
 SC=vsphere-sc
 
 SAMPLEDATA=1
@@ -104,7 +105,7 @@ EOF
 kubectl -n ${MSSQLNAMESPACE} wait pod -l app=mssql --for condition=Ready --timeout 180s
 fi
 
-EXTERNALIP=`kubectl -n ${MSSQLNAMESPACE} get service mssql-deployment | awk '{print $4}' | tail -n 1`
+EXTERNALIP=`kubectl -n ${MSSQLNAMESPACE} get service mssql-deployment -o jsonpath="{.status.loadBalancer.ingress[*].ip}"`
 DNSDOMAINNAME=`kubectl -n external-dns get deployments.apps  --output="jsonpath={.items[*].spec.template.spec.containers }" | jq |grep rfc2136-zone | cut -d "=" -f 2 | cut -d "\"" -f 1`
 if [ ${retvalsvc} -ne 0 ]; then
 if [ ! -z ${DNSDOMAINNAME} ]; then

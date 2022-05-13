@@ -1,19 +1,18 @@
 #!/usr/bin/env bash
-
+# Copyright (c) 2022 masezou. All rights reserved.
 #########################################################
 # Force Online Install
 #FORCE_ONLINE=1
 
 # namespace. namespace will be used with hostname
-NAMESPACE=blog1
-
-# SC = csi-hostpath-sc / local-hostpath / local-path / nfs-sc / nfs-csi / vsphere-sc / example-vanilla-rwo-filesystem-sc / cstor-csi-disk / synology-iscsi-storage / synostorage-smb
+WPNAMESPACE=blog1
+# SC = csi-hostpath-sc / local-hostpath / local-path / nfs-sc / nfs-csi / vsphere-sc / example-vanilla-rwo-filesystem-sc / cstor-csi-disk / longhorn / rook-ceph-block / rook-cephfs / synostorage / synostorage-smb
 SC=vsphere-sc
 
 #REGISTRYURL=192.168.133.2:5000
 
 #########################################################
-kubectl get ns | grep ${NAMESPACE}
+kubectl get ns | grep ${WPNAMESPACE}
 retvalsvc=$?
 if [ ${retvalsvc} -ne 0 ]; then
 
@@ -71,9 +70,9 @@ fi
 
 helm repo add bitnami https://charts.bitnami.com/bitnami
 helm repo update
-kubectl create namespace ${NAMESPACE}
-mkdir ${NAMESPACE}
-cd  ${NAMESPACE}
+kubectl create namespace ${WPNAMESPACE}
+mkdir ${WPNAMESPACE}
+cd  ${WPNAMESPACE}
 
 
 cat << EOF > wordpress-pvc.yaml
@@ -206,53 +205,53 @@ if [ ${ONLINE} -eq 0 ]; then
 helm fetch bitnami/mysql --version=8.8.27
 MYSQLCHART=`ls mysql-*.tgz`
 if [ ${SC} = csi-hostpath-sc ]; then
-helm install mysql-release ${MYSQLCHART}  -n ${NAMESPACE} --set volumePermissions.enabled=true --set global.storageClass=${SC} --set global.imageRegistry=${REGISTRYURL}
+helm install mysql-release ${MYSQLCHART}  -n ${WPNAMESPACE} --set volumePermissions.enabled=true --set global.storageClass=${SC} --set global.imageRegistry=${REGISTRYURL}
 else
-helm install mysql-release ${MYSQLCHART}  -n ${NAMESPACE} --set global.storageClass=${SC} --set global.imageRegistry=${REGISTRYURL}
+helm install mysql-release ${MYSQLCHART}  -n ${WPNAMESPACE} --set global.storageClass=${SC} --set global.imageRegistry=${REGISTRYURL}
 fi
 else
 if [ ${SC} = csi-hostpath-sc ]; then
-helm install mysql-release bitnami/mysql -n ${NAMESPACE} --set volumePermissions.enabled=true --set global.storageClass=${SC}
+helm install mysql-release bitnami/mysql -n ${WPNAMESPACE} --set volumePermissions.enabled=true --set global.storageClass=${SC}
 else
-helm install mysql-release bitnami/mysql -n ${NAMESPACE} --set global.storageClass=${SC}
+helm install mysql-release bitnami/mysql -n ${WPNAMESPACE} --set global.storageClass=${SC}
 fi
 fi
 sleep 5
-kubectl get pod,pvc -n ${NAMESPACE} 
+kubectl get pod,pvc -n ${WPNAMESPACE} 
 echo "Initial sleep 30s"
 sleep 30
-kubectl -n ${NAMESPACE} get pod,pvc
-while [ "$(kubectl get pod -n ${NAMESPACE} mysql-release-0 --output="jsonpath={.status.containerStatuses[*].ready}" | cut -d' ' -f2)" != "true" ]; do
+kubectl -n ${WPNAMESPACE} get pod,pvc
+while [ "$(kubectl get pod -n ${WPNAMESPACE} mysql-release-0 --output="jsonpath={.status.containerStatuses[*].ready}" | cut -d' ' -f2)" != "true" ]; do
 	echo "Deploying Stateful MySQL, Please wait...."
-    kubectl get pod,pvc -n ${NAMESPACE} 
+    kubectl get pod,pvc -n ${WPNAMESPACE} 
 	sleep 30
 done
-    kubectl get pod,pvc -n ${NAMESPACE} 
-kubectl create -f wordpress-pvc.yaml -n ${NAMESPACE}
-kubectl get pvc,pv -n ${NAMESPACE}
-kubectl create -f wordpress.yaml -n ${NAMESPACE}
-kubectl get pod -l app=wordpress -n ${NAMESPACE}
-kubectl create -f wordpress-service.yaml -n ${NAMESPACE}
-kubectl label statefulset mysql-release  app=wordpress -n ${NAMESPACE}
-kubectl get svc -l app=wordpress -n ${NAMESPACE}
-kubectl get pod -n ${NAMESPACE}
+    kubectl get pod,pvc -n ${WPNAMESPACE} 
+kubectl create -f wordpress-pvc.yaml -n ${WPNAMESPACE}
+kubectl get pvc,pv -n ${WPNAMESPACE}
+kubectl create -f wordpress.yaml -n ${WPNAMESPACE}
+kubectl get pod -l app=wordpress -n ${WPNAMESPACE}
+kubectl create -f wordpress-service.yaml -n ${WPNAMESPACE}
+kubectl label statefulset mysql-release  app=wordpress -n ${WPNAMESPACE}
+kubectl get svc -l app=wordpress -n ${WPNAMESPACE}
+kubectl get pod -n ${WPNAMESPACE}
 cd ..
 fi
-mv ${NAMESPACE} ${NAMESPACE}-`date "+%Y%m%d_%H%M%S"`
-EXTERNALIP=`kubectl -n ${NAMESPACE} get service wordpress |awk '{print $4}' | tail -n 1`
+mv ${WPNAMESPACE} ${WPNAMESPACE}-`date "+%Y%m%d_%H%M%S"`
+EXTERNALIP=`kubectl -n ${WPNAMESPACE} get service wordpress -o jsonpath="{.status.loadBalancer.ingress[*].ip}"`
 
-WPHOST=${NAMESPACE}
+WPHOST=${WPNAMESPACE}
 DNSDOMAINNAME=`kubectl -n external-dns get deployments.apps  --output="jsonpath={.items[*].spec.template.spec.containers }" | jq |grep rfc2136-zone | cut -d "=" -f 2 | cut -d "\"" -f 1`
 if [ ${retvalsvc} -ne 0 ]; then
 if [ ! -z ${DNSDOMAINNAME} ]; then
-kubectl -n ${NAMESPACE} annotate service wordpress \
+kubectl -n ${WPNAMESPACE} annotate service wordpress \
     external-dns.alpha.kubernetes.io/hostname=${WPHOST}.${DNSDOMAINNAME}
 fi
 kubectl -n blog1 wait pod -l app=wordpress --for condition=Ready --timeout 180s
 fi
 
 sleep 30
-kubectl images -n ${NAMESPACE}
+kubectl images -n ${WPNAMESPACE}
 echo ""
 echo "*************************************************************************************"
 echo "Next Step"
