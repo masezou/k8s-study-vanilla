@@ -309,7 +309,7 @@ rm -rf csi-driver-host-path
 fi
 
 # Permission fix
-chmod -R 1777 /var/lib/docker/volumes/
+#chmod -R 1777 /var/lib/docker/volumes/
 fi
 fi
 fi
