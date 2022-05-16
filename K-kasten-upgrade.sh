@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 kubectl --namespace=kasten-io delete deployment prometheus-server
 helm repo update && \
     helm get values k10 --output yaml --namespace=kasten-io > k10_val.yaml && \
