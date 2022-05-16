@@ -19,130 +19,127 @@ DNSSVR=1
 #########################################################
 ### UID Check ###
 if [ ${EUID:-${UID}} != 0 ]; then
-    echo "This script must be run as root"
-    exit 1
+	echo "This script must be run as root"
+	exit 1
 else
-    echo "I am root user."
+	echo "I am root user."
 fi
 
 # HOSTNAME check
-ping -c 3 `hostname`
+ping -c 3 $(hostname)
 retvalping=$?
 if [ ${retvalping} -ne 0 ]; then
-echo -e "\e[31m HOSTNAME was not configured correctly. \e[m"
-exit 255
+	echo -e "\e[31m HOSTNAME was not configured correctly. \e[m"
+	exit 255
 fi
 
 ### Distribution Check ###
-UBUNTUVER=`grep DISTRIB_RELEASE /etc/lsb-release | cut -d "=" -f2`
+UBUNTUVER=$(grep DISTRIB_RELEASE /etc/lsb-release | cut -d "=" -f2)
 case ${UBUNTUVER} in
-    "20.04")
-       echo -e "\e[32m${UBUNTUVER} is OK. \e[m"
-       ;;
-    "22.04")
-       echo "${UBUNTUVER} is experimental."
-      #exit 255
-       ;;
-    *)
-       echo -e "\e[31m${UBUNTUVER} is NG. \e[m"
-      exit 255
-        ;;
+"20.04")
+	echo -e "\e[32m${UBUNTUVER} is OK. \e[m"
+	;;
+"22.04")
+	echo "${UBUNTUVER} is experimental."
+	#exit 255
+	;;
+*)
+	echo -e "\e[31m${UBUNTUVER} is NG. \e[m"
+	exit 255
+	;;
 esac
 
 ### ARCH Check ###
-PARCH=`arch`
+PARCH=$(arch)
 if [ ${PARCH} = aarch64 ]; then
-  ARCH=arm64
-  echo ${ARCH}
+	ARCH=arm64
+	echo ${ARCH}
 elif [ ${PARCH} = arm64 ]; then
-  ARCH=arm64
-  echo ${ARCH}
+	ARCH=arm64
+	echo ${ARCH}
 elif [ ${PARCH} = x86_64 ]; then
-  ARCH=amd64
-  echo ${ARCH}
+	ARCH=amd64
+	echo ${ARCH}
 else
-  echo "${ARCH} platform is not supported"
-  exit 1
+	echo "${ARCH} platform is not supported"
+	exit 1
 fi
 
-BASEPWD=`pwd`
+BASEPWD=$(pwd)
 source /etc/profile
 
 ### Cluster check ####
-kubectl get pod 
+kubectl get pod
 retavalcluser=$?
 if [ ${retavalcluser} -ne 0 ]; then
-echo -e "\e[31m Kubernetes cluster is not found. \e[m"
-exit 255
+	echo -e "\e[31m Kubernetes cluster is not found. \e[m"
+	exit 255
 fi
 export KUBECONFIG=$HOME/.kube/config
 
 #### LOCALIP (from kubectl) #########
 if [ -z ${FORCE_LOCALIP} ]; then
-LOCALIPADDR=`kubectl get nodes -o jsonpath='{.items[*].status.addresses[?(@.type=="InternalIP")].address}'`
+	LOCALIPADDR=$(kubectl get nodes -o jsonpath='{.items[*].status.addresses[?(@.type=="InternalIP")].address}')
 else
-LOCALIPADDR=${FORCE_LOCALIP}
+	LOCALIPADDR=${FORCE_LOCALIP}
 fi
 if [ -z ${LOCALIPADDR} ]; then
-echo -e "\e[31m Local IP address setting was failed, please set FORCE_LOCALIP and re-run.  \e[m"
-exit 255
+	echo -e "\e[31m Local IP address setting was failed, please set FORCE_LOCALIP and re-run.  \e[m"
+	exit 255
 else
-echo ${LOCALIPADDR}
+	echo ${LOCALIPADDR}
 fi
 
 # SUDO Login
 if [[ -z "${SUDO_USER}" ]]; then
-  echo "You are root login."
+	echo "You are root login."
 else
-  echo "You are sudo login."
+	echo "You are sudo login."
 fi
 echo $SUDO_USER
 
 DNSHOSTIP=${LOCALIPADDR}
-DNSHOSTNAME=`hostname`
+DNSHOSTNAME=$(hostname)
 
 ### Install command check ####
-if type "kubectl" > /dev/null 2>&1
-then
-    echo "kubectl was already installed"
+if type "kubectl" >/dev/null 2>&1; then
+	echo "kubectl was already installed"
 else
-    echo "kubectl was not found. Please install kubectl and re-run"
-    exit 255
+	echo "kubectl was not found. Please install kubectl and re-run"
+	exit 255
 fi
 
-if type "helm" > /dev/null 2>&1
-then
-    echo "helm was already installed"
+if type "helm" >/dev/null 2>&1; then
+	echo "helm was already installed"
 else
-if [ ! -f /usr/local/bin/helm ]; then
-curl -s -O https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3
-bash ./get-helm-3
-helm version
-rm get-helm-3
-helm completion bash > /etc/bash_completion.d/helm
-source /etc/bash_completion.d/helm
-helm repo add bitnami https://charts.bitnami.com/bitnami
-helm repo update
-fi
+	if [ ! -f /usr/local/bin/helm ]; then
+		curl -s -O https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3
+		bash ./get-helm-3
+		helm version
+		rm get-helm-3
+		helm completion bash >/etc/bash_completion.d/helm
+		source /etc/bash_completion.d/helm
+		helm repo add bitnami https://charts.bitnami.com/bitnami
+		helm repo update
+	fi
 fi
 
 # forget trap!
 if [ ${IPRANGE} = "fixme" ]; then
-echo -e "\e[31m Please input your IPRANGE in this script!  \e[m"
-exit 255
+	echo -e "\e[31m Please input your IPRANGE in this script!  \e[m"
+	exit 255
 fi
 echo "Load balanacer IP range is ${IPRANGE}"
-
 
 # Configure Metallb and ingress
 echo "configure ${IPRANGE}"
 kubectl apply -f https://docs.projectcalico.org/manifests/calico.yaml
-kubectl get configmap kube-proxy -n kube-system -o yaml | \
-sed -e "s/strictARP: false/strictARP: true/" | \
-kubectl diff -f - -n kube-system
-kubectl get configmap kube-proxy -n kube-system -o yaml | \
-sed -e "s/strictARP: false/strictARP: true/" | \
-kubectl apply -f - -n kube-system
+kubectl get configmap kube-proxy -n kube-system -o yaml |
+	sed -e "s/strictARP: false/strictARP: true/" |
+	kubectl diff -f - -n kube-system
+kubectl get configmap kube-proxy -n kube-system -o yaml |
+	sed -e "s/strictARP: false/strictARP: true/" |
+	kubectl apply -f - -n kube-system
 #kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/main/manifests/namespace.yaml
 #kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/main/manifests/metallb.yaml
 METALLBVER=0.12.1
@@ -164,35 +161,35 @@ data:
       - ${IPRANGE}
 EOF
 sleep 2
-kubectl get deployment -n metallb-system  controller
-while [ "$(kubectl get deployment -n metallb-system  controller --output="jsonpath={.status.conditions[*].status}" | cut -d' ' -f1)" != "True" ]; do
-       echo "Deploying metallb controller Please wait...."
-    kubectl get deployment -n metallb-system  controller
-       sleep 30
+kubectl get deployment -n metallb-system controller
+while [ "$(kubectl get deployment -n metallb-system controller --output="jsonpath={.status.conditions[*].status}" | cut -d' ' -f1)" != "True" ]; do
+	echo "Deploying metallb controller Please wait...."
+	kubectl get deployment -n metallb-system controller
+	sleep 30
 done
-    kubectl get deployment -n metallb-system  controller
+kubectl get deployment -n metallb-system controller
 
 helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
 helm repo update
 kubectl create ns ingress-system
-helm install ingress-nginx ingress-nginx/ingress-nginx  -n ingress-system
+helm install ingress-nginx ingress-nginx/ingress-nginx -n ingress-system
 sleep 2
 kubectl get deployment -n ingress-system ingress-nginx-controller
 while [ "$(kubectl get deployment -n ingress-system ingress-nginx-controller --output="jsonpath={.status.conditions[*].status}" | cut -d' ' -f1)" != "True" ]; do
 	echo "Deploying Ingress-nginx controller Please wait...."
-    kubectl get deployment -n ingress-system ingress-nginx-controller
+	kubectl get deployment -n ingress-system ingress-nginx-controller
 	sleep 30
 done
-    kubectl get deployment -n ingress-system ingress-nginx-controller
+kubectl get deployment -n ingress-system ingress-nginx-controller
 
 INGRESS_IP=$(kubectl -n ingress-system get svc ingress-nginx-controller -ojsonpath='{.status.loadBalancer.ingress[0].ip}')
 
 # Configutr local DNS Server
 if [ ${DNSSVR} -eq 1 ]; then
-apt -y install bind9 bind9utils
-echo 'include "/etc/bind/named.conf.internal-zones";' >> /etc/bind/named.conf
-mv /etc/bind/named.conf.options /etc/bind/named.conf.options.orig
-cat << EOF > /etc/bind/named.conf.options
+	apt -y install bind9 bind9utils
+	echo 'include "/etc/bind/named.conf.internal-zones";' >>/etc/bind/named.conf
+	mv /etc/bind/named.conf.options /etc/bind/named.conf.options.orig
+	cat <<EOF >/etc/bind/named.conf.options
 acl internal-network {
         127.0.0.0/8;
         10.0.0.0/8;
@@ -226,15 +223,15 @@ options {
         recursion yes;
 };
 EOF
-if [ ! -z ${FORWARDDNS} ]; then
-sed -i -e "s@// forwarders {@forwarders {@g" /etc/bind/named.conf.options
-sed -i -e "s@//      0.0.0.0;@     ${FORWARDDNS} ;@g" /etc/bind/named.conf.options
-sed -i -e "s@// };@};@g" /etc/bind/named.conf.options
-fi
-tsig-keygen -a hmac-sha256 externaldns-key > /etc/bind/external.key
-cat /etc/bind/external.key>> /etc/bind/named.conf.options
-chown root:bind /etc/bind/named.conf.options
-cat << EOF > /etc/bind/named.conf.internal-zones
+	if [ ! -z ${FORWARDDNS} ]; then
+		sed -i -e "s@// forwarders {@forwarders {@g" /etc/bind/named.conf.options
+		sed -i -e "s@//      0.0.0.0;@     ${FORWARDDNS} ;@g" /etc/bind/named.conf.options
+		sed -i -e "s@// };@};@g" /etc/bind/named.conf.options
+	fi
+	tsig-keygen -a hmac-sha256 externaldns-key >/etc/bind/external.key
+	cat /etc/bind/external.key >>/etc/bind/named.conf.options
+	chown root:bind /etc/bind/named.conf.options
+	cat <<EOF >/etc/bind/named.conf.internal-zones
 zone "${DNSDOMAINNAME}" IN {
         type master;
         file "/var/cache/bind/${DNSDOMAINNAME}.lan";
@@ -336,11 +333,11 @@ zone "0.168.192.in-addr.arpa" IN {
         allow-update { none; };
 };
 EOF
-sed -i -e 's/bind/bind -4/g' /etc/default/named
-cat << 'EOF' >/var/cache/bind/${DNSDOMAINNAME}.lan
+	sed -i -e 's/bind/bind -4/g' /etc/default/named
+	cat <<'EOF' >/var/cache/bind/${DNSDOMAINNAME}.lan
 $TTL 86400
 EOF
-cat << EOF >>/var/cache/bind/${DNSDOMAINNAME}.lan
+	cat <<EOF >>/var/cache/bind/${DNSDOMAINNAME}.lan
 @   IN  SOA     ${DNSHOSTNAME}.${DNSDOMAINNAME}. root.${DNSDOMAINNAME}. (
         2020050301  ;Serial
         3600        ;Refresh
@@ -356,82 +353,82 @@ xip		IN NS		ns-aws.sslip.io.
 xip		IN NS		ns-gce.sslip.io.
 xip		IN NS		ns-azure.sslip.io.
 EOF
-if [ ! -z ${INGRESS_IP} ]; then
-cat << EOF >>/var/cache/bind/${DNSDOMAINNAME}.lan
+	if [ ! -z ${INGRESS_IP} ]; then
+		cat <<EOF >>/var/cache/bind/${DNSDOMAINNAME}.lan
 *.apps IN A ${INGRESS_IP}
 EOF
-fi
-chown bind:bind /var/cache/bind/${DNSDOMAINNAME}.lan
-chmod g+w /var/cache/bind/${DNSDOMAINNAME}.lan
-systemctl restart named
-systemctl status named -l --no-pager 
-ETHDEV=`grep ens /etc/netplan/00-installer-config.yaml |tr -d ' ' | cut -d ":" -f1`
-netplan set network.ethernets.${ETHDEV}.nameservers.addresses=[${DNSHOSTIP}]
-netplan set network.ethernets.${ETHDEV}.nameservers.search=[${DNSDOMAINNAME}]
-netplan apply
-sleep 5
-cat << EOF > /tmp/nsupdate.txt
+	fi
+	chown bind:bind /var/cache/bind/${DNSDOMAINNAME}.lan
+	chmod g+w /var/cache/bind/${DNSDOMAINNAME}.lan
+	systemctl restart named
+	systemctl status named -l --no-pager
+	ETHDEV=$(grep ens /etc/netplan/00-installer-config.yaml | tr -d ' ' | cut -d ":" -f1)
+	netplan set network.ethernets.${ETHDEV}.nameservers.addresses=[${DNSHOSTIP}]
+	netplan set network.ethernets.${ETHDEV}.nameservers.search=[${DNSDOMAINNAME}]
+	netplan apply
+	sleep 5
+	cat <<EOF >/tmp/nsupdate.txt
 server ${DNSHOSTIP}
 
 update delete mail.${DNSDOMAINNAME}
 update add mail.${DNSDOMAINNAME} 3600 IN A ${DNSHOSTIP}
 
 EOF
-nsupdate -k /etc/bind/external.key  /tmp/nsupdate.txt
-rm -rf  /tmp/nsupdate.txt
-sleep 5
-echo ""
-echo "Sanity Test"
-echo ""
-host ${DNSHOSTNAME}.${DNSDOMAINNAME}. ${DNSHOSTIP}
-echo ""
-host mail.${DNSDOMAINNAME}. ${DNSHOSTIP}
-echo ""
-host abcd.apps.${DNSDOMAINNAME}. ${DNSHOSTIP}
-echo ""
-host www.yahoo.co.jp. ${DNSHOSTIP}
-echo ""
+	nsupdate -k /etc/bind/external.key /tmp/nsupdate.txt
+	rm -rf /tmp/nsupdate.txt
+	sleep 5
+	echo ""
+	echo "Sanity Test"
+	echo ""
+	host ${DNSHOSTNAME}.${DNSDOMAINNAME}. ${DNSHOSTIP}
+	echo ""
+	host mail.${DNSDOMAINNAME}. ${DNSHOSTIP}
+	echo ""
+	host abcd.apps.${DNSDOMAINNAME}. ${DNSHOSTIP}
+	echo ""
+	host www.yahoo.co.jp. ${DNSHOSTIP}
+	echo ""
 fi
 
 # minio cert update
 if [ -f /root/.minio/certs/private.key ]; then
-cd /root/.minio/certs/
-rm -rf cert.csr
-rm -rf extfile.conf
-rm -rf private.key
-rm -rf public.crt
-rm -rf rootCA*
-rm -rf CAs/rootCA.pem
-openssl genrsa -out rootCA.key 4096
-openssl req -x509 -new -nodes -key rootCA.key -sha256 -days 1825 -out rootCA.pem -subj "/C=JP/ST=Tokyo/L=Shibuya/O=cloudshift.corp/OU=development/CN=exmaple CA"
-openssl genrsa -out private.key 2048
-openssl req -subj "/CN=${LOCALIPADDR}" -sha256 -new -key private.key -out cert.csr
-cat << EOF > extfile.conf
+	cd /root/.minio/certs/
+	rm -rf cert.csr
+	rm -rf extfile.conf
+	rm -rf private.key
+	rm -rf public.crt
+	rm -rf rootCA*
+	rm -rf CAs/rootCA.pem
+	openssl genrsa -out rootCA.key 4096
+	openssl req -x509 -new -nodes -key rootCA.key -sha256 -days 1825 -out rootCA.pem -subj "/C=JP/ST=Tokyo/L=Shibuya/O=cloudshift.corp/OU=development/CN=exmaple CA"
+	openssl genrsa -out private.key 2048
+	openssl req -subj "/CN=${LOCALIPADDR}" -sha256 -new -key private.key -out cert.csr
+	cat <<EOF >extfile.conf
 subjectAltName = DNS:minio.${DNSDOMAINNAME}, IP:${LOCALIPADDR}
 EOF
-openssl x509 -req -days 365 -sha256 -in cert.csr -CA rootCA.pem -CAkey rootCA.key -CAcreateserial -out public.crt -extfile extfile.conf
-chmod 600 ./private.key
-chmod 600 ./public.crt
-chmod 600 ./rootCA.pem
-mkdir -p /root/.minio/certs/CAs
-cp ./rootCA.pem /root/.minio/certs/CAs
-openssl x509 -in public.crt -text -noout| grep IP
-cp public.crt ~/.mc/certs/CAs/
-if [ -z $SUDO_USER ]; then
-  echo "there is no sudo login"
-else
- mkdir -p /home/$SUDO_USER/.mc/certs/CAs/
- cp public.crt /home/$SUDO_USER/.mc/certs/CAs/
- chown -R $SUDO_USER  /home/$SUDO_USER/.mc/
-fi
-cp /root/.minio/certs/public.crt /usr/share/ca-certificates/minio-dns.crt
-echo "minio-dns.crt">>/etc/ca-certificates.conf
-update-ca-certificates 
-systemctl restart minio.service
+	openssl x509 -req -days 365 -sha256 -in cert.csr -CA rootCA.pem -CAkey rootCA.key -CAcreateserial -out public.crt -extfile extfile.conf
+	chmod 600 ./private.key
+	chmod 600 ./public.crt
+	chmod 600 ./rootCA.pem
+	mkdir -p /root/.minio/certs/CAs
+	cp ./rootCA.pem /root/.minio/certs/CAs
+	openssl x509 -in public.crt -text -noout | grep IP
+	cp public.crt ~/.mc/certs/CAs/
+	if [ -z $SUDO_USER ]; then
+		echo "there is no sudo login"
+	else
+		mkdir -p /home/$SUDO_USER/.mc/certs/CAs/
+		cp public.crt /home/$SUDO_USER/.mc/certs/CAs/
+		chown -R $SUDO_USER /home/$SUDO_USER/.mc/
+	fi
+	cp /root/.minio/certs/public.crt /usr/share/ca-certificates/minio-dns.crt
+	echo "minio-dns.crt" >>/etc/ca-certificates.conf
+	update-ca-certificates
+	systemctl restart minio.service
 fi
 
 # Install external-dns
-TSIG_SECRET=`grep secret /etc/bind/external.key | cut -d '"' -f 2`
+TSIG_SECRET=$(grep secret /etc/bind/external.key | cut -d '"' -f 2)
 cat <<EOF | kubectl apply -f -
 apiVersion: v1
 kind: Namespace
@@ -526,12 +523,12 @@ EOF
 sleep 2
 kubectl get deployment -n external-dns external-dns
 while [ "$(kubectl get deployment -n external-dns external-dns --output="jsonpath={.status.conditions[*].status}" | cut -d' ' -f1)" != "True" ]; do
-       echo "Deploying external-dns Please wait...."
-    kubectl get deployment -n external-dns external-dns
-       sleep 30
+	echo "Deploying external-dns Please wait...."
+	kubectl get deployment -n external-dns external-dns
+	sleep 30
 done
-    kubectl get deployment -n external-dns external-dns
-DNSDOMAINNAME=`kubectl -n external-dns get deployments.apps  --output="jsonpath={.items[*].spec.template.spec.containers }" | jq |grep rfc2136-zone | cut -d "=" -f 2 | cut -d "\"" -f 1`
+kubectl get deployment -n external-dns external-dns
+DNSDOMAINNAME=$(kubectl -n external-dns get deployments.apps --output="jsonpath={.items[*].spec.template.spec.containers }" | jq | grep rfc2136-zone | cut -d "=" -f 2 | cut -d "\"" -f 1)
 
 # Install CertManager
 git clone https://github.com/jetstack/cert-manager.git -b v1.4.0 --depth 1
@@ -544,11 +541,11 @@ helm install cert-manager . -n cert-manager
 sleep 2
 kubectl get deployment -n cert-manager cert-manager
 while [ "$(kubectl get deployment -n cert-manager cert-manager --output="jsonpath={.status.conditions[*].status}" | cut -d' ' -f1)" != "True" ]; do
-       echo "Deploying cert-manager Please wait...."
-    kubectl get deployment -n cert-manager cert-manager
-       sleep 30
+	echo "Deploying cert-manager Please wait...."
+	kubectl get deployment -n cert-manager cert-manager
+	sleep 30
 done
-    kubectl get deployment -n cert-manager cert-manager
+kubectl get deployment -n cert-manager cert-manager
 cd ../../../../
 rm -rf cert-manager
 kubectl create ns sandbox
@@ -593,7 +590,7 @@ kubectl create namespace kubernetes-dashboard
 mkdir certs
 cd certs
 openssl genrsa -out dashboard.key 2048
-cat <<EOF> openssl.conf
+cat <<EOF >openssl.conf
 [req]
 distinguished_name = req_distinguished_name
 x509_extensions = v3_req
@@ -615,7 +612,7 @@ IP.1 = 127.0.0.1
 DNS.1 = dashboard.${DNSDOMAINNAME}
 EOF
 openssl req -new -x509 -nodes -days 365 -key dashboard.key -out dashboard.crt -config openssl.conf
-openssl x509 -in dashboard.crt -text -noout| grep IP
+openssl x509 -in dashboard.crt -text -noout | grep IP
 kubectl create secret generic kubernetes-dashboard-certs --from-file=dashboard.key --from-file=dashboard.crt -n kubernetes-dashboard
 cd ..
 rm -rf certs
@@ -665,29 +662,29 @@ EOF
 sleep 2
 kubectl -n kubernetes-dashboard get deployments
 while [ "$(kubectl -n kubernetes-dashboard get deployments --output="jsonpath={.items[*].status.conditions[*].status}" | cut -d' ' -f1)" != "True" ]; do
-        echo "Deploying Kubernetes Dashboard Please wait...."
-    kubectl -n kubernetes-dashboard get deployments
-        sleep 30
+	echo "Deploying Kubernetes Dashboard Please wait...."
+	kubectl -n kubernetes-dashboard get deployments
+	sleep 30
 done
-    kubectl -n kubernetes-dashboard get deployments
-DASHBOARD_EXTERNALIP=`kubectl -n kubernetes-dashboard get service dashboard-service-lb| awk '{print $4}' | tail -n 1`
+kubectl -n kubernetes-dashboard get deployments
+DASHBOARD_EXTERNALIP=$(kubectl -n kubernetes-dashboard get service dashboard-service-lb | awk '{print $4}' | tail -n 1)
 kubectl -n kubernetes-dashboard annotate service dashboard-service-lb \
-    external-dns.alpha.kubernetes.io/hostname=dashboard.${DNSDOMAINNAME}
+	external-dns.alpha.kubernetes.io/hostname=dashboard.${DNSDOMAINNAME}
 sleep 10
 host dashboard.${DNSDOMAINNAME}. ${DNSHOSTIP}
 
-kubectl -n kubernetes-dashboard get secret $(kubectl -n kubernetes-dashboard get sa/admin-user -o jsonpath="{.secrets[0].name}") -o go-template="{{.data.token | base64decode}}" > dashboard.token
-echo "" >> dashboard.token
+kubectl -n kubernetes-dashboard get secret $(kubectl -n kubernetes-dashboard get sa/admin-user -o jsonpath="{.secrets[0].name}") -o go-template="{{.data.token | base64decode}}" >dashboard.token
+echo "" >>dashboard.token
 if [ -z $SUDO_USER ]; then
-  echo "there is no sudo login"
+	echo "there is no sudo login"
 else
- cp dashboard.token /home/${SUDO_USER}/k8s-study-vanilla
- chown ${SUDO_USER} /home/${SUDO_USER}/k8s-study-vanilla/dashboard.token
+	cp dashboard.token /home/${SUDO_USER}/k8s-study-vanilla
+	chown ${SUDO_USER} /home/${SUDO_USER}/k8s-study-vanilla/dashboard.token
 fi
 
 # Install metric server
 curl --retry 10 --retry-delay 3 --retry-connrefused -sSOL https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
-cat << EOF | sed -i -e "/        imagePullPolicy: IfNotPresent$/r /dev/stdin" components.yaml
+cat <<EOF | sed -i -e "/        imagePullPolicy: IfNotPresent$/r /dev/stdin" components.yaml
         command:
         - /metrics-server
         -  --kubelet-insecure-tls
@@ -698,16 +695,16 @@ rm -rf components.yaml
 sleep 2
 kubectl -n kube-system get deployments.apps metrics-server
 while [ "$(kubectl -n kube-system get deployments.apps metrics-server --output="jsonpath={.status.conditions[*].status}" | cut -d' ' -f1)" != "True" ]; do
-        echo "Deploying Kubernetes metrics-server  Please wait...."
-    kubectl -n kube-system get deployments.apps metrics-server
-        sleep 30
+	echo "Deploying Kubernetes metrics-server  Please wait...."
+	kubectl -n kube-system get deployments.apps metrics-server
+	sleep 30
 done
-    kubectl -n kube-system get deployments.apps metrics-server
+kubectl -n kube-system get deployments.apps metrics-server
 
 # Install Reigstory Frontend
 if [ ${ARCH} = amd64 ]; then
-kubectl create namespace registry
-cat <<EOF | kubectl apply -n registry -f -
+	kubectl create namespace registry
+	cat <<EOF | kubectl apply -n registry -f -
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -764,41 +761,42 @@ spec:
                 name: pregistry-configmap
                 key: pregistry_port
 EOF
-sleep 2
-kubectl -n registry get deployments.apps pregistry-frontend-deployment
-while [ "$(kubectl -n registry get deployments.apps pregistry-frontend-deployment  --output="jsonpath={.status.conditions[*].status}" | cut -d' ' -f1)" != "True" ]; do
-        echo "Deploying registry frontend  Please wait...."
-    kubectl -n registry get deployments.apps pregistry-frontend-deployment
-        sleep 30
-done
-    kubectl -n registry get deployments.apps pregistry-frontend-deployment
-REGISTRY_EXTERNALIP=`kubectl -n registry get service pregistry-frontend-clusterip | awk '{print $4}' | tail -n 1`
-kubectl -n registry annotate service pregistry-frontend-clusterip \
-    external-dns.alpha.kubernetes.io/hostname=registryfe.${DNSDOMAINNAME}
-sleep 10
-host registryfe.${DNSDOMAINNAME}. ${DNSHOSTIP}
+	sleep 2
+	kubectl -n registry get deployments.apps pregistry-frontend-deployment
+	while [ "$(kubectl -n registry get deployments.apps pregistry-frontend-deployment --output="jsonpath={.status.conditions[*].status}" | cut -d' ' -f1)" != "True" ]; do
+		echo "Deploying registry frontend  Please wait...."
+		kubectl -n registry get deployments.apps pregistry-frontend-deployment
+		sleep 30
+	done
+	kubectl -n registry get deployments.apps pregistry-frontend-deployment
+	REGISTRY_EXTERNALIP=$(kubectl -n registry get service pregistry-frontend-clusterip | awk '{print $4}' | tail -n 1)
+	kubectl -n registry annotate service pregistry-frontend-clusterip \
+		external-dns.alpha.kubernetes.io/hostname=registryfe.${DNSDOMAINNAME}
+	sleep 10
+	host registryfe.${DNSDOMAINNAME}. ${DNSHOSTIP}
 fi
 
 # Keycloadk
-debconf-set-selections <<< "postfix postfix/mailname string ${DNSHOSTNAME}.${DNSDOMAINNAME}"
-debconf-set-selections <<< "postfix postfix/main_mailer_type string 'Local only'"
+debconf-set-selections <<<"postfix postfix/mailname string ${DNSHOSTNAME}.${DNSDOMAINNAME}"
+debconf-set-selections <<<"postfix postfix/main_mailer_type string 'Local only'"
 apt -y install postfix mailutils
 kubectl create ns keycloak
 kubectl -n keycloak create -f https://raw.githubusercontent.com/keycloak/keycloak-quickstarts/latest/kubernetes-examples/keycloak.yaml
-kubectl -n keycloak  get deployments.apps keycloak
-while [ "$(kubectl -n keycloak  get deployments.apps keycloak  --output="jsonpath={.status.conditions[*].status}" | cut -d' ' -f1)" != "True" ]; do
-         echo "Deploying Keycloak  Please wait...."
-     kubectl -n keycloak  get deployments.apps keycloak
-         sleep 30
+kubectl -n keycloak get deployments.apps keycloak
+while [ "$(kubectl -n keycloak get deployments.apps keycloak --output="jsonpath={.status.conditions[*].status}" | cut -d' ' -f1)" != "True" ]; do
+	echo "Deploying Keycloak  Please wait...."
+	kubectl -n keycloak get deployments.apps keycloak
+	sleep 30
 done
-     kubectl -n keycloak  get deployments.apps keycloak
-KEYCLOAK_EXTERNALIP=`kubectl -n keycloak get service keycloak  | awk '{print $4}' | tail -n 1`
+kubectl -n keycloak get deployments.apps keycloak
+KEYCLOAK_EXTERNALIP=$(kubectl -n keycloak get service keycloak | awk '{print $4}' | tail -n 1)
 kubectl -n keycloak annotate service keycloak \
-     external-dns.alpha.kubernetes.io/hostname=keycloak.${DNSDOMAINNAME}
+	external-dns.alpha.kubernetes.io/hostname=keycloak.${DNSDOMAINNAME}
 sleep 10
 host keycloak.${DNSDOMAINNAME}. ${DNSHOSTIP}
 
-rndc freeze ${DNSDOMAINNAME} ;rndc thaw ${DNSDOMAINNAME}
+rndc freeze ${DNSDOMAINNAME}
+rndc thaw ${DNSDOMAINNAME}
 rndc sync -clean ${DNSDOMAINNAME}
 
 apt -y autoremove
@@ -862,17 +860,17 @@ cd ${BASEPWD}
 chmod -x ./K1-kasten.sh
 chmod +x ./result.sh
 if [ -z $SUDO_USER ]; then
-  echo "there is no sudo login"
+	echo "there is no sudo login"
 else
- mkdir -p /home/${SUDO_USER}/k8s-study-vanilla/
- chown ${SUDO_USER}:${SUDO_USER} /home/${SUDO_USER}/k8s-study-vanilla/
- cp ./K1-kasten.sh /home/${SUDO_USER}/k8s-study-vanilla/
- cp ./P-wordpress.sh /home/${SUDO_USER}/k8s-study-vanilla/
- cp ./result.sh /home/${SUDO_USER}/k8s-study-vanilla/
- chown ${SUDO_USER}:${SUDO_USER} /home/${SUDO_USER}/k8s-study-vanilla/K1-kasten.sh
- chown ${SUDO_USER}:${SUDO_USER} /home/${SUDO_USER}/k8s-study-vanilla/P-wordpress.sh
- chown ${SUDO_USER}:${SUDO_USER} /home/${SUDO_USER}/k8s-study-vanilla/result.sh
- chmod +x /home/${SUDO_USER}/k8s-study-vanilla/result.sh
+	mkdir -p /home/${SUDO_USER}/k8s-study-vanilla/
+	chown ${SUDO_USER}:${SUDO_USER} /home/${SUDO_USER}/k8s-study-vanilla/
+	cp ./K1-kasten.sh /home/${SUDO_USER}/k8s-study-vanilla/
+	cp ./P-wordpress.sh /home/${SUDO_USER}/k8s-study-vanilla/
+	cp ./result.sh /home/${SUDO_USER}/k8s-study-vanilla/
+	chown ${SUDO_USER}:${SUDO_USER} /home/${SUDO_USER}/k8s-study-vanilla/K1-kasten.sh
+	chown ${SUDO_USER}:${SUDO_USER} /home/${SUDO_USER}/k8s-study-vanilla/P-wordpress.sh
+	chown ${SUDO_USER}:${SUDO_USER} /home/${SUDO_USER}/k8s-study-vanilla/result.sh
+	chmod +x /home/${SUDO_USER}/k8s-study-vanilla/result.sh
 fi
 chmod -x $0
 ls

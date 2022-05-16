@@ -15,21 +15,21 @@ echo $VSPHERESERVER
 
 # Forget trap!
 if [ -z ${VSPHERESERVER} ]; then
-echo "vSphere profile is not set"
-exit 0
+	echo "vSphere profile is not set"
+	exit 0
 fi
 
 kubectl get sc | grep csi.vsphere
 retval1=$?
 if [ ${retval1} -ne 0 ]; then
-chmod -x K3-kasten-vsphere.sh
-echo "*************************************************************************************"
-echo "vSphere CSI Driver was not found. No problem."
-exit
+	chmod -x K3-kasten-vsphere.sh
+	echo "*************************************************************************************"
+	echo "vSphere CSI Driver was not found. No problem."
+	exit
 fi
 
-VSPHEREUSERNAMEBASE64=`echo -n "${VSPHEREUSERNAME}" | base64`
-VSPHEREPASSWORDBASE64=`echo -n "${VSPHEREPASSWORD}" | base64`
+VSPHEREUSERNAMEBASE64=$(echo -n "${VSPHEREUSERNAME}" | base64)
+VSPHEREPASSWORDBASE64=$(echo -n "${VSPHEREPASSWORD}" | base64)
 
 cat <<EOF | kubectl apply -n kasten-io -f -
 # Standard Kubernetes API Version declaration. Required.

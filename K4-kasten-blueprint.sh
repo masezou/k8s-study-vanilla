@@ -2,26 +2,25 @@
 
 #Install blueprint
 kubectl --namespace kasten-io apply -f \
-    https://raw.githubusercontent.com/kanisterio/kanister/master/examples/mongodb/blueprint-v2/mongo-blueprint.yaml
+	https://raw.githubusercontent.com/kanisterio/kanister/master/examples/mongodb/blueprint-v2/mongo-blueprint.yaml
 kubectl --namespace kasten-io apply -f \
-    https://raw.githubusercontent.com/kanisterio/kanister/master/examples/mysql/blueprint-v2/mysql-blueprint.yaml
+	https://raw.githubusercontent.com/kanisterio/kanister/master/examples/mysql/blueprint-v2/mysql-blueprint.yaml
 kubectl --namespace kasten-io apply -f \
-    https://raw.githubusercontent.com/kanisterio/kanister/master/examples/postgresql/blueprint-v2/postgres-blueprint.yaml
+	https://raw.githubusercontent.com/kanisterio/kanister/master/examples/postgresql/blueprint-v2/postgres-blueprint.yaml
 kubectl --namespace kasten-io apply -f \
-    https://raw.githubusercontent.com/kanisterio/kanister/master/examples/elasticsearch/blueprint-v2/elasticsearch-blueprint.yaml
+	https://raw.githubusercontent.com/kanisterio/kanister/master/examples/elasticsearch/blueprint-v2/elasticsearch-blueprint.yaml
 kubectl --namespace kasten-io apply -f \
-    https://raw.githubusercontent.com/kanisterio/kanister/master/examples/etcd/etcd-in-cluster/k8s/etcd-incluster-blueprint.yaml
+	https://raw.githubusercontent.com/kanisterio/kanister/master/examples/etcd/etcd-in-cluster/k8s/etcd-incluster-blueprint.yaml
 kubectl --namespace kasten-io apply -f \
-    https://raw.githubusercontent.com/kanisterio/kanister/master/examples/couchbase/blueprint-v2/couchbase-blueprint.yaml
+	https://raw.githubusercontent.com/kanisterio/kanister/master/examples/couchbase/blueprint-v2/couchbase-blueprint.yaml
 kubectl --namespace kasten-io apply -f \
-    https://raw.githubusercontent.com/kanisterio/kanister/master/examples/foundationdb/blueprint-v2/foundationdb-blueprint.yaml
+	https://raw.githubusercontent.com/kanisterio/kanister/master/examples/foundationdb/blueprint-v2/foundationdb-blueprint.yaml
 kubectl --namespace kasten-io apply -f \
-    https://raw.githubusercontent.com/kanisterio/kanister/master/examples/maria/blueprint-v2/maria-blueprint.yaml
+	https://raw.githubusercontent.com/kanisterio/kanister/master/examples/maria/blueprint-v2/maria-blueprint.yaml
 kubectl --namespace kasten-io apply -f \
-    https://raw.githubusercontent.com/kanisterio/kanister/master/examples/csi-snapshot/csi-snapshot-blueprint.yaml
+	https://raw.githubusercontent.com/kanisterio/kanister/master/examples/csi-snapshot/csi-snapshot-blueprint.yaml
 kubectl --namespace kasten-io apply -f \
-    https://raw.githubusercontent.com/kanisterio/kanister/master/examples/mssql/blueprint-v2/mssql-blueprint.yaml
-
+	https://raw.githubusercontent.com/kanisterio/kanister/master/examples/mssql/blueprint-v2/mssql-blueprint.yaml
 
 #kubectl --namespace kafka-test apply -f \
 #     https://raw.githubusercontent.com/kanisterio/kanister/master/examples/kafka/adobe-s3-connector/kafka-blueprint.yaml
@@ -125,7 +124,6 @@ actions:
           export MONGODB_ROOT_PASSWORD='{{ index .Phases.unlockMongo.Secrets.mongoDbSecret.Data "mongodb-root-password" | toString }}'
           mongo --authenticationDatabase admin -u root -p "${MONGODB_ROOT_PASSWORD}" --eval="db.fsyncUnlock()"
 EOF
-
 
 echo "*************************************************************************************"
 echo "Pre-defined blueprints were configured"

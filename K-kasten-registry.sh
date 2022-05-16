@@ -9,38 +9,37 @@ ONLY_PUSH=0
 #########################################################
 
 ### Install command check ####
-if type "docker" > /dev/null 2>&1
-then
-    echo "docker was already installed"
+if type "docker" >/dev/null 2>&1; then
+	echo "docker was already installed"
 else
-    echo "docker was not found. Please install docker and re-run"
-    exit 255
+	echo "docker was not found. Please install docker and re-run"
+	exit 255
 fi
 
 if [ -z ${KASTENVER} ]; then
-KASTENVER=`grep KASTENVER= ./K0-kasten-tools.sh | cut -d "=" -f 2`
+	KASTENVER=$(grep KASTENVER= ./K0-kasten-tools.sh | cut -d "=" -f 2)
 fi
 
 if [ -z ${REGISTRYURL} ]; then
-REGISTRYURL=`ls -1 /etc/containerd/certs.d/ | grep -v docker.io`
+	REGISTRYURL=$(ls -1 /etc/containerd/certs.d/ | grep -v docker.io)
 fi
 
 grep ${REGISTRYURL} /etc/docker/daemon.json
 retvalreg=$?
 if [ ${retvalreg} -ne 0 ]; then
-echo -e "\e[31m Registry is not set in /etc/docker/daemon.json. exit. \e[m"
-exit 255
+	echo -e "\e[31m Registry is not set in /etc/docker/daemon.json. exit. \e[m"
+	exit 255
 fi
 
 if [ ${ONLY_PUSH} -eq 0 ]; then
-mkdir -p  ~/.docker
-docker run --rm -it --platform linux/amd64 gcr.io/kasten-images/k10offline:${KASTENVER} list-images
-docker images ls
-docker run --rm -it -v /var/run/docker.sock:/var/run/docker.sock \
-    --platform linux/amd64 gcr.io/kasten-images/k10offline:${KASTENVER} pull images
+	mkdir -p ~/.docker
+	docker run --rm -it --platform linux/amd64 gcr.io/kasten-images/k10offline:${KASTENVER} list-images
+	docker images ls
+	docker run --rm -it -v /var/run/docker.sock:/var/run/docker.sock \
+		--platform linux/amd64 gcr.io/kasten-images/k10offline:${KASTENVER} pull images
 fi
 docker run --rm -ti -v /var/run/docker.sock:/var/run/docker.sock \
-    -v ${HOME}/.docker:/root/.docker \
-    --platform linux/amd64 gcr.io/kasten-images/k10offline:${KASTENVER} pull images --newrepo ${REGISTRYURL}
+	-v ${HOME}/.docker:/root/.docker \
+	--platform linux/amd64 gcr.io/kasten-images/k10offline:${KASTENVER} pull images --newrepo ${REGISTRYURL}
 
-curl -X GET http://${REGISTRYURL}/v2/_catalog |jq
+curl -X GET http://${REGISTRYURL}/v2/_catalog | jq

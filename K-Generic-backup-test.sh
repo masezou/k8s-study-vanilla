@@ -70,12 +70,12 @@ kubectl -n ${NAMESPACE} wait pod -l app=demo --for condition=Ready --timeout 180
 kubectl -n ${NAMESPACE} get pvc
 kubectl -n ${NAMESPACE} get pod
 kubectl get pods --namespace=${NAMESPACE} | grep demo-app
-TARGETFILE=demodata-`date "+%Y%m%d_%H%M%S"`
+TARGETFILE=demodata-$(date "+%Y%m%d_%H%M%S")
 cp ${TESTFILE} ${TARGETFILE}
 kubectl -n ${NAMESPACE} cp ${TARGETFILE} $(kubectl -n ${NAMESPACE} get pod -l app=demo -o custom-columns=:metadata.name):/data/${TARGETFILE}
 kubectl exec --namespace=${NAMESPACE} $(kubectl -n ${NAMESPACE} get pod -l app=demo -o custom-columns=:metadata.name) -- ls -l /data
 
-cat <<EOF > generic-backup.yaml
+cat <<EOF >generic-backup.yaml
 kind: Policy
 apiVersion: config.kio.kasten.io/v1alpha1
 metadata:
@@ -119,7 +119,7 @@ spec:
     name: ${NAMESPACE}-backup
     namespace: kasten-io
 EOF
-kubectl create -f backup-run-action.yaml 
+kubectl create -f backup-run-action.yaml
 rm -rf backup-run-action.yaml
 
 echo -e "\e[32m Wait for finishing and successful BACKUP ${NAMESPACE} in Kasten Dashboard. then \e[m"
@@ -155,10 +155,10 @@ kubectl get pods --namespace=${NAMESPACE} | grep demo-app
 
 echo -e "\e[31m Restored data \e[m"
 kubectl -n ${NAMESPACE} get pod -l app=demo -o custom-columns=:metadata.name
-kubectl exec --namespace=${NAMESPACE} $(kubectl -n ${NAMESPACE} get pod -l app=demo -o custom-columns=:metadata.name |grep demo-app) -- ls -l /data
+kubectl exec --namespace=${NAMESPACE} $(kubectl -n ${NAMESPACE} get pod -l app=demo -o custom-columns=:metadata.name | grep demo-app) -- ls -l /data
 echo ""
 echo ""
-kubectl -n ${NAMESPACE} cp $(kubectl -n ${NAMESPACE} get pod -l app=demo -o custom-columns=:metadata.name |grep demo-app):/data/${TARGETFILE} ${TARGETFILE}_restored
+kubectl -n ${NAMESPACE} cp $(kubectl -n ${NAMESPACE} get pod -l app=demo -o custom-columns=:metadata.name | grep demo-app):/data/${TARGETFILE} ${TARGETFILE}_restored
 echo "Restored data which it was copoed to host"
 echo -e "\e[31m Restored data which it was copoed to host. \e[m"
 echo ""
