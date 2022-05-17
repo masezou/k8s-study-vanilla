@@ -315,10 +315,18 @@ kubectl patch storageclass csi-hostpath-sc \
 kubectl patch storageclass cstor-csi-disk \
 	-p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"false"}}}'
 
-echo "export VSPHERE_ENDPOINT=${VSPHERESERVER}" >>/etc/profile.d/k10tools.sh
-echo "export VSPHERE_USERNAME=${VSPHEREUSERNAME}" >>/etc/profile.d/k10tools.sh
-echo "export VSPHERE_PASSWORD=${VSPHEREPASSWORD}" >>/etc/profile.d/k10tools.sh
-echo "export VSPHERE_SNAPSHOT_TAGGING_CATEGORY=${VSPHERETAGCATEGORY}" >>/etc/profile.d/k10tools.sh
+if [ -f /usr/local/bin/k10tools ]; then
+cat << EOF > /etc/profile.d/k10tools-vsphere.sh
+#This is for k10tools with vSphere snapshot
+export VSPHERE_ENDPOINT=${VSPHERESERVER}
+export VSPHERE_USERNAME=${VSPHEREUSERNAME}
+export VSPHERE_PASSWORD=${VSPHEREPASSWORD}
+#category name can be found from the vsphere infrastructure profile
+EOF
+cat << 'EOF' >> /etc/profile.d/k10tools-vsphere.sh
+export VSPHERE_SNAPSHOT_TAGGING_CATEGORY=$(kubectl -n kasten-io get profiles $(kubectl -n kasten-io get profiles -o=jsonpath='{.items[?(@.spec.infra.type=="VSphere")].metadata.name}') -o jsonpath='{.spec.infra.vsphere.categoryName}')
+EOF
+fi
 
 echo ""
 echo "*************************************************************************************"
