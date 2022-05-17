@@ -134,14 +134,6 @@ echo "Load balanacer IP range is ${IPRANGE}"
 # Configure Metallb and ingress
 echo "configure ${IPRANGE}"
 kubectl apply -f https://docs.projectcalico.org/manifests/calico.yaml
-kubectl get configmap kube-proxy -n kube-system -o yaml |
-	sed -e "s/strictARP: false/strictARP: true/" |
-	kubectl diff -f - -n kube-system
-kubectl get configmap kube-proxy -n kube-system -o yaml |
-	sed -e "s/strictARP: false/strictARP: true/" |
-	kubectl apply -f - -n kube-system
-#kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/main/manifests/namespace.yaml
-#kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/main/manifests/metallb.yaml
 METALLBVER=0.12.1
 kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v${METALLBVER}/manifests/namespace.yaml
 kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v${METALLBVER}/manifests/metallb.yaml
