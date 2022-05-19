@@ -288,6 +288,18 @@ if [ ${IMAGEDL} -eq 1 ]; then
 	ctr images rm docker.io/bitnami/mariadb:10.5.15-debian-10-r52
 	ctr images rm ${REGISTRY}/bitnami/mariadb:10.5.15-debian-10-r52
 
+    ctr images pull --platform linux/${ARCH} docker.io/bitnami/mariadb:10.6.7-debian-10-r70
+    ctr images tag docker.io/bitnami/mariadb:10.6.7-debian-10-r70 ${REGISTRY}/bitnami/mariadb:10.6.7-debian-10-r70
+    ctr images push --platform linux/${ARCH} --plain-http ${REGISTRY}/bitnami/mariadb:10.6.7-debian-10-r70
+    ctr images rm docker.io/bitnami/mariadb:10.6.7-debian-10-r70
+    ctr images rm ${REGISTRY}/bitnami/mariadb:10.6.7-debian-10-r70
+      
+    ctr images pull --platform linux/${ARCH} docker.io/bitnami/wordpress:5.9.3-debian-10-r35
+    ctr images tag docker.io/bitnami/wordpress:5.9.3-debian-10-r35 ${REGISTRY}/bitnami/wordpress:5.9.3-debian-10-r35
+    ctr images push --platform linux/${ARCH} --plain-http ${REGISTRY}/bitnami/wordpress:5.9.3-debian-10-r35
+    ctr images rm docker.io/bitnami/wordpress:5.9.3-debian-10-r35
+    ctr images rm ${REGISTRY}/bitnami/wordpress:5.9.3-debian-10-r35
+
 	ctr images pull --platform linux/${ARCH} docker.io/bitnami/postgresql:14.2.0-debian-10-r58
 	ctr images tag docker.io/bitnami/postgresql:14.2.0-debian-10-r58 ${REGISTRY}/bitnami/postgresql:14.2.0-debian-10-r58
 	ctr images push --platform linux/${ARCH} --plain-http ${REGISTRY}/bitnami/postgresql:14.2.0-debian-10-r58
