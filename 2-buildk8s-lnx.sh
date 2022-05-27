@@ -318,11 +318,11 @@ if [ ${IMAGEDL} -eq 1 ]; then
 	ctr images rm quay.io/ifont/pacman-nodejs-app:latest
 	ctr images rm ${REGISTRY}/ifont/pacman-nodejs-app:latest
 
-	ctr images pull --platform linux/${ARCH} docker.io/library/wordpress:4.8-apache
-	ctr images tag docker.io/library/wordpress:4.8-apache ${REGISTRY}/library/wordpress:4.8-apache
-	ctr images push --platform linux/${ARCH} --plain-http ${REGISTRY}/library/wordpress:4.8-apache
-	ctr images rm docker.io/library/wordpress:4.8-apache
-	ctr images rm ${REGISTRY}/library/wordpress:4.8-apache
+	ctr images pull --platform linux/${ARCH} docker.io/library/wordpress:5.6.2-apache
+	ctr images tag docker.io/library/wordpress:5.6.2-apache ${REGISTRY}/library/wordpress:5.6.2-apache
+	ctr images push --platform linux/${ARCH} --plain-http ${REGISTRY}/library/wordpress:5.6.2-apache
+	ctr images rm docker.io/library/wordpress:5.6.2-apache
+	ctr images rm ${REGISTRY}/library/wordpress:5.6.2-apache
 
 	ctr images pull --platform linux/${ARCH} mcr.microsoft.com/mssql/server:2019-CU15-ubuntu-20.04
 	ctr images tag mcr.microsoft.com/mssql/server:2019-CU15-ubuntu-20.04 ${REGISTRY}/mssql/server:2019-CU15-ubuntu-20.04
