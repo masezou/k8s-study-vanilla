@@ -293,7 +293,7 @@ EOF
 kubectl taint nodes --all node-role.kubernetes.io/master-
 kubectl label node $(hostname) node-role.kubernetes.io/worker=worker
 
-echo "Wating for deploy csi driver to node..."
+echo "Waiting for deploy csi driver to node..."
 kubectl -n vmware-system-csi wait pod -l app=vsphere-csi-node --for condition=Ready
 
 #Snapshot support in 2.5.0 with vSphere7U3
