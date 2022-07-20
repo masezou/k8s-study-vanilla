@@ -18,11 +18,11 @@ Storage class: OpenEBS/nfs-csi/vSphere CSI.
 
 -Ubuntu Linux Server 20.04.4 amd64 4vCPU minimum 8GB RAM Recommend 16GB RAM 100G HDDB. (ARM is experimental)
 
--If you want to use vSphre CSI Driver, You need to have vCenter 6.7U3 above and any VM need to be set DISKUUID and ctkEnabled in option. At least 1 vCenter and 1 ESX. vCenter cluster is option.
+-If you want to use vSphre CSI Driver, You need to have vCenter 6.7U3 above and any VM need to be set "DISKUUID" and "ctkEnabled" in option. At least 1 vCenter and 1 ESX. vCenter cluster is option.
 
 ![Untitled](https://user-images.githubusercontent.com/624501/146712111-9c0d6b9d-a644-4c1c-b3c1-4bb0fda0e06c.jpg)
 
-![DiskUUID](https://user-images.githubusercontent.com/624501/140580848-8a36ba87-3fa8-4ae2-b41d-9abfe690216c.png)
+![image](https://user-images.githubusercontent.com/624501/179905402-9db1cf6c-d915-40c2-ac60-1d458c47c5ad.png)
 
 -Network segment 24bit is required
 
