@@ -150,7 +150,7 @@ fi
 
 # Install kube-bench
 if [ ! -f /usr/local/bin/kube-bench ]; then
-	KUBEBENCHVER=0.6.7
+	KUBEBENCHVER=0.6.8
 	wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | apt-key add -
 	curl --retry 10 --retry-delay 3 --retry-connrefused -sSOL https://github.com/aquasecurity/kube-bench/releases/download/v${KUBEBENCHVER}/kube-bench_${KUBEBENCHVER}_linux_${ARCH}.deb
 	dpkg -i kube-bench_${KUBEBENCHVER}_linux_${ARCH}.deb
@@ -308,7 +308,7 @@ fi
 # Install govc
 if [ ${GOVC} -eq 1 ]; then
 	if [ ! -f /usr/local/bin/govc ]; then
-		GOVCVER=0.28.0
+		GOVCVER=0.29.0
 		mkdir govcbin
 		if [ ${ARCH} = amd64 ]; then
 			curl --retry 10 --retry-delay 3 --retry-connrefused -sSOL https://github.com/vmware/govmomi/releases/download/v${GOVCVER}/govc_$(uname -s)_$(uname -i).tar.gz
@@ -516,7 +516,7 @@ EOF
 	fi
 	# Install Docker Compose
 	if [ ! -f /usr/local/bin/docker-compose ]; then
-		DOCKERCOMPOSEVER=2.5.1
+		DOCKERCOMPOSEVER=2.6.1
 		if [ ${ARCH} = amd64 ]; then
 			curl --retry 10 --retry-delay 3 --retry-connrefused -sSOL https://github.com/docker/compose/releases/download/v${DOCKERCOMPOSEVER}/docker-compose-linux-$(uname -i)
 			mv docker-compose-linux-$(uname -i) /usr/local/bin/docker-compose
@@ -711,7 +711,7 @@ if [ ${TCE} -eq 1 ]; then
 
 	# Install Octant
 	if [ ! -f /usr/local/bin/octant ]; then
-		OCTANTVER=0.25.1
+		OCTANTVER=0.26.1
 		if [ ${ARCH} = amd64 ]; then
 			curl --retry 10 --retry-delay 3 --retry-connrefused -sSOL https://github.com/vmware-tanzu/octant/releases/download/v${OCTANTVER}/octant_${OCTANTVER}_$(uname -s)-64bit.deb
 			dpkg -i octant_${OCTANTVER}_$(uname -s)-64bit.deb
