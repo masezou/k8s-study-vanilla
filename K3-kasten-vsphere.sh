@@ -74,6 +74,20 @@ spec:
         name: k10-vsphere-infra-secret
         namespace: kasten-io
 EOF
+
+if [ -f /usr/local/bin/k10tools ]; then
+cat << EOF > /etc/profile.d/k10tools-vsphere.sh
+#This is for k10tools with vSphere snapshot
+export VSPHERE_ENDPOINT=${VSPHERESERVER}
+export VSPHERE_USERNAME=${VSPHEREUSERNAME}
+export VSPHERE_PASSWORD=${VSPHEREPASSWORD}
+#category name can be found from the vsphere infrastructure profile
+EOF
+cat << 'EOF' >> /etc/profile.d/k10tools-vsphere.sh
+export VSPHERE_SNAPSHOT_TAGGING_CATEGORY=$(kubectl -n kasten-io get profiles $(kubectl -n kasten-io get profiles -o=jsonpath='{.items[?(@.spec.infra.type=="VSphere")].metadata.name}') -o jsonpath='{.spec.infra.vsphere.categoryName}')
+EOF
+fi
+
 echo "*************************************************************************************"
 echo "Kasten Infrastructure was configured"
 kubectl -n kasten-io get profiles
