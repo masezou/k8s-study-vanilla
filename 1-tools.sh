@@ -3,8 +3,8 @@ echo -e "\e[32mStarting $0 ....\e[m"
 #########################################################
 # AMD64/ARM64 Linux would be worked.
 # Kubernetes client version.
-# Only supports 1.21.x and 1.22. 1.23/1.24 are experimental.
-KUBEBASEVER=1.22
+# Only supports 1.21, 1.22, 11.23.   1.24 is experimental.
+KUBEBASEVER=1.23
 
 # If you want to set certain version....
 # 1.21.9-00 was tested also.
