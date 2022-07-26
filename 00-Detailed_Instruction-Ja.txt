@@ -23,7 +23,7 @@ vSphere CSIドライバーによって、vSphere 6.7U3からサポートされ�
 
 このスクリプトでできるもの
 コンテナ環境
-   Kubernetes 1.22.7/containerd.io 1.5.10 (1ノード)
+   Kubernetes 1.23.9/containerd.io 1.6.6 (1ノード)
     CNI: Metallb/Ingress
     CSI: Hostpath-CSI/NFS-CSI/vSphere-CSI
 
@@ -57,7 +57,7 @@ VM構成
    RAM: 8GB以上
    HDD1: 100GB以上 (最低でも50GB)
    HDD2(オプション): openebs用で100GB以上 (最低でも50GB)
-   必ず、"disk.enableUUID=true" を設定する。 (すごく重要!!!)
+   必ず、"disk.enableUUID=TRUE" "ctkEnabled=TRUE" を設定する。 (すごく重要!!!)
 
 Ubuntuのインストール
   ホスト名は、小文字で、ホスト部分だけにする。例： k8s-demo1

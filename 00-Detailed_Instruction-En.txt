@@ -22,7 +22,7 @@ By using the vSphere CSI driver, you can also experience using the Disk object c
 
 What consists of this script
 Container environment
-   Kubernetes 1.22.7/containerd.io 1.5.10 (1node)
+   Kubernetes 1.23.9/containerd.io 1.6.6 (1node)
     CNI: Metallb/Ingress
     CSI: Hostpath-CSI/NFS-CSI/vSphere-CSI
 
@@ -56,7 +56,7 @@ VM Configuration
    RAM: 8GB above
    HDD1: 100GB above (At least 50GB)
    HDD2(Option): 100GB above (At least 50GB) for openebs csi driver.
-   Advanced Configuration: Set "disk.enableUUID=true"  (It is very imoortant!!!)
+   Advanced Configuration: Set "disk.enableUUID=true" "ctkEnabled=TRUE"  (It is very imoortant!!!)
 
 Ubuntu Install
   HOSTNAME should be lower case and single hostname. Example: k8s-demo1
