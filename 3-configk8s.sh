@@ -138,6 +138,7 @@ METALLBVER=0.12.1
 kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v${METALLBVER}/manifests/namespace.yaml
 kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v${METALLBVER}/manifests/metallb.yaml
 kubectl create secret generic -n metallb-system memberlist --from-literal=secretkey="$(openssl rand -base64 128)"
+# Following old configuration format. If you uses 0.13.x, you should re-write these configuration.
 cat <<EOF | kubectl create -f -
 apiVersion: v1
 kind: ConfigMap
