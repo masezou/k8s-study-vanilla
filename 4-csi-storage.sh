@@ -5,6 +5,7 @@ echo -e "\e[32mStarting $0 ....\e[m"
 # Specify NFS storage location path
 # Localhost server
 NFSSC=1
+NFSCSI=0
 # NFSSVER=1:local 0:external
 NFSSVR=1
 NFSPATH=/disk/nfs_csi
@@ -341,40 +342,42 @@ EOF
 		fi
 	fi
 
-	# Install NFS-CSI driver for single node
-	#kubectl apply -f https://raw.githubusercontent.com/kubernetes-csi/csi-driver-nfs/master/deploy/rbac-csi-nfs-controller.yaml
-	#kubectl apply -f https://raw.githubusercontent.com/kubernetes-csi/csi-driver-nfs/master/deploy/csi-nfs-driverinfo.yaml
-	#kubectl apply -f https://raw.githubusercontent.com/kubernetes-csi/csi-driver-nfs/master/deploy/csi-nfs-controller.yaml
-    curl -skSL https://raw.githubusercontent.com/kubernetes-csi/csi-driver-nfs/v4.1.0/deploy/install-driver.sh | bash -s v4.1.0 --
-	kubectl -n kube-system patch deployment csi-nfs-controller -p '{"spec":{"replicas": 1}}'
-	sleep 2
-	kubectl -n kube-system get deployments.apps csi-nfs-controller
-	kubectl apply -f https://raw.githubusercontent.com/kubernetes-csi/csi-driver-nfs/master/deploy/csi-nfs-node.yaml
-	while [ "$(kubectl -n kube-system get deployments.apps csi-nfs-controller --output="jsonpath={.status.conditions[*].status}" | cut -d' ' -f1)" != "True" ]; do
-		echo "Deploying CSI-NFS controller Please wait...."
+	if [ ${NFSCSI} -eq 1 ]; then
+		# Install NFS-CSI driver for single node
+		#kubectl apply -f https://raw.githubusercontent.com/kubernetes-csi/csi-driver-nfs/master/deploy/rbac-csi-nfs-controller.yaml
+		#kubectl apply -f https://raw.githubusercontent.com/kubernetes-csi/csi-driver-nfs/master/deploy/csi-nfs-driverinfo.yaml
+		#kubectl apply -f https://raw.githubusercontent.com/kubernetes-csi/csi-driver-nfs/master/deploy/csi-nfs-controller.yaml
+		NFSCSIVER=4.1.0
+		curl -skSL https://raw.githubusercontent.com/kubernetes-csi/csi-driver-nfs/v${NFSCSIVER}/deploy/install-driver.sh | bash -s v${NFSCSIVER} --
+		kubectl -n kube-system patch deployment csi-nfs-controller -p '{"spec":{"replicas": 1}}'
+		sleep 2
 		kubectl -n kube-system get deployments.apps csi-nfs-controller
-		sleep 30
-	done
-	kubectl -n kube-system get deployments.apps csi-nfs-controller
-	kubectl -n kube-system wait pod -l app=csi-nfs-node --for condition=Ready --timeout 180s
+		kubectl apply -f https://raw.githubusercontent.com/kubernetes-csi/csi-driver-nfs/master/deploy/csi-nfs-node.yaml
+		while [ "$(kubectl -n kube-system get deployments.apps csi-nfs-controller --output="jsonpath={.status.conditions[*].status}" | cut -d' ' -f1)" != "True" ]; do
+			echo "Deploying CSI-NFS controller Please wait...."
+			kubectl -n kube-system get deployments.apps csi-nfs-controller
+			sleep 30
+		done
+		kubectl -n kube-system get deployments.apps csi-nfs-controller
+		kubectl -n kube-system wait pod -l app=csi-nfs-node --for condition=Ready --timeout 180s
 
-	curl --retry 10 --retry-delay 3 --retry-connrefused -sSOL https://raw.githubusercontent.com/kubernetes-csi/csi-driver-nfs/master/deploy/example/storageclass-nfs.yaml
-	if [ ${NFSSVR} -eq 1 ]; then
-		sed -i -e "s/nfs-server.default.svc.cluster.local/${LOCALIPADDR}/g" storageclass-nfs.yaml
-		sed -i -e "s@share: /@share: ${NFSPATH}@g" storageclass-nfs.yaml
-	else
-		if [ ! -z ${EXNFSSVRIPADDR} ]; then
-			sed -i -e "s/nfs-server.default.svc.cluster.local/${EXNFSSVRIPADDR}/g" storageclass-nfs.yaml
-			sed -i -e "s@share: /@share: ${EXNFSPATH}@g" storageclass-nfs.yaml
-			sed -i -e "s/4.1/3/g" storageclass-nfs.yaml
+		curl --retry 10 --retry-delay 3 --retry-connrefused -sSOL https://raw.githubusercontent.com/kubernetes-csi/csi-driver-nfs/master/deploy/example/storageclass-nfs.yaml
+		if [ ${NFSSVR} -eq 1 ]; then
+			sed -i -e "s/nfs-server.default.svc.cluster.local/${LOCALIPADDR}/g" storageclass-nfs.yaml
+			sed -i -e "s@share: /@share: ${NFSPATH}@g" storageclass-nfs.yaml
+		else
+			if [ ! -z ${EXNFSSVRIPADDR} ]; then
+				sed -i -e "s/nfs-server.default.svc.cluster.local/${EXNFSSVRIPADDR}/g" storageclass-nfs.yaml
+				sed -i -e "s@share: /@share: ${EXNFSPATH}@g" storageclass-nfs.yaml
+				sed -i -e "s/4.1/3/g" storageclass-nfs.yaml
+			fi
 		fi
-	fi
-	kubectl create -f storageclass-nfs.yaml
-	#kubectl create secret generic mount-options --from-literal mountOptions="nfsvers=3,hard"
-	rm -rf storageclass-nfs.yaml
-	kubectl patch storageclass nfs-csi -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"false"}}}'
-	kubectl delete CSIDriver nfs.csi.k8s.io
-	cat <<EOF | kubectl create -f -
+		kubectl create -f storageclass-nfs.yaml
+		#kubectl create secret generic mount-options --from-literal mountOptions="nfsvers=3,hard"
+		rm -rf storageclass-nfs.yaml
+		kubectl patch storageclass nfs-csi -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"false"}}}'
+		kubectl delete CSIDriver nfs.csi.k8s.io
+		cat <<EOF | kubectl create -f -
 apiVersion: storage.k8s.io/v1
 kind: CSIDriver
 metadata:
@@ -385,7 +388,7 @@ spec:
     - Persistent
   fsGroupPolicy: File
 EOF
-
+	fi
 	# Install NFS-SUB
 	kubectl create namespace nfs-subdir
 	helm repo add nfs-subdir-external-provisioner https://kubernetes-sigs.github.io/nfs-subdir-external-provisioner/
