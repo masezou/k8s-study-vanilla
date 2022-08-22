@@ -342,9 +342,10 @@ EOF
 	fi
 
 	# Install NFS-CSI driver for single node
-	kubectl apply -f https://raw.githubusercontent.com/kubernetes-csi/csi-driver-nfs/master/deploy/rbac-csi-nfs-controller.yaml
-	kubectl apply -f https://raw.githubusercontent.com/kubernetes-csi/csi-driver-nfs/master/deploy/csi-nfs-driverinfo.yaml
-	kubectl apply -f https://raw.githubusercontent.com/kubernetes-csi/csi-driver-nfs/master/deploy/csi-nfs-controller.yaml
+	#kubectl apply -f https://raw.githubusercontent.com/kubernetes-csi/csi-driver-nfs/master/deploy/rbac-csi-nfs-controller.yaml
+	#kubectl apply -f https://raw.githubusercontent.com/kubernetes-csi/csi-driver-nfs/master/deploy/csi-nfs-driverinfo.yaml
+	#kubectl apply -f https://raw.githubusercontent.com/kubernetes-csi/csi-driver-nfs/master/deploy/csi-nfs-controller.yaml
+    curl -skSL https://raw.githubusercontent.com/kubernetes-csi/csi-driver-nfs/v4.1.0/deploy/install-driver.sh | bash -s v4.1.0 --
 	kubectl -n kube-system patch deployment csi-nfs-controller -p '{"spec":{"replicas": 1}}'
 	sleep 2
 	kubectl -n kube-system get deployments.apps csi-nfs-controller
@@ -365,10 +366,11 @@ EOF
 		if [ ! -z ${EXNFSSVRIPADDR} ]; then
 			sed -i -e "s/nfs-server.default.svc.cluster.local/${EXNFSSVRIPADDR}/g" storageclass-nfs.yaml
 			sed -i -e "s@share: /@share: ${EXNFSPATH}@g" storageclass-nfs.yaml
+			sed -i -e "s/4.1/3/g" storageclass-nfs.yaml
 		fi
 	fi
 	kubectl create -f storageclass-nfs.yaml
-	kubectl create secret generic mount-options --from-literal mountOptions="nfsvers=3,hard"
+	#kubectl create secret generic mount-options --from-literal mountOptions="nfsvers=3,hard"
 	rm -rf storageclass-nfs.yaml
 	kubectl patch storageclass nfs-csi -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"false"}}}'
 	kubectl delete CSIDriver nfs.csi.k8s.io
