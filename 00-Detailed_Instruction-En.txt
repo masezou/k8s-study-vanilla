@@ -56,7 +56,7 @@ VM Configuration
    RAM: 8GB above
    HDD1: 100GB above (At least 50GB)
    HDD2(Option): 100GB above (At least 50GB) for openebs csi driver.
-   Advanced Configuration: Set "disk.enableUUID=true" "ctkEnabled=TRUE"  (It is very imoortant!!!)
+   Advanced Configuration: Set "disk.EnableUUID=true" "ctkEnabled=TRUE"  (It is very imoortant!!!)
 
 Ubuntu Install
   HOSTNAME should be lower case and single hostname. Example: k8s-demo1

@@ -57,7 +57,7 @@ VM構成
    RAM: 8GB以上
    HDD1: 100GB以上 (最低でも50GB)
    HDD2(オプション): openebs用で100GB以上 (最低でも50GB)
-   必ず、"disk.enableUUID=TRUE" "ctkEnabled=TRUE" を設定する。 (すごく重要!!!)
+   必ず、"disk.EnableUUID=TRUE" "ctkEnabled=TRUE" を設定する。 (すごく重要!!!)
 
 Ubuntuのインストール
   ホスト名は、小文字で、ホスト部分だけにする。例： k8s-demo1
