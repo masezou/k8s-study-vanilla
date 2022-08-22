@@ -22,7 +22,7 @@ Storage class: OpenEBS/nfs-csi/vSphere CSI.
 
 ![Untitled](https://user-images.githubusercontent.com/624501/146712111-9c0d6b9d-a644-4c1c-b3c1-4bb0fda0e06c.jpg)
 
-![image](https://user-images.githubusercontent.com/624501/179905402-9db1cf6c-d915-40c2-ac60-1d458c47c5ad.png)
+![image](https://user-images.githubusercontent.com/624501/185821252-2a1b4295-7b8a-4e7f-a588-fdd96d430135.png)
 
 -Network segment 24bit is required
 
