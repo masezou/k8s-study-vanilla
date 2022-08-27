@@ -82,7 +82,7 @@ if [ ${retvalsvc} -ne 0 ]; then
 	if [ ${ONLINE} -eq 0 ]; then
 		# helm search repo bitnami/wordpress  --version=14.0.9
 		helm fetch bitnami/wordpress
-		WPCHART=$(ls wordpress-14.0.9.tgz)
+		WPCHART=$(ls wordpress-*.tgz)
 		if [ ${SC} = csi-hostpath-sc ]; then
 			helm install wp-release ${WPCHART} -n ${WPNAMESPACE} --set volumePermissions.enabled=true --set global.storageClass=${SC} --set global.imageRegistry=${REGISTRY}
 		else
