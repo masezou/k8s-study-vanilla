@@ -19,8 +19,7 @@ SMBSC=0
 SMBHOST=192.168.10.4
 SMBSHARE=/k8s_smb
 
-OPENEBS=1
-CSILOCALHOSTPATH=1
+LONGHORN=1
 
 #FORCE_LOCALIP=192.168.16.2
 
@@ -105,134 +104,17 @@ if [ ${retvalstatus} -eq 0 ]; then
 	exit 255
 fi
 
-kubectl get sc | grep openebs
-retvalopenebs=$?
-if [ ${retvalopenebs} -ne 0 ]; then
-	if [ ${OPENEBS} -eq 1 ]; then
-		# Device /dev/sdb check
-		df | grep sdb
-		retvalmount=$?
-		if [ ${retvalmount} -ne 0 ]; then
-			pvscan | grep sdb
-			retvallvm=$?
-			if [ ${retvallvm} -ne 0 ]; then
-				if [ -b /dev/sdb ]; then
-					echo "Initilize /dev/sdb....."
-					sgdisk -Z /dev/sdb
-					INITDISK=1
-				fi
-			fi
-		fi
-	fi
+kubectl get sc | grep local-path
+retvallocalpath=$?
+if [ ${retvallocalpath} -ne 0 ]; then
+	# Rancher local driver (Not CSI Storage)
+	kubectl apply -f https://raw.githubusercontent.com/rancher/local-path-provisioner/master/deploy/local-path-storage.yaml
 fi
 
-# Device /dev/sdc check
-df | grep sdc
-retvalmount=$?
-if [ ${retvalmount} -ne 0 ]; then
-	pvscan | grep sdc
-	retvallvm=$?
-	if [ ${retvallvm} -ne 0 ]; then
-		if [ -b /dev/sdc ]; then
-			echo "Initilize /dev/sdc....."
-			sgdisk -Z /dev/sdc
-			INITDISK=1
-		fi
-	fi
-fi
-if [ -z ${INITDISK} ]; then
-	OPENEBS=0
-fi
-
-# Install OpenEBS
-if [ ${retvalopenebs} -ne 0 ]; then
-	if [ ${OPENEBS} -ne 0 ]; then
-		apt install -y open-iscsi
-		systemctl enable iscsid && systemctl start iscsid
-		mkdir -p /var/openebs/local
-		kubectl -n kube-system create serviceaccount tiller
-		kubectl create clusterrolebinding tiller --clusterrole cluster-admin --serviceaccount=kube-system:tiller
-		for WORKERNODES in $(kubectl get node | grep -v NAME | grep worker | cut -d " " -f 1); do
-			echo ${WORKERNODES}
-			kubectl label nodes ${WORKERNODES} node=openebs
-		done
-		helm repo add openebs https://openebs.github.io/charts
-		helm repo update
-		helm install openebs --namespace openebs openebs/openebs --create-namespace \
-			--set cstor.enabled=true
-		sleep 2
-		kubectl -n openebs get pod openebs-cstor-csi-controller-0
-		echo "Initial wait 30s"
-		sleep 30
-		while [ "$(kubectl -n openebs get pod openebs-cstor-csi-controller-0 --output="jsonpath={.status.conditions[*].status}" | cut -d' ' -f3)" != "True" ]; do
-			echo "Deploying OpenEBS Please wait...."
-			kubectl -n openebs get pod openebs-cstor-csi-controller-0
-			sleep 30
-		done
-		kubectl -n openebs get pod openebs-cstor-csi-controller-0
-		kubectl -n openebs wait pod -l component=openebs-cstor-csi-node --for condition=Ready
-		WORKERNODES=$(kubectl get bd -n openebs | grep -i Unclaimed | cut -d " " -f4)
-		BLOCKDEVICENAME=$(kubectl get bd -n openebs | grep -i Unclaimed | cut -d " " -f1)
-		cat <<EOF | kubectl create -f -
-apiVersion: cstor.openebs.io/v1
-kind: CStorPoolCluster
-metadata:
- name: cstor-disk-pool
- namespace: openebs
-spec:
- pools:
-   - nodeSelector:
-       kubernetes.io/hostname: "${WORKERNODES}"
-     dataRaidGroups:
-       - blockDevices:
-           - blockDeviceName: "${BLOCKDEVICENAME}"
-     poolConfig:
-       dataRaidGroupType: "stripe"
-EOF
-		cat <<EOF | kubectl create -f -
-kind: StorageClass
-apiVersion: storage.k8s.io/v1
-metadata:
-  name: cstor-csi-disk
-provisioner: cstor.csi.openebs.io
-allowVolumeExpansion: true
-parameters:
-  cas-type: cstor
-  # cstorPoolCluster should have the name of the CSPC
-  cstorPoolCluster: cstor-disk-pool
-  # replicaCount should be <= no. of CSPI created in the selected CSPC
-  replicaCount: "1"
-EOF
-		cat <<EOF | kubectl create -f -
-apiVersion: storage.k8s.io/v1
-kind: StorageClass
-metadata:
-  name: local-hostpath
-  annotations:
-    openebs.io/cas-type: local
-    cas.openebs.io/config: |
-      - name: StorageType
-        value: hostpath
-      - name: BasePath
-        value: /var/local-hostpath
-provisioner: openebs.io/local
-reclaimPolicy: Delete
-volumeBindingMode: WaitForFirstConsumer
-EOF
-		kubectl patch storageclass cstor-csi-disk -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"true"}}}'
-		kubectl -n openebs wait pod -l app=cstor-pool --for condition=Ready
-	fi
-fi
-
-if [ ${OPENEBS} -eq 0 ]; then
-	kubectl get sc | grep local-path
-	retvallocalpath=$?
-	if [ ${retvallocalpath} -ne 0 ]; then
-		# Rancher local driver (Not CSI Storage)
-		kubectl apply -f https://raw.githubusercontent.com/rancher/local-path-provisioner/master/deploy/local-path-storage.yaml
-	fi
-
-	if [ ${CSILOCALHOSTPATH} -eq 1 ]; then
+if [ ${LONGHORN} -eq 1 ]; then
+	kubectl get sc | grep longhorn
+	retvallonghorn=$?
+	if [ ${retvallonghorn} -ne 0 ]; then
 		SNAPSHOTTER_VERSION=5.0.1
 		# Apply VolumeSnapshot CRDs
 		kubectl apply -f https://raw.githubusercontent.com/kubernetes-csi/external-snapshotter/v${SNAPSHOTTER_VERSION}/client/config/crd/snapshot.storage.k8s.io_volumesnapshotclasses.yaml
@@ -241,75 +123,53 @@ if [ ${OPENEBS} -eq 0 ]; then
 		# Create Snapshot Controller
 		kubectl -n kube-system apply -f https://raw.githubusercontent.com/kubernetes-csi/external-snapshotter/v${SNAPSHOTTER_VERSION}/deploy/kubernetes/snapshot-controller/rbac-snapshot-controller.yaml
 		kubectl -n kube-system apply -f https://raw.githubusercontent.com/kubernetes-csi/external-snapshotter/v${SNAPSHOTTER_VERSION}/deploy/kubernetes/snapshot-controller/setup-snapshot-controller.yaml
+		apt -y install jq nfs-common
+		curl -sSfL https://raw.githubusercontent.com/longhorn/longhorn/master/scripts/environment_check.sh | bash
 
-		##Install the CSI Hostpath Driver
-		kubectl get sc | grep csi-hostpath-sc
-		retvalcsihostpathsc=$?
-		if [ ${retvalcsihostpathsc} -ne 0 ]; then
+		kubectl patch storageclass local-path -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"false"}}}'
+		LONGHORNVER=1.3.1
+		kubectl apply -f https://raw.githubusercontent.com/longhorn/longhorn/v${LONGHORNVER}/deploy/longhorn.yaml
+		sleep 40
+		# Checking Longhorn boot up
+		kubectl -n longhorn-system wait pod -l app=longhorn-manager --for condition=Ready --timeout 360s
+		kubectl -n longhorn-system wait pod -l app=longhorn-conversion-webhook --for condition=Ready --timeout 360s
+		kubectl -n longhorn-system wait pod -l app=longhorn-driver-deployer --for condition=Ready --timeout 360s
+		kubectl wait pod -l app=longhorn-test-minio --for condition=Ready --timeout 720s
+		kubectl -n longhorn-system wait pod -l app=longhorn-ui --for condition=Ready --timeout 360s
 
-			# kubernetes version check
-			kubectl get node -o wide | grep v1.19 >/dev/null 2>&1 && KUBEVER=1.19
-			kubectl get node -o wide | grep v1.20 >/dev/null 2>&1 && KUBEVER=1.20
-			kubectl get node -o wide | grep v1.21 >/dev/null 2>&1 && KUBEVER=1.21
-			kubectl get node -o wide | grep v1.22 >/dev/null 2>&1 && KUBEVER=1.22
-			kubectl get node -o wide | grep v1.23 >/dev/null 2>&1 && KUBEVER=1.23
+		cat <<EOF | kubectl apply -f -
+kind: VolumeSnapshotClass
+apiVersion: snapshot.storage.k8s.io/v1
+metadata:
+  annotations:
+    snapshot.storage.kubernetes.io/is-default-class: "true"
+  name: longhorn
+driver: driver.longhorn.io
+deletionPolicy: Delete
+EOF
 
-			if [ ${KUBEVER} = "1.19" ]; then
-				if [ -z ${CSIHOSTPATHDONE} ]; then
-					CSIHOSTPATHVER=1.7.3
-					git clone https://github.com/kubernetes-csi/csi-driver-host-path -b v${CSIHOSTPATHVER} --depth 1
-					cd csi-driver-host-path
-					./deploy/kubernetes-${KUBEVER}/deploy.sh
-					CSIHOSTPATHDONE=1
-				fi
-			fi
-
-			if [ ${KUBEVER} = "1.20" ]; then
-				if [ -z ${CSIHOSTPATHDONE} ]; then
-					CSIHOSTPATHVER=1.7.3
-					git clone https://github.com/kubernetes-csi/csi-driver-host-path -b v${CSIHOSTPATHVER} --depth 1
-					cd csi-driver-host-path
-					./deploy/kubernetes-${KUBEVER}/deploy.sh
-					CSIHOSTPATHDONE=1
-				fi
-			fi
-
-			if [ ${KUBEVER} = "1.21" ]; then
-				if [ -z ${CSIHOSTPATHDONE} ]; then
-					git clone https://github.com/kubernetes-csi/csi-driver-host-path --depth 1
-					cd csi-driver-host-path
-					./deploy/kubernetes-${KUBEVER}/deploy.sh
-					CSIHOSTPATHDONE=1
-				fi
-			fi
-
-			if [ ${KUBEVER} = "1.22" ]; then
-				if [ -z ${CSIHOSTPATHDONE} ]; then
-					git clone https://github.com/kubernetes-csi/csi-driver-host-path --depth 1
-					cd csi-driver-host-path
-					./deploy/kubernetes-${KUBEVER}/deploy.sh
-					CSIHOSTPATHDONE=1
-				fi
-			fi
-
-			if [ ${KUBEVER} = "1.23" ]; then
-				if [ -z ${CSIHOSTPATHDONE} ]; then
-					echo "${KUBEVER} is not supported yet."
-					CSIHOSTPATHDONE=0
-				fi
-			fi
-
-			if [ ${CSIHOSTPATHDONE} -eq 1 ]; then
-				kubectl apply -f ./examples/csi-storageclass.yaml
-				kubectl patch storageclass csi-hostpath-sc \
-					-p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"true"}}}'
-				cd ..
-				rm -rf csi-driver-host-path
-			fi
-
-		# Permission fix
-		#chmod -R 1777 /var/lib/docker/volumes/
+		kubectl create -f https://raw.githubusercontent.com/longhorn/longhorn/v${LONGHORNVER}/deploy/backupstores/minio-backupstore.yaml
+		kubectl wait pod -l app=longhorn-test-minio --for condition=Ready
+		sleep 10
+		LONGHRONMINIOEP_IP=$(kubectl get svc minio-service -o jsonpath="{.spec.clusterIP}")
+		if [ ! -f /usr/local/bin/mc ]; then
+			curl --retry 10 --retry-delay 3 --retry-connrefused -sSOL https://dl.min.io/client/mc/release/linux-${ARCH}/mc
+			mv mc /usr/local/bin/
+			chmod +x /usr/local/bin/mc
+			echo "complete -C /usr/local/bin/mc mc" >/etc/bash_completion.d/mc.sh
+			/usr/local/bin/mc update
 		fi
+		mc alias set longhorn-minio https://${LONGHRONMINIOEP_IP}:9000 longhorn-test-access-key longhorn-test-secret-key --api "s3v4" --insecure
+		# NFS v4
+		#kubectl apply -f https://github.com/longhorn/longhorn/blob/v1.2.4/deploy/backupstores/nfs-backupstore.yaml
+
+		kubectl patch storageclass longhorn \
+			-p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"true"}}}'
+
+		kubectl -n longhorn-system patch svc longhorn-frontend -p '{"spec":{"type": "LoadBalancer"}}'
+		LONGHORNDB_EXTERNALIP=$(kubectl -n longhorn-system get svc longhorn-frontend -o jsonpath="{.status.loadBalancer.ingress[*].ip}")
+	else
+		echo "Longhorn is already installed. skip...."
 	fi
 fi
 
