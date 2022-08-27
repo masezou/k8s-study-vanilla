@@ -6,11 +6,10 @@ git clone https://github.com/masezou/k8s-study-vanilla --depth 1
 cd k8s-study-vanilla
 vi 3-configk8s.sh
  -> IPレンジを設定
-./1-tools.sh ; ./2-buildk8s-lnx.sh ; ./3-configk8s.sh ; ./4-csi-storage.sh
+./0-minio.sh ; ./1-tools.sh ; ./2-buildk8s-lnx.sh ; ./3-configk8s.sh ; ./4-csi-storage.sh
 vi 5-csi-vsphere.sh
  ->vSphereの情報を入力
 ./5-csi-vsphere.sh
-./6-minio.sh
 ./K1-kasten.sh ; ./K3-kasten-vsphere.sh
 ```
 
@@ -23,7 +22,7 @@ vSphere CSIドライバーによって、vSphere 6.7U3からサポートされ�
 
 このスクリプトでできるもの
 コンテナ環境
-   Kubernetes 1.23.9/containerd.io 1.6.6 (1ノード)
+   Kubernetes 1.23.10/containerd.io 1.6.6 (1ノード)
     CNI: Metallb/Ingress
     CSI: Hostpath-CSI/NFS-CSI/vSphere-CSI
 
