@@ -1,29 +1,27 @@
 #!/usr/bin/env bash
+echo -e "\e[32mStarting $0 ....\e[m"
+# Copyright (c) 2022 masezou. All rights reserved.
+
+KANISTERVER=$(kubectl -n kasten-io get deployments.apps catalog-svc -o json | grep kanister-tools | cut -d "/" -f 2 | cut -d ":" -f 2 | cut -d "-" -f 2 | cut -d "\"" -f 1)
+
+echo "Kanister version: ${KANISTERVER}"
 
 #Install blueprint
 kubectl --namespace kasten-io apply -f \
-	https://raw.githubusercontent.com/kanisterio/kanister/master/examples/mongodb/blueprint-v2/mongo-blueprint.yaml
+	https://raw.githubusercontent.com/kanisterio/kanister/${KANISTERVER}/examples/mongodb/blueprint-v2/mongo-blueprint.yaml
 kubectl --namespace kasten-io apply -f \
-	https://raw.githubusercontent.com/kanisterio/kanister/master/examples/mysql/blueprint-v2/mysql-blueprint.yaml
+	https://raw.githubusercontent.com/kanisterio/kanister/${KANISTERVER}/examples/mysql/blueprint-v2/mysql-blueprint.yaml
 kubectl --namespace kasten-io apply -f \
-	https://raw.githubusercontent.com/kanisterio/kanister/master/examples/postgresql/blueprint-v2/postgres-blueprint.yaml
+	https://raw.githubusercontent.com/kanisterio/kanister/${KANISTERVER}/examples/postgresql/blueprint-v2/postgres-blueprint.yaml
 kubectl --namespace kasten-io apply -f \
-	https://raw.githubusercontent.com/kanisterio/kanister/master/examples/elasticsearch/blueprint-v2/elasticsearch-blueprint.yaml
+	https://raw.githubusercontent.com/kanisterio/kanister/${KANISTERVER}/examples/etcd/etcd-in-cluster/k8s/etcd-incluster-blueprint.yaml
 kubectl --namespace kasten-io apply -f \
-	https://raw.githubusercontent.com/kanisterio/kanister/master/examples/etcd/etcd-in-cluster/k8s/etcd-incluster-blueprint.yaml
+	https://raw.githubusercontent.com/kanisterio/kanister/${KANISTERVER}/examples/maria/blueprint-v2/maria-blueprint.yaml
 kubectl --namespace kasten-io apply -f \
-	https://raw.githubusercontent.com/kanisterio/kanister/master/examples/couchbase/blueprint-v2/couchbase-blueprint.yaml
-kubectl --namespace kasten-io apply -f \
-	https://raw.githubusercontent.com/kanisterio/kanister/master/examples/foundationdb/blueprint-v2/foundationdb-blueprint.yaml
-kubectl --namespace kasten-io apply -f \
-	https://raw.githubusercontent.com/kanisterio/kanister/master/examples/maria/blueprint-v2/maria-blueprint.yaml
-kubectl --namespace kasten-io apply -f \
-	https://raw.githubusercontent.com/kanisterio/kanister/master/examples/csi-snapshot/csi-snapshot-blueprint.yaml
-kubectl --namespace kasten-io apply -f \
-	https://raw.githubusercontent.com/kanisterio/kanister/master/examples/mssql/blueprint-v2/mssql-blueprint.yaml
+	https://raw.githubusercontent.com/kanisterio/kanister/${KANISTERVER}/examples/mssql/blueprint-v2/mssql-blueprint.yaml
 
 #kubectl --namespace kafka-test apply -f \
-#     https://raw.githubusercontent.com/kanisterio/kanister/master/examples/kafka/adobe-s3-connector/kafka-blueprint.yaml
+#     https://raw.githubusercontent.com/kanisterio/kanister/${KANISTERVER}/examples/kafka/adobe-s3-connector/kafka-blueprint.yaml
 
 # Application-Consistent Backups
 
@@ -68,61 +66,6 @@ actions:
         - -c
         - |
           PGPASSWORD=${POSTGRES_PASSWORD} psql -U $POSTGRES_USER -c "select pg_stop_backup();"
-EOF
-
-# Mongodb
-cat <<'EOF' | kubectl --namespace=kasten-io create -f -
-apiVersion: cr.kanister.io/v1alpha1
-kind: Blueprint
-metadata:
-  name: mongo-hooks
-actions:
-  backupPrehook:
-    phases:
-    - func: KubeExec
-      name: lockMongo
-      objects:
-        mongoDbSecret:
-          kind: Secret
-          name: '{{ index .Object.metadata.labels "app.kubernetes.io/instance" }}'
-          namespace: '{{ .Deployment.Namespace }}'
-      args:
-        namespace: "{{ .Deployment.Namespace }}"
-        pod: "{{ index .Deployment.Pods 0 }}"
-        container: mongodb
-        command:
-        - bash
-        - -o
-        - errexit
-        - -o
-        - pipefail
-        - -c
-        - |
-          export MONGODB_ROOT_PASSWORD='{{ index .Phases.lockMongo.Secrets.mongoDbSecret.Data "mongodb-root-password" | toString }}'
-          mongo --authenticationDatabase admin -u root -p "${MONGODB_ROOT_PASSWORD}" --eval="db.fsyncLock()"
-  backupPosthook:
-    phases:
-    - func: KubeExec
-      name: unlockMongo
-      objects:
-        mongoDbSecret:
-          kind: Secret
-          name: '{{ index .Object.metadata.labels "app.kubernetes.io/instance" }}'
-          namespace: '{{ .Deployment.Namespace }}'
-      args:
-        namespace: "{{ .Deployment.Namespace }}"
-        pod: "{{ index .Deployment.Pods 0 }}"
-        container: mongodb
-        command:
-        - bash
-        - -o
-        - errexit
-        - -o
-        - pipefail
-        - -c
-        - |
-          export MONGODB_ROOT_PASSWORD='{{ index .Phases.unlockMongo.Secrets.mongoDbSecret.Data "mongodb-root-password" | toString }}'
-          mongo --authenticationDatabase admin -u root -p "${MONGODB_ROOT_PASSWORD}" --eval="db.fsyncUnlock()"
 EOF
 
 echo "*************************************************************************************"
