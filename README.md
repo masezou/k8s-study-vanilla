@@ -5,9 +5,9 @@ Kubernetes single node automation
 
 This script will create only 1 node which the server is control-plane and worker node.
 
-This single k8s node includes local repository, minio, nfs server for nfs-csi driver
+This single k8s node includes local repository, minio, nfs server for nfs driver
 
-Storage class: OpenEBS/nfs-csi/vSphere CSI. 
+Storage class: Longhorn/nfs-sub/vSphere CSI. 
 
 ![Slide3](https://user-images.githubusercontent.com/624501/144965922-82ed2fae-6411-4879-952e-b17f1ed83691.jpeg)
 
@@ -16,7 +16,7 @@ Storage class: OpenEBS/nfs-csi/vSphere CSI.
 
 # Requirement
 
--Ubuntu Linux Server 20.04.4 amd64 4vCPU minimum 8GB RAM Recommend 16GB RAM 100G HDDB. (ARM is experimental)
+-Ubuntu Linux Server 20.04.4 amd64 4vCPU minimum 8GB RAM Recommend 16GB RAM 200GB HDD. (ARM is experimental)
 
 -If you want to use vSphre CSI Driver, You need to have vCenter 6.7U3 above and any VM need to be set "disk.EnableUUID" and "ctkEnabled" in option. At least 1 vCenter and 1 ESX. vCenter cluster is option.
 

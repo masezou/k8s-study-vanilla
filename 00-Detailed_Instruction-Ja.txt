@@ -1,5 +1,5 @@
 TL;DR
-vCenter/ESX上に4vCPU 16GB RAM 100GB HDDVMを作成してUbuntu 20.04.3 Server (amd64) をクリーンインストール。その後、以下を実行。
+vCenter/ESX上に4vCPU 16GB RAM 200GB HDDVMを作成してUbuntu 20.04.4 Server (amd64) をクリーンインストール。その後、以下を実行。
 ```
 sudo -i
 git clone https://github.com/masezou/k8s-study-vanilla --depth 1
@@ -22,13 +22,13 @@ vSphere CSIドライバーによって、vSphere 6.7U3からサポートされ�
 
 このスクリプトでできるもの
 コンテナ環境
-   Kubernetes 1.23.10/containerd.io 1.6.6 (1ノード)
+   Kubernetes 1.23.10/containerd.io 1.6.8 (1ノード)
     CNI: Metallb/Ingress
-    CSI: Hostpath-CSI/NFS-CSI/vSphere-CSI
+    CSI: Longhorn /NFS-SUB/vSphere-CSI
 
 追加環境
    Minio Object Storage
-   NFS Server for NFS-CSI
+   NFS Server for NFS-SUB
    プライベートDocker Registry
    Dynamic DNS (External-DNS)
  
@@ -36,7 +36,7 @@ vSphere CSIドライバーによって、vSphere 6.7U3からサポートされ�
 要件
 vSphere
   vSphere 6.7U3 (1vCenterと１台のESXサーバ。データストアはなんでも構わない)
-  VMリソース 最低4vCPU 8-16GB RAM 100GB HDD
+  VMリソース 最低4vCPU 8-16GB RAM 200GB HDD
   vSphereクラスタやvSANはオプション（必須ではない。）
   vCenterなどに特別な設定は不要 (スクリプトが自動でやってくれる)
 
@@ -50,12 +50,11 @@ vSphere
    vSphereのネットワークは、標準スイッチでも分散仮想スイッチでも構わない。
    
 VM構成
- OS: Ubuntu Server 20.04.3  1VM
+ OS: Ubuntu Server 20.04.4  1VM
  VM設定
    CPU:  4vCPU以上 
    RAM: 8GB以上
-   HDD1: 100GB以上 (最低でも50GB)
-   HDD2(オプション): openebs用で100GB以上 (最低でも50GB)
+   HDD1: 200GB以上 (最低でも50GB)
    必ず、"disk.EnableUUID=TRUE" "ctkEnabled=TRUE" を設定する。 (すごく重要!!!)
 
 Ubuntuのインストール
@@ -99,14 +98,16 @@ cd k8s-study-vanilla
    kubectl get svc -A
       Kubernetes DashboardにIPアドレスが付与され、アクセスできること
    kubectl get sc
-     csi-hostpath-sc (default) と nfs-csiが表示されること
-   
+     Longhorn (default) と nfs-subが表示されること
+     LonghornでCSI Snapshotを使う場合は、バックアップターゲットの設定を別途行うこと。
+     https://longhorn.io/docs/1.2.4/snapshots-and-backups/backup-and-restore/set-backup-target/   
+
 6. vSphere CSI Driverドライバーのインストール
    ./5-csi-vsphere.sh
 
 7. vSphere CSI Driverの確認
    kubectl get sc
-      csi-hostpath-sc あるいは、cstor-csi-disk と nfs-csi、vsphere-sc(default)が表示されること
+      longhorn と nfs-sub、vsphere-sc(default)が表示されること
    
    トラブルシューティング
        vCenterのStorage Policy確認
@@ -114,9 +115,6 @@ cd k8s-study-vanilla
        ls -l /dev/disk/by-id/wwn-*
          ファイルがない場合は、DISKUUIDの設定がVMにされていない。
 
-8. Minioのデプロイ
-   ./6-minio.sh
-         
  これでKubernetes環境の構築が完了
 
 問題がなければ、exitをしてrootのセッションを終了する。

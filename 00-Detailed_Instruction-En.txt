@@ -22,13 +22,13 @@ By using the vSphere CSI driver, you can also experience using the Disk object c
 
 What consists of this script
 Container environment
-   Kubernetes 1.23.10/containerd.io 1.6.6 (1node)
+   Kubernetes 1.23.10/containerd.io 1.6.8 (1node)
     CNI: Metallb/Ingress
-    CSI: Hostpath-CSI/NFS-CSI/vSphere-CSI
+    CSI: Longhorn/NFS-Sub/vSphere-CSI
 
 Additional Environment
     Minio Object Storage
-    NFS Server for NFS-CSI
+    NFS Server for NFS-SUB
     Docker Registry for Airgap image
     Dynamic DNS (External-DNS)
     
@@ -36,7 +36,7 @@ Additional Environment
 Requirement
 vSphere
   vSphere 6.7U3 (1vCenter and 1 ESXi Server and datastore. Any datastore will do.)
-  VM Resource 4vCPU 8-16GB RAM 100GB HDD minimum
+  VM Resource 4vCPU 8-16GB RAM 200GB HDD minimum
   vSphere Cluster and vSAN is option. (It is not mandatory.)
   There is no special setting in vCenter. (The script will create storage policy for vSphere CSI driver.)
 
@@ -50,12 +50,11 @@ Network
 Standard vSwitch and port group will worked. (Any switch will work!)
 
 VM Configuration
- OS: Ubuntu Server 20.04.3 x 1
+ OS: Ubuntu Server 20.04.4 x 1
  VM configuration
    CPU:  4vCPU above 
    RAM: 8GB above
-   HDD1: 100GB above (At least 50GB)
-   HDD2(Option): 100GB above (At least 50GB) for openebs csi driver.
+   HDD1: 200GB above (At least 50GB)
    Advanced Configuration: Set "disk.EnableUUID=true" "ctkEnabled=TRUE"  (It is very imoortant!!!)
 
 Ubuntu Install
@@ -99,17 +98,16 @@ cd k8s-study-vanilla
   kubectl get svc -A
    You can see dashboard-service-lb has Loadbalancer IP address. You can access Kubernetes Dashboard.
   kubectl get sc
-   You can see csi-hostpath-sc (default) and nfs-csi
+   You can see longhorn (default) and nfs-sub
+   If you want to use CSI Snapshot on longhorn, you need to setup backup target.
+   https://longhorn.io/docs/1.2.4/snapshots-and-backups/backup-and-restore/set-backup-target/
    
 6. Install vSphere CSI Driver
    ./5-csi-vsphere.sh
 
 7. Verify for vSphere CSI Driver
   kubectl get sc
-   You can see csi-hostpath-sc or cstor-csi-disk, nfs-csi, vsphere-sc(default)
-
-8. Deply Minio
-  ./6-minio.sh
+   You can see longhorn, nfs-sub, vsphere-sc(default)
    
    Trouble Shooting
        Check Storage Policy in vCenter.
