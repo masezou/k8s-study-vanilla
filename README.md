@@ -9,9 +9,9 @@ This single k8s node includes local repository, minio, nfs server for nfs driver
 
 Storage class: Longhorn/nfs-sub/vSphere CSI. 
 
-![Slide3](https://user-images.githubusercontent.com/624501/144965922-82ed2fae-6411-4879-952e-b17f1ed83691.jpeg)
+![Slide3](https://user-images.githubusercontent.com/624501/187103710-ec731705-2992-44bd-a4bd-e6e00764cdf9.jpeg)
 
-![Slide5](https://user-images.githubusercontent.com/624501/165000833-f9e10191-0ce7-4ab0-aa4f-972d49fbe9b0.jpeg)
+![Slide4](https://user-images.githubusercontent.com/624501/187103716-289b3834-8d93-4836-b9e9-4407136ade9b.jpeg)
 
 
 # Requirement
