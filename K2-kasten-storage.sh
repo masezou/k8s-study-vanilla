@@ -80,6 +80,12 @@ if [ ! -z ${MCLOGINUSER} ]; then
 	AWS_ACCESS_KEY_ID=$(echo -n "${MCLOGINUSER}" | base64)
 	AWS_SECRET_ACCESS_KEY_ID=$(echo -n "${MCLOGINPASSWORD}" | base64)
 
+        if [ ! -z ${LOCALIPADDRAPI} ]; then
+            mc --insecure mb  --region=us-east1 ${TENANTNAMESPACE}/${BUCKETNAME}
+        else
+            mc --insecure mb --with-lock --region=us-east1 local/${BUCKETNAME}
+        fi     
+
 	cat <<EOF | kubectl -n kasten-io create -f -
 apiVersion: v1
 data:
