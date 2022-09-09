@@ -203,12 +203,12 @@ fi
 # Install kubecolor
 if [ ! -f /usr/local/bin/kubecolor ]; then
 	KUBECOLORVER=0.0.20
-	curl --retry 10 --retry-delay 3 --retry-connrefused -sSOL https://github.com/hidetatz/kubecolor/releases/download/v${KUBECOLORVER}/kubecolor_${KUBECOLORVER}_$(uname -s)_$(arch).tar.gz
 	mkdir ~/kubecolor
-	tar xfz kubecolor_${KUBECOLORVER}_$(uname -s)_$(arch).tar.gz -C ~/kubecolor
+	curl --retry 10 --retry-delay 3 --retry-connrefused -sSOL https://github.com/hidetatz/kubecolor/releases/download/v${KUBECOLORVER}/kubecolor_${KUBECOLORVER}_$(uname -s)_${ARCH}.tar.gz
+	tar xfz kubecolor_${KUBECOLORVER}_$(uname -s)_${ARCH}.tar.gz -C ~/kubecolor
 	mv ~/kubecolor/kubecolor /usr/local/bin/
+	rm -rf kubecolor_${KUBECOLORVER}_$(uname -s)_${ARCH}.tar.gz ~/kubecolor
 	chmod +x /usr/local/bin/kubecolor
-	rm -rf kubecolor_${KUBECOLORVER}_$(uname -s)_$(arch).tar.gz ~/kubecolor
 	cat <<EOF >>/etc/profile
 command -v kubecolor >/dev/null 2>&1 && alias kubectl="kubecolor"
 EOF
