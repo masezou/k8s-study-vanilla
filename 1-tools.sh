@@ -21,7 +21,8 @@ DNSDOMAINNAME=k8slab.internal
 # If you haven't set Registry server, the registry server will set to NS server.
 #REGISTRY="IPADDR:5000"
 #REGISTRYURL=http://${REGISTRY}
-
+KREW=0
+GOVC=0
 MSSQLCMD=1
 NTPSVR=1
 TCE=0
@@ -48,9 +49,6 @@ else
 	CLOUDUTILS=0
 	POWERSHELL=0
 fi
-
-# Govc
-GOVC=1
 
 ### UID Check ###
 if [ ${EUID:-${UID}} != 0 ]; then
@@ -218,9 +216,10 @@ EOF
 fi
 
 # Install krew
-if [ ! -d /root/.krew/store/ ]; then
-	mkdir /tmp/krew.temp
-	cat <<EOF >/tmp/krew.temp/krew-plugin.sh
+if [ ${KREW} -eq 1 ]; then
+	if [ ! -d /root/.krew/store/ ]; then
+		mkdir /tmp/krew.temp
+		cat <<EOF >/tmp/krew.temp/krew-plugin.sh
 #!/usr/bin/env bash
 source /etc/profile.d/krew.sh
 kubectl krew install ctx
@@ -253,28 +252,29 @@ kubectl krew install directpv
 
 kubectl krew list
 EOF
-	chmod +x /tmp/krew.temp/krew-plugin.sh
-	cd /tmp/krew.temp
-	OS="$(uname | tr '[:upper:]' '[:lower:]')" &&
-		KREW="krew-${OS}_${ARCH}" &&
-		curl -fsSLO "https://github.com/kubernetes-sigs/krew/releases/latest/download/${KREW}.tar.gz" &&
-		tar zxvf "${KREW}.tar.gz"
-	chmod ugo+x ./"${KREW}"
-	./"${KREW}" install krew
-	cat <<'EOF' >>/etc/profile.d/krew.sh
+		chmod +x /tmp/krew.temp/krew-plugin.sh
+		cd /tmp/krew.temp
+		OS="$(uname | tr '[:upper:]' '[:lower:]')" &&
+			KREW="krew-${OS}_${ARCH}" &&
+			curl -fsSLO "https://github.com/kubernetes-sigs/krew/releases/latest/download/${KREW}.tar.gz" &&
+			tar zxvf "${KREW}.tar.gz"
+		chmod ugo+x ./"${KREW}"
+		./"${KREW}" install krew
+		cat <<'EOF' >>/etc/profile.d/krew.sh
 export PATH="$HOME/.krew/bin:$PATH"
 EOF
-	/tmp/krew.temp/krew-plugin.sh
-	if [ -z $SUDO_USER ]; then
-		echo "there is no sudo login"
-	else
-		sudo -u $SUDO_USER ./"${KREW}" install krew
-		sudo -u $SUDO_USER /tmp/krew.temp/krew-plugin.sh
+		/tmp/krew.temp/krew-plugin.sh
+		if [ -z $SUDO_USER ]; then
+			echo "there is no sudo login"
+		else
+			sudo -u $SUDO_USER ./"${KREW}" install krew
+			sudo -u $SUDO_USER /tmp/krew.temp/krew-plugin.sh
+		fi
+		unset OS
+		unset KREW
+		cd ${BASEPWD}
+		rm -rf /tmp/krew.temp
 	fi
-	unset OS
-	unset KREW
-	cd ${BASEPWD}
-	rm -rf /tmp/krew.temp
 fi
 
 # Install Helm
@@ -810,6 +810,24 @@ cd ${BASEPWD}
 
 echo ""
 echo "*************************************************************************************"
+echo "Install check"
+which kubect >/dev/null
+retvalkubctl=$?
+if [ ${retvalkubctl} -eq 0 ]; then
+	echo "kubectl was installed."
+else
+	echo "kubectl was NOT installed, please check your setting and re-ran this script."
+	exit 255
+fi
+which helm >/dev/null
+retvalhelm=$?
+if [ ${retvalhelm} -eq 0 ]; then
+	echo "helm was installed."
+else
+	echo "helm was NOT installedi, please check your setting and re-ran this script."
+	exit 255
+fi
+
 echo "Next Step"
 echo "Kubernetes tools ${KUBECTLVER} were installed in this Ubuntu."
 echo -e "\e[32m run source /etc/profile or re-login again \e[m"
