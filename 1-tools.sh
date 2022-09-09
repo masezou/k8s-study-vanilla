@@ -814,20 +814,21 @@ echo "Install check"
 which kubectl >/dev/null
 retvalkubctl=$?
 if [ ${retvalkubctl} -eq 0 ]; then
-	echo "kubectl was installed."
+echo -e "\e[32mkubectl was installed.\e[m"
 else
-	echo "kubectl was NOT installed, please check your setting and re-ran this script."
+echo -e "\e[31mkubectl was NOT installed, please check your setting and re-ran this script.\e[m"
 	exit 255
 fi
 which helm >/dev/null
 retvalhelm=$?
 if [ ${retvalhelm} -eq 0 ]; then
-	echo "helm was installed."
+echo -e "\e[32mhelm was installed.\e[m"
 else
-	echo "helm was NOT installedi, please check your setting and re-ran this script."
+echo -e "\e[31mhelm was NOT installed, please check your setting and re-ran this script.\e[m"
 	exit 255
 fi
 
+echo
 echo "Next Step"
 echo "Kubernetes tools ${KUBECTLVER} were installed in this Ubuntu."
 echo -e "\e[32m run source /etc/profile or re-login again \e[m"
