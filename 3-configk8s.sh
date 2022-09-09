@@ -11,6 +11,7 @@ IPRANGE="fixme"
 DNSDOMAINNAME="k8slab.internal"
 
 DNSSVR=1
+CERTMANAGER=0
 
 # IF you have internal DNS, please comment out and set your own DNS server
 #FORWARDDNS=192.168.8.1
@@ -524,25 +525,26 @@ kubectl get deployment -n external-dns external-dns
 DNSDOMAINNAME=$(kubectl -n external-dns get deployments.apps --output="jsonpath={.items[*].spec.template.spec.containers }" | jq | grep rfc2136-zone | cut -d "=" -f 2 | cut -d "\"" -f 1)
 
 # Install CertManager
-git clone https://github.com/jetstack/cert-manager.git -b v1.4.0 --depth 1
-cd cert-manager/deploy/charts/cert-manager/
-cp -p Chart{.template,}.yaml
-sed -i -e "s/appVersion: v0.1.0/appVersion: v1.4.0/g" Chart.yaml
-kubectl create ns cert-manager
-kubectl apply -f https://github.com/jetstack/cert-manager/releases/download/v1.4.0/cert-manager.crds.yaml
-helm install cert-manager . -n cert-manager
-sleep 2
-kubectl get deployment -n cert-manager cert-manager
-while [ "$(kubectl get deployment -n cert-manager cert-manager --output="jsonpath={.status.conditions[*].status}" | cut -d' ' -f1)" != "True" ]; do
-	echo "Deploying cert-manager Please wait...."
+if [ ${CERTMANAGER} -eq 1 ]; then
+	git clone https://github.com/jetstack/cert-manager.git -b v1.4.0 --depth 1
+	cd cert-manager/deploy/charts/cert-manager/
+	cp -p Chart{.template,}.yaml
+	sed -i -e "s/appVersion: v0.1.0/appVersion: v1.4.0/g" Chart.yaml
+	kubectl create ns cert-manager
+	kubectl apply -f https://github.com/jetstack/cert-manager/releases/download/v1.4.0/cert-manager.crds.yaml
+	helm install cert-manager . -n cert-manager
+	sleep 2
 	kubectl get deployment -n cert-manager cert-manager
-	sleep 30
-done
-kubectl get deployment -n cert-manager cert-manager
-cd ../../../../
-rm -rf cert-manager
-kubectl create ns sandbox
-cat <<EOF | kubectl apply -f -
+	while [ "$(kubectl get deployment -n cert-manager cert-manager --output="jsonpath={.status.conditions[*].status}" | cut -d' ' -f1)" != "True" ]; do
+		echo "Deploying cert-manager Please wait...."
+		kubectl get deployment -n cert-manager cert-manager
+		sleep 30
+	done
+	kubectl get deployment -n cert-manager cert-manager
+	cd ../../../../
+	rm -rf cert-manager
+	kubectl create ns sandbox
+	cat <<EOF | kubectl apply -f -
 apiVersion: cert-manager.io/v1
 kind: ClusterIssuer
 metadata:
@@ -577,7 +579,7 @@ spec:
   ca:
     secretName: selfsigned-ca-cert
 EOF
-
+fi
 # Configure Kubernetes Dashboard
 kubectl create namespace kubernetes-dashboard
 mkdir certs
