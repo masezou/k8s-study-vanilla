@@ -123,7 +123,7 @@ apt -y upgrade
 
 if [ -z ${KUBECTLVER} ]; then
 	echo "Install kubectl latest version"
-	KUBECTLVER=$(curl -s https://packages.cloud.google.com/apt/dists/kubernetes-xenial/main/binary-amd64/Packages | grep Version | awk '{print $2}' | sort -n -t "." -k 3 | uniq | grep ${KUBEBASEVER} | tail -1)
+	KUBECTLVER=$(curl -s https://packages.cloud.google.com/apt/dists/kubernetes-xenial/main/binary-${ARCH}/Packages | grep Version | awk '{print $2}' | sort -n -t "." -k 3 | uniq | grep ${KUBEBASEVER} | tail -1)
 fi
 echo "Kubectl verson: ${KUBECTLVER}"
 
@@ -291,7 +291,7 @@ fi
 
 # Install Skaffold
 if [ ! -f /usr/local/bin/skaffold ]; then
-	curl --retry 10 --retry-delay 3 --retry-connrefused -sS -Lo skaffold https://storage.googleapis.com/skaffold/releases/latest/skaffold-linux-amd64 && chmod +x skaffold && sudo mv skaffold /usr/local/bin
+	curl --retry 10 --retry-delay 3 --retry-connrefused -sS -Lo skaffold https://storage.googleapis.com/skaffold/releases/latest/skaffold-linux-${ARCH} && chmod +x skaffold && sudo mv skaffold /usr/local/bin
 	skaffold completion bash >/etc/bash_completion.d/skaffold
 	source /etc/bash_completion.d/skaffold
 fi
@@ -593,7 +593,7 @@ if [ ${CLOUDUTILS} -eq 1 ]; then
 		./aws/install
 		rm -rf aws
 		echo "complete -C '/usr/local/bin/aws_completer' aws" >/etc/bash_completion.d/aws.sh
-		curl --silent --location "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$(uname -s)_amd64.tar.gz" | tar xz -C /tmp
+		curl --silent --location "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$(uname -s)_${ARCH}.tar.gz" | tar xz -C /tmp
 		mv /tmp/eksctl /usr/local/bin
 		eksctl completion bash >/etc/bash_completion.d/eksctl.sh
 		export EKSA_RELEASE="0.6.1" OS="$(uname -s | tr A-Z a-z)" RELEASE_NUMBER=3
