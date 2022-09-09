@@ -811,7 +811,7 @@ cd ${BASEPWD}
 echo ""
 echo "*************************************************************************************"
 echo "Install check"
-which kubect >/dev/null
+which kubectl >/dev/null
 retvalkubctl=$?
 if [ ${retvalkubctl} -eq 0 ]; then
 	echo "kubectl was installed."
