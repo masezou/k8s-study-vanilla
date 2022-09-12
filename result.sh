@@ -7,11 +7,8 @@ if [ ! -f ~/.kube/config ]; then
 fi
 
 DNSDOMAINNAME=$(kubectl -n external-dns get deployments.apps --output="jsonpath={.items[*].spec.template.spec.containers }" | jq | grep rfc2136-zone | cut -d "=" -f 2 | cut -d "\"" -f 1)
-#DNSHOSTIP=$(kubectl get nodes -o jsonpath='{.items[*].status.addresses[?(@.type=="InternalIP")].address}')
 DNSHOSTIP=$(kubectl -n external-dns get deployments.apps --output="jsonpath={.items[*].spec.template.spec.containers }" | jq | grep rfc2136-host | cut -d "="     -f 2 | cut -d "\"" -f 1)
 DASHBOARD_EXTERNALIP=$(kubectl -n kubernetes-dashboard get service kubernetes-dashboard -o jsonpath="{.status.loadBalancer.ingress[*].ip}")
-kubectl -n kubernetes-dashboard get secret $(kubectl -n kubernetes-dashboard get sa/admin-user -o jsonpath="{.secrets[0].name}") -o go-template="{{.data.token | base64decode}}" >dashboard.token
-echo "" >>dashboard.token
 DASHBOARD_FQDN=$(kubectl -n kubernetes-dashboard get svc kubernetes-dashboard --output="jsonpath={.metadata.annotations}" | jq | grep external | cut -d "\"" -f 4)
 #REGISTRYHOST=`kubectl -n registry get configmaps pregistry-configmap -o=jsonpath='{.data.pregistry_host}'`
 #K3S registry setting
@@ -34,10 +31,6 @@ KEYCLOAK_FQDN=$(kubectl -n keycloak get svc keycloak --output="jsonpath={.metada
 #KEYCLOAK_FQDN=keycloak.${DNSDOMAINNAME}
 LONGHORN_EXTERNALIP=$(kubectl -n longhorn-system get svc longhorn-frontend -o jsonpath="{.status.loadBalancer.ingress[*].ip}")
 LONGHORN_FQDN=$(kubectl -n longhorn-system get svc longhorn-frontend --output="jsonpath={.metadata.annotations}" | jq | grep external | cut -d "\"" -f 4)
-CEPH_EXTERNALIP=$(kubectl -n rook-ceph get svc rook-ceph-mgr-dashboard-external-http -o jsonpath="{.status.loadBalancer.ingress[*].ip}")
-CEPH_FQDN=$(kubectl -n rook-ceph get svc rook-ceph-mgr-dashboard-external-http --output="jsonpath={.metadata.annotations}" | jq | grep external | cut -d "\"" -f 4)
-ARGOCD_EXTERNALIP=$(kubectl -n argocd get svc argocd-server -o jsonpath="{.status.loadBalancer.ingress[*].ip}")
-ARGOCD_FQDN=$(kubectl -n argocd get svc argocd-server --output="jsonpath={.metadata.annotations}" | jq | grep external | cut -d "\"" -f 4)
 PROMETHEUS_IP=$(kubectl -n monitoring get service prometheus-kube-prometheus-prometheus -o jsonpath="{.status.loadBalancer.ingress[*].ip}")
 PROMETHEUS_FQDN=$(kubectl -n monitoring get service prometheus-kube-prometheus-prometheus --output="jsonpath={.metadata.annotations}" | jq | grep external | cut -d "\"" -f 4)
 KUBEMETRICS_IP=$(kubectl -n monitoring get service prometheus-kube-state-metrics -o jsonpath="{.status.loadBalancer.ingress[*].ip}")
@@ -60,6 +53,7 @@ echo ""
 echo -e "\e[1mmetallb loadbalancer IP address range \e[m"
 kubectl -n metallb-system get configmaps config -o jsonpath='{.data.config}'
 echo ""
+echo ""
 echo -e "\e[1mDNS Server \e[m"
 echo -n "DNS Domain Name is "
 echo -e "\e[32m${DNSDOMAINNAME} \e[m"
@@ -67,6 +61,8 @@ echo -n "DNS DNS IP address is "
 echo -e "\e[32m${DNSHOSTIP} \e[m"
 echo ""
 if [ ! -z ${DASHBOARD_EXTERNALIP} ]; then
+kubectl -n kubernetes-dashboard get secret $(kubectl -n kubernetes-dashboard get sa/admin-user -o jsonpath="{.secrets[0].name}") -o go-template="{{.data.token | base64decode}}" >dashboard.token
+echo "" >>dashboard.token
 	echo -e "\e[1mKubernetes dashboard \e[m"
 	echo -e "\e[32m https://${DASHBOARD_EXTERNALIP}/#/login  \e[m"
 	echo "or"
@@ -189,30 +185,6 @@ if [ ! -z ${LONGHORN_EXTERNALIP} ]; then
 	echo ""
 fi
 
-if [ ! -z ${CEPH_EXTERNALIP} ]; then
-	echo -e "\e[1mCeph dashboard \e[m"
-	echo -e "\e[32m http://${CEPH_EXTERNALIP}:7000  \e[m"
-	echo "or"
-	echo -e "\e[32m http://${CEPH_FQDN}:7000  \e[m"
-	echo ""
-	echo -e "\e[32m login username is admin  \e[m"
-	echo -e "\e[32m login password is cat ./ceph-admin-password  \e[m"
-	cat ./ceph-admin-password
-	echo ""
-fi
-
-if [ ! -z ${ARGOCD_EXTERNALIP} ]; then
-	echo -e "\e[1mArgocd dashboard \e[m"
-	echo -e "\e[32m https://${ARGOCD_EXTERNALIP}  \e[m"
-	echo "or"
-	echo -e "\e[32m https://${ARGOCD_FQDN}  \e[m"
-	echo ""
-	echo -e "\e[32m login username is admin  \e[m"
-	echo -e "\e[32m login password is cat ./argocd-passwd  \e[m"
-	cat ./argocd-passwd
-	echo ""
-fi
-
 if [ ! -z ${PROMETHEUS_IP} ]; then
 	echo -e "\e[1mPrometheus dashboard \e[m"
 	echo -e "\e[32m http://${PROMETHEUS_IP}:9090 \e[m"
@@ -236,9 +208,20 @@ if [ ! -z ${GRAFANA_IP} ]; then
 	echo -e "\e[32m http://${GRAFANA_FQDN} \e[m"
 	echo ""
 	echo -e "\e[32m login credential is cat ./grafana_credential  \e[m"
+        GRAFANA_LOGIN=$(
+                kubectl get secret -n monitoring prometheus-grafana -o yaml | grep admin-user | cut -d ":" -f 2 | tr -d " " | base64 --decode
+                echo
+        )
+        GRAFANA_PASS=$(
+                kubectl get secret -n monitoring prometheus-grafana -o yaml | grep admin-password | cut -d ":" -f 2 | tr -d " " | base64 --decode
+                echo
+        )
+        echo $GRAFANA_LOGIN >./grafana_credential
+        echo $GRAFANA_PASS >>./grafana_credential
 	cat ./grafana_credential
     echo ""
 fi
+echo ""
 kubectl get ns kasten-io >/dev/null 2>&1
 HAS_KASTEN=$?
 if [ ${HAS_KASTEN} -eq 0 ]; then
