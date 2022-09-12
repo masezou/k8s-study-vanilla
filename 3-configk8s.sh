@@ -12,6 +12,10 @@ DNSDOMAINNAME="k8slab.internal"
 
 DNSSVR=1
 CERTMANAGER=0
+REGISTRYFE=1
+DASHBOARD=1
+KEYCLOAK=1
+GRAFANAMON=1
 
 # IF you have internal DNS, please comment out and set your own DNS server
 #FORWARDDNS=192.168.8.1
@@ -580,12 +584,14 @@ spec:
     secretName: selfsigned-ca-cert
 EOF
 fi
+
 # Configure Kubernetes Dashboard
-kubectl create namespace kubernetes-dashboard
-mkdir certs
-cd certs
-openssl genrsa -out dashboard.key 2048
-cat <<EOF >openssl.conf
+if [ ${DASHBOARD} -eq 1 ]; then
+	kubectl create namespace kubernetes-dashboard
+	mkdir certs
+	cd certs
+	openssl genrsa -out dashboard.key 2048
+	cat <<EOF >openssl.conf
 [req]
 distinguished_name = req_distinguished_name
 x509_extensions = v3_req
@@ -606,21 +612,21 @@ subjectAltName = @alt_names
 IP.1 = 127.0.0.1
 DNS.1 = dashboard.${DNSDOMAINNAME}
 EOF
-openssl req -new -x509 -nodes -days 365 -key dashboard.key -out dashboard.crt -config openssl.conf
-openssl x509 -in dashboard.crt -text -noout | grep IP
-kubectl create secret generic kubernetes-dashboard-certs --from-file=dashboard.key --from-file=dashboard.crt -n kubernetes-dashboard
-cd ..
-rm -rf certs
+	openssl req -new -x509 -nodes -days 365 -key dashboard.key -out dashboard.crt -config openssl.conf
+	openssl x509 -in dashboard.crt -text -noout | grep IP
+	kubectl create secret generic kubernetes-dashboard-certs --from-file=dashboard.key --from-file=dashboard.crt -n kubernetes-dashboard
+	cd ..
+	rm -rf certs
 
-kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/master/aio/deploy/recommended.yaml
-cat <<EOF | kubectl apply -f -
+	kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/master/aio/deploy/recommended.yaml
+	cat <<EOF | kubectl apply -f -
 apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: admin-user
   namespace: kubernetes-dashboard
 EOF
-cat <<EOF | kubectl apply -f -
+	cat <<EOF | kubectl apply -f -
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
@@ -635,7 +641,7 @@ subjects:
   namespace: kubernetes-dashboard
 EOF
 
-cat <<EOF | kubectl apply -f -
+	cat <<EOF | kubectl apply -f -
 apiVersion: v1
 kind: Service
 metadata:
@@ -654,29 +660,29 @@ spec:
   selector:
     k8s-app: kubernetes-dashboard
 EOF
-sleep 2
-kubectl -n kubernetes-dashboard get deployments
-while [ "$(kubectl -n kubernetes-dashboard get deployments --output="jsonpath={.items[*].status.conditions[*].status}" | cut -d' ' -f1)" != "True" ]; do
-	echo "Deploying Kubernetes Dashboard Please wait...."
+	sleep 2
 	kubectl -n kubernetes-dashboard get deployments
-	sleep 30
-done
-kubectl -n kubernetes-dashboard get deployments
-DASHBOARD_EXTERNALIP=$(kubectl -n kubernetes-dashboard get service dashboard-service-lb | awk '{print $4}' | tail -n 1)
-kubectl -n kubernetes-dashboard annotate service dashboard-service-lb \
-	external-dns.alpha.kubernetes.io/hostname=dashboard.${DNSDOMAINNAME}
-sleep 10
-host dashboard.${DNSDOMAINNAME}. ${DNSHOSTIP}
+	while [ "$(kubectl -n kubernetes-dashboard get deployments --output="jsonpath={.items[*].status.conditions[*].status}" | cut -d' ' -f1)" != "True" ]; do
+		echo "Deploying Kubernetes Dashboard Please wait...."
+		kubectl -n kubernetes-dashboard get deployments
+		sleep 30
+	done
+	kubectl -n kubernetes-dashboard get deployments
+	DASHBOARD_EXTERNALIP=$(kubectl -n kubernetes-dashboard get service dashboard-service-lb | awk '{print $4}' | tail -n 1)
+	kubectl -n kubernetes-dashboard annotate service dashboard-service-lb \
+		external-dns.alpha.kubernetes.io/hostname=dashboard.${DNSDOMAINNAME}
+	sleep 10
+	host dashboard.${DNSDOMAINNAME}. ${DNSHOSTIP}
 
-kubectl -n kubernetes-dashboard get secret $(kubectl -n kubernetes-dashboard get sa/admin-user -o jsonpath="{.secrets[0].name}") -o go-template="{{.data.token | base64decode}}" >dashboard.token
-echo "" >>dashboard.token
-if [ -z $SUDO_USER ]; then
-	echo "there is no sudo login"
-else
-	cp dashboard.token /home/${SUDO_USER}/k8s-study-vanilla
-	chown ${SUDO_USER} /home/${SUDO_USER}/k8s-study-vanilla/dashboard.token
+	kubectl -n kubernetes-dashboard get secret $(kubectl -n kubernetes-dashboard get sa/admin-user -o jsonpath="{.secrets[0].name}") -o go-template="{{.data.token | base64decode}}" >dashboard.token
+	echo "" >>dashboard.token
+	if [ -z $SUDO_USER ]; then
+		echo "there is no sudo login"
+	else
+		cp dashboard.token /home/${SUDO_USER}/k8s-study-vanilla
+		chown ${SUDO_USER} /home/${SUDO_USER}/k8s-study-vanilla/dashboard.token
+	fi
 fi
-
 # Install metric server
 curl --retry 10 --retry-delay 3 --retry-connrefused -sSOL https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
 cat <<EOF | sed -i -e "/        imagePullPolicy: IfNotPresent$/r /dev/stdin" components.yaml
@@ -697,9 +703,10 @@ done
 kubectl -n kube-system get deployments.apps metrics-server
 
 # Install Reigstory Frontend
-if [ ${ARCH} = amd64 ]; then
-	kubectl create namespace registry
-	cat <<EOF | kubectl apply -n registry -f -
+if [ ${REGISTRYFE} -eq 1 ]; then
+	if [ ${ARCH} = amd64 ]; then
+		kubectl create namespace registry
+		cat <<EOF | kubectl apply -n registry -f -
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -756,39 +763,64 @@ spec:
                 name: pregistry-configmap
                 key: pregistry_port
 EOF
-	sleep 2
-	kubectl -n registry get deployments.apps pregistry-frontend-deployment
-	while [ "$(kubectl -n registry get deployments.apps pregistry-frontend-deployment --output="jsonpath={.status.conditions[*].status}" | cut -d' ' -f1)" != "True" ]; do
-		echo "Deploying registry frontend  Please wait...."
+		sleep 2
 		kubectl -n registry get deployments.apps pregistry-frontend-deployment
-		sleep 30
-	done
-	kubectl -n registry get deployments.apps pregistry-frontend-deployment
-	REGISTRY_EXTERNALIP=$(kubectl -n registry get service pregistry-frontend-clusterip | awk '{print $4}' | tail -n 1)
-	kubectl -n registry annotate service pregistry-frontend-clusterip \
-		external-dns.alpha.kubernetes.io/hostname=registryfe.${DNSDOMAINNAME}
-	sleep 10
-	host registryfe.${DNSDOMAINNAME}. ${DNSHOSTIP}
+		while [ "$(kubectl -n registry get deployments.apps pregistry-frontend-deployment --output="jsonpath={.status.conditions[*].status}" | cut -d' ' -f1)" != "True" ]; do
+			echo "Deploying registry frontend  Please wait...."
+			kubectl -n registry get deployments.apps pregistry-frontend-deployment
+			sleep 30
+		done
+		kubectl -n registry get deployments.apps pregistry-frontend-deployment
+		REGISTRY_EXTERNALIP=$(kubectl -n registry get service pregistry-frontend-clusterip | awk '{print $4}' | tail -n 1)
+		kubectl -n registry annotate service pregistry-frontend-clusterip \
+			external-dns.alpha.kubernetes.io/hostname=registryfe.${DNSDOMAINNAME}
+		sleep 10
+		host registryfe.${DNSDOMAINNAME}. ${DNSHOSTIP}
+	fi
 fi
 
 # Keycloadk
-debconf-set-selections <<<"postfix postfix/mailname string ${DNSHOSTNAME}.${DNSDOMAINNAME}"
-debconf-set-selections <<<"postfix postfix/main_mailer_type string 'Local only'"
-apt -y install postfix mailutils
-kubectl create ns keycloak
-kubectl -n keycloak create -f https://raw.githubusercontent.com/keycloak/keycloak-quickstarts/latest/kubernetes-examples/keycloak.yaml
-kubectl -n keycloak get deployments.apps keycloak
-while [ "$(kubectl -n keycloak get deployments.apps keycloak --output="jsonpath={.status.conditions[*].status}" | cut -d' ' -f1)" != "True" ]; do
-	echo "Deploying Keycloak  Please wait...."
+if [ ${KEYCLOAK} -eq 1 ]; then
+	debconf-set-selections <<<"postfix postfix/mailname string ${DNSHOSTNAME}.${DNSDOMAINNAME}"
+	debconf-set-selections <<<"postfix postfix/main_mailer_type string 'Local only'"
+	apt -y install postfix mailutils
+	kubectl create ns keycloak
+	kubectl -n keycloak create -f https://raw.githubusercontent.com/keycloak/keycloak-quickstarts/latest/kubernetes-examples/keycloak.yaml
 	kubectl -n keycloak get deployments.apps keycloak
-	sleep 30
-done
-kubectl -n keycloak get deployments.apps keycloak
-KEYCLOAK_EXTERNALIP=$(kubectl -n keycloak get service keycloak | awk '{print $4}' | tail -n 1)
-kubectl -n keycloak annotate service keycloak \
-	external-dns.alpha.kubernetes.io/hostname=keycloak.${DNSDOMAINNAME}
-sleep 10
-host keycloak.${DNSDOMAINNAME}. ${DNSHOSTIP}
+	while [ "$(kubectl -n keycloak get deployments.apps keycloak --output="jsonpath={.status.conditions[*].status}" | cut -d' ' -f1)" != "True" ]; do
+		echo "Deploying Keycloak  Please wait...."
+		kubectl -n keycloak get deployments.apps keycloak
+		sleep 30
+	done
+	kubectl -n keycloak get deployments.apps keycloak
+	KEYCLOAK_EXTERNALIP=$(kubectl -n keycloak get service keycloak | awk '{print $4}' | tail -n 1)
+	kubectl -n keycloak annotate service keycloak \
+		external-dns.alpha.kubernetes.io/hostname=keycloak.${DNSDOMAINNAME}
+	sleep 10
+	host keycloak.${DNSDOMAINNAME}. ${DNSHOSTIP}
+fi
+
+# Grafana
+if [ ${GRAFANAMON} -eq 1 ]; then
+	helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+	helm repo update
+	kubectl create namespace monitoring
+	helm install prometheus prometheus-community/kube-prometheus-stack --namespace monitoring
+	kubectl -n monitoring wait pod -l "app=kube-prometheus-stack-operator" --for condition=Ready
+	kubectl -n monitoring get svc
+	kubectl -n monitoring patch svc prometheus-kube-prometheus-prometheus -p '{"spec":{"type": "LoadBalancer"}}'
+	kubectl -n monitoring patch svc prometheus-kube-state-metrics -p '{"spec":{"type": "LoadBalancer"}}'
+	kubectl -n monitoring patch svc prometheus-grafana -p '{"spec":{"type": "LoadBalancer"}}'
+	PROMETHEUSHOST=prometheus..${DNSDOMAINNAME}
+	kubectl -n monitoring annotate service prometheus-kube-prometheus-prometheus \
+		external-dns.alpha.kubernetes.io/hostname=${PROMETHEUSHOST}
+	METRICHOST=metrics.${DNSDOMAINNAME}
+	kubectl -n monitoring annotate service prometheus-kube-state-metrics \
+		external-dns.alpha.kubernetes.io/hostname=${METRICHOST}
+	GRAFANAHOST=grafana.${DNSDOMAINNAME}
+	kubectl -n monitoring annotate service prometheus-grafana \
+		external-dns.alpha.kubernetes.io/hostname=${GRAFANAHOST}
+fi
 
 rndc freeze ${DNSDOMAINNAME}
 rndc thaw ${DNSDOMAINNAME}
