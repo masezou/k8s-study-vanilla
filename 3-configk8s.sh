@@ -811,7 +811,7 @@ if [ ${GRAFANAMON} -eq 1 ]; then
 	kubectl -n monitoring patch svc prometheus-kube-prometheus-prometheus -p '{"spec":{"type": "LoadBalancer"}}'
 	kubectl -n monitoring patch svc prometheus-kube-state-metrics -p '{"spec":{"type": "LoadBalancer"}}'
 	kubectl -n monitoring patch svc prometheus-grafana -p '{"spec":{"type": "LoadBalancer"}}'
-	PROMETHEUSHOST=prometheus..${DNSDOMAINNAME}
+	PROMETHEUSHOST=prometheus.${DNSDOMAINNAME}
 	kubectl -n monitoring annotate service prometheus-kube-prometheus-prometheus \
 		external-dns.alpha.kubernetes.io/hostname=${PROMETHEUSHOST}
 	METRICHOST=metrics.${DNSDOMAINNAME}
