@@ -7,18 +7,43 @@ if [ ! -f ~/.kube/config ]; then
 fi
 
 DNSDOMAINNAME=$(kubectl -n external-dns get deployments.apps --output="jsonpath={.items[*].spec.template.spec.containers }" | jq | grep rfc2136-zone | cut -d "=" -f 2 | cut -d "\"" -f 1)
-DNSHOSTIP=$(kubectl get nodes -o jsonpath='{.items[*].status.addresses[?(@.type=="InternalIP")].address}')
+#DNSHOSTIP=$(kubectl get nodes -o jsonpath='{.items[*].status.addresses[?(@.type=="InternalIP")].address}')
+DNSHOSTIP=$(kubectl -n external-dns get deployments.apps --output="jsonpath={.items[*].spec.template.spec.containers }" | jq | grep rfc2136-host | cut -d "="     -f 2 | cut -d "\"" -f 1)
 DASHBOARD_EXTERNALIP=$(kubectl -n kubernetes-dashboard get service kubernetes-dashboard -o jsonpath="{.status.loadBalancer.ingress[*].ip}")
 kubectl -n kubernetes-dashboard get secret $(kubectl -n kubernetes-dashboard get sa/admin-user -o jsonpath="{.secrets[0].name}") -o go-template="{{.data.token | base64decode}}" >dashboard.token
 echo "" >>dashboard.token
 DASHBOARD_FQDN=$(kubectl -n kubernetes-dashboard get svc kubernetes-dashboard --output="jsonpath={.metadata.annotations}" | jq | grep external | cut -d "\"" -f 4)
-REGISTRYHOST=$(kubectl -n registry get configmaps pregistry-configmap -o=jsonpath='{.data.pregistry_host}')
-REIGSTRYPORT=$(kubectl -n registry get configmaps pregistry-configmap -o=jsonpath='{.data.pregistry_port}')
-REGISTRYURL=${REGISTRYHOST}:${REIGSTRYPORT}
-REGISTRY_EXTERNALIP=$(kubectl -n registry get service pregistry-frontend-clusterip -o jsonpath="{.status.loadBalancer.ingress[*].ip}")
+#REGISTRYHOST=`kubectl -n registry get configmaps pregistry-configmap -o=jsonpath='{.data.pregistry_host}'`
+#K3S registry setting
+if [ -f /etc/rancher/k3s/registries.yaml ]; then
+	REGISTRY=$(grep http /etc/rancher/k3s/registries.yaml | cut -d "/" -f 3 | cut -d "\"" -f 1)
+	REGISTRYURL=http://${REGISTRY}
+fi
+if [ -z ${REGISTRY} ]; then
+	REGISTRYHOST=$(ls --ignore docker.io /etc/containerd/certs.d/ | cut -d ":" -f1)
+	#REGISTRYPORT=`kubectl -n registry get configmaps pregistry-configmap -o=jsonpath='{.data.pregistry_port}'`
+	REGISTRYPORT=$(ls --ignore docker.io /etc/containerd/certs.d/ | cut -d ":" -f2)
+	REGISTRY=${REGISTRYHOST}:${REGISTRYPORT}
+	REGISTRYURL=${REGISTRYHOST}:${REGISTRYPORT}
+fi
+#REGISTRY_EXTERNALIP=`kubectl -n registry get service pregistry-frontend-clusterip -o jsonpath="{.status.loadBalancer.ingress[*].ip}"`
 REGISTRY_FQDN=$(kubectl -n registry get svc pregistry-frontend-clusterip --output="jsonpath={.metadata.annotations}" | jq | grep external | cut -d "\"" -f 4)
-KEYCLOAK_EXTERNALIP=$(kubectl -n keycloak get service keycloak -o jsonpath="{.status.loadBalancer.ingress[*].ip}")
+#REGISTRY_FQDN=registryfe.${DNSDOMAINNAME}
+#KEYCLOAK_EXTERNALIP=`kubectl -n keycloak get service keycloak -o jsonpath="{.status.loadBalancer.ingress[*].ip}"`
 KEYCLOAK_FQDN=$(kubectl -n keycloak get svc keycloak --output="jsonpath={.metadata.annotations}" | jq | grep external | cut -d "\"" -f 4)
+#KEYCLOAK_FQDN=keycloak.${DNSDOMAINNAME}
+LONGHORN_EXTERNALIP=$(kubectl -n longhorn-system get svc longhorn-frontend -o jsonpath="{.status.loadBalancer.ingress[*].ip}")
+LONGHORN_FQDN=$(kubectl -n longhorn-system get svc longhorn-frontend --output="jsonpath={.metadata.annotations}" | jq | grep external | cut -d "\"" -f 4)
+CEPH_EXTERNALIP=$(kubectl -n rook-ceph get svc rook-ceph-mgr-dashboard-external-http -o jsonpath="{.status.loadBalancer.ingress[*].ip}")
+CEPH_FQDN=$(kubectl -n rook-ceph get svc rook-ceph-mgr-dashboard-external-http --output="jsonpath={.metadata.annotations}" | jq | grep external | cut -d "\"" -f 4)
+ARGOCD_EXTERNALIP=$(kubectl -n argocd get svc argocd-server -o jsonpath="{.status.loadBalancer.ingress[*].ip}")
+ARGOCD_FQDN=$(kubectl -n argocd get svc argocd-server --output="jsonpath={.metadata.annotations}" | jq | grep external | cut -d "\"" -f 4)
+PROMETHEUS_IP=$(kubectl -n monitoring get service prometheus-kube-prometheus-prometheus -o jsonpath="{.status.loadBalancer.ingress[*].ip}")
+PROMETHEUS_FQDN=$(kubectl -n monitoring get service prometheus-kube-prometheus-prometheus --output="jsonpath={.metadata.annotations}" | jq | grep external | cut -d "\"" -f 4)
+KUBEMETRICS_IP=$(kubectl -n monitoring get service prometheus-kube-state-metrics -o jsonpath="{.status.loadBalancer.ingress[*].ip}")
+KUBEMETRICS_FQDN=$(kubectl -n monitoring get service prometheus-kube-state-metrics --output="jsonpath={.metadata.annotations}" | jq | grep external | cut -d "\"" -f 4)
+GRAFANA_IP=$(kubectl -n monitoring get service prometheus-grafana -o jsonpath="{.status.loadBalancer.ingress[*].ip}")
+GRAFANA_FQDN=$(kubectl -n monitoring get service prometheus-grafana --output="jsonpath={.metadata.annotations}" | jq | grep external | cut -d "\"" -f 4)
 
 echo "*************************************************************************************"
 echo "Here is cluster context."
@@ -100,8 +125,9 @@ echo ""
 if [ ! -z ${REGISTRYURL} ]; then
 	echo -e "\e[1mRegistry \e[m"
 	echo -e "\e[1mRegistry URL \e[m"
-	echo -e "\e[32m http://${REGISTRYURL}  \e[m"
+	echo -e "\e[32m ${REGISTRYURL}  \e[m"
 	if [ -f /usr/bin/docker ]; then
+		echo "docker check"
 		grep ${REGISTRYURL} /etc/docker/daemon.json
 		retvaldaemon=$?
 		if [ ${retvaldaemon} -eq 0 ]; then
@@ -111,15 +137,33 @@ if [ ! -z ${REGISTRYURL} ]; then
 			echo -e "\e[31m You need to set registry setting in docker. \e[m"
 		fi
 	fi
-	ls -1 /etc/containerd/certs.d/ | grep -v docker.io | grep ${REGISTRYURL}
-	retvalcontainerd=$?
-	if [ ${retvalcontainerd} -eq 0 ]; then
-		echo -e "\e[32m containerd was configured. \e[m"
-	else
-		echo -e "\e[31m contained was not configured. \e[m"
-		echo -e "\e[31m You need to set registry setting in containerd. \e[m"
+
+	if [ -f /etc/rancher/k3s/registries.yaml ]; then
+		echo "k3s check"
+		grep ${REGISTRY} /etc/rancher/k3s/registries.yaml
+		retvalk3schk=$?
+		if [ ${retvalk3schk} -eq 0 ]; then
+			echo -e "\e[32m containerd was configured. \e[m"
+		else
+			echo -e "\e[31m contained was not configured. \e[m"
+			echo -e "\e[31m You need to set registry setting in /etc/rancher/k3s/registries.yaml . \e[m"
+		fi
+	fi
+
+	if [ -d /etc/containerd/certs.d/ ]; then
+		echo "Containerd check"
+		ls -1 /etc/containerd/certs.d/ | grep -v docker.io | grep ${REGISTRYURL}
+		retvalcontainerd=$?
+		if [ ${retvalcontainerd} -eq 0 ]; then
+			echo -e "\e[32m containerd was configured. \e[m"
+		else
+			echo -e "\e[31m contained was not configured. \e[m"
+			echo -e "\e[31m You need to set registry setting in containerd. \e[m"
+		fi
 	fi
 fi
+
+	echo ""
 if [ ! -z ${REGISTRY_EXTERNALIP} ]; then
 	echo -e "\e[1mRegistry frontend UI \e[m"
 	echo -e "\e[32m http://${REGISTRY_EXTERNALIP}  \e[m"
@@ -136,6 +180,64 @@ if [ ! -z ${KEYCLOAK_FQDN} ]; then
 	echo -n " login credential is "
 	echo -e "\e[32m admin/admin  \e[m"
 	echo ""
+fi
+if [ ! -z ${LONGHORN_EXTERNALIP} ]; then
+	echo -e "\e[1mLonghorn dashboard \e[m"
+	echo -e "\e[32m http://${LONGHORN_EXTERNALIP}/  \e[m"
+	echo "or"
+	echo -e "\e[32m http://${LONGHORN_FQDN}/ \e[m"
+	echo ""
+fi
+
+if [ ! -z ${CEPH_EXTERNALIP} ]; then
+	echo -e "\e[1mCeph dashboard \e[m"
+	echo -e "\e[32m http://${CEPH_EXTERNALIP}:7000  \e[m"
+	echo "or"
+	echo -e "\e[32m http://${CEPH_FQDN}:7000  \e[m"
+	echo ""
+	echo -e "\e[32m login username is admin  \e[m"
+	echo -e "\e[32m login password is cat ./ceph-admin-password  \e[m"
+	cat ./ceph-admin-password
+	echo ""
+fi
+
+if [ ! -z ${ARGOCD_EXTERNALIP} ]; then
+	echo -e "\e[1mArgocd dashboard \e[m"
+	echo -e "\e[32m https://${ARGOCD_EXTERNALIP}  \e[m"
+	echo "or"
+	echo -e "\e[32m https://${ARGOCD_FQDN}  \e[m"
+	echo ""
+	echo -e "\e[32m login username is admin  \e[m"
+	echo -e "\e[32m login password is cat ./argocd-passwd  \e[m"
+	cat ./argocd-passwd
+	echo ""
+fi
+
+if [ ! -z ${PROMETHEUS_IP} ]; then
+	echo -e "\e[1mPrometheus dashboard \e[m"
+	echo -e "\e[32m http://${PROMETHEUS_IP}:9090 \e[m"
+	echo "or"
+	echo -e "\e[32m http://${PROMETHEUS_FQDN}:9090 \e[m"
+	echo ""
+fi
+
+if [ ! -z ${KUBEMETRICS_IP} ]; then
+	echo -e "\e[1mKubemetrics dashboard \e[m"
+	echo -e "\e[32m http://${KUBEMETRICS_IP}:8080 \e[m"
+	echo "or"
+	echo -e "\e[32m http://${KUBEMETRICS_FQDN}:8080 \e[m"
+	echo ""
+fi
+
+if [ ! -z ${GRAFANA_IP} ]; then
+	echo -e "\e[1mGrafana dashboard \e[m"
+	echo -e "\e[32m http://${GRAFANA_IP} \e[m"
+	echo "or"
+	echo -e "\e[32m http://${GRAFANA_FQDN} \e[m"
+	echo ""
+	echo -e "\e[32m login credential is cat ./grafana_credential  \e[m"
+	cat ./grafana_credential
+    echo ""
 fi
 kubectl get ns kasten-io >/dev/null 2>&1
 HAS_KASTEN=$?
