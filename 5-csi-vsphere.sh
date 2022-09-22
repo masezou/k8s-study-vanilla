@@ -123,8 +123,8 @@ fi
 # kubernetes  and vSphere version check
 if [ -z ${VSPHERECSI} ]; then
     kubectl get node -o wide | grep v1.19 >/dev/null 2>&1 && VSPHERECSI=2.3.2
-    kubectl get node -o wide | grep v1.20 >/dev/null 2>&1 && VSPHERECSI=2.4.2
-    kubectl get node -o wide | grep v1.21 >/dev/null 2>&1 && VSPHERECSI=2.5.2
+    kubectl get node -o wide | grep v1.20 >/dev/null 2>&1 && VSPHERECSI=2.4.3
+    kubectl get node -o wide | grep v1.21 >/dev/null 2>&1 && VSPHERECSI=2.5.3
     kubectl get node -o wide | grep v1.22 >/dev/null 2>&1 && VSPHERECSI=2.6.1
     kubectl get node -o wide | grep v1.23 >/dev/null 2>&1 && VSPHERECSI=2.6.1
     kubectl get node -o wide | grep v1.24 >/dev/null 2>&1 && VSPHERECSI=2.6.1
