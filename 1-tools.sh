@@ -202,17 +202,24 @@ fi
 
 # Install kubecolor
 if [ ! -f /usr/local/bin/kubecolor ]; then
-	KUBECOLORVER=0.0.20
-	mkdir ~/kubecolor
-	curl --retry 10 --retry-delay 3 --retry-connrefused -sSOL https://github.com/hidetatz/kubecolor/releases/download/v${KUBECOLORVER}/kubecolor_${KUBECOLORVER}_$(uname -s)_${ARCH}.tar.gz
-	tar xfz kubecolor_${KUBECOLORVER}_$(uname -s)_${ARCH}.tar.gz -C ~/kubecolor
-	mv ~/kubecolor/kubecolor /usr/local/bin/
-	rm -rf kubecolor_${KUBECOLORVER}_$(uname -s)_${ARCH}.tar.gz ~/kubecolor
-	chmod +x /usr/local/bin/kubecolor
-	cat <<EOF >>/etc/profile
+        echo -e "\e[32m Installing kubecolor. \e[m"
+        KUBECOLORVER=0.0.20
+    if [ ${ARCH} = amd64 ]; then
+    TEMPARCH=`arch`
+    fi
+    if [ ${ARCH} = arm64 ]; then
+    TEMPARCH=arm64
+    fi
+        curl --retry 10 --retry-delay 3 --retry-connrefused -sSOL https://github.com/hidetatz/kubecolor/releases/download/v${KUBECOLORVER}/kubecolor_${KUBECOLORVER}_$(uname -s)_${TEMPARCH}.tar.gz
+        mkdir ~/kubecolor
+        tar xfz kubecolor_${KUBECOLORVER}_$(uname -s)_${TEMPARCH}.tar.gz -C ~/kubecolor
+        mv ~/kubecolor/kubecolor /usr/local/bin/
+        chmod +x /usr/local/bin/kubecolor
+        rm -rf kubecolor_${KUBECOLORVER}_$(uname -s)_${TEMPARCH}.tar.gz ~/kubecolor
+        cat <<EOF >>/etc/profile
 command -v kubecolor >/dev/null 2>&1 && alias kubectl="kubecolor"
 EOF
-	alias kubectl=kubecolor
+        alias kubectl=kubecolor
 fi
 
 # Install krew
@@ -516,7 +523,7 @@ EOF
 	fi
 	# Install Docker Compose
 	if [ ! -f /usr/local/bin/docker-compose ]; then
-		DOCKERCOMPOSEVER=2.10.2
+		DOCKERCOMPOSEVER=2.11.0
 		if [ ${ARCH} = amd64 ]; then
 			curl --retry 10 --retry-delay 3 --retry-connrefused -sSOL https://github.com/docker/compose/releases/download/v${DOCKERCOMPOSEVER}/docker-compose-linux-$(uname -i)
 			mv docker-compose-linux-$(uname -i) /usr/local/bin/docker-compose
@@ -541,7 +548,7 @@ EOF
 	fi
 	# Install Kind
 	if [ ! -f /usr/local/bin/kind ]; then
-		KINDVER=0.12.0
+		KINDVER=0.16.0
 		curl -s -Lo ./kind https://github.com/kubernetes-sigs/kind/releases/download/v${KINDVER}/kind-linux-${ARCH}
 		mv ./kind /usr/local/bin/kind
 		chmod +x /usr/local/bin/kind
