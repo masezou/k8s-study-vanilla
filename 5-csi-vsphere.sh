@@ -86,16 +86,12 @@ if [ ${retvaluuid} -ne 0 ]; then
 fi
 
 # Setup Govc
-cat <<EOF >~/govc-vcenter.sh
+cat <<EOF >/etc/profile.d/govc-vcenter.sh
 export GOVC_INSECURE=1 # Don't verify SSL certs on vCenter
 export GOVC_URL=${VSPHERESERVER} # vCenter IP/FQDN
 export GOVC_USERNAME=${VSPHEREUSERNAME} # vCenter username
 export GOVC_PASSWORD=${VSPHEREPASSWORD} # vCenter password
 export GOVC_DATASTORE=${VSPPHEREDATASTORE} # Default datastore to deploy to
-export GOVC_NETWORK="${VSPPHERENETWORK}" # Default network to deploy to
-#export GOVC_RESOURCE_POOL='*/Resources' # Default resource pool to deploy to
-# check govc find / -type p
-export GOVC_RESOURCE_POOL='${VSPHERERESOURCEPOOL}' # Default resource pool to deploy to
 EOF
 if [ ! -f /usr/local/bin/govc ]; then
 	GOVCVER=$(grep GOVCVER= 1-tools.sh | cut -d "=" -f2)
@@ -108,8 +104,7 @@ if [ ! -f /usr/local/bin/govc ]; then
 	curl --retry 10 --retry-delay 3 --retry-connrefused -sSOL https://raw.githubusercontent.com/vmware/govmomi/master/scripts/govc_bash_completion
 	mv govc_bash_completion /etc/bash_completion.d/
 fi
-cp ~/govc-vcenter.sh /etc/profile.d/
-source ~/govc-vcenter.sh
+source /etc/profile.d/govc-vcenter.sh
 
 # Verify vCenter connectivity
 govc datacenter.info
