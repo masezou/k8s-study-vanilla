@@ -35,27 +35,6 @@ else
 	echo ${LOCALIPADDR}
 fi
 
-kubectl get ns | grep minio-operator
-retvalmpo=$?
-if [ ${retvalmpo} -eq 0 ]; then
-	TENANTNAMESPACE=$(kubectl get tenant -A | grep Initialized | cut -d " " -f 1)
-	LOCALHOSTNAMEAPI=${TENANTNAMESPACE}-api.${DNSDOMAINNAME}
-	LOCALIPADDRAPI=$(kubectl -n ${TENANTNAMESPACE} get service minio | awk '{print $4}' | tail -n 1)
-	MCLOGINUSER=$(kubectl -n ${TENANTNAMESPACE} get secret ${TENANTNAMESPACE}-user-1 -ojsonpath="{.data."CONSOLE_ACCESS_KEY"}{'\n'}" | base64 --decode)
-	MCLOGINPASSWORD=$(kubectl -n ${TENANTNAMESPACE} get secret ${TENANTNAMESPACE}-user-1 -ojsonpath="{.data."CONSOLE_SECRET_KEY"}{'\n'}" | base64 --decode)
-	mc --insecure alias set ${TENANTNAMESPACE} ${MINIO_ENDPOINT} ${MCLOGINUSER} ${MCLOGINPASSWORD} --api S3v4
-	MINIOIP=${LOCALIPADDRAPI}
-	if [ -z ${ERASURE_CODING} ]; then
-		mc --insecure admin info ${TENANTNAMESPACE} | grep Pool
-		retvalec=$?
-		if [ ${retvalec} -eq 0 ]; then
-			ERASURE_CODING=1
-		else
-			ERASURE_CODING=0
-		fi
-	fi
-fi
-
 # If there is externl minio.
 if [ ! -z ${EXTERNALMINIOIP} ]; then
 	MINIOIP=${EXTERNALMINIOIP}
@@ -80,11 +59,7 @@ if [ ! -z ${MCLOGINUSER} ]; then
 	AWS_ACCESS_KEY_ID=$(echo -n "${MCLOGINUSER}" | base64)
 	AWS_SECRET_ACCESS_KEY_ID=$(echo -n "${MCLOGINPASSWORD}" | base64)
 
-	if [ ! -z ${LOCALIPADDRAPI} ]; then
-		mc --insecure mb --region=us-east1 ${TENANTNAMESPACE}/${BUCKETNAME}
-	else
 		mc --insecure mb --with-lock --region=us-east1 local/${BUCKETNAME}
-	fi
 
 	cat <<EOF | kubectl -n kasten-io create -f -
 apiVersion: v1
@@ -124,13 +99,8 @@ EOF
 
 	# Minio immutable setting
 	if [ ${ERASURE_CODING} -eq 1 ]; then
-		if [ ! -z ${LOCALIPADDRAPI} ]; then
-			mc --insecure mb --with-lock --region=us-east1 ${TENANTNAMESPACE}/${MINIOLOCK_BUCKET_NAME}
-			mc --insecure retention set --default compliance ${MINIOLOCK_PERIOD} ${TENANTNAMESPACE}/${MINIOLOCK_BUCKET_NAME}
-		else
 			mc --insecure mb --with-lock --region=us-east1 local/${MINIOLOCK_BUCKET_NAME}
 			mc --insecure retention set --default compliance ${MINIOLOCK_PERIOD} local/${MINIOLOCK_BUCKET_NAME}
-		fi
 		cat <<EOF | kubectl -n kasten-io create -f -
 apiVersion: config.kio.kasten.io/v1alpha1
 kind: Profile

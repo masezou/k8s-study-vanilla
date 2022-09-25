@@ -7,7 +7,7 @@ if [ ! -f ~/.kube/config ]; then
 fi
 
 DNSDOMAINNAME=$(kubectl -n external-dns get deployments.apps --output="jsonpath={.items[*].spec.template.spec.containers }" | jq | grep rfc2136-zone | cut -d "=" -f 2 | cut -d "\"" -f 1)
-DNSHOSTIP=$(kubectl -n external-dns get deployments.apps --output="jsonpath={.items[*].spec.template.spec.containers }" | jq | grep rfc2136-host | cut -d "="     -f 2 | cut -d "\"" -f 1)
+DNSHOSTIP=$(kubectl -n external-dns get deployments.apps --output="jsonpath={.items[*].spec.template.spec.containers }" | jq | grep rfc2136-host | cut -d "=" -f 2 | cut -d "\"" -f 1)
 DASHBOARD_EXTERNALIP=$(kubectl -n kubernetes-dashboard get service kubernetes-dashboard -o jsonpath="{.status.loadBalancer.ingress[*].ip}")
 DASHBOARD_FQDN=$(kubectl -n kubernetes-dashboard get svc kubernetes-dashboard --output="jsonpath={.metadata.annotations}" | jq | grep external | cut -d "\"" -f 4)
 #REGISTRYHOST=`kubectl -n registry get configmaps pregistry-configmap -o=jsonpath='{.data.pregistry_host}'`
@@ -60,9 +60,25 @@ echo -e "\e[32m${DNSDOMAINNAME} \e[m"
 echo -n "DNS DNS IP address is "
 echo -e "\e[32m${DNSHOSTIP} \e[m"
 echo ""
+MCLOGINUSER=miniologinuser
+MCLOGINPASSWORD=miniologinuser
+MINIO_ENDPOINT=https://${LOCALIPADDR}:9000
+MINIO_ENDPOINTFQDN=https://minio.${DNSDOMAINNAME}:9001
+echo -e "\e[32m Minio API endpoint is ${MINIO_ENDPOINT} \e[m"
+echo "or"
+echo -e "\e[32m Minio API endpoint is ${MINIO_ENDPOINTFQDN} \e[m"
+echo -e "\e[32m Access Key: ${MCLOGINUSER} \e[m"
+echo -e "\e[32m Secret Key: ${MCLOGINPASSWORD} \e[m"
+echo ""
+echo -e "\e[32m Minio console is https://${LOCALIPADDR}:9001 \e[m"
+echo "or"
+echo -e "\e[32m Minio console is https://minio.${DNSDOMAINNAME}:9001 \e[m"
+echo -e "\e[32m username: ${MCLOGINUSER} \e[m"
+echo -e "\e[32m password: ${MCLOGINPASSWORD} \e[m"
+echo ""
 if [ ! -z ${DASHBOARD_EXTERNALIP} ]; then
-kubectl -n kubernetes-dashboard get secret $(kubectl -n kubernetes-dashboard get sa/admin-user -o jsonpath="{.secrets[0].name}") -o go-template="{{.data.token | base64decode}}" >dashboard.token
-echo "" >>dashboard.token
+	kubectl -n kubernetes-dashboard get secret $(kubectl -n kubernetes-dashboard get sa/admin-user -o jsonpath="{.secrets[0].name}") -o go-template="{{.data.token | base64decode}}" >dashboard.token
+	echo "" >>dashboard.token
 	echo -e "\e[1mKubernetes dashboard \e[m"
 	echo -e "\e[32m https://${DASHBOARD_EXTERNALIP}/#/login  \e[m"
 	echo "or"
@@ -71,51 +87,6 @@ echo "" >>dashboard.token
 	echo -e "\e[32m login token is cat ./dashboard.token  \e[m"
 	cat ./dashboard.token
 	echo ""
-fi
-
-kubectl get ns minio-operator >/dev/null 2>&1
-retvalminioope=$?
-if [ ${retvalminioope} -eq 0 ]; then
-	MINIOOP_EXTERNALIP=$(kubectl -n minio-operator get service console -o jsonpath="{.status.loadBalancer.ingress[*].ip}")
-	echo -e "\e[1mMinio Operator \e[m"
-	echo ""
-	echo "This is use for adding/delete/manage Minio tenant"
-	echo ""
-	echo -e "\e[32m http://minio-console.${DNSDOMAINNAME}:9090/login \e[m"
-	echo "Or"
-	echo -e "\e[32m http://${MINIOOP_EXTERNALIP}:9090/login \e[m"
-	echo ""
-	echo "Login with JWT token"
-	echo -e "\e[32m login token is cat ./minio-operator.token  \e[m"
-	echo ""
-	sa_secret=$(kubectl get serviceaccount console-sa -o jsonpath="{.secrets[0].name}" --namespace minio-operator)
-	kubectl get secret $sa_secret --namespace minio-operator -ojsonpath="{.data.token}{'\n'}" | base64 --decode >minio-operator.token
-	echo "" >>minio-operator.token
-	cat minio-operator.token
-	echo ""
-	echo ""
-fi
-TENANTNAMESPACE=$(kubectl get tenant -A | grep Initialized | cut -d " " -f 1)
-if [ ! -z ${TENANTNAMESPACE} ]; then
-	LOCALHOSTNAMEAPI=${TENANTNAMESPACE}-api.${DNSDOMAINNAME}
-	LOCALHOSTNAMECONSOLE=${TENANTNAMESPACE}-console.${DNSDOMAINNAME}
-	LOCALIPADDRAPI=$(kubectl -n ${TENANTNAMESPACE} get service minio -o jsonpath="{.status.loadBalancer.ingress[*].ip}")
-	LOCALIPADDRCONSOLE=$(kubectl -n ${TENANTNAMESPACE} get service ${TENANTNAMESPACE}-console -o jsonpath="{.status.loadBalancer.ingress[*].ip}")
-	MCLOGINUSER=$(kubectl -n ${TENANTNAMESPACE} get secret ${TENANTNAMESPACE}-user-1 -ojsonpath="{.data."CONSOLE_ACCESS_KEY"}{'\n'}" | base64 --decode)
-	MCLOGINPASSWORD=$(kubectl -n ${TENANTNAMESPACE} get secret ${TENANTNAMESPACE}-user-1 -ojsonpath="{.data."CONSOLE_SECRET_KEY"}{'\n'}" | base64 --decode)
-
-	echo -e "\e[1mMinio tenant ${TENANTNAMESPACE}  \e[m"
-	echo "API endpoint"
-	echo -e "\e[32m https://${LOCALHOSTNAMEAPI} \e[m"
-	echo "or"
-	echo -e "\e[32m https://${LOCALIPADDRAPI} \e[m"
-	echo "Console"
-	echo -e "\e[32m https://${LOCALHOSTNAMECONSOLE}:9443  \e[m"
-	echo "or"
-	echo -e "\e[32m https://${LOCALIPADDRCONSOLE}:9443  \e[m"
-	echo ""
-	echo "Credential"
-	echo "${MCLOGINUSER} / ${MCLOGINPASSWORD}"
 fi
 echo ""
 if [ ! -z ${REGISTRYURL} ]; then
@@ -159,7 +130,7 @@ if [ ! -z ${REGISTRYURL} ]; then
 	fi
 fi
 
-	echo ""
+echo ""
 if [ ! -z ${REGISTRY_EXTERNALIP} ]; then
 	echo -e "\e[1mRegistry frontend UI \e[m"
 	echo -e "\e[32m http://${REGISTRY_EXTERNALIP}  \e[m"
@@ -208,18 +179,18 @@ if [ ! -z ${GRAFANA_IP} ]; then
 	echo -e "\e[32m http://${GRAFANA_FQDN} \e[m"
 	echo ""
 	echo -e "\e[32m login credential is cat ./grafana_credential  \e[m"
-        GRAFANA_LOGIN=$(
-                kubectl get secret -n monitoring prometheus-grafana -o yaml | grep admin-user | cut -d ":" -f 2 | tr -d " " | base64 --decode
-                echo
-        )
-        GRAFANA_PASS=$(
-                kubectl get secret -n monitoring prometheus-grafana -o yaml | grep admin-password | cut -d ":" -f 2 | tr -d " " | base64 --decode
-                echo
-        )
-        echo $GRAFANA_LOGIN >./grafana_credential
-        echo $GRAFANA_PASS >>./grafana_credential
+	GRAFANA_LOGIN=$(
+		kubectl get secret -n monitoring prometheus-grafana -o yaml | grep admin-user | cut -d ":" -f 2 | tr -d " " | base64 --decode
+		echo
+	)
+	GRAFANA_PASS=$(
+		kubectl get secret -n monitoring prometheus-grafana -o yaml | grep admin-password | cut -d ":" -f 2 | tr -d " " | base64 --decode
+		echo
+	)
+	echo $GRAFANA_LOGIN >./grafana_credential
+	echo $GRAFANA_PASS >>./grafana_credential
 	cat ./grafana_credential
-    echo ""
+	echo ""
 fi
 echo ""
 kubectl get ns kasten-io >/dev/null 2>&1
