@@ -130,7 +130,7 @@ echo "Credential:"
 echo "Username:"
 echo "admin"
 echo "Password:"
-echo $(kubectl get secret --namespace blog1-test wp-release-wordpress -o jsonpath="{.data.wordpress-password}" | base64 --decode)
+echo $(kubectl get secret --namespace ${WPNAMESPACE} wp-release-wordpress -o jsonpath="{.data.wordpress-password}" | base64 --decode)
 echo ""
 echo ""
 echo ""
