@@ -127,8 +127,12 @@ EOF
 		curl -sSfL https://raw.githubusercontent.com/longhorn/longhorn/master/scripts/environment_check.sh | bash
 
 		kubectl patch storageclass local-path -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"false"}}}'
-		LONGHORNVER=1.3.1
-		kubectl apply -f https://raw.githubusercontent.com/longhorn/longhorn/v${LONGHORNVER}/deploy/longhorn.yaml
+		#LONGHORNVER=1.3.1
+		#kubectl apply -f https://raw.githubusercontent.com/longhorn/longhorn/v${LONGHORNVER}/deploy/longhorn.yaml
+		helm repo add longhorn https://charts.longhorn.io
+		helm repo update
+		kubectl create namespace longhorn-system
+		helm install longhorn longhorn/longhorn --namespace longhorn-system --set defaultSettings.backupTarget="s3://backupbucket@us-east-1/" --set defaultSettings.backupTargetCredentialSecret="minio-secret"
 		sleep 40
 		# Checking Longhorn boot up
 		kubectl -n longhorn-system wait pod -l app=longhorn-manager --for condition=Ready --timeout 360s
@@ -146,7 +150,6 @@ metadata:
 driver: driver.longhorn.io
 deletionPolicy: Delete
 EOF
-
 		kubectl create -f https://raw.githubusercontent.com/longhorn/longhorn/v${LONGHORNVER}/deploy/backupstores/minio-backupstore.yaml
 		kubectl wait pod -l app=longhorn-test-minio --for condition=Ready --timeout 720s
 		sleep 10
@@ -159,8 +162,6 @@ EOF
 			/usr/local/bin/mc update
 		fi
 		mc alias set longhorn-minio https://${LONGHRONMINIOEP_IP}:9000 longhorn-test-access-key longhorn-test-secret-key --api "s3v4" --insecure
-		# NFS v4
-		#kubectl apply -f https://github.com/longhorn/longhorn/blob/v1.2.4/deploy/backupstores/nfs-backupstore.yaml
 
 		kubectl patch storageclass longhorn \
 			-p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"true"}}}'
