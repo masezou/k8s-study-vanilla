@@ -118,6 +118,12 @@ if [ ${LONGHORN} -eq 1 ]; then
 		kubectl -n kube-system apply -f https://raw.githubusercontent.com/kubernetes-csi/external-snapshotter/v${SNAPSHOTTER_VERSION}/deploy/kubernetes/snapshot-controller/rbac-snapshot-controller.yaml
 		kubectl -n kube-system apply -f https://raw.githubusercontent.com/kubernetes-csi/external-snapshotter/v${SNAPSHOTTER_VERSION}/deploy/kubernetes/snapshot-controller/setup-snapshot-controller.yaml
 		apt -y install jq nfs-common
+		cat <<EOF >>/etc/multipath.conf
+blacklist {
+  devnode "^sd[a-z0-9]+"
+}
+EOF
+		systemctl restart multipathd
 		curl -sSfL https://raw.githubusercontent.com/longhorn/longhorn/master/scripts/environment_check.sh | bash
 
 		kubectl patch storageclass local-path -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"false"}}}'
@@ -128,7 +134,6 @@ if [ ${LONGHORN} -eq 1 ]; then
 		kubectl -n longhorn-system wait pod -l app=longhorn-manager --for condition=Ready --timeout 360s
 		kubectl -n longhorn-system wait pod -l app=longhorn-conversion-webhook --for condition=Ready --timeout 360s
 		kubectl -n longhorn-system wait pod -l app=longhorn-driver-deployer --for condition=Ready --timeout 360s
-		kubectl wait pod -l app=longhorn-test-minio --for condition=Ready --timeout 720s
 		kubectl -n longhorn-system wait pod -l app=longhorn-ui --for condition=Ready --timeout 360s
 
 		cat <<EOF | kubectl apply -f -
@@ -143,7 +148,7 @@ deletionPolicy: Delete
 EOF
 
 		kubectl create -f https://raw.githubusercontent.com/longhorn/longhorn/v${LONGHORNVER}/deploy/backupstores/minio-backupstore.yaml
-		kubectl wait pod -l app=longhorn-test-minio --for condition=Ready
+		kubectl wait pod -l app=longhorn-test-minio --for condition=Ready --timeout 720s
 		sleep 10
 		LONGHRONMINIOEP_IP=$(kubectl get svc minio-service -o jsonpath="{.spec.clusterIP}")
 		if [ ! -f /usr/local/bin/mc ]; then
