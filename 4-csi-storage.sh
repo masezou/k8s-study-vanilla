@@ -139,7 +139,8 @@ metadata:
 driver: driver.longhorn.io
 deletionPolicy: Delete
 EOF
-		kubectl create -f https://raw.githubusercontent.com/longhorn/longhorn/v${LONGHORNVER}/deploy/backupstores/minio-backupstore.yaml
+        LONGHORNMINIO=`kubectl -n longhorn-system describe deployments.apps longhorn-admission-webhook | grep "app.kubernetes.io/version" | cut -d "=" -f 2 | uniq`
+		kubectl create -f https://raw.githubusercontent.com/longhorn/longhorn/${LONGHORNMINIO}/deploy/backupstores/minio-backupstore.yaml
 		kubectl wait pod -l app=longhorn-test-minio --for condition=Ready --timeout 720s
 		sleep 10
 		LONGHRONMINIOEP_IP=$(kubectl get svc minio-service -o jsonpath="{.spec.clusterIP}")
