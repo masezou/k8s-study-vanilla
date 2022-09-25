@@ -617,7 +617,41 @@ EOF
 	kubectl create secret generic kubernetes-dashboard-certs --from-file=dashboard.key --from-file=dashboard.crt -n kubernetes-dashboard
 	cd ..
 	rm -rf certs
-    kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.7.0/aio/deploy/recommended.yaml
+	kubectl get node -o wide | grep v1.19 >/dev/null 2>&1 && KUBEVER=1.19
+	kubectl get node -o wide | grep v1.20 >/dev/null 2>&1 && KUBEVER=1.20
+	kubectl get node -o wide | grep v1.21 >/dev/null 2>&1 && KUBEVER=1.21
+	kubectl get node -o wide | grep v1.22 >/dev/null 2>&1 && KUBEVER=1.22
+	kubectl get node -o wide | grep v1.23 >/dev/null 2>&1 && KUBEVER=1.23
+	kubectl get node -o wide | grep v1.24 >/dev/null 2>&1 && KUBEVER=1.24
+	kubectl get node -o wide | grep v1.25 >/dev/null 2>&1 && KUBEVER=1.25
+
+	case ${KUBEVER} in
+	"1.19")
+		DASHBOARDVER=2.0.5
+		;;
+	"1.20")
+		DASHBOARDVER=2.2.0
+		;;
+	"1.21")
+		DASHBOARDVER=2.4.0
+		;;
+	"1.22")
+		DASHBOARDVER=2.4.0
+		;;
+	"1.23")
+		DASHBOARDVER=2.5.1
+		;;
+	"1.24")
+		DASHBOARDVER=2.6.1
+		;;
+	"1.25")
+		DASHBOARDVER=2.7.0
+		;;
+	*)
+		echo -e "\e[31mKubernetes dashvoard is not supported. \e[m"
+		;;
+	esac
+	kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/vi${DASHBOARDVER}/aio/deploy/recommended.yaml
 	cat <<EOF | kubectl apply -f -
 apiVersion: v1
 kind: ServiceAccount
