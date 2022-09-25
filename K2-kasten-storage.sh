@@ -16,8 +16,8 @@ PROTECTION_PERIOD=240h
 
 # For external minio server.
 #EXTERNALMINIOIP=192.168.10.4:9000
-#EXTERNALMCLOGINUSER=miniologinuser
-#EXTERNALMCLOGINPASSWORD=miniologinuser
+EXTERNALMCLOGINUSER=miniologinuser
+EXTERNALMCLOGINPASSWORD=miniologinuser
 
 #FORCE_LOCALIP=192.168.16.2
 #########################################################
@@ -34,10 +34,11 @@ if [ -z ${LOCALIPADDR} ]; then
 else
 	echo ${LOCALIPADDR}
 fi
+MINIO_ENDPOINT=https://${LOCALIPADDR}:9000
 
 # If there is externl minio.
 if [ ! -z ${EXTERNALMINIOIP} ]; then
-	MINIOIP=${EXTERNALMINIOIP}
+	MINIO_ENDPOINT=ihttp://${EXTERNALMINIOIP}:9000
 fi
 if [ ! -z ${EXTERNALMCLOGINUSER} ]; then
 	MCLOGINUSER=${EXTERNALMCLOGINUSER}
@@ -52,8 +53,6 @@ if [ ! -z ${MCLOGINUSER} ]; then
 	if [ ! -z ${MINIOIP} ]; then
 		MINIOIP=${LOCALIPADDR}:9000
 	fi
-
-	MINIO_ENDPOINT=https://${MINIOIP}
 
 	# Configure local minio setup
 	AWS_ACCESS_KEY_ID=$(echo -n "${MCLOGINUSER}" | base64)
