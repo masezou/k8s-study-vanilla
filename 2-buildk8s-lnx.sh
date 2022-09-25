@@ -188,12 +188,12 @@ EOF
 	if [ -z ${CONTAINERDVER} ]; then
 		echo "Install containerd.io 1.4.13-1"
 		apt -y install containerd.io=1.4.13-1
-		curl --retry 10 --retry-delay 3 --retry-connrefused -sS https://raw.githubusercontent.com/containerd/containerd/v1.4.13/contrib/autocomplete/ctr -o /etc/bash_completion.d/ctr
 	else
 		echo "Install containerd.io latest version"
 		apt -y install containerd.io
-		curl --retry 10 --retry-delay 3 --retry-connrefused -sS https://raw.githubusercontent.com/containerd/containerd/v1.6.8/contrib/autocomplete/ctr -o /etc/bash_completion.d/ctr
 	fi
+	CTRVER=$(containerd -v | cut -d " " -f3)
+	curl --retry 10 --retry-delay 3 --retry-connrefused -sS https://raw.githubusercontent.com/containerd/containerd/v${CTRVER}/contrib/autocomplete/ctr -o /etc/bash_completion.d/ctr
 
 	# Install nerdctl (cmd version)
 	if [ ! -f /usr/local/bin/nerdctl ]; then
@@ -288,17 +288,17 @@ if [ ${IMAGEDL} -eq 1 ]; then
 	ctr images rm docker.io/bitnami/mariadb:10.5.15-debian-10-r52
 	ctr images rm ${REGISTRY}/bitnami/mariadb:10.5.15-debian-10-r52
 
-    ctr images pull --platform linux/${ARCH} docker.io/bitnami/mariadb:10.6.7-debian-10-r70
-    ctr images tag docker.io/bitnami/mariadb:10.6.7-debian-10-r70 ${REGISTRY}/bitnami/mariadb:10.6.7-debian-10-r70
-    ctr images push --platform linux/${ARCH} --plain-http ${REGISTRY}/bitnami/mariadb:10.6.7-debian-10-r70
-    ctr images rm docker.io/bitnami/mariadb:10.6.7-debian-10-r70
-    ctr images rm ${REGISTRY}/bitnami/mariadb:10.6.7-debian-10-r70
-      
-    ctr images pull --platform linux/${ARCH} docker.io/bitnami/wordpress:5.9.3-debian-10-r35
-    ctr images tag docker.io/bitnami/wordpress:5.9.3-debian-10-r35 ${REGISTRY}/bitnami/wordpress:5.9.3-debian-10-r35
-    ctr images push --platform linux/${ARCH} --plain-http ${REGISTRY}/bitnami/wordpress:5.9.3-debian-10-r35
-    ctr images rm docker.io/bitnami/wordpress:5.9.3-debian-10-r35
-    ctr images rm ${REGISTRY}/bitnami/wordpress:5.9.3-debian-10-r35
+	ctr images pull --platform linux/${ARCH} docker.io/bitnami/mariadb:10.6.7-debian-10-r70
+	ctr images tag docker.io/bitnami/mariadb:10.6.7-debian-10-r70 ${REGISTRY}/bitnami/mariadb:10.6.7-debian-10-r70
+	ctr images push --platform linux/${ARCH} --plain-http ${REGISTRY}/bitnami/mariadb:10.6.7-debian-10-r70
+	ctr images rm docker.io/bitnami/mariadb:10.6.7-debian-10-r70
+	ctr images rm ${REGISTRY}/bitnami/mariadb:10.6.7-debian-10-r70
+
+	ctr images pull --platform linux/${ARCH} docker.io/bitnami/wordpress:5.9.3-debian-10-r35
+	ctr images tag docker.io/bitnami/wordpress:5.9.3-debian-10-r35 ${REGISTRY}/bitnami/wordpress:5.9.3-debian-10-r35
+	ctr images push --platform linux/${ARCH} --plain-http ${REGISTRY}/bitnami/wordpress:5.9.3-debian-10-r35
+	ctr images rm docker.io/bitnami/wordpress:5.9.3-debian-10-r35
+	ctr images rm ${REGISTRY}/bitnami/wordpress:5.9.3-debian-10-r35
 
 	ctr images pull --platform linux/${ARCH} docker.io/bitnami/postgresql:14.2.0-debian-10-r58
 	ctr images tag docker.io/bitnami/postgresql:14.2.0-debian-10-r58 ${REGISTRY}/bitnami/postgresql:14.2.0-debian-10-r58
