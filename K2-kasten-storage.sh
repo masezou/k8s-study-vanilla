@@ -130,7 +130,7 @@ fi
 
 # NFS Storage
 KASTENNFSPVC=kastenbackup-pvc
-kubectl get sc | grep nfs-csi
+kubectl get sc | grep nfs-sc
 retval3=$?
 if [ ${retval3} -eq 0 ]; then
 	cat <<EOF | kubectl apply -n kasten-io -f -
