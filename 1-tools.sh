@@ -146,24 +146,6 @@ if [ ! -f /usr/bin/kubectl ]; then
 	fi
 fi
 
-# Install kube-bench
-if [ ! -f /usr/local/bin/kube-bench ]; then
-	KUBEBENCHVER=0.6.8
-	wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | apt-key add -
-	curl --retry 10 --retry-delay 3 --retry-connrefused -sSOL https://github.com/aquasecurity/kube-bench/releases/download/v${KUBEBENCHVER}/kube-bench_${KUBEBENCHVER}_linux_${ARCH}.deb
-	dpkg -i kube-bench_${KUBEBENCHVER}_linux_${ARCH}.deb
-	rm -rf kube-bench_${KUBEBENCHVER}_linux_${ARCH}.deb
-fi
-
-# Install trivy
-if [ ${UBUNTUVER} = "20.04" ]; then
-	#apt -y  install wget apt-transport-https gnupg lsb-release
-	wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | apt-key add -
-	echo deb https://aquasecurity.github.io/trivy-repo/deb $(lsb_release -sc) main | tee -a /etc/apt/sources.list.d/trivy.list
-	apt update
-	apt -y install trivy
-fi
-
 # Install etcd-client
 if [ ! -f /usr/bin/etcdctl ]; then
 	apt -y install etcd-client
@@ -690,7 +672,7 @@ if [ ${TCE} -eq 1 ]; then
 
 	# Install Velero
 	if [ ! -f /usr/local/bin/velero ]; then
-		VELEROVER=1.8.1
+		VELEROVER=1.9.1
 		curl --retry 10 --retry-delay 3 --retry-connrefused -sSOL https://github.com/vmware-tanzu/velero/releases/download/v${VELEROVER}/velero-v${VELEROVER}-linux-${ARCH}.tar.gz
 		tar xfz velero-v${VELEROVER}-linux-${ARCH}.tar.gz
 		mv velero-v${VELEROVER}-linux-${ARCH}/velero /usr/local/bin/
