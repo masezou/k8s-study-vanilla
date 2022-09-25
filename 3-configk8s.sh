@@ -652,6 +652,7 @@ EOF
 		;;
 	esac
 	kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/vi${DASHBOARDVER}/aio/deploy/recommended.yaml
+    kubectl -n kubernetes-dashboard wait pod -l k8s-app=kubernetes-dashboard --for condition=Ready
 	cat <<EOF | kubectl apply -f -
 apiVersion: v1
 kind: ServiceAccount
