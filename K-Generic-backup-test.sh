@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 
 #########################################################
-# SC =local-hostpath / nfs-sc / nfs-csi
-SC=local-hostpath
+# SC =local-path / nfs-sc
+SC=local-path
 
 NAMESPACE=genericbackup-test
 PROFILE=minio-profile

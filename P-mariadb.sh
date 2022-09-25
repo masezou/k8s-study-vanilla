@@ -5,7 +5,7 @@
 #FORCE_ONLINE=1
 
 MYSQL_NAMESPACE=maria-db
-# SC = csi-hostpath-sc / local-hostpath / local-path / nfs-sc / nfs-csi / vsphere-sc / example-vanilla-rwo-filesystem-sc / cstor-csi-disk / longhorn / rook-ceph-block / rook-cephfs / synostorage / synostorage-smb
+# SC = local-path / nfs-sc / vsphere-sc
 SC=vsphere-sc
 
 SAMPLEDATA=1
@@ -71,17 +71,9 @@ if [ ${retvalsvc} -ne 0 ]; then
 	if [ ${ONLINE} -eq 0 ]; then
 		helm fetch bitnami/mariadb
 		MYSQLCHART=$(ls mariadb-10.5.0.tgz)
-		if [ ${SC} = csi-hostpath-sc ]; then
-			helm install --namespace ${MYSQL_NAMESPACE} mariadb-release ${MYSQLCHART} --set primary.service.type=LoadBalancer --set global.storageClass=${SC} --set volumePermissions.enabled=true --set global.imageRegistry=${REGISTRYURL}
-		else
-			helm install --namespace ${MYSQL_NAMESPACE} mariadb-release ${MYSQLCHART} --set primary.service.type=LoadBalancer --set global.storageClass=${SC} --set global.imageRegistry=${REGISTRYURL}
-		fi
+		helm install --namespace ${MYSQL_NAMESPACE} mariadb-release ${MYSQLCHART} --set primary.service.type=LoadBalancer --set global.storageClass=${SC} --set global.imageRegistry=${REGISTRYURL}
 	else
-		if [ ${SC} = csi-hostpath-sc ]; then
-			helm install --namespace ${MYSQL_NAMESPACE} mariadb-release bitnami/mariadb --set primary.service.type=LoadBalancer --set global.storageClass=${SC} --set volumePermissions.enabled=tru
-		else
-			helm install --namespace ${MYSQL_NAMESPACE} mariadb-release bitnami/mariadb --set primary.service.type=LoadBalancer --set global.storageClass=${SC}
-		fi
+		helm install --namespace ${MYSQL_NAMESPACE} mariadb-release bitnami/mariadb --set primary.service.type=LoadBalancer --set global.storageClass=${SC}
 	fi
 
 	sleep 5

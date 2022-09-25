@@ -4,7 +4,7 @@
 MSSQLNAMESPACE=sqlserver
 MSQSQLPASSWORD="MyC0m9l&xP@ssw0rd"
 
-# SC = csi-hostpath-sc / local-hostpath / local-path / nfs-sc / nfs-csi / vsphere-sc / example-vanilla-rwo-filesystem-sc / cstor-csi-disk / longhorn / rook-ceph-block / rook-cephfs / synostorage / synostorage-smb
+# SC = local-path / nfs-sc / vsphere-sc / longhorn
 SC=vsphere-sc
 
 SAMPLEDATA=1

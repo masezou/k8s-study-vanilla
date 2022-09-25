@@ -7,7 +7,7 @@
 # namespace. namespace will be used with hostname
 WPNAMESPACE=blog1
 
-# SC = csi-hostpath-sc / local-hostpath / local-path / nfs-sc / nfs-csi / vsphere-sc / example-vanilla-rwo-filesystem-sc / cstor-csi-disk / longhorn / rook-ceph-block / rook-cephfs / synostorage / synostorage-smb
+# SC =  local-path / nfs-sc / vsphere-sc / longhorn
 SC=vsphere-sc
 
 #REGISTRY=192.168.133.2:5000
@@ -83,17 +83,9 @@ if [ ${retvalsvc} -ne 0 ]; then
 		# helm search repo bitnami/wordpress  --version=14.0.9
 		helm fetch bitnami/wordpress
 		WPCHART=$(ls wordpress-*.tgz)
-		if [ ${SC} = csi-hostpath-sc ]; then
-			helm install wp-release ${WPCHART} -n ${WPNAMESPACE} --set volumePermissions.enabled=true --set global.storageClass=${SC} --set global.imageRegistry=${REGISTRY}
-		else
-			helm install wp-release ${WPCHART} -n ${WPNAMESPACE} --set global.storageClass=${SC} --set global.imageRegistry=${REGISTRY}
-		fi
+		helm install wp-release ${WPCHART} -n ${WPNAMESPACE} --set global.storageClass=${SC} --set global.imageRegistry=${REGISTRY}
 	else
-		if [ ${SC} = csi-hostpath-sc ]; then
-			helm install wp-release bitnami/wordpress -n ${WPNAMESPACE} --set volumePermissions.enabled=true --set global.storageClass=${SC}
-		else
-			helm install wp-release bitnami/wordpress -n ${WPNAMESPACE} --set global.storageClass=${SC}
-		fi
+		helm install wp-release bitnami/wordpress -n ${WPNAMESPACE} --set global.storageClass=${SC}
 	fi
 	sleep 5
 	kubectl get pod,pvc -n ${WPNAMESPACE}
@@ -137,7 +129,7 @@ echo ""
 echo "Credential:"
 echo "Username:"
 echo "admin"
-echo "Password:" 
+echo "Password:"
 echo $(kubectl get secret --namespace blog1-test wp-release-wordpress -o jsonpath="{.data.wordpress-password}" | base64 --decode)
 echo ""
 echo ""

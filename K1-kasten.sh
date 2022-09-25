@@ -6,8 +6,8 @@
 #REGISTRYURL="192.168.133.2:5000"
 #KASTENVER=4.5.14
 
-# SC = csi-hostpath-sc / local-hostpath / local-path / nfs-sc / nfs-csi / vsphere-sc / example-vanilla-rwo-filesystem-sc / cstor-csi-disk
-SC=nfs-csi
+# SC = local-path / nfs-sc / vsphere-sc / longhorn
+SC=nfs-sc
 KASTENHOSTNAME=kasten-$(kubectl get node --output="jsonpath={.items[*].metadata.labels.kubernetes\.io\/hostname}")
 KASTENINGRESS=k10-$(kubectl get node --output="jsonpath={.items[*].metadata.labels.kubernetes\.io\/hostname}")
 
@@ -68,20 +68,6 @@ fi
 helm repo add kasten https://charts.kasten.io/
 helm repo update
 
-kubectl get volumesnapshotclass | grep csi-hostpath-snapclass
-retval1=$?
-if [ ${retval1} -eq 0 ]; then
-	kubectl annotate volumesnapshotclass csi-hostpath-snapclass \
-		k10.kasten.io/is-snapshot-class=true
-fi
-
-kubectl get volumesnapshotclass | grep csi-rbdplugin-snapclass
-retval2=$?
-if [ ${retval2} -eq 0 ]; then
-	kubectl annotate volumesnapshotclass csi-rbdplugin-snapclass \
-		k10.kasten.io/is-snapshot-class=true
-fi
-
 kubectl get volumesnapshotclass | grep longhorn
 retval4=$?
 if [ ${retval4} -eq 0 ]; then
@@ -89,12 +75,6 @@ if [ ${retval4} -eq 0 ]; then
 		k10.kasten.io/is-snapshot-class=true
 fi
 
-kubectl get volumesnapshotclass | grep csi-cstor-snapshotclass
-retval7=$?
-if [ ${retval7} -eq 0 ]; then
-	kubectl annotate volumesnapshotclass csi-cstor-snapshotclass \
-		k10.kasten.io/is-snapshot-class=true
-fi
 k10tools primer
 
 # Checking Storage Class availability
@@ -222,7 +202,6 @@ if [ ${retvalk3s} -ne 0 ]; then
 	host ${KASTENFQDNURL}
 	retvaldns1=$?
 	host ${KASTENFQDNINGRESS}
-	retvaldns2=$?
 fi
 echo ""
 echo "*************************************************************************************"

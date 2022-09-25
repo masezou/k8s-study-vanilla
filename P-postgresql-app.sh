@@ -5,7 +5,7 @@
 #FORCE_ONLINE=1
 
 PGNAMESPACE=postgresql-app
-# SC = csi-hostpath-sc / local-hostpath / local-path / nfs-sc / nfs-csi / vsphere-sc / example-vanilla-rwo-filesystem-sc / cstor-csi-disk / longhorn / rook-ceph-block / rook-cephfs / synostorage / synostorage-smb
+# SC = local-path / nfs-sc / vsphere-sc / longhorn
 SC=vsphere-sc
 
 SAMPLEDATA=1
@@ -72,17 +72,9 @@ if [ ${retvalsvc} -ne 0 ]; then
 	if [ ${ONLINE} -eq 0 ]; then
 		helm fetch bitnami/postgresql --version=11.1.19
 		PGSQLCHART=$(ls postgresql-11.1.19.tgz)
-		if [ ${SC} = csi-hostpath-sc ]; then
-			helm install --namespace ${PGNAMESPACE} postgres-postgresql ${PGSQLCHART} --set primary.service.type=LoadBalancer --set volumePermissions.enabled=true --set global.storageClass=${SC} --set global.imageRegistry=${REGISTRYURL}
-		else
-			helm install --namespace ${PGNAMESPACE} postgres-postgresql ${PGSQLCHART} --set primary.service.type=LoadBalancer --set global.storageClass=${SC} --set global.imageRegistry=${REGISTRYURL}
-		fi
+		helm install --namespace ${PGNAMESPACE} postgres-postgresql ${PGSQLCHART} --set primary.service.type=LoadBalancer --set global.storageClass=${SC} --set global.imageRegistry=${REGISTRYURL}
 	else
-		if [ ${SC} = csi-hostpath-sc ]; then
-			helm install --namespace ${PGNAMESPACE} postgres bitnami/postgresql --set primary.service.type=LoadBalancer --set volumePermissions.enabled=true --set global.storageClass=${SC}
-		else
-			helm install --namespace ${PGNAMESPACE} postgres bitnami/postgresql --set primary.service.type=LoadBalancer --set global.storageClass=${SC}
-		fi
+		helm install --namespace ${PGNAMESPACE} postgres bitnami/postgresql --set primary.service.type=LoadBalancer --set global.storageClass=${SC}
 	fi
 
 	sleep 5

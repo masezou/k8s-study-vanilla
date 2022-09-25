@@ -17,15 +17,6 @@ LONGHORN=1
 
 #FORCE_LOCALIP=192.168.16.2
 
-# Experimental
-
-SYNOLOGY=0
-SYNOLOGYHOST="YOUR_SYNOLOGY_HOST"
-SYNOLOGYPORT="5001"
-SYNOLOGYHTTPS="true"
-SYNOLOGYUSERNAME="YOUR_SYNOLOGY_USER"
-SYNOLOGYPASSWORD="YOUR_SYNOLOGY_PASSWORD"
-
 #########################################################
 if [ ${NFSSVR} -eq 1 ]; then
 	### UID Check ###
@@ -212,71 +203,6 @@ EOF
 		fi
 	fi
 fi
-
-# Install Synology CSI (Experimental)
-if [ ${SYNOLOGY} -eq 1 ]; then
-	git clone --depth 1 https://github.com/kubernetes-csi/external-snapshotter
-	cd external-snapshotter
-	kubectl kustomize client/config/crd | kubectl create -f -
-	kubectl -n kube-system kustomize deploy/kubernetes/snapshot-controller | kubectl create -f -
-	cd ..
-	apt -y install make golang-go smbclient cifs-utils
-	git clone --depth 1 git@github.com:SynologyOpenSource/synology-csi.git
-	cd synology-csi
-	cat <<EOF >config/client-info.yml
----
-clients:
-  - host: ${SYNOLOGYHOST}
-    port: ${SYNOLOGYPORT}
-    https: ${SYNOLOGYHTTPS}
-    username: ${SYNOLOGYUSERNAME}
-    password: ${SYNOLOGYPASSWORD}
-EOF
-
-	./scripts/deploy.sh install --all
-	cd ..
-	kubectl get pods -n synology-csi
-	kubectl get node -o wide | grep v1.19 >/dev/null
-	retvalkube19=$?
-	if [ ${retvalkube19} -eq 0 ]; then
-		KUBEVER=v1.19
-	else
-		KUBEVER=v1.20
-	fi
-	kubectl apply -f deploy/kubernetes/${KUBEVER}/storage-class.yml
-	kubectl apply -f deploy/kubernetes/${KUBEVER}/snapshotter/volume-snapshot-class.yml
-	cat <<EOF | kubectl apply -n synology-csi -f -
-apiVersion: v1
-kind: Secret
-metadata:
-  name: cifs-csi-credentials
-  namespace: synology-csi
-type: Opaque
-stringData:
-  username: ${SYNOLOGYUSERNAME}
-  password: ${SYNOLOGYPASSWORD}
-EOF
-	cat <<EOF | kubectl apply -n synology-csi -f -
-apiVersion: storage.k8s.io/v1
-kind: StorageClass
-metadata:
-  name: synostorage-smb
-provisioner: csi.san.synology.com
-parameters:
-  protocol: "smb"
-  dsm: '${SYNOLOGYHOST}'
-  location: '/volume1'
-  csi.storage.k8s.io/node-stage-secret-name: "cifs-csi-credentials"
-  csi.storage.k8s.io/node-stage-secret-namespace: "synology-csi"
-reclaimPolicy: Delete
-allowVolumeExpansion: true
-EOF
-	kubectl -n synology-csi wait pod -l app=synology-csi-controller --for condition=Ready
-	kubectl -n synology-csi wait pod -l app=synology-csi-node --for condition=Ready
-	kubectl -n synology-csi wait pod -l app=synology-csi-snapshotter --for condition=Ready
-fi
-
-kubectl -n openebs wait pod -l app=cstor-pool --for condition=Ready
 
 echo ""
 echo "*************************************************************************************"
