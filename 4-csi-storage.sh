@@ -127,8 +127,6 @@ EOF
 		curl -sSfL https://raw.githubusercontent.com/longhorn/longhorn/master/scripts/environment_check.sh | bash
 
 		kubectl patch storageclass local-path -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"false"}}}'
-		#LONGHORNVER=1.3.1
-		#kubectl apply -f https://raw.githubusercontent.com/longhorn/longhorn/v${LONGHORNVER}/deploy/longhorn.yaml
 		helm repo add longhorn https://charts.longhorn.io
 		helm repo update
 		kubectl create namespace longhorn-system
