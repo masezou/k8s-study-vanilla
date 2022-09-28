@@ -15,7 +15,7 @@ STORAGECONFIG=1
 VSPHERECONFIG=1
 BLUEPRINT=1
 RBAC=1
-MULTICLUSTER=1
+MULTICLUSTER=0
 
 #########################################################
 
