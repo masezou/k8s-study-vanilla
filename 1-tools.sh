@@ -21,6 +21,7 @@ DNSDOMAINNAME=k8slab.internal
 # If you haven't set Registry server, the registry server will set to NS server.
 #REGISTRY="IPADDR:5000"
 #REGISTRYURL=http://${REGISTRY}
+KUBECOLOR=0
 KREW=0
 GOVC=0
 MSSQLCMD=1
@@ -38,14 +39,12 @@ if [ ${CLIENT} -eq 1 ]; then
 		exit 255
 	fi
 	DOCKER=1
-	NERDCTL=1
 	# Only tested on amd64. arm64 is experimental
 	CLOUDUTILS=1
 	# Powershell
 	POWERSHELL=1
 else
 	DOCKER=0
-	NERDCTL=0
 	CLOUDUTILS=0
 	POWERSHELL=0
 fi
@@ -183,27 +182,28 @@ if [ ! -f /usr/local/bin/kubectx ]; then
 fi
 
 # Install kubecolor
-if [ ! -f /usr/local/bin/kubecolor ]; then
-        echo -e "\e[32m Installing kubecolor. \e[m"
-        KUBECOLORVER=0.0.20
-    if [ ${ARCH} = amd64 ]; then
-    TEMPARCH=`arch`
-    fi
-    if [ ${ARCH} = arm64 ]; then
-    TEMPARCH=arm64
-    fi
-        curl --retry 10 --retry-delay 3 --retry-connrefused -sSOL https://github.com/hidetatz/kubecolor/releases/download/v${KUBECOLORVER}/kubecolor_${KUBECOLORVER}_$(uname -s)_${TEMPARCH}.tar.gz
-        mkdir ~/kubecolor
-        tar xfz kubecolor_${KUBECOLORVER}_$(uname -s)_${TEMPARCH}.tar.gz -C ~/kubecolor
-        mv ~/kubecolor/kubecolor /usr/local/bin/
-        chmod +x /usr/local/bin/kubecolor
-        rm -rf kubecolor_${KUBECOLORVER}_$(uname -s)_${TEMPARCH}.tar.gz ~/kubecolor
-        cat <<EOF >>/etc/profile
+if [ ${KUBECOLOR} -eq 1 ]; then
+	if [ ! -f /usr/local/bin/kubecolor ]; then
+		echo -e "\e[32m Installing kubecolor. \e[m"
+		KUBECOLORVER=0.0.20
+		if [ ${ARCH} = amd64 ]; then
+			TEMPARCH=$(arch)
+		fi
+		if [ ${ARCH} = arm64 ]; then
+			TEMPARCH=arm64
+		fi
+		curl --retry 10 --retry-delay 3 --retry-connrefused -sSOL https://github.com/hidetatz/kubecolor/releases/download/v${KUBECOLORVER}/kubecolor_${KUBECOLORVER}_$(uname -s)_${TEMPARCH}.tar.gz
+		mkdir ~/kubecolor
+		tar xfz kubecolor_${KUBECOLORVER}_$(uname -s)_${TEMPARCH}.tar.gz -C ~/kubecolor
+		mv ~/kubecolor/kubecolor /usr/local/bin/
+		chmod +x /usr/local/bin/kubecolor
+		rm -rf kubecolor_${KUBECOLORVER}_$(uname -s)_${TEMPARCH}.tar.gz ~/kubecolor
+		cat <<EOF >>/etc/profile
 command -v kubecolor >/dev/null 2>&1 && alias kubectl="kubecolor"
 EOF
-        alias kubectl=kubecolor
+		alias kubectl=kubecolor
+	fi
 fi
-
 # Install krew
 if [ ${KREW} -eq 1 ]; then
 	if [ ! -d /root/.krew/store/ ]; then
@@ -409,27 +409,6 @@ EOF
 			usermod -aG docker ${SUDO_USER}
 			sudo -u $SUDO_USER mkdir -p /home/${SUDO_USER}/.docker
 		fi
-
-		# Install nerdctl (Full version)
-		if [ ${NERDCTL} -eq 1 ]; then
-			if [ ! -f /usr/local/bin/nerdctl ]; then
-				apt -y install uidmap
-				NERDCTLVER=0.19.0
-				curl --retry 10 --retry-delay 3 --retry-connrefused -sSOL https://github.com/containerd/nerdctl/releases/download/v${NERDCTLVER}/nerdctl-full-${NERDCTLVER}-linux-${ARCH}.tar.gz
-				tar xfz nerdctl-full-${NERDCTLVER}-linux-${ARCH}.tar.gz -C /usr/local
-				rm -rf nerdctl-full-${NERDCTLVER}-linux-${ARCH}.tar.gz
-				nerdctl completion bash >/etc/bash_completion.d/nerdctl
-				sed -i -e 's/GRUB_CMDLINE_LINUX=""/GRUB_CMDLINE_LINUX="systemd.unified_cgroup_hierarchy=1"/g' /etc/default/grub
-				update-grub
-				mkdir -p /etc/systemd/system/user@.service.d
-				cat <<EOF | sudo tee /etc/systemd/system/user@.service.d/delegate.conf
-[Service]
-Delegate=cpu cpuset io memory pids
-EOF
-				systemctl daemon-reload
-			fi
-		fi
-
 		if [ -z ${REGISTRY} ]; then
 			REGISTRYIP=$(host -t a ${DNSDOMAINNAME} | cut -d " " -f4)
 			echo ${REGISTRYIP} | grep out
@@ -803,17 +782,17 @@ echo "Install check"
 which kubectl >/dev/null
 retvalkubctl=$?
 if [ ${retvalkubctl} -eq 0 ]; then
-echo -e "\e[32mkubectl was installed.\e[m"
+	echo -e "\e[32mkubectl was installed.\e[m"
 else
-echo -e "\e[31mkubectl was NOT installed, please check your setting and re-ran this script.\e[m"
+	echo -e "\e[31mkubectl was NOT installed, please check your setting and re-ran this script.\e[m"
 	exit 255
 fi
 which helm >/dev/null
 retvalhelm=$?
 if [ ${retvalhelm} -eq 0 ]; then
-echo -e "\e[32mhelm was installed.\e[m"
+	echo -e "\e[32mhelm was installed.\e[m"
 else
-echo -e "\e[31mhelm was NOT installed, please check your setting and re-ran this script.\e[m"
+	echo -e "\e[31mhelm was NOT installed, please check your setting and re-ran this script.\e[m"
 	exit 255
 fi
 
@@ -839,12 +818,6 @@ if [ ${POWERSHELL} -eq 1 ]; then
 	if [ ${PORTAINER} -eq 1 ]; then
 		echo "portainer-ce was installed"
 		echo "https://<This HOST>:9443/"
-	fi
-	if [ ${NERDCTL} -eq 1 ]; then
-		echo "If you are using Ubuntu Desktop with X Window, plase reboot your Ubuntu desktop."
-		echo "If you want to use nerdctl, once reboot, then execute containerd-rootless-setuptool.sh install in normal user."
-		read -p "Press enter to continue for reboot"
-		reboot
 	fi
 fi
 chmod -x $0
