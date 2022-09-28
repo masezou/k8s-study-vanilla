@@ -108,7 +108,7 @@ else
 	KASTENFQDNINGRESS=${KASTENINGRESS}.${DNSDOMAINNAME}
 	if [ ${ONLINE} -eq 1 ]; then
 		helm install k10 kasten/k10 --namespace=kasten-io \
-			--set global.persistence.size=40G \
+			--set global.persistence.size=20G \
 			--set global.persistence.storageClass=${SC} \
 			--set grafana.enabled=true \
 			--set vmWare.taskTimeoutMin=200 \
@@ -144,7 +144,8 @@ else
 		kubectl create ns kasten-io
 		helm install k10 k10-${KASTENVER}.tgz --namespace kasten-io \
 			--set global.airgapped.repository=${REGISTRYURL} \
-			--set global.persistence.size=40G \
+            --set metering.mode=airgap \
+			--set global.persistence.size=20G \
 			--set global.persistence.storageClass=${SC} \
 			--set grafana.enabled=true \
 			--set vmWare.taskTimeoutMin=200 \
