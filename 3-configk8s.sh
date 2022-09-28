@@ -651,7 +651,7 @@ EOF
 		echo -e "\e[31mKubernetes dashvoard is not supported. \e[m"
 		;;
 	esac
-	kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/vi${DASHBOARDVER}/aio/deploy/recommended.yaml
+	kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v${DASHBOARDVER}/aio/deploy/recommended.yaml
     kubectl -n kubernetes-dashboard wait pod -l k8s-app=kubernetes-dashboard --for condition=Ready
 	cat <<EOF | kubectl apply -f -
 apiVersion: v1
