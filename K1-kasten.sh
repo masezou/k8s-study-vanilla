@@ -111,7 +111,6 @@ else
 			--set global.persistence.size=20G \
 			--set global.persistence.storageClass=${SC} \
 			--set grafana.enabled=true \
-			--set vmWare.taskTimeoutMin=200 \
 			--set auth.tokenAuth.enabled=true \
 			--set externalGateway.create=true \
 			--set externalGateway.fqdn.name=${KASTENFQDN} \
