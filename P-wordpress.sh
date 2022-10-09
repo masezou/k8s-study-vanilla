@@ -81,8 +81,8 @@ if [ ${retvalsvc} -ne 0 ]; then
 	kubectl create namespace ${WPNAMESPACE}
 	if [ ${ONLINE} -eq 0 ]; then
 		# helm search repo bitnami/wordpress  --version=14.0.9
-		helm fetch bitnami/wordpress
-		WPCHART=$(ls wordpress-*.tgz)
+		helm fetch bitnami/wordpress --version=15.2.5
+		WPCHART=$(ls wordpress-15.2.5.tgz)
 		helm install wp-release ${WPCHART} -n ${WPNAMESPACE} --set global.storageClass=${SC} --set global.imageRegistry=${REGISTRY}
 	else
 		helm install wp-release bitnami/wordpress -n ${WPNAMESPACE} --set global.storageClass=${SC}

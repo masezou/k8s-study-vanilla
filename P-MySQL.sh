@@ -69,7 +69,6 @@ if [ ${retvalsvc} -ne 0 ]; then
 	helm repo add bitnami https://charts.bitnami.com/bitnami
 	kubectl create namespace ${MYSQL_NAMESPACE}
 	if [ ${ONLINE} -eq 0 ]; then
-		helm fetch bitnami/mysql
         helm fetch bitnami/mysql --version=9.3.5
 		MYSQLCHART=$(ls mysql-9.3.5.tgz)
 		helm install --namespace ${MYSQL_NAMESPACE} mysql-release ${MYSQLCHART} --set primary.service.type=LoadBalancer --set global.storageClass=${SC} --set global.imageRegistry=${REGISTRYURL}

@@ -69,8 +69,8 @@ if [ ${retvalsvc} -ne 0 ]; then
 	helm repo add bitnami https://charts.bitnami.com/bitnami
 	kubectl create namespace ${MYSQL_NAMESPACE}
 	if [ ${ONLINE} -eq 0 ]; then
-		helm fetch bitnami/mariadb
-		MYSQLCHART=$(ls mariadb-10.5.0.tgz)
+        helm fetch bitnami/mariadb --version=11.3.3
+		MYSQLCHART=$(ls mariadb-11.3.3.tgz)
 		helm install --namespace ${MYSQL_NAMESPACE} mariadb-release ${MYSQLCHART} --set primary.service.type=LoadBalancer --set global.storageClass=${SC} --set global.imageRegistry=${REGISTRYURL}
 	else
 		helm install --namespace ${MYSQL_NAMESPACE} mariadb-release bitnami/mariadb --set primary.service.type=LoadBalancer --set global.storageClass=${SC}

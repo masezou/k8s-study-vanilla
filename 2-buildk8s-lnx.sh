@@ -270,53 +270,41 @@ if [ ${IMAGEDL} -eq 1 ]; then
 	ctr images rm docker.io/bitnami/mongodb:4.4.8
 	ctr images rm ${REGISTRY}/bitnami/mongodb:4.4.8
 
-	ctr images pull --platform linux/${ARCH} docker.io/bitnami/mysql:8.0.28-debian-10-r41
-	ctr images tag docker.io/bitnami/mysql:8.0.28-debian-10-r41 ${REGISTRY}/bitnami/mysql:8.0.28-debian-10-r41
-	ctr images push --platform linux/${ARCH} --plain-http ${REGISTRY}/bitnami/mysql:8.0.28-debian-10-r41
-	ctr images rm docker.io/bitnami/mysql:8.0.28-debian-10-r41
-	ctr images rm ${REGISTRY}/bitnami/mysql:8.0.28-debian-10-r41
+                        ctr images pull --platform linux/${ARCH} docker.io/bitnami/mysql:8.0.30-debian-11-r27
+                        ctr images tag docker.io/bitnami/mysql:8.0.30-debian-11-r27 ${REGISTRY}/bitnami/mysql:8.0.30-debian-11-r27
+                        ctr images push --platform linux/${ARCH} --plain-http ${REGISTRY}/bitnami/mysql:8.0.30-debian-11-r27
+                        ctr images rm docker.io/bitnami/mysql:8.0.30-debian-11-r27
+                        ctr images rm ${REGISTRY}/bitnami/mysql:8.0.30-debian-11-r27
 
-	ctr images pull --platform linux/${ARCH} docker.io/bitnami/mysql:8.0.28-debian-10-r63
-	ctr images tag docker.io/bitnami/mysql:8.0.28-debian-10-r63 ${REGISTRY}/bitnami/mysql:8.0.28-debian-10-r63
-	ctr images push --platform linux/${ARCH} --plain-http ${REGISTRY}/bitnami/mysql:8.0.28-debian-10-r63
-	ctr images rm docker.io/bitnami/mysql:8.0.28-debian-10-r63
-	ctr images rm ${REGISTRY}/bitnami/mysql:8.0.28-debian-10-r63
+                        ctr images pull --platform linux/${ARCH} docker.io/bitnami/mariadb:10.6.10-debian-11-r6
+                        ctr images tag docker.io/bitnami/mariadb:10.6.10-debian-11-r6 ${REGISTRY}/bitnami/mariadb:10.6.10-debian-11-r6
+                        ctr images push --platform linux/${ARCH} --plain-http ${REGISTRY}/bitnami/mariadb:10.6.10-debian-11-r6
+                        ctr images rm docker.io/bitnami/mariadb:10.6.10-debian-11-r6
+                        ctr images rm ${REGISTRY}/bitnami/mariadb:10.6.10-debian-11-r6
 
-	ctr images pull --platform linux/${ARCH} docker.io/bitnami/mariadb:10.5.15-debian-10-r52
-	ctr images tag docker.io/bitnami/mariadb:10.5.15-debian-10-r52 ${REGISTRY}/bitnami/mariadb:10.5.15-debian-10-r52
-	ctr images push --platform linux/${ARCH} --plain-http ${REGISTRY}/bitnami/mariadb:10.5.15-debian-10-r52
-	ctr images rm docker.io/bitnami/mariadb:10.5.15-debian-10-r52
-	ctr images rm ${REGISTRY}/bitnami/mariadb:10.5.15-debian-10-r52
+                        ctr images pull --platform linux/${ARCH} docker.io/bitnami/wordpress:6.0.2-debian-11-r9
+                        ctr images tag docker.io/bitnami/wordpress:6.0.2-debian-11-r9 ${REGISTRY}/bitnami/wordpress:6.0.2-debian-11-r9
+                        ctr images push --platform linux/${ARCH} --plain-http ${REGISTRY}/bitnami/wordpress:6.0.2-debian-11-r9
+                        ctr images rm docker.io/bitnami/wordpress:6.0.2-debian-11-r9
+                        ctr images rm ${REGISTRY}/bitnami/wordpress:6.0.2-debian-11-r9
 
-	ctr images pull --platform linux/${ARCH} docker.io/bitnami/mariadb:10.6.7-debian-10-r70
-	ctr images tag docker.io/bitnami/mariadb:10.6.7-debian-10-r70 ${REGISTRY}/bitnami/mariadb:10.6.7-debian-10-r70
-	ctr images push --platform linux/${ARCH} --plain-http ${REGISTRY}/bitnami/mariadb:10.6.7-debian-10-r70
-	ctr images rm docker.io/bitnami/mariadb:10.6.7-debian-10-r70
-	ctr images rm ${REGISTRY}/bitnami/mariadb:10.6.7-debian-10-r70
-
-	ctr images pull --platform linux/${ARCH} docker.io/bitnami/wordpress:5.9.3-debian-10-r35
-	ctr images tag docker.io/bitnami/wordpress:5.9.3-debian-10-r35 ${REGISTRY}/bitnami/wordpress:5.9.3-debian-10-r35
-	ctr images push --platform linux/${ARCH} --plain-http ${REGISTRY}/bitnami/wordpress:5.9.3-debian-10-r35
-	ctr images rm docker.io/bitnami/wordpress:5.9.3-debian-10-r35
-	ctr images rm ${REGISTRY}/bitnami/wordpress:5.9.3-debian-10-r35
-
-	ctr images pull --platform linux/${ARCH} docker.io/bitnami/postgresql:14.2.0-debian-10-r58
-	ctr images tag docker.io/bitnami/postgresql:14.2.0-debian-10-r58 ${REGISTRY}/bitnami/postgresql:14.2.0-debian-10-r58
-	ctr images push --platform linux/${ARCH} --plain-http ${REGISTRY}/bitnami/postgresql:14.2.0-debian-10-r58
-	ctr images rm docker.io/bitnami/postgresql:14.2.0-debian-10-r58
-	ctr images rm ${REGISTRY}/bitnami/postgresql:14.2.0-debian-10-r58
-
-	ctr images pull --platform linux/${ARCH} docker.io/bitnami/postgresql:11.8.0-debian-10-r61
-	ctr images tag docker.io/bitnami/postgresql:11.8.0-debian-10-r61 ${REGISTRY}/bitnami/postgresql:11.8.0-debian-10-r61
-	ctr images push --platform linux/${ARCH} --plain-http ${REGISTRY}/bitnami/postgresql:11.8.0-debian-10-r61
-	ctr images rm docker.io/bitnami/postgresql:11.8.0-debian-10-r61
-	ctr images rm ${REGISTRY}/bitnami/postgresql:11.8.0-debian-10-r61
+                        ctr images pull --platform linux/${ARCH} docker.io/bitnami/postgresql:14.5.0-debian-11-r24
+                        ctr images tag docker.io/bitnami/postgresql:14.5.0-debian-11-r24 ${REGISTRY}/bitnami/postgresql:14.5.0-debian-11-r24
+                        ctr images push --platform linux/${ARCH} --plain-http ${REGISTRY}/bitnami/postgresql:14.5.0-debian-11-r24
+                        ctr images rm docker.io/bitnami/postgresql:14.5.0-debian-11-r24
+                        ctr images rm ${REGISTRY}/bitnami/postgresql:14.5.0-debian-11-r24
 
 	ctr images pull --platform linux/${ARCH} quay.io/ifont/pacman-nodejs-app:latest
 	ctr images tag quay.io/ifont/pacman-nodejs-app:latest ${REGISTRY}/ifont/pacman-nodejs-app:latest
 	ctr images push --platform linux/${ARCH} --plain-http ${REGISTRY}/ifont/pacman-nodejs-app:latest
 	ctr images rm quay.io/ifont/pacman-nodejs-app:latest
 	ctr images rm ${REGISTRY}/ifont/pacman-nodejs-app:latest
+
+                        ctr images pull --platform linux/${ARCH} docker.io/library/mysql:8.0.30
+                        ctr images tag docker.io/library/mysql:8.0.30 ${REGISTRY}/library/mysql:8.0.30
+                        ctr images push --platform linux/${ARCH} --plain-http ${REGISTRY}/library/mysql:8.0.30
+                        ctr images rm docker.io/library/mysql:8.0.30
+                        ctr images rm ${REGISTRY}/library/mysql:8.0.30
 
 	ctr images pull --platform linux/${ARCH} docker.io/library/wordpress:5.6.2-apache
 	ctr images tag docker.io/library/wordpress:5.6.2-apache ${REGISTRY}/library/wordpress:5.6.2-apache
@@ -329,6 +317,12 @@ if [ ${IMAGEDL} -eq 1 ]; then
 	ctr images push --platform linux/${ARCH} --plain-http ${REGISTRY}/mssql/server:2019-CU15-ubuntu-20.04
 	ctr images rm mcr.microsoft.com/mssql/server:2019-CU15-ubuntu-20.04
 	ctr images rm ${REGISTRY}/mssql/server:2019-CU15-ubuntu-20.04
+
+                        ctr images pull --platform linux/${ARCH} docker.io/library/alpine:3.16.2
+                        ctr images tag docker.io/library/alpine:3.16.2 ${REGISTRY}/library/alpine:3.16.2
+                        ctr images push --platform linux/${ARCH} --plain-http ${REGISTRY}/library/alpine:3.16.2
+                        ctr images rm docker.io/library/alpine:3.16.2
+                        ctr images rm ${REGISTRY}/library/alpine:3.16.2
 
 	echo "Registry result"
 	curl -X GET ${REGISTRYURL}/v2/_catalog
