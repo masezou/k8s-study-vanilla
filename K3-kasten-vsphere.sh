@@ -84,7 +84,7 @@ export VSPHERE_PASSWORD=${VSPHEREPASSWORD}
 #category name can be found from the vsphere infrastructure profile
 EOF
 cat << 'EOF' >> /etc/profile.d/k10tools-vsphere.sh
-export VSPHERE_SNAPSHOT_TAGGING_CATEGORY=$(kubectl -n kasten-io get profiles $(kubectl -n kasten-io get profiles -o=jsonpath='{.items[?(@.spec.infra.type=="VSphere")].metadata.name}') -o jsonpath='{.spec.infra.vsphere.categoryName}')
+export VSPHERE_SNAPSHOT_TAGGING_CATEGORY=$(kubectl -n kasten-io get profiles.config.kio.kasten.io $(kubectl -n kasten-io get profiles.config.kio.kasten.io -o=jsonpath='{.items[?(@.spec.infra.type=="VSphere")].metadata.name}') -o jsonpath='{.spec.infra.vsphere.categoryName}')
 EOF
 fi
 
