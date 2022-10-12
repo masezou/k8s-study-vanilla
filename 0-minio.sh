@@ -6,7 +6,7 @@ MCLOGINUSER=miniologinuser
 MCLOGINPASSWORD=miniologinuser
 # If you want to use erasure coding, before running this script, please mount at least a disk (/dev/sdc1) to MINIOPATH with xfs.
 MINIOPATH=/disk/minio
-MINIOIMAGESIZE=50G
+#MINIOIMAGESIZE=50G
 
 #FORCE_LOCALIP=192.168.16.2
 
