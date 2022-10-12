@@ -139,7 +139,7 @@ kind: PersistentVolumeClaim
 metadata:
    name: ${KASTENNFSPVC}
 spec:
-   storageClassName: nfs-csi
+   storageClassName: nfs-sc
    accessModes:
       - ReadWriteMany
    resources:

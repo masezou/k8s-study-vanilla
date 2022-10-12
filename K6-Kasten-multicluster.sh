@@ -68,7 +68,7 @@ echo "" >>backup-mc-user.token
 kubectl create rolebinding k10mcuserbinding --clusterrole=backupmcuser --namespace=kasten-io-mc --serviceaccount=default:backup-mc-user
 
 # define global NFS storage
-kubectl get sc | grep nfs-csi
+kubectl get sc | grep nfs-sc
 retval12=$?
 if [ ${retval12} -eq 0 ]; then
 	KASTENNFSPVC=kastenbackup-global-pvc
@@ -78,7 +78,7 @@ kind: PersistentVolumeClaim
 metadata:
    name: ${KASTENNFSPVC}
 spec:
-   storageClassName: nfs-csi
+   storageClassName: nfs-sc
    accessModes:
       - ReadWriteMany
    resources:
