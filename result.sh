@@ -6,6 +6,7 @@ if [ ! -f ~/.kube/config ]; then
 	exit 0
 fi
 
+LOCALIPADDR=$(kubectl get nodes -o jsonpath='{.items[*].status.addresses[?(@.type=="InternalIP")].address}')
 DNSDOMAINNAME=$(kubectl -n external-dns get deployments.apps --output="jsonpath={.items[*].spec.template.spec.containers }" | jq | grep rfc2136-zone | cut -d "=" -f 2 | cut -d "\"" -f 1)
 DNSHOSTIP=$(kubectl -n external-dns get deployments.apps --output="jsonpath={.items[*].spec.template.spec.containers }" | jq | grep rfc2136-host | cut -d "=" -f 2 | cut -d "\"" -f 1)
 DASHBOARD_EXTERNALIP=$(kubectl -n kubernetes-dashboard get service kubernetes-dashboard -o jsonpath="{.status.loadBalancer.ingress[*].ip}")
@@ -26,7 +27,7 @@ fi
 #REGISTRY_EXTERNALIP=`kubectl -n registry get service pregistry-frontend-clusterip -o jsonpath="{.status.loadBalancer.ingress[*].ip}"`
 REGISTRY_FQDN=$(kubectl -n registry get svc pregistry-frontend-clusterip --output="jsonpath={.metadata.annotations}" | jq | grep external | cut -d "\"" -f 4)
 #REGISTRY_FQDN=registryfe.${DNSDOMAINNAME}
-#KEYCLOAK_EXTERNALIP=`kubectl -n keycloak get service keycloak -o jsonpath="{.status.loadBalancer.ingress[*].ip}"`
+KEYCLOAK_EXTERNALIP=`kubectl -n keycloak get service keycloak -o jsonpath="{.status.loadBalancer.ingress[*].ip}"`
 KEYCLOAK_FQDN=$(kubectl -n keycloak get svc keycloak --output="jsonpath={.metadata.annotations}" | jq | grep external | cut -d "\"" -f 4)
 #KEYCLOAK_FQDN=keycloak.${DNSDOMAINNAME}
 LONGHORN_EXTERNALIP=$(kubectl -n longhorn-system get svc longhorn-frontend -o jsonpath="{.status.loadBalancer.ingress[*].ip}")
@@ -151,8 +152,8 @@ fi
 if [ ! -z ${LONGHORN_EXTERNALIP} ]; then
 	echo -e "\e[1mLonghorn dashboard \e[m"
 	echo -e "\e[32m http://${LONGHORN_EXTERNALIP}/  \e[m"
-	echo "or"
-	echo -e "\e[32m http://${LONGHORN_FQDN}/ \e[m"
+#	echo "or"
+#	echo -e "\e[32m http://${LONGHORN_FQDN}/ \e[m"
 	echo ""
 fi
 
