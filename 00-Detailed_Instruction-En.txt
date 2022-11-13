@@ -37,7 +37,7 @@ Additional Environment
 Requirement
 vSphere
   vSphere 7.0 U3 (1vCenter and 1 ESXi Server and datastore. Any datastore will do.)
-  VM Resource 4vCPU 8-16GB RAM 200GB HDD minimum
+  VM Resource 4vCPU 8-16GB RAM 200GB HDD at least
   vSphere Cluster and vSAN is option. (It is not mandatory.)
   There is no special setting in vCenter. (The script will create storage policy for vSphere CSI driver.)
 
