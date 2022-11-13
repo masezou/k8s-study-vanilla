@@ -18,13 +18,14 @@ vi 5-csi-vsphere.sh
 
 既存のvSphere環境に影響なしに、最小のリソースで構築が可能
 ロードバランサーによって、ポートフォーワードを使うことなく、パブリッククラウドと同じようにアプリケーションにアクセスが可能
-vSphere CSIドライバーによって、vSphere 6.7U3からサポートされたvSphereのディスクオブジェクトであるFCD環境を構築
+vSphere CSIドライバーによって、vSphere 6.7 U3からサポートされたvSphereのディスクオブジェクトであるFCD環境を構築
 
 このスクリプトでできるもの
 コンテナ環境
    Kubernetes 1.23.10/containerd.io 1.6.8 (1ノード)
     CNI: Metallb/Ingress
     CSI: Longhorn /NFS-SUB/vSphere-CSI
+    Kubevirt
 
 追加環境
    Minio Object Storage
@@ -35,7 +36,7 @@ vSphere CSIドライバーによって、vSphere 6.7U3からサポートされ�
 --------
 要件
 vSphere
-  vSphere 6.7U3 (1vCenterと１台のESXサーバ。データストアはなんでも構わない)
+  vSphere 7.0 U3 (1vCenterと１台のESXサーバ。データストアはなんでも構わない)
   VMリソース 最低4vCPU 8-16GB RAM 200GB HDD
   vSphereクラスタやvSANはオプション（必須ではない。）
   vCenterなどに特別な設定は不要 (スクリプトが自動でやってくれる)

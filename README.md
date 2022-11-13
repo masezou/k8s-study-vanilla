@@ -23,7 +23,7 @@ Storage class: Longhorn/nfs-sub/vSphere CSI.
 ![image](https://user-images.githubusercontent.com/624501/201504835-fdf6cac3-6e6c-40cc-87a0-ad920ab26c35.png)
 
 
--If you want to use vSphre CSI Driver, You need to have vCenter 6.7U3 above and any VM need to be set "disk.EnableUUID" and "ctkEnabled" in option. At least 1 vCenter and 1 ESX. vCenter cluster is option.
+-If you want to use vSphre CSI Driver, You need to have vCenter 7.0U3 above and any VM need to be set "disk.EnableUUID" and "ctkEnabled" in option. At least 1 vCenter and 1 ESX. vCenter cluster is option.
 
 ![Untitled](https://user-images.githubusercontent.com/624501/146712111-9c0d6b9d-a644-4c1c-b3c1-4bb0fda0e06c.jpg)
 
@@ -56,7 +56,7 @@ Execute each step.
 ./0-minio.sh ;./1-tools.sh ; ./2-buildk8s-lnx.sh ; ./3-configk8s.sh ; ./4-csi-storage.sh
 ```
 
-Then if your Ubuntu VM is on vSphere with vCenter 6.7U3 above. 
+Then if your Ubuntu VM is on vSphere with vCenter 7.0U3 above. 
 ```bash
 ./5-csi-vsphere.sh
 ```

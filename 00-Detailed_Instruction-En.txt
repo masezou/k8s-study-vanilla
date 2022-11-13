@@ -25,6 +25,7 @@ Container environment
    Kubernetes 1.23.10/containerd.io 1.6.8 (1node)
     CNI: Metallb/Ingress
     CSI: Longhorn/NFS-Sub/vSphere-CSI
+    Kubevirt
 
 Additional Environment
     Minio Object Storage
@@ -35,7 +36,7 @@ Additional Environment
 --------
 Requirement
 vSphere
-  vSphere 6.7U3 (1vCenter and 1 ESXi Server and datastore. Any datastore will do.)
+  vSphere 7.0 U3 (1vCenter and 1 ESXi Server and datastore. Any datastore will do.)
   VM Resource 4vCPU 8-16GB RAM 200GB HDD minimum
   vSphere Cluster and vSAN is option. (It is not mandatory.)
   There is no special setting in vCenter. (The script will create storage policy for vSphere CSI driver.)
