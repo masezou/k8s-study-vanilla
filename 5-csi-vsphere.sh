@@ -306,6 +306,9 @@ if [ ${VSPHERECSI} = "2.5.1" ]; then
 	fi
 fi
 
+kubectl patch storageclass longhorn \
+    -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"false"}}}'
+
 echo ""
 echo "*************************************************************************************"
 echo -e "\e[32m vSphere CSI Driver ${VSPHERECSI} installation and Storage Class creation are done. \e[m"
