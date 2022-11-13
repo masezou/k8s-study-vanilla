@@ -865,6 +865,7 @@ if [ ${ARCH} = amd64 ]; then
                 if [ ${retvalkvm} -eq 0 ]; then
                         apt install -y qemu-kvm libvirt-daemon-system libvirt-clients bridge-utils
                         apt clean
+                        apt -y autoremove
                         sed -i -e "s@pygrub PUx,@pygrub PUx,\n  /usr/libexec/qemu-kvm PUx, @" /etc/apparmor.d/usr.sbin.libvirtd
                         systemctl reload apparmor.service
                         export VERSION=$(curl -s https://api.github.com/repos/kubevirt/kubevirt/releases | grep tag_name | grep -v -- '-rc' | sort -r | head -1 | awk -F': ' '{print $2}' | sed 's/,//' | xargs)
