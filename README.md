@@ -20,11 +20,15 @@ Storage class: Longhorn/nfs-sub/vSphere CSI.
 
 -If you want to use Kubvevirt (Virtualization), You need to set Virtualization passthrough setting in vCPU setting.
 
+![image](https://user-images.githubusercontent.com/624501/201504835-fdf6cac3-6e6c-40cc-87a0-ad920ab26c35.png)
+
+
 -If you want to use vSphre CSI Driver, You need to have vCenter 6.7U3 above and any VM need to be set "disk.EnableUUID" and "ctkEnabled" in option. At least 1 vCenter and 1 ESX. vCenter cluster is option.
 
 ![Untitled](https://user-images.githubusercontent.com/624501/146712111-9c0d6b9d-a644-4c1c-b3c1-4bb0fda0e06c.jpg)
 
 ![image](https://user-images.githubusercontent.com/624501/185821252-2a1b4295-7b8a-4e7f-a588-fdd96d430135.png)
+
 
 -Network segment 24bit is required
 
