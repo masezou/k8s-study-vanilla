@@ -63,17 +63,17 @@ echo -e "\e[32m${DNSHOSTIP} \e[m"
 echo ""
 MCLOGINUSER=miniologinuser
 MCLOGINPASSWORD=miniologinuser
-MINIO_ENDPOINT=https://${LOCALIPADDR}:9000
-MINIO_ENDPOINTFQDN=https://minio.${DNSDOMAINNAME}:9001
-echo -e "\e[32m Minio API endpoint is ${MINIO_ENDPOINT} \e[m"
+MINIO_ENDPOINT=https://${LOCALIPADDR}
+MINIO_ENDPOINTFQDN=https://minio.${DNSDOMAINNAME}
+echo -e "\e[32m Minio API endpoint is ${MINIO_ENDPOINT}:9000 \e[m"
 echo "or"
-echo -e "\e[32m Minio API endpoint is ${MINIO_ENDPOINTFQDN} \e[m"
+echo -e "\e[32m Minio API endpoint is ${MINIO_ENDPOINTFQDN}:9000 \e[m"
 echo -e "\e[32m Access Key: ${MCLOGINUSER} \e[m"
 echo -e "\e[32m Secret Key: ${MCLOGINPASSWORD} \e[m"
 echo ""
-echo -e "\e[32m Minio console is https://${LOCALIPADDR}:9001 \e[m"
+echo -e "\e[32m Minio console is ${MINIO_ENDPOINT}:9001 \e[m"
 echo "or"
-echo -e "\e[32m Minio console is https://minio.${DNSDOMAINNAME}:9001 \e[m"
+echo -e "\e[32m Minio console is ${MINIO_ENDPOINTFQDN}:9001 \e[m"
 echo -e "\e[32m username: ${MCLOGINUSER} \e[m"
 echo -e "\e[32m password: ${MCLOGINPASSWORD} \e[m"
 echo ""
