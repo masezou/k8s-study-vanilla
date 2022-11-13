@@ -484,7 +484,7 @@ EOF
 	fi
 	# Install Docker Compose
 	if [ ! -f /usr/local/bin/docker-compose ]; then
-		DOCKERCOMPOSEVER=2.11.2
+		DOCKERCOMPOSEVER=2.12.2
 		if [ ${ARCH} = amd64 ]; then
 			curl --retry 10 --retry-delay 3 --retry-connrefused -sSOL https://github.com/docker/compose/releases/download/v${DOCKERCOMPOSEVER}/docker-compose-linux-$(uname -i)
 			mv docker-compose-linux-$(uname -i) /usr/local/bin/docker-compose
@@ -509,7 +509,7 @@ EOF
 	fi
 	# Install Kind
 	if [ ! -f /usr/local/bin/kind ]; then
-		KINDVER=0.16.0
+		KINDVER=0.17.0
 		curl -s -Lo ./kind https://github.com/kubernetes-sigs/kind/releases/download/v${KINDVER}/kind-linux-${ARCH}
 		mv ./kind /usr/local/bin/kind
 		chmod +x /usr/local/bin/kind
@@ -651,7 +651,7 @@ if [ ${TCE} -eq 1 ]; then
 
 	# Install Velero
 	if [ ! -f /usr/local/bin/velero ]; then
-		VELEROVER=1.9.2
+		VELEROVER=1.9.3
 		curl --retry 10 --retry-delay 3 --retry-connrefused -sSOL https://github.com/vmware-tanzu/velero/releases/download/v${VELEROVER}/velero-v${VELEROVER}-linux-${ARCH}.tar.gz
 		tar xfz velero-v${VELEROVER}-linux-${ARCH}.tar.gz
 		mv velero-v${VELEROVER}-linux-${ARCH}/velero /usr/local/bin/

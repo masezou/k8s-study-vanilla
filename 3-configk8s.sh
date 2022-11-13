@@ -16,6 +16,7 @@ REGISTRYFE=1
 DASHBOARD=1
 KEYCLOAK=1
 GRAFANAMON=1
+KUBEVIRT=1
 
 # IF you have internal DNS, please comment out and set your own DNS server
 #FORWARDDNS=192.168.8.1
@@ -855,6 +856,42 @@ if [ ${GRAFANAMON} -eq 1 ]; then
 	kubectl -n monitoring annotate service prometheus-grafana \
 		external-dns.alpha.kubernetes.io/hostname=${GRAFANAHOST}
 fi
+o# Kubevirt
+if [ ${ARCH} = amd64 ]; then
+        if [ $KUBEVIRT -eq 1 ]; then
+                apt -y install cpu-checker
+                kvm-ok
+                retvalkvm=$?
+                if [ ${retvalkvm} -eq 0 ]; then
+                        apt install -y qemu-kvm libvirt-daemon-system libvirt-clients bridge-utils
+                        apt clean
+                        sed -i -e "s@pygrub PUx,@pygrub PUx,\n  /usr/libexec/qemu-kvm PUx, @" /etc/apparmor.d/usr.sbin.libvirtd
+                        systemctl reload apparmor.service
+                        export VERSION=$(curl -s https://api.github.com/repos/kubevirt/kubevirt/releases | grep tag_name | grep -v -- '-rc' | sort -r | head -1 | awk -F': ' '{print $2}' | sed 's/,//' | xargs)
+                        echo $VERSION
+                        kubectl create -f https://github.com/kubevirt/kubevirt/releases/download/${VERSION}/kubevirt-operator.yaml
+                        kubectl create -f https://github.com/kubevirt/kubevirt/releases/download/${VERSION}/kubevirt-cr.yaml
+                        sleep 180
+                        kubectl -n kubevirt wait kv kubevirt --for condition=Available
+                        # Verify
+                        kubectl get kubevirt.kubevirt.io/kubevirt -n kubevirt -o=jsonpath="{.status.phase}"
+                        kubectl -n kubevirt get pod,daemonsets,deployments.apps
+                        # Install client
+                        VERSION=$(kubectl get kubevirt.kubevirt.io/kubevirt -n kubevirt -o=jsonpath="{.status.observedKubeVirtVersion}")
+                        ARCH=$(uname -s | tr A-Z a-z)-$(uname -m | sed 's/x86_64/amd64/') || windows-amd64.exe
+                        echo ${ARCH}
+                        curl -L -o virtctl https://github.com/kubevirt/kubevirt/releases/download/${VERSION}/virtctl-${VERSION}-${ARCH}
+                        chmod +x virtctl
+                        install virtctl /usr/local/bin
+                        rm virtctl
+                        virtctl completion bash >/etc/bash_completion.d/virtctl
+                        source /etc/bash_completion.d/virtctl
+                else
+                        echo "Virtualization is not supported in this node."
+                fi
+        fi
+fi
+
 
 rndc freeze ${DNSDOMAINNAME}
 rndc thaw ${DNSDOMAINNAME}
