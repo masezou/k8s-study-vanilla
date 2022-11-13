@@ -16,7 +16,9 @@ Storage class: Longhorn/nfs-sub/vSphere CSI.
 
 # Requirement
 
--Ubuntu Linux Server 20.04.4 amd64 4vCPU minimum 8GB RAM Recommend 16GB RAM 200GB HDD. (ARM is experimental)
+-Ubuntu Linux Server 20.04.5 amd64 4vCPU minimum 8GB RAM Recommend 16GB RAM 200GB HDD. (ARM is experimental)
+
+-If you want to use Kubvevirt (Virtualization), You need to set Virtualization passthrough setting in vCPU setting.
 
 -If you want to use vSphre CSI Driver, You need to have vCenter 6.7U3 above and any VM need to be set "disk.EnableUUID" and "ctkEnabled" in option. At least 1 vCenter and 1 ESX. vCenter cluster is option.
 
