@@ -111,11 +111,20 @@ govc datacenter.info
 retvalvcconnect=$?
 if [ ${retvalvcconnect} -ne 0 ]; then
 	echo -e "\e[31m It seemed ${VSPHERESERVER} was not able to connect from this node. Please check vCenter connectivity and re-run.  \e[m"
-	rm ~/govc-vcenter.sh
+    rm /etc/profile.d/govc-vcenter.sh
 	exit 255
 fi
 
-# kubernetes  and vSphere version check
+# Verify datastore connectivity
+govc datastore.info ${VSPPHEREDATASTORE}
+retvaldsconnect=$?
+if [ ${retvaldsconnect} -ne 0 ]; then
+	echo -e "\e[31m It seemed ${VSPPHEREDATASTORE} was not able to connect from this node. Please check datastore connectivity and re-run.  \e[m"
+    rm /etc/profile.d/govc-vcenter.sh
+	exit 255
+fi
+
+# kubernetes and vSphere version check
 if [ -z ${VSPHERECSI} ]; then
 	kubectl get node -o wide | grep v1.19 >/dev/null 2>&1 && VSPHERECSI=2.3.2
 	kubectl get node -o wide | grep v1.20 >/dev/null 2>&1 && VSPHERECSI=2.4.3
