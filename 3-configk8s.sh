@@ -390,6 +390,15 @@ EOF
 fi
 
 # minio cert update
+cat <<EOF >/tmp/nsupdate.txt
+server ${DNSHOSTIP}
+
+update delete minio.${DNSDOMAINNAME}
+update add minio.${DNSDOMAINNAME} 3600 IN A ${DNSHOSTIP}
+
+EOF
+nsupdate -k /etc/bind/external.key /tmp/nsupdate.txt
+rm -rf /tmp/nsupdate.txt
 if [ -f /root/.minio/certs/private.key ]; then
 	cd /root/.minio/certs/
 	rm -rf cert.csr
