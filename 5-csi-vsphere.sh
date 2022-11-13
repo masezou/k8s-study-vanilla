@@ -110,7 +110,7 @@ source /etc/profile.d/govc-vcenter.sh
 govc datacenter.info
 retvalvcconnect=$?
 if [ ${retvalvcconnect} -ne 0 ]; then
-	echo -e "\e[31m It seemed ${VSPHERESERVER} was not able to connect from tis node. Please check vCenter connectivity and re-run.  \e[m"
+	echo -e "\e[31m It seemed ${VSPHERESERVER} was not able to connect from this node. Please check vCenter connectivity and re-run.  \e[m"
 	rm ~/govc-vcenter.sh
 	exit 255
 fi
