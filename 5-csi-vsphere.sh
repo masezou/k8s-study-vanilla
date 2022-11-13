@@ -326,9 +326,7 @@ if [ -f K3-kasten-vsphere.sh ]; then
 		rm -rf vsphere-env
 		mkdir -p /home/${SUDO_USER}/k8s-study-vanilla/
 		cp K3-kasten-vsphere.sh /home/${SUDO_USER}/k8s-study-vanilla/K3-kasten-vsphere.sh
-		cp ~/govc-vcenter.sh /home/${SUDO_USER}/
 		chown ${SUDO_USER}:${SUDO_USER} /home/${SUDO_USER}/k8s-study-vanilla/K3-kasten-vsphere.sh
-		chown ${SUDO_USER}:${SUDO_USER} /home/${SUDO_USER}/govc-vcenter.sh
 	fi
 fi
 # Remove taint
