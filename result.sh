@@ -9,7 +9,7 @@ fi
 LOCALIPADDR=$(kubectl get nodes -o jsonpath='{.items[*].status.addresses[?(@.type=="InternalIP")].address}')
 DNSDOMAINNAME=$(kubectl -n external-dns get deployments.apps --output="jsonpath={.items[*].spec.template.spec.containers }" | jq | grep rfc2136-zone | cut -d "=" -f 2 | cut -d "\"" -f 1)
 DNSHOSTIP=$(kubectl -n external-dns get deployments.apps --output="jsonpath={.items[*].spec.template.spec.containers }" | jq | grep rfc2136-host | cut -d "=" -f 2 | cut -d "\"" -f 1)
-DASHBOARD_EXTERNALIP=$(kubectl -n kubernetes-dashboard get service kubernetes-dashboard -o jsonpath="{.status.loadBalancer.ingress[*].ip}")
+DASHBOARD_EXTERNALIP=$(kubectl -n kubernetes-dashboard get service dashboard-service-lb -o jsonpath="{.status.loadBalancer.ingress[*].ip}")
 DASHBOARD_FQDN=$(kubectl -n kubernetes-dashboard get svc kubernetes-dashboard --output="jsonpath={.metadata.annotations}" | jq | grep external | cut -d "\"" -f 4)
 #REGISTRYHOST=`kubectl -n registry get configmaps pregistry-configmap -o=jsonpath='{.data.pregistry_host}'`
 #K3S registry setting
