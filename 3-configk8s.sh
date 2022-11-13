@@ -856,7 +856,7 @@ if [ ${GRAFANAMON} -eq 1 ]; then
 	kubectl -n monitoring annotate service prometheus-grafana \
 		external-dns.alpha.kubernetes.io/hostname=${GRAFANAHOST}
 fi
-o# Kubevirt
+# Kubevirt
 if [ ${ARCH} = amd64 ]; then
         if [ $KUBEVIRT -eq 1 ]; then
                 apt -y install cpu-checker
