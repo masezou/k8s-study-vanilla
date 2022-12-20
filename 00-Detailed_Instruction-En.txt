@@ -22,7 +22,7 @@ By using the vSphere CSI driver, you can also experience using the Disk object c
 
 What consists of this script
 Container environment
-   Kubernetes 1.23.10/containerd.io 1.6.8 (1node)
+   Kubernetes 1.25/containerd.io 1.6 (1node)
     CNI: Metallb/Ingress
     CSI: Longhorn/NFS-Sub/vSphere-CSI
     Kubevirt
