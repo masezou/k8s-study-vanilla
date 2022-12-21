@@ -270,29 +270,29 @@ if [ ${IMAGEDL} -eq 1 ]; then
 	ctr images rm docker.io/bitnami/mongodb:4.4.8
 	ctr images rm ${REGISTRY}/bitnami/mongodb:4.4.8
 
-                        ctr images pull --platform linux/${ARCH} docker.io/bitnami/mysql:8.0.30-debian-11-r27
-                        ctr images tag docker.io/bitnami/mysql:8.0.30-debian-11-r27 ${REGISTRY}/bitnami/mysql:8.0.30-debian-11-r27
-                        ctr images push --platform linux/${ARCH} --plain-http ${REGISTRY}/bitnami/mysql:8.0.30-debian-11-r27
-                        ctr images rm docker.io/bitnami/mysql:8.0.30-debian-11-r27
-                        ctr images rm ${REGISTRY}/bitnami/mysql:8.0.30-debian-11-r27
+	ctr images pull --platform linux/${ARCH} docker.io/bitnami/mysql:8.0.30-debian-11-r27
+	ctr images tag docker.io/bitnami/mysql:8.0.30-debian-11-r27 ${REGISTRY}/bitnami/mysql:8.0.30-debian-11-r27
+	ctr images push --platform linux/${ARCH} --plain-http ${REGISTRY}/bitnami/mysql:8.0.30-debian-11-r27
+	ctr images rm docker.io/bitnami/mysql:8.0.30-debian-11-r27
+	ctr images rm ${REGISTRY}/bitnami/mysql:8.0.30-debian-11-r27
 
-                        ctr images pull --platform linux/${ARCH} docker.io/bitnami/mariadb:10.6.10-debian-11-r6
-                        ctr images tag docker.io/bitnami/mariadb:10.6.10-debian-11-r6 ${REGISTRY}/bitnami/mariadb:10.6.10-debian-11-r6
-                        ctr images push --platform linux/${ARCH} --plain-http ${REGISTRY}/bitnami/mariadb:10.6.10-debian-11-r6
-                        ctr images rm docker.io/bitnami/mariadb:10.6.10-debian-11-r6
-                        ctr images rm ${REGISTRY}/bitnami/mariadb:10.6.10-debian-11-r6
+	ctr images pull --platform linux/${ARCH} docker.io/bitnami/mariadb:10.6.10-debian-11-r6
+	ctr images tag docker.io/bitnami/mariadb:10.6.10-debian-11-r6 ${REGISTRY}/bitnami/mariadb:10.6.10-debian-11-r6
+	ctr images push --platform linux/${ARCH} --plain-http ${REGISTRY}/bitnami/mariadb:10.6.10-debian-11-r6
+	ctr images rm docker.io/bitnami/mariadb:10.6.10-debian-11-r6
+	ctr images rm ${REGISTRY}/bitnami/mariadb:10.6.10-debian-11-r6
 
-                        ctr images pull --platform linux/${ARCH} docker.io/bitnami/wordpress:6.0.2-debian-11-r9
-                        ctr images tag docker.io/bitnami/wordpress:6.0.2-debian-11-r9 ${REGISTRY}/bitnami/wordpress:6.0.2-debian-11-r9
-                        ctr images push --platform linux/${ARCH} --plain-http ${REGISTRY}/bitnami/wordpress:6.0.2-debian-11-r9
-                        ctr images rm docker.io/bitnami/wordpress:6.0.2-debian-11-r9
-                        ctr images rm ${REGISTRY}/bitnami/wordpress:6.0.2-debian-11-r9
+	ctr images pull --platform linux/${ARCH} docker.io/bitnami/wordpress:6.0.2-debian-11-r9
+	ctr images tag docker.io/bitnami/wordpress:6.0.2-debian-11-r9 ${REGISTRY}/bitnami/wordpress:6.0.2-debian-11-r9
+	ctr images push --platform linux/${ARCH} --plain-http ${REGISTRY}/bitnami/wordpress:6.0.2-debian-11-r9
+	ctr images rm docker.io/bitnami/wordpress:6.0.2-debian-11-r9
+	ctr images rm ${REGISTRY}/bitnami/wordpress:6.0.2-debian-11-r9
 
-                        ctr images pull --platform linux/${ARCH} docker.io/bitnami/postgresql:14.5.0-debian-11-r24
-                        ctr images tag docker.io/bitnami/postgresql:14.5.0-debian-11-r24 ${REGISTRY}/bitnami/postgresql:14.5.0-debian-11-r24
-                        ctr images push --platform linux/${ARCH} --plain-http ${REGISTRY}/bitnami/postgresql:14.5.0-debian-11-r24
-                        ctr images rm docker.io/bitnami/postgresql:14.5.0-debian-11-r24
-                        ctr images rm ${REGISTRY}/bitnami/postgresql:14.5.0-debian-11-r24
+	ctr images pull --platform linux/${ARCH} docker.io/bitnami/postgresql:14.5.0-debian-11-r24
+	ctr images tag docker.io/bitnami/postgresql:14.5.0-debian-11-r24 ${REGISTRY}/bitnami/postgresql:14.5.0-debian-11-r24
+	ctr images push --platform linux/${ARCH} --plain-http ${REGISTRY}/bitnami/postgresql:14.5.0-debian-11-r24
+	ctr images rm docker.io/bitnami/postgresql:14.5.0-debian-11-r24
+	ctr images rm ${REGISTRY}/bitnami/postgresql:14.5.0-debian-11-r24
 
 	ctr images pull --platform linux/${ARCH} quay.io/ifont/pacman-nodejs-app:latest
 	ctr images tag quay.io/ifont/pacman-nodejs-app:latest ${REGISTRY}/ifont/pacman-nodejs-app:latest
@@ -300,11 +300,11 @@ if [ ${IMAGEDL} -eq 1 ]; then
 	ctr images rm quay.io/ifont/pacman-nodejs-app:latest
 	ctr images rm ${REGISTRY}/ifont/pacman-nodejs-app:latest
 
-                        ctr images pull --platform linux/${ARCH} docker.io/library/mysql:8.0.30
-                        ctr images tag docker.io/library/mysql:8.0.30 ${REGISTRY}/library/mysql:8.0.30
-                        ctr images push --platform linux/${ARCH} --plain-http ${REGISTRY}/library/mysql:8.0.30
-                        ctr images rm docker.io/library/mysql:8.0.30
-                        ctr images rm ${REGISTRY}/library/mysql:8.0.30
+	ctr images pull --platform linux/${ARCH} docker.io/library/mysql:8.0.30
+	ctr images tag docker.io/library/mysql:8.0.30 ${REGISTRY}/library/mysql:8.0.30
+	ctr images push --platform linux/${ARCH} --plain-http ${REGISTRY}/library/mysql:8.0.30
+	ctr images rm docker.io/library/mysql:8.0.30
+	ctr images rm ${REGISTRY}/library/mysql:8.0.30
 
 	ctr images pull --platform linux/${ARCH} docker.io/library/wordpress:5.6.2-apache
 	ctr images tag docker.io/library/wordpress:5.6.2-apache ${REGISTRY}/library/wordpress:5.6.2-apache
@@ -318,11 +318,11 @@ if [ ${IMAGEDL} -eq 1 ]; then
 	ctr images rm mcr.microsoft.com/mssql/server:2019-CU15-ubuntu-20.04
 	ctr images rm ${REGISTRY}/mssql/server:2019-CU15-ubuntu-20.04
 
-                        ctr images pull --platform linux/${ARCH} docker.io/library/alpine:3.17.0
-                        ctr images tag docker.io/library/alpine:3.17.0 ${REGISTRY}/library/alpine:3.17.0
-                        ctr images push --platform linux/${ARCH} --plain-http ${REGISTRY}/library/alpine:3.17.0
-                        ctr images rm docker.io/library/alpine:3.17.0
-                        ctr images rm ${REGISTRY}/library/alpine:3.17.0
+	ctr images pull --platform linux/${ARCH} docker.io/library/alpine:3.17.0
+	ctr images tag docker.io/library/alpine:3.17.0 ${REGISTRY}/library/alpine:3.17.0
+	ctr images push --platform linux/${ARCH} --plain-http ${REGISTRY}/library/alpine:3.17.0
+	ctr images rm docker.io/library/alpine:3.17.0
+	ctr images rm ${REGISTRY}/library/alpine:3.17.0
 
 	echo "Registry result"
 	curl -X GET ${REGISTRYURL}/v2/_catalog
@@ -446,8 +446,8 @@ EOF
 			chown $(id -u):$(id -g) $HOME/.kube/config
 			export KUBECONFIG=$HOME/.kube/config
 			#kubectl taint nodes --all node-role.kubernetes.io/master-
-            #kubectl taint nodes $(hostname)  node-role.kubernetes.io/master:NoSchedule-
-            kubectl taint nodes `hostname` node-role.kubernetes.io/control-plane:NoSchedule-
+			#kubectl taint nodes $(hostname)  node-role.kubernetes.io/master:NoSchedule-
+			kubectl taint nodes $(hostname) node-role.kubernetes.io/control-plane:NoSchedule-
 			kubectl label node $(hostname) node-role.kubernetes.io/worker=worker
 		fi
 	fi
