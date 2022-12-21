@@ -203,9 +203,8 @@ if [ ${HAS_KASTEN} -eq 0 ]; then
 	K10INGRESHOST=$(kubectl -n kasten-io get ingress k10-ingress --output="jsonpath={.spec.rules[*].host }")
 	K10INGRESPATH=$(kubectl -n kasten-io get ingress k10-ingress --output="jsonpath={.spec.rules[*].http.paths[*].path }")
 	K10INGRESURL="${K10INGRESHOST}${K10INGRESPATH}"
-	sa_secret=$(kubectl get serviceaccount k10-k10 -o jsonpath="{.secrets[0].name}" --namespace kasten-io)
-	kubectl get secret $sa_secret --namespace kasten-io -ojsonpath="{.data.token}{'\n'}" | base64 --decode >k10-k10.token
-	echo "" >>k10-k10.token
+    desired_token_secret_name=k10-k10-token
+    kubectl get secret ${desired_token_secret_name} --namespace kasten-io -ojsonpath="{.data.token}" | base64 --decode ; echo > k10-k10.token
 	sa_secret=$(kubectl get serviceaccount backupadmin -o jsonpath="{.secrets[0].name}")
 	kubectl get secret $sa_secret -ojsonpath="{.data.token}{'\n'}" | base64 --decode >backupadmin.token
 	echo "" >>backupadmin.token
