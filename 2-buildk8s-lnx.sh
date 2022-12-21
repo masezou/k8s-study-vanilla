@@ -445,7 +445,9 @@ EOF
 			cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
 			chown $(id -u):$(id -g) $HOME/.kube/config
 			export KUBECONFIG=$HOME/.kube/config
-			kubectl taint nodes --all node-role.kubernetes.io/master-
+			#kubectl taint nodes --all node-role.kubernetes.io/master-
+            #kubectl taint nodes $(hostname)  node-role.kubernetes.io/master:NoSchedule-
+            kubectl taint nodes `hostname` node-role.kubernetes.io/control-plane:NoSchedule-
 			kubectl label node $(hostname) node-role.kubernetes.io/worker=worker
 		fi
 	fi
