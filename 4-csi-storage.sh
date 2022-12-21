@@ -118,10 +118,22 @@ EOF
 		curl -sSfL https://raw.githubusercontent.com/longhorn/longhorn/master/scripts/environment_check.sh | bash
 
 		kubectl patch storageclass local-path -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"false"}}}'
-		helm repo add longhorn https://charts.longhorn.io
-		helm repo update
-		kubectl create namespace longhorn-system
-		helm install longhorn longhorn/longhorn --namespace longhorn-system --set defaultSettings.backupTarget="s3://backupbucket@us-east-1/" --set defaultSettings.backupTargetCredentialSecret="minio-secret"
+		kubectl get node -o wide | grep v1.25 >/dev/null 2>&1 && LONGHORNVER=1.4.0-rc2
+		if [ ! -z ${LONGHORNVER} ]; then
+
+			#kubectl apply -f https://raw.githubusercontent.com/longhorn/longhorn/v${LONGHORNVER}/deploy/longhorn.yaml
+
+			git clone git@github.com:longhorn/longhorn.git --depth 1 -b v${LONGHORNVER}
+			cd longhorn/
+			kubectl create namespace longhorn-system
+			helm install longhorn ./chart --namespace longhorn-system --set defaultSettings.backupTarget="s3://backupbucket@us-east-1/" --set defaultSettings.backupTargetCredentialSecret="minio-secret"
+			cd ..
+		else
+			helm repo add longhorn https://charts.longhorn.io
+			helm repo update
+			kubectl create namespace longhorn-system
+			helm install longhorn longhorn/longhorn --namespace longhorn-system --set defaultSettings.backupTarget="s3://backupbucket@us-east-1/" --set defaultSettings.backupTargetCredentialSecret="minio-secret"
+		fi
 		sleep 40
 		# Checking Longhorn boot up
 		kubectl -n longhorn-system wait pod -l app=longhorn-manager --for condition=Ready --timeout 360s

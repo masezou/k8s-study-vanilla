@@ -189,14 +189,12 @@ fi
 if [ ${MULTICLUSTER} -eq 1 ]; then
 	bash ./K6-Kasten-multicluster.sh
 fi
-#sa_secret=$(kubectl get serviceaccount k10-k10 -o jsonpath="{.secrets[0].name}" --namespace kasten-io)
-#kubectl get secret $sa_secret --namespace kasten-io -ojsonpath="{.data.token}{'\n'}" | base64 --decode >k10-k10.token
-#echo "" >>k10-k10.token
 
-# 5.5.2
-kubectl --namespace kasten-io create token k10-k10
-desired_token_secret_name=k10-k10-token
-kubectl apply --namespace=kasten-io --filename=- <<EOF
+kubectl get node -o wide | grep v1.25 >/dev/null 2>&1 && KASTEN125=1
+if [ $KASTEN125 -eq 1 ]; then
+    kubectl --namespace kasten-io create token k10-k10
+    desired_token_secret_name=k10-k10-token
+    kubectl apply --namespace=kasten-io --filename=- <<EOF
 apiVersion: v1
 kind: Secret
 type: kubernetes.io/service-account-token
@@ -205,8 +203,12 @@ metadata:
   annotations:
     kubernetes.io/service-account.name: "k10-k10"
 EOF
-kubectl get secret ${desired_token_secret_name} --namespace kasten-io -ojsonpath="{.data.token}" | base64 --decode ; echo >>k10-k10.token
-
+    kubectl get secret ${desired_token_secret_name} --namespace kasten-io -ojsonpath="{.data.token}" | base64 --decode >k10-k10.token
+else
+    sa_secret=$(kubectl get serviceaccount k10-k10 -o jsonpath="{.secrets[0].name}" --namespace kasten-io)
+    kubectl get secret $sa_secret --namespace kasten-io -ojsonpath="{.data.token}{'\n'}" | base64 --decode >k10-k10.token
+fi
+echo "" >>k10-k10.token
 
 if [ ${retvalk3s} -ne 0 ]; then
 	EXTERNALIP=$(kubectl -n kasten-io get svc gateway-ext | awk '{print $4}' | tail -n 1)

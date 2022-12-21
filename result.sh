@@ -27,7 +27,7 @@ fi
 #REGISTRY_EXTERNALIP=`kubectl -n registry get service pregistry-frontend-clusterip -o jsonpath="{.status.loadBalancer.ingress[*].ip}"`
 REGISTRY_FQDN=$(kubectl -n registry get svc pregistry-frontend-clusterip --output="jsonpath={.metadata.annotations}" | jq | grep external | cut -d "\"" -f 4)
 #REGISTRY_FQDN=registryfe.${DNSDOMAINNAME}
-KEYCLOAK_EXTERNALIP=`kubectl -n keycloak get service keycloak -o jsonpath="{.status.loadBalancer.ingress[*].ip}"`
+KEYCLOAK_EXTERNALIP=$(kubectl -n keycloak get service keycloak -o jsonpath="{.status.loadBalancer.ingress[*].ip}")
 KEYCLOAK_FQDN=$(kubectl -n keycloak get svc keycloak --output="jsonpath={.metadata.annotations}" | jq | grep external | cut -d "\"" -f 4)
 #KEYCLOAK_FQDN=keycloak.${DNSDOMAINNAME}
 LONGHORN_EXTERNALIP=$(kubectl -n longhorn-system get svc longhorn-frontend -o jsonpath="{.status.loadBalancer.ingress[*].ip}")
@@ -152,8 +152,8 @@ fi
 if [ ! -z ${LONGHORN_EXTERNALIP} ]; then
 	echo -e "\e[1mLonghorn dashboard \e[m"
 	echo -e "\e[32m http://${LONGHORN_EXTERNALIP}/  \e[m"
-#	echo "or"
-#	echo -e "\e[32m http://${LONGHORN_FQDN}/ \e[m"
+	#	echo "or"
+	#	echo -e "\e[32m http://${LONGHORN_FQDN}/ \e[m"
 	echo ""
 fi
 
@@ -203,8 +203,18 @@ if [ ${HAS_KASTEN} -eq 0 ]; then
 	K10INGRESHOST=$(kubectl -n kasten-io get ingress k10-ingress --output="jsonpath={.spec.rules[*].host }")
 	K10INGRESPATH=$(kubectl -n kasten-io get ingress k10-ingress --output="jsonpath={.spec.rules[*].http.paths[*].path }")
 	K10INGRESURL="${K10INGRESHOST}${K10INGRESPATH}"
-    desired_token_secret_name=k10-k10-token
-    kubectl get secret ${desired_token_secret_name} --namespace kasten-io -ojsonpath="{.data.token}" | base64 --decode ; echo > k10-k10.token
+
+	kubectl get node -o wide | grep v1.25 >/dev/null 2>&1 && KASTEN125=1
+	if [ $KASTEN125 -eq 1 ]; then
+		desired_token_secret_name=k10-k10-token
+		kubectl get secret ${desired_token_secret_name} --namespace kasten-io -ojsonpath="{.data.token}" | base64 --decode >k10-k10.token
+		echo >k10-k10.token
+	else
+		sa_secret=$(kubectl get serviceaccount k10-k10 -o jsonpath="{.secrets[0].name}" --namespace kasten-io)
+		kubectl get secret $sa_secret --namespace kasten-io -ojsonpath="{.data.token}{'\n'}" | base64 --decode >k10-k10.token
+	fi
+	echo "" >>k10-k10.token
+
 	sa_secret=$(kubectl get serviceaccount backupadmin -o jsonpath="{.secrets[0].name}")
 	kubectl get secret $sa_secret -ojsonpath="{.data.token}{'\n'}" | base64 --decode >backupadmin.token
 	echo "" >>backupadmin.token
