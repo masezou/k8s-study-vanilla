@@ -111,7 +111,7 @@ govc datacenter.info
 retvalvcconnect=$?
 if [ ${retvalvcconnect} -ne 0 ]; then
 	echo -e "\e[31m It seemed ${VSPHERESERVER} was not able to connect from this node. Please check vCenter connectivity and re-run.  \e[m"
-    rm /etc/profile.d/govc-vcenter.sh
+	rm /etc/profile.d/govc-vcenter.sh
 	exit 255
 fi
 
@@ -120,7 +120,7 @@ govc datastore.info ${VSPPHEREDATASTORE}
 retvaldsconnect=$?
 if [ ${retvaldsconnect} -ne 0 ]; then
 	echo -e "\e[31m It seemed ${VSPPHEREDATASTORE} was not able to connect from this node. Please check datastore connectivity and re-run.  \e[m"
-    rm /etc/profile.d/govc-vcenter.sh
+	rm /etc/profile.d/govc-vcenter.sh
 	exit 255
 fi
 
@@ -302,7 +302,8 @@ echo "Waiting for deploy csi driver to node..."
 kubectl -n vmware-system-csi wait pod -l app=vsphere-csi-node --for condition=Ready
 
 #Snapshot support in 2.5.0 with vSphere7U3
-if [ ${VSPHERECSI} = "2.5.1" ]; then
+SNAPSHOTTER_VERSION=$(grep SNAPSHOTTER_VERSION= ./4-csi-storage.sh | cut -d "=" -f 2)
+if [ ${SNAPSHOTTER_VERSION} = "6.0.1" ]; then
 	govc about | grep 7.0.3
 	retvspherever=$?
 	if [ ${retvspherever} -eq 0 ]; then
@@ -310,13 +311,12 @@ if [ ${VSPHERECSI} = "2.5.1" ]; then
 		kubectl apply -f https://raw.githubusercontent.com/kubernetes-sigs/vsphere-csi-driver/master/example/vanilla-k8s-RWO-filesystem-volumes/example-snapshotclass.yaml
 		kubectl get volumesnapshotclass
 
-	#kubectl patch storageclass  example-vanilla-rwo-filesystem-sc \
-	#    -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"true"}}}'
+		kubectl patch storageclass example-vanilla-rwo-filesystem-sc \
+			-p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"true"}}}'
 	fi
 fi
-
 kubectl patch storageclass longhorn \
-    -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"false"}}}'
+	-p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"false"}}}'
 
 echo ""
 echo "*************************************************************************************"

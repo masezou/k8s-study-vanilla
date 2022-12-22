@@ -100,8 +100,7 @@ if [ ${LONGHORN} -eq 1 ]; then
 	kubectl get sc | grep longhorn
 	retvallonghorn=$?
 	if [ ${retvallonghorn} -ne 0 ]; then
-		#SNAPSHOTTER_VERSION=5.0.1
-		SNAPSHOTTER_VERSION=6.0.1
+		SNAPSHOTTER_VERSION=5.0.1
 		# Apply VolumeSnapshot CRDs
 		kubectl apply -f https://raw.githubusercontent.com/kubernetes-csi/external-snapshotter/v${SNAPSHOTTER_VERSION}/client/config/crd/snapshot.storage.k8s.io_volumesnapshotclasses.yaml
 		kubectl apply -f https://raw.githubusercontent.com/kubernetes-csi/external-snapshotter/v${SNAPSHOTTER_VERSION}/client/config/crd/snapshot.storage.k8s.io_volumesnapshotcontents.yaml
