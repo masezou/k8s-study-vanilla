@@ -142,6 +142,13 @@ echo "configure ${IPRANGE}"
 kubectl apply -f https://docs.projectcalico.org/manifests/calico.yaml
 METALLBVER=0.13.7
 kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v${METALLBVER}/config/manifests/metallb-native.yaml
+sleep 2
+kubectl get deployment -n metallb-system controller
+while [ "$(kubectl get deployment -n metallb-system controller --output="jsonpath={.status.conditions[*].status}" | cut -d' ' -f1)" != "True" ]; do
+	echo "Deploying metallb controller Please wait...."
+	kubectl get deployment -n metallb-system controller
+	sleep 30
+done
 cat <<EOF | kubectl create -n metallb-system -f -
 apiVersion: metallb.io/v1beta1
 kind: IPAddressPool
@@ -161,13 +168,6 @@ spec:
   ipAddressPools:
   - first-pool
 EOF
-sleep 2
-kubectl get deployment -n metallb-system controller
-while [ "$(kubectl get deployment -n metallb-system controller --output="jsonpath={.status.conditions[*].status}" | cut -d' ' -f1)" != "True" ]; do
-	echo "Deploying metallb controller Please wait...."
-	kubectl get deployment -n metallb-system controller
-	sleep 30
-done
 kubectl get deployment -n metallb-system controller
 
 helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
