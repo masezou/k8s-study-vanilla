@@ -141,23 +141,25 @@ echo "Load balanacer IP range is ${IPRANGE}"
 echo "configure ${IPRANGE}"
 kubectl apply -f https://docs.projectcalico.org/manifests/calico.yaml
 METALLBVER=0.13.7
-kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v${METALLBVER}/manifests/namespace.yaml
-kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v${METALLBVER}/manifests/metallb.yaml
-kubectl create secret generic -n metallb-system memberlist --from-literal=secretkey="$(openssl rand -base64 128)"
-# Following old configuration format. If you uses 0.13.x, you should re-write these configuration.
-cat <<EOF | kubectl create -f -
-apiVersion: v1
-kind: ConfigMap
+kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v${METALLBVER}/config/manifests/metallb-native.yaml
+cat <<EOF | kubectl create -n metallb-system -f -
+apiVersion: metallb.io/v1beta1
+kind: IPAddressPool
 metadata:
+  name: first-pool
   namespace: metallb-system
-  name: config
-data:
-  config: |
-    address-pools:
-    - name: default
-      protocol: layer2
-      addresses:
-      - ${IPRANGE}
+spec:
+  addresses:
+  - ${IPRANGE}
+EOF
+cat <<EOF | kubectl create -n metallb-system -f -
+apiVersion: metallb.io/v1beta1
+kind: L2Advertisement
+metadata:
+  name: example
+spec:
+  ipAddressPools:
+  - first-pool
 EOF
 sleep 2
 kubectl get deployment -n metallb-system controller
@@ -662,7 +664,7 @@ EOF
 		;;
 	esac
 	kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v${DASHBOARDVER}/aio/deploy/recommended.yaml
-    kubectl -n kubernetes-dashboard wait pod -l k8s-app=kubernetes-dashboard --for condition=Ready
+	kubectl -n kubernetes-dashboard wait pod -l k8s-app=kubernetes-dashboard --for condition=Ready
 	cat <<EOF | kubectl apply -f -
 apiVersion: v1
 kind: ServiceAccount
@@ -867,42 +869,41 @@ if [ ${GRAFANAMON} -eq 1 ]; then
 fi
 # Kubevirt
 if [ ${ARCH} = amd64 ]; then
-        if [ $KUBEVIRT -eq 1 ]; then
-                apt -y install cpu-checker
-                kvm-ok
-                retvalkvm=$?
-                if [ ${retvalkvm} -eq 0 ]; then
-                        apt install -y qemu-kvm libvirt-daemon-system libvirt-clients bridge-utils
-                        apt clean
-                        apt -y autoremove
-                        sed -i -e "s@pygrub PUx,@pygrub PUx,\n  /usr/libexec/qemu-kvm PUx, @" /etc/apparmor.d/usr.sbin.libvirtd
-                        systemctl reload apparmor.service
-                        #export VERSION=$(curl -s https://api.github.com/repos/kubevirt/kubevirt/releases | grep tag_name | grep -v -- '-rc' | sort -r | head -1 | awk -F': ' '{print $2}' | sed 's/,//' | xargs)
-                        VERSION=v0.58.0
-                        echo $VERSION
-                        kubectl create -f https://github.com/kubevirt/kubevirt/releases/download/${VERSION}/kubevirt-operator.yaml
-                        kubectl create -f https://github.com/kubevirt/kubevirt/releases/download/${VERSION}/kubevirt-cr.yaml
-                        sleep 180
-                        kubectl -n kubevirt wait kv kubevirt --for condition=Available
-                        # Verify
-                        kubectl get kubevirt.kubevirt.io/kubevirt -n kubevirt -o=jsonpath="{.status.phase}"
-                        kubectl -n kubevirt get pod,daemonsets,deployments.apps
-                        # Install client
-                        VERSION=$(kubectl get kubevirt.kubevirt.io/kubevirt -n kubevirt -o=jsonpath="{.status.observedKubeVirtVersion}")
-                        ARCH=$(uname -s | tr A-Z a-z)-$(uname -m | sed 's/x86_64/amd64/') || windows-amd64.exe
-                        echo ${ARCH}
-                        curl -L -o virtctl https://github.com/kubevirt/kubevirt/releases/download/${VERSION}/virtctl-${VERSION}-${ARCH}
-                        chmod +x virtctl
-                        install virtctl /usr/local/bin
-                        rm virtctl
-                        virtctl completion bash >/etc/bash_completion.d/virtctl
-                        source /etc/bash_completion.d/virtctl
-                else
-                        echo "Virtualization is not supported in this node."
-                fi
-        fi
+	if [ $KUBEVIRT -eq 1 ]; then
+		apt -y install cpu-checker
+		kvm-ok
+		retvalkvm=$?
+		if [ ${retvalkvm} -eq 0 ]; then
+			apt install -y qemu-kvm libvirt-daemon-system libvirt-clients bridge-utils
+			apt clean
+			apt -y autoremove
+			sed -i -e "s@pygrub PUx,@pygrub PUx,\n  /usr/libexec/qemu-kvm PUx, @" /etc/apparmor.d/usr.sbin.libvirtd
+			systemctl reload apparmor.service
+			#export VERSION=$(curl -s https://api.github.com/repos/kubevirt/kubevirt/releases | grep tag_name | grep -v -- '-rc' | sort -r | head -1 | awk -F': ' '{print $2}' | sed 's/,//' | xargs)
+			VERSION=v0.58.0
+			echo $VERSION
+			kubectl create -f https://github.com/kubevirt/kubevirt/releases/download/${VERSION}/kubevirt-operator.yaml
+			kubectl create -f https://github.com/kubevirt/kubevirt/releases/download/${VERSION}/kubevirt-cr.yaml
+			sleep 180
+			kubectl -n kubevirt wait kv kubevirt --for condition=Available
+			# Verify
+			kubectl get kubevirt.kubevirt.io/kubevirt -n kubevirt -o=jsonpath="{.status.phase}"
+			kubectl -n kubevirt get pod,daemonsets,deployments.apps
+			# Install client
+			VERSION=$(kubectl get kubevirt.kubevirt.io/kubevirt -n kubevirt -o=jsonpath="{.status.observedKubeVirtVersion}")
+			ARCH=$(uname -s | tr A-Z a-z)-$(uname -m | sed 's/x86_64/amd64/') || windows-amd64.exe
+			echo ${ARCH}
+			curl -L -o virtctl https://github.com/kubevirt/kubevirt/releases/download/${VERSION}/virtctl-${VERSION}-${ARCH}
+			chmod +x virtctl
+			install virtctl /usr/local/bin
+			rm virtctl
+			virtctl completion bash >/etc/bash_completion.d/virtctl
+			source /etc/bash_completion.d/virtctl
+		else
+			echo "Virtualization is not supported in this node."
+		fi
+	fi
 fi
-
 
 rndc freeze ${DNSDOMAINNAME}
 rndc thaw ${DNSDOMAINNAME}
