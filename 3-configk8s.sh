@@ -140,7 +140,7 @@ echo "Load balanacer IP range is ${IPRANGE}"
 # Configure Metallb and ingress
 echo "configure ${IPRANGE}"
 kubectl apply -f https://docs.projectcalico.org/manifests/calico.yaml
-METALLBVER=0.12.1
+METALLBVER=0.13.7
 kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v${METALLBVER}/manifests/namespace.yaml
 kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v${METALLBVER}/manifests/metallb.yaml
 kubectl create secret generic -n metallb-system memberlist --from-literal=secretkey="$(openssl rand -base64 128)"
