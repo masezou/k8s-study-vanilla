@@ -104,6 +104,18 @@ else
 fi
 echo $SUDO_USER
 
+## netplan configuration path
+ls /etc/netplan/*.yaml
+retvalnetplan=$?
+if [ ${retvalnetplan} -eq 0 ]; then
+NETPLANPATH=`ls /etc/netplan/*.yaml`
+else
+echo "netplan was not configured. exit..."
+exit 255
+fi
+echo "netplan configuration file"
+echo ${NETPLANPATH}
+
 DNSHOSTIP=${LOCALIPADDR}
 DNSHOSTNAME=$(hostname)
 
@@ -363,7 +375,7 @@ EOF
 	chmod g+w /var/cache/bind/${DNSDOMAINNAME}.lan
 	systemctl restart named
 	systemctl status named -l --no-pager
-	ETHDEV=$(grep ens /etc/netplan/00-installer-config.yaml | tr -d ' ' | cut -d ":" -f1)
+	ETHDEV=$(grep ens ${NETPLANPATH} | tr -d ' ' | cut -d ":" -f1)
 	netplan set network.ethernets.${ETHDEV}.nameservers.addresses=[${DNSHOSTIP}]
 	netplan set network.ethernets.${ETHDEV}.nameservers.search=[${DNSDOMAINNAME}]
 	netplan apply
