@@ -118,7 +118,7 @@ EOF
 		curl -sSfL https://raw.githubusercontent.com/longhorn/longhorn/master/scripts/environment_check.sh | bash
 
 		kubectl patch storageclass local-path -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"false"}}}'
-		kubectl get node -o wide | grep v1.25 >/dev/null 2>&1 && LONGHORNVER=1.4.0-rc2
+		kubectl get node -o wide | grep v1.25 >/dev/null 2>&1 && LONGHORNVER=1.4.0-rc3
 		if [ ! -z ${LONGHORNVER} ]; then
 
 			#kubectl apply -f https://raw.githubusercontent.com/longhorn/longhorn/v${LONGHORNVER}/deploy/longhorn.yaml
