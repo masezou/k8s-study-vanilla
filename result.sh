@@ -61,8 +61,13 @@ echo -e "\e[32m${DNSDOMAINNAME} \e[m"
 echo -n "DNS DNS IP address is "
 echo -e "\e[32m${DNSHOSTIP} \e[m"
 echo ""
-MCLOGINUSER=miniologinuser
-MCLOGINPASSWORD=miniologinuser
+if [ -f ./0-minio.sh ]; then
+	MCLOGINUSER=$(grep MCLOGINUSER= 0-minio.sh | head -n 1 | cut -d "=" -f 2)
+	MCLOGINPASSWORD=$(grep MCLOGINPASSWORD= 0-minio.sh | head -n 1 | head -n 1 | cut -d "=" -f 2)
+else
+	MCLOGINUSER=miniologinuser
+	MCLOGINPASSWORD=miniologinuser
+fi
 MINIO_ENDPOINT=https://${LOCALIPADDR}
 MINIO_ENDPOINTFQDN=https://minio.${DNSDOMAINNAME}
 echo -e "\e[32m Minio API endpoint is ${MINIO_ENDPOINT}:9000 \e[m"
@@ -208,7 +213,7 @@ if [ ${HAS_KASTEN} -eq 0 ]; then
 	if [ $KASTEN125 -eq 1 ]; then
 		desired_token_secret_name=k10-k10-token
 		kubectl get secret ${desired_token_secret_name} --namespace kasten-io -ojsonpath="{.data.token}" | base64 --decode >k10-k10.token
-	    echo "" >>k10-k10.token
+		echo "" >>k10-k10.token
 	else
 		sa_secret=$(kubectl get serviceaccount k10-k10 -o jsonpath="{.secrets[0].name}" --namespace kasten-io)
 		kubectl get secret $sa_secret --namespace kasten-io -ojsonpath="{.data.token}{'\n'}" | base64 --decode >k10-k10.token
