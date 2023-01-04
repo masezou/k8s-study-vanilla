@@ -731,8 +731,8 @@ EOF
 		external-dns.alpha.kubernetes.io/hostname=dashboard.${DNSDOMAINNAME}
 	sleep 10
 	host dashboard.${DNSDOMAINNAME}. ${DNSHOSTIP}
-
-	kubectl -n kubernetes-dashboard get secret $(kubectl -n kubernetes-dashboard get sa/admin-user -o jsonpath="{.secrets[0].name}") -o go-template="{{.data.token | base64decode}}" >dashboard.token
+    
+    kubectl -n kubernetes-dashboard create token admin-user --duration=7776000s  >dashboard.token
 	echo "" >>dashboard.token
 	if [ -z $SUDO_USER ]; then
 		echo "there is no sudo login"

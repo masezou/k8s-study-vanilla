@@ -83,8 +83,6 @@ echo -e "\e[32m username: ${MCLOGINUSER} \e[m"
 echo -e "\e[32m password: ${MCLOGINPASSWORD} \e[m"
 echo ""
 if [ ! -z ${DASHBOARD_EXTERNALIP} ]; then
-	kubectl -n kubernetes-dashboard get secret $(kubectl -n kubernetes-dashboard get sa/admin-user -o jsonpath="{.secrets[0].name}") -o go-template="{{.data.token | base64decode}}" >dashboard.token
-	echo "" >>dashboard.token
 	echo -e "\e[1mKubernetes dashboard \e[m"
 	echo -e "\e[32m https://${DASHBOARD_EXTERNALIP}/#/login  \e[m"
 	echo "or"
