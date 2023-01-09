@@ -121,14 +121,21 @@ EOF
 		helm repo add longhorn https://charts.longhorn.io
 		helm repo update
 		kubectl create namespace longhorn-system
-		helm install longhorn longhorn/longhorn --namespace longhorn-system --set defaultSettings.backupTarget="s3://backupbucket@us-east-1/" --set defaultSettings.backupTargetCredentialSecret="minio-secret"
+		MCLOGINUSER=$(grep MCLOGINUSER= ./0-minio.sh | head -n 1 | cut -d "=" -f 2)
+		MCLOGINPASSWORD=$(grep MCLOGINPASSWORD= 0-minio.sh | head -n 1 | head -n 1 | cut -d "=" -f 2)
+		DNSDOMAINNAME=$(kubectl -n external-dns get deployments.apps --output="jsonpath={.items[*].spec.template.spec.containers }" | jq | grep rfc2136-zone | cut -d "=" -f 2 | cut -d "\"" -f 1)
+		MINIO_ENDPOINT="https://minio.${DNSDOMAINNAME}:9000"
+		MINIOCERTDIR=/root/.minio/certs
+		LONGHORNBUCKET=$(hostname)-longhorn
+		mc --insecure mb local/${LONGHORNBUCKET}
+		helm install longhorn longhorn/longhorn --namespace longhorn-system --set defaultSettings.backupTarget="s3://${LONGHORNBUCKET}@us-east-1/" --set defaultSettings.backupTargetCredentialSecret="minio-secret-local"
 		sleep 40
 		# Checking Longhorn boot up
 		kubectl -n longhorn-system wait pod -l app=longhorn-manager --for condition=Ready --timeout 360s
 		kubectl -n longhorn-system wait pod -l app=longhorn-conversion-webhook --for condition=Ready --timeout 360s
 		kubectl -n longhorn-system wait pod -l app=longhorn-driver-deployer --for condition=Ready --timeout 360s
 		kubectl -n longhorn-system wait pod -l app=longhorn-ui --for condition=Ready --timeout 360s
-
+        kubectl -n longhorn-system wait pod -l app=csi-provisioner --for condition=Ready --timeout 360s
 		cat <<EOF | kubectl apply -f -
 kind: VolumeSnapshotClass
 apiVersion: snapshot.storage.k8s.io/v1
@@ -139,19 +146,24 @@ metadata:
 driver: driver.longhorn.io
 deletionPolicy: Delete
 EOF
-		LONGHORNMINIO=$(kubectl -n longhorn-system describe deployments.apps longhorn-admission-webhook | grep "app.kubernetes.io/version" | cut -d "=" -f 2 | uniq)
-		kubectl create -f https://raw.githubusercontent.com/longhorn/longhorn/${LONGHORNMINIO}/deploy/backupstores/minio-backupstore.yaml
-		kubectl wait pod -l app=longhorn-test-minio --for condition=Ready --timeout 720s
+		AWS_ENDPOINTS=$(echo -n ${MINIO_ENDPOINT} | base64)
+		AWS_ACCESS_KEY_ID=$(echo -n ${MCLOGINUSER} | base64)
+		AWS_SECRET_ACCESS_KEY=$(echo -n ${MCLOGINPASSWORD} | base64)
+		AWS_CERT=$(cat ${MINIOCERTDIR}/CAs/rootCA.pem | base64 | tr -d "\n")
+		cat <<EOF | kubectl apply -f -
+apiVersion: v1
+kind: Secret
+metadata:
+  name: minio-secret-local
+  namespace: longhorn-system
+type: Opaque
+data:
+  AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+  AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+  AWS_ENDPOINTS: ${AWS_ENDPOINTS}
+  AWS_CERT: ${AWS_CERT}
+EOF
 		sleep 10
-		LONGHRONMINIOEP_IP=$(kubectl get svc minio-service -o jsonpath="{.spec.clusterIP}")
-		if [ ! -f /usr/local/bin/mc ]; then
-			curl --retry 10 --retry-delay 3 --retry-connrefused -sSOL https://dl.min.io/client/mc/release/linux-${ARCH}/mc
-			mv mc /usr/local/bin/
-			chmod +x /usr/local/bin/mc
-			echo "complete -C /usr/local/bin/mc mc" >/etc/bash_completion.d/mc.sh
-			/usr/local/bin/mc update
-		fi
-		mc alias set longhorn-minio https://${LONGHRONMINIOEP_IP}:9000 longhorn-test-access-key longhorn-test-secret-key --api "s3v4" --insecure
 
 		kubectl patch storageclass longhorn \
 			-p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"true"}}}'
