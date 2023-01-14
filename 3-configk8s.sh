@@ -523,7 +523,7 @@ spec:
       serviceAccountName: external-dns
       containers:
       - name: external-dns
-        image: k8s.gcr.io/external-dns/external-dns:v0.12.0
+        image: k8s.gcr.io/external-dns/external-dns:v0.13.2
         args:
         - --provider=rfc2136
         - --registry=txt
