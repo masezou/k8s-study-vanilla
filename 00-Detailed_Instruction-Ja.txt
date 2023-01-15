@@ -1,6 +1,6 @@
 TL;DR
 vCenter/ESX上に4vCPU 16GB RAM 200GB HDDVMを作成してUbuntu 20.04.4 Server (amd64) をクリーンインストール。その後、以下を実行。
-```
+
 sudo -i
 git clone https://github.com/masezou/k8s-study-vanilla --depth 1
 cd k8s-study-vanilla
@@ -11,7 +11,7 @@ vi 5-csi-vsphere.sh
  ->vSphereの情報を入力
 ./5-csi-vsphere.sh
 ./K1-kasten.sh ; ./K3-kasten-vsphere.sh
-```
+
 
 サマリー
 最小のリソースでvSphere上にKubernetes環境とそのバックアップ環境を作成。
