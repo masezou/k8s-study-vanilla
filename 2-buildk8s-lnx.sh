@@ -318,11 +318,11 @@ if [ ${IMAGEDL} -eq 1 ]; then
 	ctr images rm mcr.microsoft.com/mssql/server:2019-CU15-ubuntu-20.04
 	ctr images rm ${REGISTRY}/mssql/server:2019-CU15-ubuntu-20.04
 
-	ctr images pull --platform linux/${ARCH} docker.io/library/alpine:3.17.1
-	ctr images tag docker.io/library/alpine:3.17.1 ${REGISTRY}/library/alpine:3.17.1
-	ctr images push --platform linux/${ARCH} --plain-http ${REGISTRY}/library/alpine:3.17.1
-	ctr images rm docker.io/library/alpine:3.17.1
-	ctr images rm ${REGISTRY}/library/alpine:3.17.1
+	ctr images pull --platform linux/${ARCH} docker.io/library/alpine:3.17.2
+	ctr images tag docker.io/library/alpine:3.17.2 ${REGISTRY}/library/alpine:3.17.2
+	ctr images push --platform linux/${ARCH} --plain-http ${REGISTRY}/library/alpine:3.17.2
+	ctr images rm docker.io/library/alpine:3.17.2
+	ctr images rm ${REGISTRY}/library/alpine:3.17.2
 
 	echo "Registry result"
 	curl -X GET ${REGISTRYURL}/v2/_catalog
