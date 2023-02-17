@@ -78,7 +78,7 @@ if [ ! -f /usr/local/bin/kanctl ]; then
 fi
 
 # Install kubestr
-KUBESTRVER=0.4.36
+KUBESTRVER=0.4.37
 if [ ! -f /usr/local/bin/kubestr ]; then
 	rm -rf /usr/local/bin/kubestr
 	mkdir temp
