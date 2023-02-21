@@ -152,7 +152,7 @@ echo "Load balanacer IP range is ${IPRANGE}"
 # Configure Metallb and ingress
 echo "configure ${IPRANGE}"
 kubectl apply -f https://docs.projectcalico.org/manifests/calico.yaml
-METALLBVER=0.13.7
+METALLBVER=0.13.9
 kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v${METALLBVER}/config/manifests/metallb-native.yaml
 sleep 2
 kubectl get deployment -n metallb-system controller
