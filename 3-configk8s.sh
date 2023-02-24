@@ -108,10 +108,10 @@ echo $SUDO_USER
 ls /etc/netplan/*.yaml
 retvalnetplan=$?
 if [ ${retvalnetplan} -eq 0 ]; then
-NETPLANPATH=`ls /etc/netplan/*.yaml`
+	NETPLANPATH=$(ls /etc/netplan/*.yaml)
 else
-echo "netplan was not configured. exit..."
-exit 255
+	echo "netplan was not configured. exit..."
+	exit 255
 fi
 echo "netplan configuration file"
 echo ${NETPLANPATH}
@@ -150,8 +150,25 @@ fi
 echo "Load balanacer IP range is ${IPRANGE}"
 
 # Configure Metallb and ingress
+# Installing Calico
+TIGERAVER=3.25.0
+kubectl create -f https://raw.githubusercontent.com/projectcalico/calico/v${TIGERAVER}/manifests/tigera-operator.yaml
+curl --retry 10 --retry-delay 3 --retry-connrefused -sSOL https://raw.githubusercontent.com/projectcalico/calico/v${TIGERAVER}/manifests/custom-resources.yaml
+sed -i -e "s@192.168.0.0@10.244.0.0@g" custom-resources.yaml
+kubectl create -f custom-resources.yaml
+kubectl get deployment -n calico-system calico-kube-controllers
+sleep 15
+kubectl -n tigera-operator wait pod -l k8s-app=tigera-operator --for condition=Ready
+while [ "$(kubectl get deployment -n calico-system calico-kube-controllers --output="jsonpath={.status.conditions[*].status}" | cut -d' ' -f1)" != "True" ]; do
+	echo "Deploying Calico controller Please wait...."
+	kubectl get deployment -n calico-system calico-kube-controllers
+	sleep 10
+done
+kubectl -n calico-system wait pod -l k8s-app=calico-kube-controllers --for condition=Ready
+kubectl get deployment -n calico-system calico-kube-controllers
+
+# Installing Metallb
 echo "configure ${IPRANGE}"
-kubectl apply -f https://docs.projectcalico.org/manifests/calico.yaml
 METALLBVER=0.13.9
 kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v${METALLBVER}/config/manifests/metallb-native.yaml
 sleep 2
@@ -731,8 +748,8 @@ EOF
 		external-dns.alpha.kubernetes.io/hostname=dashboard.${DNSDOMAINNAME}
 	sleep 10
 	host dashboard.${DNSDOMAINNAME}. ${DNSHOSTIP}
-    
-    kubectl -n kubernetes-dashboard create token admin-user --duration=7776000s  >dashboard.token
+
+	kubectl -n kubernetes-dashboard create token admin-user --duration=7776000s >dashboard.token
 	echo "" >>dashboard.token
 	if [ -z $SUDO_USER ]; then
 		echo "there is no sudo login"
