@@ -125,6 +125,17 @@ else
 fi
 echo $SUDO_USER
 
+# Restart service automatically
+if [ -f /etc/needrestart/needrestart.conf ]; then
+	grep "{restart} = 'a'" /etc/needrestart/needrestart.conf
+	retvalneedrestart=$?
+	if [ ${retvalneedrestart} -ne 0 ]; then
+		cat <<'EOF' >>/etc/needrestart/needrestart.conf
+$nrconf{restart} = 'a';
+EOF
+	fi
+fi
+
 ## Hostname uppercase workaround
 KBHOSTNAME=$(hostname)
 hostnamectl set-hostname ${KBHOSTNAME,,}
@@ -176,9 +187,9 @@ APT::Get::Assume-Yes "true";
 APT::Get::force-yes "true";
 EOF
 	if [ ${ARCH} = amd64 ]; then
-		add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu  $(lsb_release -cs)  stable"
+		add-apt-repository -y "deb [arch=amd64] https://download.docker.com/linux/ubuntu  $(lsb_release -cs)  stable"
 	elif [ ${ARCH} = arm64 ]; then
-		add-apt-repository "deb [arch=arm64] https://download.docker.com/linux/ubuntu  $(lsb_release -cs)  stable"
+		add-apt-repository -y "deb [arch=arm64] https://download.docker.com/linux/ubuntu  $(lsb_release -cs)  stable"
 	else
 		echo "${ARCH} platform is not supported"
 		exit 1
@@ -342,7 +353,7 @@ EOF
 	retval=$?
 	if [ ${retval} -ne 0 ]; then
 		curl --retry 10 --retry-delay 3 --retry-connrefused -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -
-		apt-add-repository "deb http://apt.kubernetes.io/ kubernetes-xenial main"
+		apt-add-repository  "deb http://apt.kubernetes.io/ kubernetes-xenial main"
 		apt update
 	fi
 	if [ -z ${KUBECTLVER} ]; then

@@ -128,6 +128,17 @@ echo ${NETPLANPATH}
 
 BASEPWD=$(pwd)
 
+# Restart service automatically
+if [ -f /etc/needrestart/needrestart.conf ]; then
+	grep "{restart} = 'a'" /etc/needrestart/needrestart.conf
+	retvalneedrestart=$?
+	if [ ${retvalneedrestart} -ne 0 ]; then
+		cat <<'EOF' >>/etc/needrestart/needrestart.conf
+$nrconf{restart} = 'a';
+EOF
+	fi
+fi
+
 apt update
 apt -y upgrade
 #apt -y install git curl
