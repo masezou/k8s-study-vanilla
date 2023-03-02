@@ -176,24 +176,30 @@ if [ ${retvalsnap} -eq 0 ]; then
 	apt -y autoremove
 fi
 # Remove docker. We will use containerd!!!!
-apt -y purge docker docker.io docker-ce-cli docker-ce docker-ce-rootless-extra podman
+apt -y purge purge docker docker-engine docker.io containerd runc podman
 
 if [ ! -f /usr/bin/containerd ]; then
-	apt -y install apt-transport-https ca-certificates curl gnupg-agent software-properties-common
-	curl --retry 10 --retry-delay 3 --retry-connrefused -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -
-	apt-key fingerprint 0EBFCD88
+#	apt -y install apt-transport-https ca-certificates curl gnupg-agent software-properties-common
+#	curl --retry 10 --retry-delay 3 --retry-connrefused -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -
+#	apt-key fingerprint 0EBFCD88
+apt -y install ca-certificates curl gnupg lsb-release
+mkdir -m 0755 -p /etc/apt/keyrings
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg
 	cat <<EOF >/etc/apt/apt.conf.d/90_no_prompt
 APT::Get::Assume-Yes "true";
 APT::Get::force-yes "true";
 EOF
-	if [ ${ARCH} = amd64 ]; then
-		add-apt-repository -y "deb [arch=amd64] https://download.docker.com/linux/ubuntu  $(lsb_release -cs)  stable"
-	elif [ ${ARCH} = arm64 ]; then
-		add-apt-repository -y "deb [arch=arm64] https://download.docker.com/linux/ubuntu  $(lsb_release -cs)  stable"
-	else
-		echo "${ARCH} platform is not supported"
-		exit 1
-	fi
+#	if [ ${ARCH} = amd64 ]; then
+#		add-apt-repository -y "deb [arch=amd64] https://download.docker.com/linux/ubuntu  $(lsb_release -cs)  stable"
+#	elif [ ${ARCH} = arm64 ]; then
+#		add-apt-repository -y "deb [arch=arm64] https://download.docker.com/linux/ubuntu  $(lsb_release -cs)  stable"
+#	else
+#		echo "${ARCH} platform is not supported"
+#		exit 1
+#	fi
+echo \
+  "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \
+  $(lsb_release -cs) stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null
 	apt update
 
 	if [ -z ${CONTAINERDVER} ]; then

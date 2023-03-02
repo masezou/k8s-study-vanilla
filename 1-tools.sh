@@ -402,11 +402,14 @@ if [ ${DOCKER} -eq 1 ]; then
 			apt -y autoremove
 		fi
 		# Remove docker from Ubuntu
-		apt -y purge docker docker.io
+		apt -y purge docker docker-engine docker.io containerd runc
 		apt -y upgrade
-		apt -y install apt-transport-https ca-certificates curl gnupg-agent software-properties-common
-		curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
-		apt-key fingerprint 0EBFCD88
+		#apt -y install apt-transport-https ca-certificates curl gnupg-agent software-properties-common
+		#curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+		#apt-key fingerprint 0EBFCD88
+apt -y install ca-certificates curl gnupg lsb-release
+mkdir -m 0755 -p /etc/apt/keyrings
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg
 		cat <<EOF >/etc/apt/apt.conf.d/90_no_prompt
 APT {
     Get {
@@ -414,15 +417,20 @@ APT {
     };
 };
 EOF
-		if [ ${ARCH} = amd64 ]; then
-			add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu  $(lsb_release -cs)  stable"
-		elif [ ${ARCH} = arm64 ]; then
-			add-apt-repository "deb [arch=arm64] https://download.docker.com/linux/ubuntu  $(lsb_release -cs)  stable"
-		else
-			echo "${ARCH} platform is not supported"
-			exit 1
-		fi
-		apt -y install docker-ce-cli docker-ce
+#		if [ ${ARCH} = amd64 ]; then
+#			add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu  $(lsb_release -cs)  stable"
+#		elif [ ${ARCH} = arm64 ]; then
+#			add-apt-repository "deb [arch=arm64] https://download.docker.com/linux/ubuntu  $(lsb_release -cs)  stable"
+#		else
+#			echo "${ARCH} platform is not supported"
+#			exit 1
+#		fi
+#		apt -y install docker-ce-cli docker-ce
+echo \
+  "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \
+  $(lsb_release -cs) stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null
+  
+ apt -y install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin 
 		CONTAINERDVER=$(/usr/bin/containerd -v | cut -d " " -f3)
 		curl --retry 10 --retry-delay 3 --retry-connrefused -sS https://raw.githubusercontent.com/containerd/containerd/v${CONTAINERDVER}/contrib/autocomplete/ctr -o /etc/bash_completion.d/ctr
 		groupadd docker
