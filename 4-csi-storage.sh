@@ -82,17 +82,6 @@ fi
 BASEPWD=$(pwd)
 source /etc/profile
 
-# Restart service automatically
-if [ -f /etc/needrestart/needrestart.conf ]; then
-	grep "{restart} = 'a'" /etc/needrestart/needrestart.conf
-	retvalneedrestart=$?
-	if [ ${retvalneedrestart} -ne 0 ]; then
-		cat <<'EOF' >>/etc/needrestart/needrestart.conf
-$nrconf{restart} = 'a';
-EOF
-	fi
-fi
-
 kubectl get node | grep "NotReady"
 retvalstatus=$?
 if [ ${retvalstatus} -eq 0 ]; then
