@@ -149,6 +149,11 @@ if [ ${IPRANGE} = "fixme" ]; then
 fi
 echo "Load balanacer IP range is ${IPRANGE}"
 
+# fix inotify_init
+sysctl fs.inotify.max_user_instances=512
+sysctl fs.inotify.max_user_watches=65536
+
+
 # Configure Metallb and ingress
 # Installing Calico
 TIGERAVER=3.25.0
