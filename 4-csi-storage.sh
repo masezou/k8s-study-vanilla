@@ -192,6 +192,10 @@ ${NFSSUBPATH} 172.16.0.0/12(rw,async,no_root_squash)
 ${NFSSUBPATH} 10.0.0.0/8(rw,async,no_root_squash)
 ${NFSSUBPATH} 127.0.0.1/8(rw,async,no_root_squash)
 EOF
+
+# fix inotify_init
+sysctl fs.inotify.max_user_instances=512
+sysctl fs.inotify.max_user_watches=65536          
 			systemctl restart nfs-server
 			systemctl enable nfs-server
 			showmount -e
