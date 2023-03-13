@@ -80,6 +80,7 @@ case ${UBUNTUVER} in
 	;;
 "22.04")
 	echo "${UBUNTUVER} is experimental."
+    pro config set apt_news=false
 	#exit 255
 	;;
 *)
