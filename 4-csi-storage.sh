@@ -109,7 +109,8 @@ if [ ${LONGHORN} -eq 1 ]; then
 		kubectl -n kube-system apply -f https://raw.githubusercontent.com/kubernetes-csi/external-snapshotter/v${SNAPSHOTTER_VERSION}/deploy/kubernetes/snapshot-controller/rbac-snapshot-controller.yaml
 		kubectl -n kube-system apply -f https://raw.githubusercontent.com/kubernetes-csi/external-snapshotter/v${SNAPSHOTTER_VERSION}/deploy/kubernetes/snapshot-controller/setup-snapshot-controller.yaml
 		apt -y install jq nfs-common
-		cat <<EOF >>/etc/multipath.conf
+        cp /etc/multipath.conf /etc/multipath.conf.orig
+		cat <<EOF >/etc/multipath.conf
 blacklist {
   devnode "^sd[a-z0-9]+"
 }
