@@ -41,7 +41,7 @@ if [ ${NFSSVR} -eq 1 ]; then
 		echo -e "\e[32m${UBUNTUVER} is OK. \e[m"
 		;;
 	"22.04")
-		echo "${UBUNTUVER} is experimental."
+		echo "${UBUNTUVER} is OK.."
 		#exit 255
 		;;
 	*)
