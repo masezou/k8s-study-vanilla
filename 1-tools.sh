@@ -541,7 +541,7 @@ EOF
 	fi
 	# Install Kind
 	if [ ! -f /usr/local/bin/kind ]; then
-		KINDVER=0.17.0
+		KINDVER=0.18.0
 		curl -s -Lo ./kind https://github.com/kubernetes-sigs/kind/releases/download/v${KINDVER}/kind-linux-${ARCH}
 		mv ./kind /usr/local/bin/kind
 		chmod +x /usr/local/bin/kind
