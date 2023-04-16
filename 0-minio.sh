@@ -247,10 +247,10 @@ if [ ! -f /etc/systemd/system/minio.service ]; then
         ]
 }
 EOF
-	mc admin policy add local/ s3user s3user.json
+	mc admin policy create local s3user s3user.json
 	rm s3user.json
 	mc admin user add local ${MCLOGINUSER} ${MCLOGINPASSWORD}
-	mc admin policy set local s3user,consoleAdmin user=${MCLOGINUSER}
+	mc admin policy attach local s3user consoleAdmin --user ${MCLOGINUSER}
 	mc alias rm local
 	mc alias set local ${MINIO_ENDPOINT} ${MCLOGINUSER} ${MCLOGINPASSWORD} --api S3v4
 
