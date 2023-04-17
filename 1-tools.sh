@@ -683,7 +683,7 @@ if [ ${TCE} -eq 1 ]; then
 
 	# Install Velero
 	if [ ! -f /usr/local/bin/velero ]; then
-		VELEROVER=1.9.5
+		VELEROVER=1.9.7
 		curl --retry 10 --retry-delay 3 --retry-connrefused -sSOL https://github.com/vmware-tanzu/velero/releases/download/v${VELEROVER}/velero-v${VELEROVER}-linux-${ARCH}.tar.gz
 		tar xfz velero-v${VELEROVER}-linux-${ARCH}.tar.gz
 		mv velero-v${VELEROVER}-linux-${ARCH}/velero /usr/local/bin/
