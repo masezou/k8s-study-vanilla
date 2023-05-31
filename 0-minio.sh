@@ -70,7 +70,7 @@ fi
 
 #### LOCALIP #########
 if [ -z ${FORCE_LOCALIP} ]; then
-	ETHDEV=$(grep ens /etc/netplan/00-config.yaml | tr -d ' ' | cut -d ":" -f1)
+	ETHDEV=`netplan get |grep ens | tr -d ' ' | cut -d ":" -f1`
 	LOCALIPADDR=$(ip -f inet -o addr show $ETHDEV | cut -d\  -f 7 | cut -d/ -f 1)
 else
 	LOCALIPADDR=${FORCE_LOCALIP}

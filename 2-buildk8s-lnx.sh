@@ -87,19 +87,8 @@ fi
 
 #### LOCALIP #########
 if [ -z ${FORCE_LOCALIP} ]; then
-	ip address show ens160 >/dev/null
-	retval=$?
-	if [ ${retval} -eq 0 ]; then
-		LOCALIPADDR=$(ip -f inet -o addr show ens160 | cut -d\  -f 7 | cut -d/ -f 1)
-	else
-		ip address show ens192 >/dev/null
-		retval2=$?
-		if [ ${retval2} -eq 0 ]; then
-			LOCALIPADDR=$(ip -f inet -o addr show ens192 | cut -d\  -f 7 | cut -d/ -f 1)
-		else
-			LOCALIPADDR=$(ip -f inet -o addr show eth0 | cut -d\  -f 7 | cut -d/ -f 1)
-		fi
-	fi
+ETHDEV=`netplan get |grep ens | tr -d ' ' | cut -d ":" -f1`
+LOCALIPADDR=`ip -f inet -o addr show $ETHDEV |cut -d\  -f 7 | cut -d/ -f 1`
 else
 	LOCALIPADDR=${FORCE_LOCALIP}
 fi

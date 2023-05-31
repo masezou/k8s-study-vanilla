@@ -399,7 +399,8 @@ EOF
 	chmod g+w /var/cache/bind/${DNSDOMAINNAME}.lan
 	systemctl restart named
 	systemctl status named -l --no-pager
-	ETHDEV=$(grep ens ${NETPLANPATH} | tr -d ' ' | cut -d ":" -f1)
+	#ETHDEV=$(grep ens ${NETPLANPATH} | tr -d ' ' | cut -d ":" -f1)
+    ETHDEV=`netplan get |grep ens | tr -d ' ' | cut -d ":" -f1`
 	netplan set network.ethernets.${ETHDEV}.nameservers.addresses=[${DNSHOSTIP}]
 	netplan set network.ethernets.${ETHDEV}.nameservers.search=[${DNSDOMAINNAME}]
 	netplan apply

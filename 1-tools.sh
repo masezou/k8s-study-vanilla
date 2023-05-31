@@ -571,7 +571,8 @@ if [ ${CLIENT} -eq 0 ]; then
 		fi
 	fi
 	if [ ! -z ${DNSHOSTIP} ]; then
-		ETHDEV=$(grep ens ${NETPLANPATH} | tr -d ' ' | cut -d ":" -f1)
+		#ETHDEV=$(grep ens ${NETPLANPATH} | tr -d ' ' | cut -d ":" -f1)
+        ETHDEV=`netplan get |grep ens | tr -d ' ' | cut -d ":" -f1`
 		netplan set network.ethernets.${ETHDEV}.nameservers.addresses=[${DNSHOSTIP}]
 		netplan apply
 	fi
