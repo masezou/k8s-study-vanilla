@@ -36,16 +36,16 @@ fi
 UBUNTUVER=$(grep DISTRIB_RELEASE /etc/lsb-release | cut -d "=" -f2)
 case ${UBUNTUVER} in
 "20.04")
-        echo -e "\e[32m${UBUNTUVER} is OK. \e[m"
-        ;;
+	echo -e "\e[32m${UBUNTUVER} is OK. \e[m"
+	;;
 "22.04")
-        echo "${UBUNTUVER} is OK.."
-        #exit 255
-        ;;
+	echo "${UBUNTUVER} is OK.."
+	#exit 255
+	;;
 *)
-        echo -e "\e[31m${UBUNTUVER} is NG. \e[m"
-        exit 255
-        ;;
+	echo -e "\e[31m${UBUNTUVER} is NG. \e[m"
+	exit 255
+	;;
 esac
 if [ ! -f /usr/share/doc/ubuntu-server/copyright ]; then
 	echo -e "\e[31m It seemed his VM is installed Ubuntu Desktop media. VM which is installed from Ubuntu Desktop media is not supported. Please re-create VM from Ubuntu Server media! \e[m"
@@ -70,19 +70,8 @@ fi
 
 #### LOCALIP #########
 if [ -z ${FORCE_LOCALIP} ]; then
-	ip address show ens160 >/dev/null
-	retval=$?
-	if [ ${retval} -eq 0 ]; then
-		LOCALIPADDR=$(ip -f inet -o addr show ens160 | cut -d\  -f 7 | cut -d/ -f 1)
-	else
-		ip address show ens192 >/dev/null
-		retval2=$?
-		if [ ${retval2} -eq 0 ]; then
-			LOCALIPADDR=$(ip -f inet -o addr show ens192 | cut -d\  -f 7 | cut -d/ -f 1)
-		else
-			LOCALIPADDR=$(ip -f inet -o addr show eth0 | cut -d\  -f 7 | cut -d/ -f 1)
-		fi
-	fi
+	ETHDEV=$(grep ens /etc/netplan/00-config.yaml | tr -d ' ' | cut -d ":" -f1)
+	LOCALIPADDR=$(ip -f inet -o addr show $ETHDEV | cut -d\  -f 7 | cut -d/ -f 1)
 else
 	LOCALIPADDR=${FORCE_LOCALIP}
 fi
