@@ -70,7 +70,7 @@ fi
 
 #### LOCALIP #########
 if [ -z ${FORCE_LOCALIP} ]; then
-	ETHDEV=`netplan get |grep ens | tr -d ' ' | cut -d ":" -f1`
+	 ETHDEV=`netplan get| sed 's/^[[:space:]]*//'  | grep -A 1 "ethernet" | grep -v ethernet | cut -d ":" -f 1`
 	LOCALIPADDR=$(ip -f inet -o addr show $ETHDEV | cut -d\  -f 7 | cut -d/ -f 1)
 else
 	LOCALIPADDR=${FORCE_LOCALIP}
