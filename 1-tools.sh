@@ -577,7 +577,8 @@ if [ ${CLIENT} -eq 0 ]; then
 		netplan apply
 	fi
 	if [ ! -z ${DNSDOMAINNAME} ]; then
-		ETHDEV=$(grep ens ${NETPLANPATH} | tr -d ' ' | cut -d ":" -f1)
+		#ETHDEV=$(grep ens ${NETPLANPATH} | tr -d ' ' | cut -d ":" -f1)
+        ETHDEV=`netplan get| sed 's/^[[:space:]]*//'  | grep -A 1 "ethernet" | grep -v ethernet | cut -d ":" -f 1`
 		netplan set network.ethernets.${ETHDEV}.nameservers.search=[${DNSDOMAINNAME}]
 		netplan apply
 	fi
