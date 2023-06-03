@@ -109,13 +109,7 @@ if [ ${LONGHORN} -eq 1 ]; then
 		kubectl -n kube-system apply -f https://raw.githubusercontent.com/kubernetes-csi/external-snapshotter/v${SNAPSHOTTER_VERSION}/deploy/kubernetes/snapshot-controller/rbac-snapshot-controller.yaml
 		kubectl -n kube-system apply -f https://raw.githubusercontent.com/kubernetes-csi/external-snapshotter/v${SNAPSHOTTER_VERSION}/deploy/kubernetes/snapshot-controller/setup-snapshot-controller.yaml
 		apt -y install jq nfs-common
-        cp /etc/multipath.conf /etc/multipath.conf.orig
-		cat <<EOF >/etc/multipath.conf
-blacklist {
-  devnode "^sd[a-z0-9]+"
-}
-EOF
-		systemctl restart multipathd
+		systemctl stop multipathd && systemctl disable multipathd
 		curl -sSfL https://raw.githubusercontent.com/longhorn/longhorn/master/scripts/environment_check.sh | bash
 
 		kubectl patch storageclass local-path -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"false"}}}'
