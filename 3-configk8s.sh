@@ -993,7 +993,11 @@ echo "**************************************************************************
 echo "Next Step"
 echo ""
 echo "Following is current DNS Server."
-systemd-resolve --status | grep "Current DNS"
+if type "systemd-resolve" >/dev/null 2>&1; then
+               systemd-resolve --status | grep "Current DNS"
+else
+               resolvectl status | grep "Current DNS"
+fi
 echo "if ${LOCALIPADDR} is not set as local DNS resolver, please set DNS server to ${LOCALIPADDR}."
 echo "You may be able to modify yaml file in /etc/netplan/, then execute netplan apply."
 echo ""
