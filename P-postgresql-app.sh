@@ -68,13 +68,12 @@ if [ ${retvalsvc} -ne 0 ]; then
 
 	helm repo add bitnami https://charts.bitnami.com/bitnami
 	# https://artifacthub.io/packages/helm/bitnami/postgresql
-	kubectl create namespace ${PGNAMESPACE}
 	if [ ${ONLINE} -eq 0 ]; then
 		helm fetch bitnami/postgresql --version=11.9.8
 		PGSQLCHART=$(ls postgresql-11.9.8.tgz)
-		helm install --namespace ${PGNAMESPACE} postgres-postgresql ${PGSQLCHART} --set primary.service.type=LoadBalancer --set global.storageClass=${SC} --set global.imageRegistry=${REGISTRYURL}
+		helm install --create-namespace --namespace ${PGNAMESPACE} postgres-postgresql ${PGSQLCHART} --set primary.service.type=LoadBalancer --set global.storageClass=${SC} --set global.imageRegistry=${REGISTRYURL}
 	else
-		helm install --namespace ${PGNAMESPACE} postgres bitnami/postgresql --set primary.service.type=LoadBalancer --set global.storageClass=${SC}
+		helm install --create-namespace --namespace ${PGNAMESPACE} postgres bitnami/postgresql --set primary.service.type=LoadBalancer --set global.storageClass=${SC}
 	fi
 
 	sleep 5

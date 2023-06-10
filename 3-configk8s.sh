@@ -208,8 +208,7 @@ kubectl get deployment -n metallb-system controller
 
 helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
 helm repo update
-kubectl create ns ingress-system
-helm install ingress-nginx ingress-nginx/ingress-nginx -n ingress-system
+helm install ingress-nginx ingress-nginx/ingress-nginx --create-namespace --namespace ingress-system
 sleep 2
 kubectl get deployment -n ingress-system ingress-nginx-controller
 while [ "$(kubectl get deployment -n ingress-system ingress-nginx-controller --output="jsonpath={.status.conditions[*].status}" | cut -d' ' -f1)" != "True" ]; do
@@ -887,8 +886,7 @@ fi
 if [ ${GRAFANAMON} -eq 1 ]; then
 	helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
 	helm repo update
-	kubectl create namespace monitoring
-	helm install prometheus prometheus-community/kube-prometheus-stack --namespace monitoring
+	helm install prometheus prometheus-community/kube-prometheus-stack --create-namespace --namespace monitoring
 	kubectl -n monitoring wait pod -l "app=kube-prometheus-stack-operator" --for condition=Ready
 	kubectl -n monitoring get svc
 	kubectl -n monitoring patch svc prometheus-kube-prometheus-prometheus -p '{"spec":{"type": "LoadBalancer"}}'

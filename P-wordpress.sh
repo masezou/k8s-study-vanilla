@@ -78,14 +78,13 @@ if [ ${retvalsvc} -ne 0 ]; then
 
 	helm repo add bitnami https://charts.bitnami.com/bitnami
 	helm repo update
-	kubectl create namespace ${WPNAMESPACE}
 	if [ ${ONLINE} -eq 0 ]; then
 		# helm search repo bitnami/wordpress  --version=14.0.9
 		helm fetch bitnami/wordpress --version=15.2.5
 		WPCHART=$(ls wordpress-15.2.5.tgz)
-		helm install wp-release ${WPCHART} -n ${WPNAMESPACE} --set global.storageClass=${SC} --set global.imageRegistry=${REGISTRY}
+		helm install wp-release ${WPCHART} --create-namespace --namespace ${WPNAMESPACE} --set global.storageClass=${SC} --set global.imageRegistry=${REGISTRY}
 	else
-		helm install wp-release bitnami/wordpress -n ${WPNAMESPACE} --set global.storageClass=${SC}
+		helm install wp-release bitnami/wordpress --create-namespace --namespace ${WPNAMESPACE} --set global.storageClass=${SC}
 	fi
 	sleep 5
 	kubectl get pod,pvc -n ${WPNAMESPACE}
