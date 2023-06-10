@@ -69,7 +69,7 @@ if [ ${retvalsvc} -ne 0 ]; then
 	helm repo add bitnami https://charts.bitnami.com/bitnami
 	# https://artifacthub.io/packages/helm/bitnami/postgresql
 	if [ ${ONLINE} -eq 0 ]; then
-		helm fetch bitnami/postgresql --version=11.9.8
+		helm fetch bitnami/postgresql --version=12.5.6
 		PGSQLCHART=$(ls postgresql-11.9.8.tgz)
 		helm install --create-namespace --namespace ${PGNAMESPACE} postgres-postgresql ${PGSQLCHART} --set primary.service.type=LoadBalancer --set global.storageClass=${SC} --set global.imageRegistry=${REGISTRYURL}
 	else
