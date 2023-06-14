@@ -159,7 +159,7 @@ if [ ! -f /usr/bin/kubectl ]; then
 	apt update
 	apt -y install -qy kubectl=${KUBECTLVER}
 	apt-mark hold kubectl
-	kubectl completion bash >/etc/bash_completion.d/kubectl
+    kubectl completion bash > /etc/profile.d/kubectl.sh
 	source /etc/bash_completion.d/kubectl
 	echo 'export KUBE_EDITOR=vi' >>~/.bashrc
 	if [ ! -f /usr/local/bin/kubectl-convert ]; then
