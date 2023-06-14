@@ -182,10 +182,10 @@ if [ ${NFSSC} -eq 1 ]; then
 			mkdir -p ${NFSSUBPATH}
 			chmod -R 1777 ${NFSSUBPATH}
 			cat <<EOF >>/etc/exports
-${NFSSUBPATH} 192.168.0.0/16(rw,async,no_root_squash)
-${NFSSUBPATH} 172.16.0.0/12(rw,async,no_root_squash)
-${NFSSUBPATH} 10.0.0.0/8(rw,async,no_root_squash)
-${NFSSUBPATH} 127.0.0.1/8(rw,async,no_root_squash)
+${NFSSUBPATH} 192.168.0.0/16(rw,async,no_root_squash,no_subtree_check)
+${NFSSUBPATH} 172.16.0.0/12(rw,async,no_root_squash,no_subtree_check)
+${NFSSUBPATH} 10.0.0.0/8(rw,async,no_root_squash,no_subtree_check)
+${NFSSUBPATH} 127.0.0.1/8(rw,async,no_root_squash,no_subtree_check)
 EOF
 
 			systemctl restart nfs-server
