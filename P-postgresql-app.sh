@@ -8,6 +8,7 @@ PGNAMESPACE=postgresql-app
 # SC = local-path / nfs-sc / vsphere-sc / longhorn
 SC=vsphere-sc
 
+ENABLEWAL=1
 SAMPLEDATA=1
 
 #REGISTRYURL=192.168.133.2:5000
@@ -66,14 +67,28 @@ if [ ${retvalsvc} -ne 0 ]; then
 		fi
 	fi
 
+	if [ ${ENABLEWAL} -eq 1 ]; then
+		# Create configmap
+		cat <<EOF >values.yaml
+primary:
+  extendedConfiguration: |-
+    archive_mode = on
+    archive_command = 'envdir /bitnami/postgresql/data/env wal-e wal-push %p'
+    archive_timeout = 60
+    wal_level = archive
+EOF
+		WALOP="-f values.yaml"
+	else
+		WALOP=""
+	fi
 	helm repo add bitnami https://charts.bitnami.com/bitnami
 	# https://artifacthub.io/packages/helm/bitnami/postgresql
 	if [ ${ONLINE} -eq 0 ]; then
 		helm fetch bitnami/postgresql --version=12.5.6
-		PGSQLCHART=$(ls postgresql-11.9.8.tgz)
-		helm install --create-namespace --namespace ${PGNAMESPACE} postgres-postgresql ${PGSQLCHART} --set primary.service.type=LoadBalancer --set global.storageClass=${SC} --set global.imageRegistry=${REGISTRYURL}
+		PGSQLCHART=$(ls postgresql-12.5.6.tgz)
+		helm install --create-namespace --namespace ${PGNAMESPACE} postgres-postgresql ${PGSQLCHART} --set global.postgresql.auth.postgresPassword="Password00!" --set global.postgresql.auth.username=admin --set global.postgresql.auth.password="Password00!" --set primary.service.type=LoadBalancer --set global.storageClass=${SC} --set global.imageRegistry=${REGISTRYURL} ${WALOP}
 	else
-		helm install --create-namespace --namespace ${PGNAMESPACE} postgres bitnami/postgresql --set primary.service.type=LoadBalancer --set global.storageClass=${SC}
+		helm install --create-namespace --namespace ${PGNAMESPACE} postgres bitnami/postgresql --set global.postgresql.auth.postgresPassword="Password00!" --set global.postgresql.auth.username=admin --set global.postgresql.auth.password="Password00!" --set primary.service.type=LoadBalancer --set global.storageClass=${SC} ${WALOP}
 	fi
 
 	sleep 5

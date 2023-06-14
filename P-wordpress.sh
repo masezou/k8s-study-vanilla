@@ -76,15 +76,16 @@ if [ ${retvalsvc} -ne 0 ]; then
 		fi
 	fi
 
+	DNSDOMAINNAME=$(kubectl -n external-dns get deployments.apps --output="jsonpath={.items[*].spec.template.spec.containers }" | jq | grep rfc2136-zone | cut -d "=" -f 2 | cut -d "\"" -f 1)
 	helm repo add bitnami https://charts.bitnami.com/bitnami
 	helm repo update
 	if [ ${ONLINE} -eq 0 ]; then
 		# helm search repo bitnami/wordpress  --version=14.0.9
-		helm fetch bitnami/wordpress --version=15.2.5
-		WPCHART=$(ls wordpress-15.2.5.tgz)
-		helm install wp-release ${WPCHART} --create-namespace --namespace ${WPNAMESPACE} --set global.storageClass=${SC} --set global.imageRegistry=${REGISTRY}
+		helm fetch bitnami/wordpress --version=16.1.14
+		WPCHART=$(ls wordpress-16.1.14.tgz)
+		helm install wp-release ${WPCHART} --create-namespace --namespace ${WPNAMESPACE} --set global.storageClass=${SC} --set global.imageRegistry=${REGISTRY} --set wordpressUsername=bloguser --set wordpressPassword="Password00!" --set wordpressEmail=bloguser@${DNSDOMAINNAME} --set wordpressFirstName=John --set wordpressLastName=Doe --set wordpressBlogName=${WPNAMESPACE} --set mariadb.auth.rootPassword="Password00!" --set mariadb.auth.username=admin --set mariadb.auth.password="Password00!"
 	else
-		helm install wp-release bitnami/wordpress --create-namespace --namespace ${WPNAMESPACE} --set global.storageClass=${SC}
+		helm install wp-release bitnami/wordpress --create-namespace --namespace ${WPNAMESPACE} --set global.storageClass=${SC} --set wordpressUsername=bloguser --set wordpressPassword="Password00!" --set wordpressEmail=bloguser@${DNSDOMAINNAME} --set wordpressFirstName=John --set wordpressLastName=Doe --set wordpressBlogName=${WPNAMESPACE} --set mariadb.auth.rootPassword="Password00!" --set mariadb.auth.username=admin --set mariadb.auth.password="Password00!"
 	fi
 	sleep 5
 	kubectl get pod,pvc -n ${WPNAMESPACE}
@@ -103,7 +104,6 @@ fi
 EXTERNALIP=$(kubectl -n ${WPNAMESPACE} get service wp-release-wordpress -o jsonpath="{.status.loadBalancer.ingress[*].ip}")
 
 WPHOST=${WPNAMESPACE}
-DNSDOMAINNAME=$(kubectl -n external-dns get deployments.apps --output="jsonpath={.items[*].spec.template.spec.containers }" | jq | grep rfc2136-zone | cut -d "=" -f 2 | cut -d "\"" -f 1)
 if [ ${retvalsvc} -ne 0 ]; then
 	if [ ! -z ${DNSDOMAINNAME} ]; then
 		kubectl -n ${WPNAMESPACE} annotate service wp-release-wordpress \

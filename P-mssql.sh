@@ -2,7 +2,7 @@
 # Copyright (c) 2022 masezou. All rights reserved.
 #########################################################
 MSSQLNAMESPACE=sqlserver
-MSQSQLPASSWORD="MyC0m9l&xP@ssw0rd"
+MSQSQLPASSWORD="Password00!"
 
 # SC = local-path / nfs-sc / vsphere-sc / longhorn
 SC=vsphere-sc
@@ -66,7 +66,7 @@ EOF
              fsGroup: 10001
           containers:
           - name: mssql
-            image: mcr.microsoft.com/mssql/server:2019-latest
+            image: mcr.microsoft.com/mssql/server:2022-CU4-ubuntu-20.04
             ports:
              - containerPort: 1433
             env:
