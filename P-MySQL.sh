@@ -91,6 +91,8 @@ fi
 EXTERNALIP=$(kubectl -n ${MYSQL_NAMESPACE} get svc mysql-release -o jsonpath="{.status.loadBalancer.ingress[*].ip}")
 echo $EXTERNALIP
 
+apt -y install mysql-client-core-8.0
+
 if [ ${retvalsvc} -ne 0 ]; then
 	if [ ${SAMPLEDATA} -eq 1 ]; then
 		echo "Import Test data (world)"

@@ -120,6 +120,7 @@ if [ ${retvalsvc} -ne 0 ]; then
 		#PGPASSWORD="$POSTGRES_PASSWORD" pgbench --host 127.0.0.1 -U postgres  -i pgbenchdb
 		#PGPASSWORD="$POSTGRES_PASSWORD" pgbench --host 127.0.0.1 -U postgres  -c 10 -t 1000  pgbenchdb
 
+        apt -y install unzip postgresql-client-common postgresql-client
 		export POSTGRES_PASSWORD=$(kubectl get secret --namespace ${PGNAMESPACE} postgres-postgresql -o jsonpath="{.data.postgres-password}" | base64 --decode)
 		PGPASSWORD=${POSTGRES_PASSWORD} psql --host $EXTERNALIP -U postgres -d postgres -p 5432 -c "create database dvdrental"
 		wget https://www.postgresqltutorial.com/wp-content/uploads/2019/05/dvdrental.zip
