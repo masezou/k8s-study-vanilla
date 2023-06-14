@@ -48,7 +48,7 @@ spec:
     spec:
       containers:
       - name: demo-container
-        image: alpine:3.18.0
+        image: alpine:3.18.2
         resources:
             requests:
               memory: 256Mi
