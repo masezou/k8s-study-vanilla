@@ -344,7 +344,7 @@ if [ ! -f /usr/bin/kubeadm ]; then
 Environment="KUBELET_EXTRA_ARGS=--container-runtime=remote --runtime-request-timeout=15m --container-runtime-endpoint=unix:///run/containerd/containerd.sock"
 EOF
 
-	dpkg -l kubectl
+	dpkg --no-pager -l kubectl
 	retval=$?
 	if [ ${retval} -ne 0 ]; then
 		curl --retry 10 --retry-delay 3 --retry-connrefused -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -
