@@ -400,6 +400,8 @@ EOF
 	systemctl status named -l --no-pager
 	#ETHDEV=$(grep ens ${NETPLANPATH} | tr -d ' ' | cut -d ":" -f1)
     ETHDEV=`netplan get| sed 's/^[[:space:]]*//'  | grep -A 1 "ethernet" | grep -v ethernet | cut -d ":" -f 1`
+    netplan set network.ethernets.${ETHDEV}.nameservers.addresses="null"
+    netplan set network.ethernets.${ETHDEV}.nameservers.search="null"
 	netplan set network.ethernets.${ETHDEV}.nameservers.addresses=[${DNSHOSTIP}]
 	netplan set network.ethernets.${ETHDEV}.nameservers.search=[${DNSDOMAINNAME}]
 	netplan apply
