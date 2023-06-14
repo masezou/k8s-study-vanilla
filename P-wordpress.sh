@@ -19,7 +19,7 @@ if [ ${retvalsvc} -ne 0 ]; then
 
 	# Checking Storage Class availability
 	SCDEFAULT=$(kubectl get sc | grep default | cut -d " " -f1)
-	kubectl get sc | grep ${SC}
+	kubectl get sc -n ${WPNAMESPACE} | grep ${SC}
 	retvalsc=$?
 	if [ ${retvalsc} -ne 0 ]; then
 		echo -e "\e[31m Switching to default storage class \e[m"
