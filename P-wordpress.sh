@@ -111,7 +111,7 @@ if [ ${retvalsvc} -ne 0 ]; then
 	fi
 	#kubectl -n ${WPNAMESPACE} wait pod -l app=wordpress --for condition=Ready --timeout 180s
 fi
-apt -y install mysql-client-core-8.0
+apt -y install mysql-client-core-8.0 lynx
 sleep 30
 kubectl images -n ${WPNAMESPACE}
 kubectl -n ${WPNAMESPACE} get pod,pvc,svc
