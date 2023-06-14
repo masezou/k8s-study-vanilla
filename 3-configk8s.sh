@@ -152,7 +152,7 @@ echo "Load balanacer IP range is ${IPRANGE}"
 # fix inotify_init
 touch /etc/sysctl.d/10-k8s.conf
 echo fs.inotify.max_user_instances=512 | tee -a /etc/sysctl.d/10-k8s.conf
-echo fs.inotify.max_user_watches=65536 | tee -a /etc/sysctl.d/10-k8s.conf
+echo fs.inotify.max_user_watches=123940 | tee -a /etc/sysctl.d/10-k8s.conf
 sysctl -p
 sysctl -a | grep fs.inotify.max
 
