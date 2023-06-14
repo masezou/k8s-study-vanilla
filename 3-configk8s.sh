@@ -399,9 +399,9 @@ EOF
 	systemctl restart named
 	systemctl status named -l --no-pager
 	#ETHDEV=$(grep ens ${NETPLANPATH} | tr -d ' ' | cut -d ":" -f1)
-    ETHDEV=`netplan get| sed 's/^[[:space:]]*//'  | grep -A 1 "ethernet" | grep -v ethernet | cut -d ":" -f 1`
-    netplan set network.ethernets.${ETHDEV}.nameservers.addresses="null"
-    netplan set network.ethernets.${ETHDEV}.nameservers.search="null"
+	ETHDEV=$(netplan get | sed 's/^[[:space:]]*//' | grep -A 1 "ethernet" | grep -v ethernet | cut -d ":" -f 1)
+	netplan set network.ethernets.${ETHDEV}.nameservers.addresses="null"
+	netplan set network.ethernets.${ETHDEV}.nameservers.search="null"
 	netplan set network.ethernets.${ETHDEV}.nameservers.addresses=[${DNSHOSTIP}]
 	netplan set network.ethernets.${ETHDEV}.nameservers.search=[${DNSDOMAINNAME}]
 	netplan apply
@@ -698,7 +698,23 @@ EOF
 		DASHBOARDVER=2.7.0
 		;;
 	*)
-		echo -e "\e[31mKubernetes dashvoard is not supported. \e[m"
+		echo -e "\e[31mKubernetes dashvoard is not supported. Installing octant. \e[m"
+		if [ ! -f /usr/local/bin/octant ]; then
+			OCTANTVER=$(grep OCTANTVER= ./1-tools.sh | cut -d "=" -f2)
+			if [ ${ARCH} = amd64 ]; then
+				curl --retry 10 --retry-delay 3 --retry-connrefused -sSOL https://github.com/vmware-tanzu/octant/releases/download/v${OCTANTVER}/octant_${OCTANTVER}_$(uname -s)-64bit.deb
+				dpkg -i octant_${OCTANTVER}_$(uname -s)-64bit.deb
+				rm octant_${OCTANTVER}_$(uname -s)-64bit.deb
+			elif [ ${ARCH} = arm64 ]; then
+				curl --retry 10 --retry-delay 3 --retry-connrefused -sSOL https://github.com/vmware-tanzu/octant/releases/download/v${OCTANTVER}/octant_${OCTANTVER}_$(uname -s)-ARM64.deb
+				dpkg -i octant_${OCTANTVER}_$(uname -s)-ARM64.deb
+				rm octant_${OCTANTVER}_$(uname -s)-ARM64.deb
+			else
+				echo "${ARCH} platform is not supported"
+			fi
+			echo "export OCTANT_LISTENER_ADDR=0.0.0.0:8090" >/etc/profile.d/octant.sh
+			echo "export OCTANT_DISABLE_OPEN_BROWSER=true" >>/etc/profile.d/octant.sh
+		fi
 		;;
 	esac
 	kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v${DASHBOARDVER}/aio/deploy/recommended.yaml
@@ -994,9 +1010,9 @@ echo "Next Step"
 echo ""
 echo "Following is current DNS Server."
 if type "systemd-resolve" >/dev/null 2>&1; then
-               systemd-resolve --status | grep "Current DNS"
+	systemd-resolve --status | grep "Current DNS"
 else
-               resolvectl status | grep "Current DNS"
+	resolvectl status | grep "Current DNS"
 fi
 echo "if ${LOCALIPADDR} is not set as local DNS resolver, please set DNS server to ${LOCALIPADDR}."
 echo "You may be able to modify yaml file in /etc/netplan/, then execute netplan apply."
