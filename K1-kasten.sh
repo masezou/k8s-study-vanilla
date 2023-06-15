@@ -96,6 +96,7 @@ retvalk3s=$?
 if [ ${retvalk3s} -eq 0 ]; then
 	echo "It is k3s"
 	helm install k10 kasten/k10 --namespace=kasten-io \
+		--set prometheus.alertmanager.enabled=true \
 		--set global.persistence.size=40G \
 		--set global.persistence.storageClass=local-path \
 		--set grafana.enabled=true \
@@ -108,6 +109,7 @@ else
 	KASTENFQDNINGRESS=${KASTENINGRESS}.${DNSDOMAINNAME}
 	if [ ${ONLINE} -eq 1 ]; then
 		helm install k10 kasten/k10 --namespace=kasten-io \
+			--set prometheus.alertmanager.enabled=true \
 			--set global.persistence.size=20G \
 			--set global.persistence.storageClass=${SC} \
 			--set grafana.enabled=true \
@@ -142,8 +144,9 @@ else
 		ls k10-${KASTENVER}.tgz
 		kubectl create ns kasten-io
 		helm install k10 k10-${KASTENVER}.tgz --namespace kasten-io \
+			--set prometheus.alertmanager.enabled=true \
 			--set global.airgapped.repository=${REGISTRYURL} \
-            --set metering.mode=airgap \
+			--set metering.mode=airgap \
 			--set global.persistence.size=20G \
 			--set global.persistence.storageClass=${SC} \
 			--set grafana.enabled=true \
@@ -193,9 +196,9 @@ fi
 kubectl get node -o wide | grep v1.25 >/dev/null 2>&1 && KASTEN125=1
 kubectl get node -o wide | grep v1.26 >/dev/null 2>&1 && KASTEN125=1
 if [ $KASTEN125 -eq 1 ]; then
-    kubectl --namespace kasten-io create token k10-k10
-    desired_token_secret_name=k10-k10-token
-    kubectl apply --namespace=kasten-io --filename=- <<EOF
+	kubectl --namespace kasten-io create token k10-k10
+	desired_token_secret_name=k10-k10-token
+	kubectl apply --namespace=kasten-io --filename=- <<EOF
 apiVersion: v1
 kind: Secret
 type: kubernetes.io/service-account-token
@@ -204,10 +207,10 @@ metadata:
   annotations:
     kubernetes.io/service-account.name: "k10-k10"
 EOF
-    kubectl get secret ${desired_token_secret_name} --namespace kasten-io -ojsonpath="{.data.token}" | base64 --decode >k10-k10.token
+	kubectl get secret ${desired_token_secret_name} --namespace kasten-io -ojsonpath="{.data.token}" | base64 --decode >k10-k10.token
 else
-    sa_secret=$(kubectl get serviceaccount k10-k10 -o jsonpath="{.secrets[0].name}" --namespace kasten-io)
-    kubectl get secret $sa_secret --namespace kasten-io -ojsonpath="{.data.token}{'\n'}" | base64 --decode >k10-k10.token
+	sa_secret=$(kubectl get serviceaccount k10-k10 -o jsonpath="{.secrets[0].name}" --namespace kasten-io)
+	kubectl get secret $sa_secret --namespace kasten-io -ojsonpath="{.data.token}{'\n'}" | base64 --decode >k10-k10.token
 fi
 echo "" >>k10-k10.token
 
