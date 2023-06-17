@@ -158,7 +158,7 @@ sysctl -a | grep fs.inotify.max
 
 # Configure Metallb and ingress
 # Installing Calico
-TIGERAVER=3.25.0
+TIGERAVER=3.26.1
 kubectl create -f https://raw.githubusercontent.com/projectcalico/calico/v${TIGERAVER}/manifests/tigera-operator.yaml
 curl --retry 10 --retry-delay 3 --retry-connrefused -sSOL https://raw.githubusercontent.com/projectcalico/calico/v${TIGERAVER}/manifests/custom-resources.yaml
 sed -i -e "s@192.168.0.0@10.244.0.0@g" custom-resources.yaml
