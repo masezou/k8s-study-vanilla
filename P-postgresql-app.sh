@@ -90,7 +90,7 @@ EOF
 	else
 		helm install --create-namespace --namespace ${PGNAMESPACE} postgres bitnami/postgresql --set global.postgresql.auth.postgresPassword="Password00!" --set global.postgresql.auth.username=admin --set global.postgresql.auth.password="Password00!" --set primary.service.type=LoadBalancer --set global.storageClass=${SC} ${WALOP}
 	fi
-
+    mv values.yaml values-postgresql.yaml
 	sleep 5
 	kubectl -n ${PGNAMESPACE} get pod,pvc
 	while [ "$(kubectl -n ${PGNAMESPACE} get pod postgres-postgresql-0 --output="jsonpath={.status.containerStatuses[*].ready}" | cut -d' ' -f2)" != "true" ]; do
