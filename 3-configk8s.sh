@@ -40,7 +40,7 @@ if [ ${retvalping} -ne 0 ]; then
 fi
 
 ### Distribution Check ###
-UBUNTUVER=$(grep DISTRIB_RELEASE /etc/lsb-release | cut -d "=" -f2)
+UBUNTUVER=$(lsb_release -rs)
 case ${UBUNTUVER} in
 "20.04")
 	echo -e "\e[32m${UBUNTUVER} is OK. \e[m"

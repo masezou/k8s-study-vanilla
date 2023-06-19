@@ -73,7 +73,7 @@ if [ ${retvalping2} -ne 0 ]; then
 fi
 
 ### Distribution Check ###
-UBUNTUVER=$(grep DISTRIB_RELEASE /etc/lsb-release | cut -d "=" -f2)
+UBUNTUVER=$(lsb_release -rs)
 case ${UBUNTUVER} in
 "20.04")
 	echo -e "\e[32m${UBUNTUVER} is OK. \e[m"
@@ -159,7 +159,7 @@ if [ ! -f /usr/bin/kubectl ]; then
 	apt update
 	apt -y install -qy kubectl=${KUBECTLVER}
 	apt-mark hold kubectl
-    kubectl completion bash > /etc/profile.d/kubectl.sh
+	kubectl completion bash >/etc/profile.d/kubectl.sh
 	source /etc/profile.d/kubectl.sh
 	echo 'export KUBE_EDITOR=vi' >>~/.bashrc
 	if [ ! -f /usr/local/bin/kubectl-convert ]; then
@@ -356,34 +356,35 @@ if [ ${NTPSVR} -eq 1 ]; then
 fi
 
 # MSSQL Client
-if [ ${UBUNTUVER} = "20.04" ]; then
-	if [ $MSSQLCMD -eq 1 ]; then
-		if [ ! -f /opt/mssql-tools/bin/sqlcmd ]; then
-			if [ ${ARCH} = amd64 ]; then
-				curl --retry 10 --retry-delay 3 --retry-connrefused -sSOL https://packages.microsoft.com/config/ubuntu/${UBUNTUVER}/packages-microsoft-prod.deb
-				dpkg -i packages-microsoft-prod.deb
-				rm packages-microsoft-prod.deb
-				apt update
-				ACCEPT_EULA=Y apt -y install mssql-tools unixodbc-dev
-				echo 'export PATH="$PATH:/opt/mssql-tools/bin"' >>/etc/profile.d/mssql.sh
-			fi
+if [ $MSSQLCMD -eq 1 ]; then
+	if [ ! -f /opt/mssql-tools/bin/sqlcmd ]; then
+		if [ ${ARCH} = amd64 ]; then
+			curl https://packages.microsoft.com/keys/microsoft.asc | sudo apt-key add -
+			curl https://packages.microsoft.com/config/ubuntu/${UBUNTUVER}/prod.list | sudo tee /etc/apt/sources.list.d/msprod.list
+			apt update
+			ACCEPT_EULA=Y apt -y install mssql-tools unixodbc-dev
+			cat <<'EOF' >/etc/profile.d/mssql.sh
+export PATH="$PATH:/opt/mssql-tools/bin"
+EOF
 		fi
 	fi
+fi
 
-	# Install powershell
-	if [ ${POWERSHELL} -eq 1 ]; then
-		if [ ${ARCH} = amd64 ]; then
-			if [ ! -f /usr/bin/pwsh ]; then
-				curl --retry 10 --retry-delay 3 --retry-connrefused -sSOL https://packages.microsoft.com/config/ubuntu/${UBUNTUVER}/packages-microsoft-prod.deb
-				dpkg -i packages-microsoft-prod.deb
-				rm packages-microsoft-prod.deb
-				apt update
-				apt -y install powershell
-			fi
+# Install powershell
+if [ ${POWERSHELL} -eq 1 ]; then
+	if [ ${ARCH} = amd64 ]; then
+		if [ ! -f /usr/bin/pwsh ]; then
+			apt update
+			apt install -y wget apt-transport-https software-properties-common
+			wget -q "https://packages.microsoft.com/config/ubuntu/${UBUNTUVER}/packages-microsoft-prod.deb"
+			dpkg -i packages-microsoft-prod.deb
+			rm packages-microsoft-prod.deb
+			apt update
+			apt install -y powershell
 		fi
-		if [ ${ARCH} = arm64 ]; then
-			curl --retry 10 --retry-delay 3 --retry-connrefused -sS -L https://aka.ms/InstallAzureCli | sudo bash
-		fi
+	fi
+	if [ ${ARCH} = arm64 ]; then
+		curl --retry 10 --retry-delay 3 --retry-connrefused -sS -L https://aka.ms/InstallAzureCli | sudo bash
 	fi
 fi
 
@@ -572,15 +573,15 @@ if [ ${CLIENT} -eq 0 ]; then
 	fi
 	if [ ! -z ${DNSHOSTIP} ]; then
 		#ETHDEV=$(grep ens ${NETPLANPATH} | tr -d ' ' | cut -d ":" -f1)
-        ETHDEV=`netplan get| sed 's/^[[:space:]]*//'  | grep -A 1 "ethernet" | grep -v ethernet | cut -d ":" -f 1`
-        netplan set network.ethernets.${ETHDEV}.nameservers.addresses="null"
+		ETHDEV=$(netplan get | sed 's/^[[:space:]]*//' | grep -A 1 "ethernet" | grep -v ethernet | cut -d ":" -f 1)
+		netplan set network.ethernets.${ETHDEV}.nameservers.addresses="null"
 		netplan set network.ethernets.${ETHDEV}.nameservers.addresses=[${DNSHOSTIP}]
 		netplan apply
 	fi
 	if [ ! -z ${DNSDOMAINNAME} ]; then
 		#ETHDEV=$(grep ens ${NETPLANPATH} | tr -d ' ' | cut -d ":" -f1)
-        ETHDEV=`netplan get| sed 's/^[[:space:]]*//'  | grep -A 1 "ethernet" | grep -v ethernet | cut -d ":" -f 1`
-        netplan set network.ethernets.${ETHDEV}.nameservers.search="null"
+		ETHDEV=$(netplan get | sed 's/^[[:space:]]*//' | grep -A 1 "ethernet" | grep -v ethernet | cut -d ":" -f 1)
+		netplan set network.ethernets.${ETHDEV}.nameservers.search="null"
 		netplan set network.ethernets.${ETHDEV}.nameservers.search=[${DNSDOMAINNAME}]
 		netplan apply
 	fi
