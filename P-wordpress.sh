@@ -79,14 +79,31 @@ if [ ${retvalsvc} -ne 0 ]; then
 	DNSDOMAINNAME=$(kubectl -n external-dns get deployments.apps --output="jsonpath={.items[*].spec.template.spec.containers }" | jq | grep rfc2136-zone | cut -d "=" -f 2 | cut -d "\"" -f 1)
 	helm repo add bitnami https://charts.bitnami.com/bitnami
 	helm repo update
+
+cat << EOF >values.yaml
+wordpressExtraConfigContent: |
+  @ini_set( 'upload_max_size' , '1024M' );
+  @ini_set( 'post_max_size', '1024M');
+  @ini_set( 'memory_limit', '1024M' );
+  @ini_set( 'max_execution_time', '0' );
+  @ini_set( 'max_input_time', '0' );
+  define( 'WP_AUTO_UPDATE_CORE', true );
+extraEnvVars:
+  - name: PHP_POST_MAX_SIZE
+    value: 1024M
+  - name: PHP_UPLOAD_MAX_FILESIZE
+    value: 1024M
+EOF
+
 	if [ ${ONLINE} -eq 0 ]; then
 		# helm search repo bitnami/wordpress  --version=14.0.9
-		helm fetch bitnami/wordpress --version=16.1.14
-		WPCHART=$(ls wordpress-16.1.14.tgz)
-		helm install wp-release ${WPCHART} --create-namespace --namespace ${WPNAMESPACE} --set global.storageClass=${SC} --set global.imageRegistry=${REGISTRY} --set wordpressUsername=bloguser --set wordpressPassword="Password00!" --set wordpressEmail=bloguser@${DNSDOMAINNAME} --set wordpressFirstName=John --set wordpressLastName=Doe --set wordpressBlogName=${WPNAMESPACE} --set mariadb.auth.rootPassword="Password00!" --set mariadb.auth.username=admin --set mariadb.auth.password="Password00!"
+		helm fetch bitnami/wordpress --version=16.1.15
+		WPCHART=$(ls wordpress-16.1.15.tgz)
+		helm install wp-release ${WPCHART} --create-namespace --namespace ${WPNAMESPACE} --set global.storageClass=${SC} --set global.imageRegistry=${REGISTRY} --set wordpressUsername=bloguser --set wordpressPassword="Password00!" --set wordpressEmail=bloguser@${DNSDOMAINNAME} --set wordpressFirstName=John --set wordpressLastName=Doe --set wordpressBlogName=${WPNAMESPACE} --set mariadb.auth.rootPassword="Password00!" --set mariadb.auth.username=admin --set mariadb.auth.password="Password00!" -f values.yaml
 	else
-		helm install wp-release bitnami/wordpress --create-namespace --namespace ${WPNAMESPACE} --set global.storageClass=${SC} --set wordpressUsername=bloguser --set wordpressPassword="Password00!" --set wordpressEmail=bloguser@${DNSDOMAINNAME} --set wordpressFirstName=John --set wordpressLastName=Doe --set wordpressBlogName=${WPNAMESPACE} --set mariadb.auth.rootPassword="Password00!" --set mariadb.auth.username=admin --set mariadb.auth.password="Password00!"
+		helm install wp-release bitnami/wordpress --create-namespace --namespace ${WPNAMESPACE} --set global.storageClass=${SC} --set wordpressUsername=bloguser --set wordpressPassword="Password00!" --set wordpressEmail=bloguser@${DNSDOMAINNAME} --set wordpressFirstName=John --set wordpressLastName=Doe --set wordpressBlogName=${WPNAMESPACE} --set mariadb.auth.rootPassword="Password00!" --set mariadb.auth.username=admin --set mariadb.auth.password="Password00!" -f values.yaml
 	fi
+    mv values.yaml values-wp.yaml
 	sleep 5
 	kubectl get pod,pvc -n ${WPNAMESPACE}
 	echo "Initial sleep 30s"
