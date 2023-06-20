@@ -933,7 +933,7 @@ if [ ${ARCH} = amd64 ]; then
 			sed -i -e "s@pygrub PUx,@pygrub PUx,\n  /usr/libexec/qemu-kvm PUx, @" /etc/apparmor.d/usr.sbin.libvirtd
 			systemctl reload apparmor.service
 			#export VERSION=$(curl -s https://api.github.com/repos/kubevirt/kubevirt/releases | grep tag_name | grep -v -- '-rc' | sort -r | head -1 | awk -F': ' '{print $2}' | sed 's/,//' | xargs)
-			VERSION=v0.59.0
+			VERSION=v0.59.2
 			echo $VERSION
 			kubectl create -f https://github.com/kubevirt/kubevirt/releases/download/${VERSION}/kubevirt-operator.yaml
 			kubectl create -f https://github.com/kubevirt/kubevirt/releases/download/${VERSION}/kubevirt-cr.yaml
