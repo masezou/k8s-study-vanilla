@@ -304,15 +304,15 @@ kubectl -n vmware-system-csi wait pod -l app=vsphere-csi-node --for condition=Re
 
 #Snapshot support in 2.5.0 with vSphere7U3
 SNAPSHOTTER_VERSION=$(grep SNAPSHOTTER_VERSION= ./4-csi-storage.sh | cut -d "=" -f 2)
-if [ ${SNAPSHOTTER_VERSION} = "6.0.1" ]; then
-	govc about | grep 7.0.3
+if [ ${SNAPSHOTTER_VERSION} = "6.2.2" ]; then
+	govc about | grep 8.0.1
 	retvspherever=$?
 	if [ ${retvspherever} -eq 0 ]; then
 		curl -s https://raw.githubusercontent.com/kubernetes-sigs/vsphere-csi-driver/v${VSPHERECSI}/manifests/vanilla/deploy-csi-snapshot-components.sh | bash
 		kubectl apply -f https://raw.githubusercontent.com/kubernetes-sigs/vsphere-csi-driver/master/example/vanilla-k8s-RWO-filesystem-volumes/example-snapshotclass.yaml
 		kubectl get volumesnapshotclass
 
-		kubectl patch storageclass example-vanilla-rwo-filesystem-sc \
+		kubectl patch storageclass vsphere-sc \
 			-p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"true"}}}'
 	fi
 fi
