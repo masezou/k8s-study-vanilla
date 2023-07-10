@@ -133,7 +133,7 @@ if [ -z ${VSPHERECSI} ]; then
 	kubectl get node -o wide | grep v1.23 >/dev/null 2>&1 && VSPHERECSI=2.7.2
 	kubectl get node -o wide | grep v1.24 >/dev/null 2>&1 && VSPHERECSI=3.0.1
 	kubectl get node -o wide | grep v1.25 >/dev/null 2>&1 && VSPHERECSI=3.0.1
-	kubectl get node -o wide | grep v1.26 >/dev/null 2>&1 && VSPHERECSI=3.0.1
+	kubectl get node -o wide | grep v1.26 >/dev/null 2>&1 && VSPHERECSI=3.0.2
 fi
 
 # Configure vsphere-cloud-controller-manager
