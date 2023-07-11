@@ -131,8 +131,8 @@ if [ -z ${VSPHERECSI} ]; then
 	kubectl get node -o wide | grep v1.21 >/dev/null 2>&1 && VSPHERECSI=2.5.4
 	kubectl get node -o wide | grep v1.22 >/dev/null 2>&1 && VSPHERECSI=2.6.2
 	kubectl get node -o wide | grep v1.23 >/dev/null 2>&1 && VSPHERECSI=2.7.2
-	kubectl get node -o wide | grep v1.24 >/dev/null 2>&1 && VSPHERECSI=3.0.1
-	kubectl get node -o wide | grep v1.25 >/dev/null 2>&1 && VSPHERECSI=3.0.1
+	kubectl get node -o wide | grep v1.24 >/dev/null 2>&1 && VSPHERECSI=3.0.2
+	kubectl get node -o wide | grep v1.25 >/dev/null 2>&1 && VSPHERECSI=3.0.2
 	kubectl get node -o wide | grep v1.26 >/dev/null 2>&1 && VSPHERECSI=3.0.2
 fi
 
