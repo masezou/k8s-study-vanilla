@@ -58,7 +58,7 @@ if [ ! -z ${MCLOGINUSER} ]; then
 	AWS_ACCESS_KEY_ID=$(echo -n "${MCLOGINUSER}" | base64)
 	AWS_SECRET_ACCESS_KEY_ID=$(echo -n "${MCLOGINPASSWORD}" | base64)
 
-		mc --insecure mb --region=us-east1 local/${BUCKETNAME}
+		mc --insecure mb --region=us-east-1 local/${BUCKETNAME}
 
 	cat <<EOF | kubectl -n kasten-io create -f -
 apiVersion: v1
@@ -98,7 +98,7 @@ EOF
 
 	# Minio immutable setting
 	if [ ${ERASURE_CODING} -eq 1 ]; then
-			mc --insecure mb --with-lock --region=us-east1 local/${MINIOLOCK_BUCKET_NAME}
+			mc --insecure mb --with-lock --region=us-east-1 local/${MINIOLOCK_BUCKET_NAME}
 			mc --insecure retention set --default compliance ${MINIOLOCK_PERIOD} local/${MINIOLOCK_BUCKET_NAME}
 		cat <<EOF | kubectl -n kasten-io create -f -
 apiVersion: config.kio.kasten.io/v1alpha1
