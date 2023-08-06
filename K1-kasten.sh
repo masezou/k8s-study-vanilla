@@ -73,6 +73,25 @@ retval4=$?
 if [ ${retval4} -eq 0 ]; then
 	kubectl annotate volumesnapshotclass longhorn \
 		k10.kasten.io/is-snapshot-class=true
+
+# snapshot-cleanup
+cat <<EOF | kubectl apply -f -
+apiVersion: longhorn.io/v1beta2
+kind: RecurringJob
+metadata:
+  name: snapshot-cleanup
+  namespace: longhorn-system
+spec:
+  concurrency: 1
+  cron: 0 * * * *
+  groups:
+  - default
+  labels: {}
+  name: snapshot-cleanup
+  retain: 0
+  task: snapshot-cleanup
+EOF
+
 fi
 
 k10tools primer
