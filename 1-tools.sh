@@ -630,7 +630,7 @@ fi
 
 # Misc
 if [ ! -f /usr/lib/postgresql/12/bin/pgbench ]; then
-	apt -y install postgresql-client postgresql-contrib mysql-client-core jq apache2-utils mongodb-clients lynx scsitools
+	apt -y install postgresql-client postgresql-contrib mysql-client-core jq apache2-utils ynx scsitools
 	systemctl stop postgresql
 	systemctl disable postgresql
 	# I want to use only pgbench!
