@@ -657,27 +657,27 @@ kubectl -n kube-system get deployments.apps metrics-server
 # Configure Kubernetes Dashboard
 if [ ${DASHBOARD} -eq 1 ]; then
 
-DASHBOARDHOST=dashboard-$(hostname).${DNSDOMAINNAME}
+	DASHBOARDHOST=dashboard-$(hostname).${DNSDOMAINNAME}
 
-helm repo add kubernetes-dashboard https://kubernetes.github.io/dashboard/
-helm repo update
+	helm repo add kubernetes-dashboard https://kubernetes.github.io/dashboard/
+	helm repo update
 
-helm show values kubernetes-dashboard/kubernetes-dashboard > values.yaml
-sed -i -e "s/- localhost/- ${DASHBOARDHOST}/g" values.yaml
+	helm show values kubernetes-dashboard/kubernetes-dashboard >values.yaml
+	sed -i -e "s/- localhost/- ${DASHBOARDHOST}/g" values.yaml
 
-helm upgrade --install kubernetes-dashboard kubernetes-dashboard/kubernetes-dashboard --create-namespace --namespace kubernetes-dashboard   --set=cert-manager.enabled=true --set=metrics-server.enabled=false --set=nginx.enabled=false -f values.yaml
-rm values.yaml
+	helm upgrade --install kubernetes-dashboard kubernetes-dashboard/kubernetes-dashboard --create-namespace --namespace kubernetes-dashboard --set=cert-manager.enabled=true --set=metrics-server.enabled=false --set=nginx.enabled=false -f values.yaml
+	rm values.yaml
 
-kubectl -n kubernetes-dashboard wait pod -l app\.kubernetes\.io\/instance\=kubernetes\-dashboard --for condition=Ready
+	kubectl -n kubernetes-dashboard wait pod -l app\.kubernetes\.io\/instance\=kubernetes\-dashboard --for condition=Ready
 
-cat <<EOF | kubectl -n kubernetes-dashboard apply -f -
+	cat <<EOF | kubectl -n kubernetes-dashboard apply -f -
 apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: admin-user
   namespace: kubernetes-dashboard
 EOF
-cat <<EOF | kubectl -n kubernetes-dashboard apply -f -
+	cat <<EOF | kubectl -n kubernetes-dashboard apply -f -
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
@@ -691,7 +691,7 @@ subjects:
   name: admin-user
   namespace: kubernetes-dashboard
 EOF
-cat <<EOF | kubectl -n kubernetes-dashboard apply -f -
+	cat <<EOF | kubectl -n kubernetes-dashboard apply -f -
 apiVersion: v1
 kind: Secret
 metadata:
@@ -701,8 +701,9 @@ metadata:
     kubernetes.io/service-account.name: "admin-user"   
 type: kubernetes.io/service-account-token
 EOF
-kubectl -n kubernetes-dashboard get ingress
-kubectl get secret admin-user -n kubernetes-dashboard -o jsonpath="{".data.token"}" | base64 -d ; echo "" > dashboard.token
+	kubectl -n kubernetes-dashboard get ingress
+	kubectl get secret admin-user -n kubernetes-dashboard -o jsonpath="{".data.token"}" | base64 -d
+	echo "" >dashboard.token
 	if [ -z $SUDO_USER ]; then
 		echo "there is no sudo login"
 	else
