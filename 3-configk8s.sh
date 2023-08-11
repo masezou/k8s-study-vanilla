@@ -635,154 +635,6 @@ spec:
 EOF
 fi
 
-# Configure Kubernetes Dashboard
-if [ ${DASHBOARD} -eq 1 ]; then
-	kubectl create namespace kubernetes-dashboard
-	mkdir certs
-	cd certs
-	openssl genrsa -out dashboard.key 2048
-	cat <<EOF >openssl.conf
-[req]
-distinguished_name = req_distinguished_name
-x509_extensions = v3_req
-prompt = no
-
-[req_distinguished_name]
-C = US
-ST = VA
-L = Somewhere
-O = MyOrg
-OU = MyOU
-CN = MyServerName
-
-[v3_req]
-subjectAltName = @alt_names
-
-[alt_names]
-IP.1 = 127.0.0.1
-DNS.1 = dashboard.${DNSDOMAINNAME}
-EOF
-	openssl req -new -x509 -nodes -days 365 -key dashboard.key -out dashboard.crt -config openssl.conf
-	openssl x509 -in dashboard.crt -text -noout | grep IP
-	kubectl create secret generic kubernetes-dashboard-certs --from-file=dashboard.key --from-file=dashboard.crt -n kubernetes-dashboard
-	cd ..
-	rm -rf certs
-	kubectl get node -o wide | grep v1.19 >/dev/null 2>&1 && KUBEVER=1.19
-	kubectl get node -o wide | grep v1.20 >/dev/null 2>&1 && KUBEVER=1.20
-	kubectl get node -o wide | grep v1.21 >/dev/null 2>&1 && KUBEVER=1.21
-	kubectl get node -o wide | grep v1.22 >/dev/null 2>&1 && KUBEVER=1.22
-	kubectl get node -o wide | grep v1.23 >/dev/null 2>&1 && KUBEVER=1.23
-	kubectl get node -o wide | grep v1.24 >/dev/null 2>&1 && KUBEVER=1.24
-	kubectl get node -o wide | grep v1.25 >/dev/null 2>&1 && KUBEVER=1.25
-
-	case ${KUBEVER} in
-	"1.19")
-		DASHBOARDVER=2.0.5
-		;;
-	"1.20")
-		DASHBOARDVER=2.2.0
-		;;
-	"1.21")
-		DASHBOARDVER=2.4.0
-		;;
-	"1.22")
-		DASHBOARDVER=2.4.0
-		;;
-	"1.23")
-		DASHBOARDVER=2.5.1
-		;;
-	"1.24")
-		DASHBOARDVER=2.6.1
-		;;
-	"1.25")
-		DASHBOARDVER=2.7.0
-		;;
-	*)
-		echo -e "\e[31mKubernetes dashvoard is not supported. Installing octant. \e[m"
-		if [ ! -f /usr/local/bin/octant ]; then
-			OCTANTVER=$(grep OCTANTVER= ./1-tools.sh | cut -d "=" -f2)
-			if [ ${ARCH} = amd64 ]; then
-				curl --retry 10 --retry-delay 3 --retry-connrefused -sSOL https://github.com/vmware-tanzu/octant/releases/download/v${OCTANTVER}/octant_${OCTANTVER}_$(uname -s)-64bit.deb
-				dpkg -i octant_${OCTANTVER}_$(uname -s)-64bit.deb
-				rm octant_${OCTANTVER}_$(uname -s)-64bit.deb
-			elif [ ${ARCH} = arm64 ]; then
-				curl --retry 10 --retry-delay 3 --retry-connrefused -sSOL https://github.com/vmware-tanzu/octant/releases/download/v${OCTANTVER}/octant_${OCTANTVER}_$(uname -s)-ARM64.deb
-				dpkg -i octant_${OCTANTVER}_$(uname -s)-ARM64.deb
-				rm octant_${OCTANTVER}_$(uname -s)-ARM64.deb
-			else
-				echo "${ARCH} platform is not supported"
-			fi
-			echo "export OCTANT_LISTENER_ADDR=0.0.0.0:8090" >/etc/profile.d/octant.sh
-			echo "export OCTANT_DISABLE_OPEN_BROWSER=true" >>/etc/profile.d/octant.sh
-		fi
-		;;
-	esac
-	kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v${DASHBOARDVER}/aio/deploy/recommended.yaml
-	kubectl -n kubernetes-dashboard wait pod -l k8s-app=kubernetes-dashboard --for condition=Ready
-	cat <<EOF | kubectl apply -f -
-apiVersion: v1
-kind: ServiceAccount
-metadata:
-  name: admin-user
-  namespace: kubernetes-dashboard
-EOF
-	cat <<EOF | kubectl apply -f -
-apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRoleBinding
-metadata:
-  name: admin-user
-roleRef:
-  apiGroup: rbac.authorization.k8s.io
-  kind: ClusterRole
-  name: cluster-admin
-subjects:
-- kind: ServiceAccount
-  name: admin-user
-  namespace: kubernetes-dashboard
-EOF
-
-	cat <<EOF | kubectl apply -f -
-apiVersion: v1
-kind: Service
-metadata:
-  labels:
-    k8s-app: kubernetes-dashboard
-  name: dashboard-service-lb
-  namespace: kubernetes-dashboard
-spec:
-  type: LoadBalancer
-  ports:
-    - name: dashboard-service-lb
-      protocol: TCP
-      port: 443
-      nodePort: 30085
-      targetPort: 8443
-  selector:
-    k8s-app: kubernetes-dashboard
-EOF
-	sleep 2
-	kubectl -n kubernetes-dashboard get deployments
-	while [ "$(kubectl -n kubernetes-dashboard get deployments --output="jsonpath={.items[*].status.conditions[*].status}" | cut -d' ' -f1)" != "True" ]; do
-		echo "Deploying Kubernetes Dashboard Please wait...."
-		kubectl -n kubernetes-dashboard get deployments
-		sleep 30
-	done
-	kubectl -n kubernetes-dashboard get deployments
-	DASHBOARD_EXTERNALIP=$(kubectl -n kubernetes-dashboard get service dashboard-service-lb | awk '{print $4}' | tail -n 1)
-	kubectl -n kubernetes-dashboard annotate service dashboard-service-lb \
-		external-dns.alpha.kubernetes.io/hostname=dashboard.${DNSDOMAINNAME}
-	sleep 10
-	host dashboard.${DNSDOMAINNAME}. ${DNSHOSTIP}
-
-	kubectl -n kubernetes-dashboard create token admin-user --duration=7776000s >dashboard.token
-	echo "" >>dashboard.token
-	if [ -z $SUDO_USER ]; then
-		echo "there is no sudo login"
-	else
-		cp dashboard.token /home/${SUDO_USER}/k8s-study-vanilla
-		chown ${SUDO_USER} /home/${SUDO_USER}/k8s-study-vanilla/dashboard.token
-	fi
-fi
 # Install metric server
 curl --retry 10 --retry-delay 3 --retry-connrefused -sSOL https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
 cat <<EOF | sed -i -e "/        imagePullPolicy: IfNotPresent$/r /dev/stdin" components.yaml
@@ -801,6 +653,63 @@ while [ "$(kubectl -n kube-system get deployments.apps metrics-server --output="
 	sleep 30
 done
 kubectl -n kube-system get deployments.apps metrics-server
+
+# Configure Kubernetes Dashboard
+if [ ${DASHBOARD} -eq 1 ]; then
+
+DASHBOARDHOST=dashboard-$(hostname).${DNSDOMAINNAME}
+
+helm repo add kubernetes-dashboard https://kubernetes.github.io/dashboard/
+helm repo update
+
+helm show values kubernetes-dashboard/kubernetes-dashboard > values.yaml
+sed -i -e "s/- localhost/- ${DASHBOARDHOST}/g" values.yaml
+
+helm upgrade --install kubernetes-dashboard kubernetes-dashboard/kubernetes-dashboard --create-namespace --namespace kubernetes-dashboard   --set=cert-manager.enabled=true --set=metrics-server.enabled=false --set=nginx.enabled=false -f values.yaml
+rm values.yaml
+
+kubectl -n kubernetes-dashboard wait pod -l app\.kubernetes\.io\/instance\=kubernetes\-dashboard --for condition=Ready
+
+cat <<EOF | kubectl -n kubernetes-dashboard apply -f -
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: admin-user
+  namespace: kubernetes-dashboard
+EOF
+cat <<EOF | kubectl -n kubernetes-dashboard apply -f -
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: admin-user
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-admin
+subjects:
+- kind: ServiceAccount
+  name: admin-user
+  namespace: kubernetes-dashboard
+EOF
+cat <<EOF | kubectl -n kubernetes-dashboard apply -f -
+apiVersion: v1
+kind: Secret
+metadata:
+  name: admin-user
+  namespace: kubernetes-dashboard
+  annotations:
+    kubernetes.io/service-account.name: "admin-user"   
+type: kubernetes.io/service-account-token
+EOF
+kubectl -n kubernetes-dashboard get ingress
+kubectl get secret admin-user -n kubernetes-dashboard -o jsonpath="{".data.token"}" | base64 -d ; echo "" > dashboard.token
+	if [ -z $SUDO_USER ]; then
+		echo "there is no sudo login"
+	else
+		cp dashboard.token /home/${SUDO_USER}/k8s-study-vanilla
+		chown ${SUDO_USER} /home/${SUDO_USER}/k8s-study-vanilla/dashboard.token
+	fi
+fi
 
 # Install Reigstory Frontend
 if [ ${REGISTRYFE} -eq 1 ]; then
@@ -978,9 +887,7 @@ echo -e "\e[32m${DNSHOSTIP} \e[m"
 echo " If you change dns server setting in client pc, you can access this server with this FQDN."
 echo ""
 echo -e "\e[1mKubernetes dashboard \e[m"
-echo -e "\e[32m https://${DASHBOARD_EXTERNALIP}/#/login  \e[m"
-echo "or"
-echo -e "\e[32m https://dashboard.${DNSDOMAINNAME}/#/login \e[m"
+echo -e "\e[32m https://dashboard.${DASHBOARDHOST}/#/login \e[m"
 echo ""
 echo -e "\e[32m login token is cat ./dashboard.token  \e[m"
 cat ./dashboard.token
