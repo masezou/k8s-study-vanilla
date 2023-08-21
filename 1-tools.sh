@@ -140,7 +140,8 @@ EOF
 	fi
 fi
 
-apt update
+#apt update
+apt --allow-releaseinfo-change update
 apt -y upgrade
 #apt -y install git curl
 
