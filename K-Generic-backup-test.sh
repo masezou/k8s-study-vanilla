@@ -45,6 +45,8 @@ spec:
     metadata:
       labels:
         app: demo
+      annotations:
+        kubectl.kubernetes.io/default-container: demo-container
     spec:
       containers:
       - name: demo-container
