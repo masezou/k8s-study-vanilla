@@ -87,8 +87,8 @@ fi
 
 #### LOCALIP #########
 if [ -z ${FORCE_LOCALIP} ]; then
-ETHDEV=`netplan get| sed 's/^[[:space:]]*//'  | grep -A 1 "ethernet" | grep -v ethernet | cut -d ":" -f 1`
-LOCALIPADDR=`ip -f inet -o addr show $ETHDEV |cut -d\  -f 7 | cut -d/ -f 1`
+	ETHDEV=$(netplan get | sed 's/^[[:space:]]*//' | grep -A 1 "ethernet" | grep -v ethernet | cut -d ":" -f 1)
+	LOCALIPADDR=$(ip -f inet -o addr show $ETHDEV | cut -d\  -f 7 | cut -d/ -f 1)
 else
 	LOCALIPADDR=${FORCE_LOCALIP}
 fi
@@ -168,27 +168,16 @@ fi
 apt -y purge purge docker docker-engine docker.io containerd runc podman
 
 if [ ! -f /usr/bin/containerd ]; then
-#	apt -y install apt-transport-https ca-certificates curl gnupg-agent software-properties-common
-#	curl --retry 10 --retry-delay 3 --retry-connrefused -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -
-#	apt-key fingerprint 0EBFCD88
-apt -y install ca-certificates curl gnupg lsb-release
-mkdir -m 0755 -p /etc/apt/keyrings
-curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+	apt -y install ca-certificates curl gnupg lsb-release
+	mkdir -m 0755 -p /etc/apt/keyrings
+	curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg
 	cat <<EOF >/etc/apt/apt.conf.d/90_no_prompt
 APT::Get::Assume-Yes "true";
 APT::Get::force-yes "true";
 EOF
-#	if [ ${ARCH} = amd64 ]; then
-#		add-apt-repository -y "deb [arch=amd64] https://download.docker.com/linux/ubuntu  $(lsb_release -cs)  stable"
-#	elif [ ${ARCH} = arm64 ]; then
-#		add-apt-repository -y "deb [arch=arm64] https://download.docker.com/linux/ubuntu  $(lsb_release -cs)  stable"
-#	else
-#		echo "${ARCH} platform is not supported"
-#		exit 1
-#	fi
-echo \
-  "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \
-  $(lsb_release -cs) stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null
+	echo \
+		"deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \
+  $(lsb_release -cs) stable" | tee /etc/apt/sources.list.d/docker.list >/dev/null
 	apt update
 
 	if [ -z ${CONTAINERDVER} ]; then
@@ -218,12 +207,10 @@ echo \
 	dpkg -l | grep containerd | grep 1.4 >/dev/null
 	retvalcd14=$?
 	if [ ${retvalcd14} -eq 0 ]; then
-		#sed -i -e "/^          \[plugins\.\"io\.containerd\.grpc\.v1\.cri\"\.containerd\.runtimes\.runc\.options\]$/a\            SystemdCgroup \= true" /etc/containerd/config.toml
 		cat <<EOF >insert.txt
         [plugins."io.containerd.grpc.v1.cri".registry.mirrors."${REGISTRY}"]
           endpoint = ["${REGISTRYURL}"]
 EOF
-		#sed -i -e "/^          endpoint \= \[\"https\:\/\/registry-1.docker.io\"\]$/r insert.txt" /etc/containerd/config.toml
 		sed -i -e "/^      \[plugins.\"io.containerd.grpc.v1.cri\".registry.mirrors\]$/r insert.txt" /etc/containerd/config.toml
 		rm -rf insert.txt
 	else
@@ -276,59 +263,11 @@ if [ ${IMAGEDL} -eq 1 ]; then
 	ctr images rm docker.io/bitnami/mongodb:4.4.8
 	ctr images rm ${REGISTRY}/bitnami/mongodb:4.4.8
 
-	ctr images pull --platform linux/${ARCH} docker.io/bitnami/mysql:8.0.30-debian-11-r27
-	ctr images tag docker.io/bitnami/mysql:8.0.30-debian-11-r27 ${REGISTRY}/bitnami/mysql:8.0.30-debian-11-r27
-	ctr images push --platform linux/${ARCH} --plain-http ${REGISTRY}/bitnami/mysql:8.0.30-debian-11-r27
-	ctr images rm docker.io/bitnami/mysql:8.0.30-debian-11-r27
-	ctr images rm ${REGISTRY}/bitnami/mysql:8.0.30-debian-11-r27
-
-	ctr images pull --platform linux/${ARCH} docker.io/bitnami/mariadb:10.6.10-debian-11-r6
-	ctr images tag docker.io/bitnami/mariadb:10.6.10-debian-11-r6 ${REGISTRY}/bitnami/mariadb:10.6.10-debian-11-r6
-	ctr images push --platform linux/${ARCH} --plain-http ${REGISTRY}/bitnami/mariadb:10.6.10-debian-11-r6
-	ctr images rm docker.io/bitnami/mariadb:10.6.10-debian-11-r6
-	ctr images rm ${REGISTRY}/bitnami/mariadb:10.6.10-debian-11-r6
-
-	ctr images pull --platform linux/${ARCH} docker.io/bitnami/wordpress:6.0.2-debian-11-r9
-	ctr images tag docker.io/bitnami/wordpress:6.0.2-debian-11-r9 ${REGISTRY}/bitnami/wordpress:6.0.2-debian-11-r9
-	ctr images push --platform linux/${ARCH} --plain-http ${REGISTRY}/bitnami/wordpress:6.0.2-debian-11-r9
-	ctr images rm docker.io/bitnami/wordpress:6.0.2-debian-11-r9
-	ctr images rm ${REGISTRY}/bitnami/wordpress:6.0.2-debian-11-r9
-
-	ctr images pull --platform linux/${ARCH} docker.io/bitnami/postgresql:14.5.0-debian-11-r24
-	ctr images tag docker.io/bitnami/postgresql:14.5.0-debian-11-r24 ${REGISTRY}/bitnami/postgresql:14.5.0-debian-11-r24
-	ctr images push --platform linux/${ARCH} --plain-http ${REGISTRY}/bitnami/postgresql:14.5.0-debian-11-r24
-	ctr images rm docker.io/bitnami/postgresql:14.5.0-debian-11-r24
-	ctr images rm ${REGISTRY}/bitnami/postgresql:14.5.0-debian-11-r24
-
 	ctr images pull --platform linux/${ARCH} quay.io/ifont/pacman-nodejs-app:latest
 	ctr images tag quay.io/ifont/pacman-nodejs-app:latest ${REGISTRY}/ifont/pacman-nodejs-app:latest
 	ctr images push --platform linux/${ARCH} --plain-http ${REGISTRY}/ifont/pacman-nodejs-app:latest
 	ctr images rm quay.io/ifont/pacman-nodejs-app:latest
 	ctr images rm ${REGISTRY}/ifont/pacman-nodejs-app:latest
-
-	ctr images pull --platform linux/${ARCH} docker.io/library/mysql:8.0.30
-	ctr images tag docker.io/library/mysql:8.0.30 ${REGISTRY}/library/mysql:8.0.30
-	ctr images push --platform linux/${ARCH} --plain-http ${REGISTRY}/library/mysql:8.0.30
-	ctr images rm docker.io/library/mysql:8.0.30
-	ctr images rm ${REGISTRY}/library/mysql:8.0.30
-
-	ctr images pull --platform linux/${ARCH} docker.io/library/wordpress:5.6.2-apache
-	ctr images tag docker.io/library/wordpress:5.6.2-apache ${REGISTRY}/library/wordpress:5.6.2-apache
-	ctr images push --platform linux/${ARCH} --plain-http ${REGISTRY}/library/wordpress:5.6.2-apache
-	ctr images rm docker.io/library/wordpress:5.6.2-apache
-	ctr images rm ${REGISTRY}/library/wordpress:5.6.2-apache
-
-	ctr images pull --platform linux/${ARCH} mcr.microsoft.com/mssql/server:2019-CU15-ubuntu-20.04
-	ctr images tag mcr.microsoft.com/mssql/server:2019-CU15-ubuntu-20.04 ${REGISTRY}/mssql/server:2019-CU15-ubuntu-20.04
-	ctr images push --platform linux/${ARCH} --plain-http ${REGISTRY}/mssql/server:2019-CU15-ubuntu-20.04
-	ctr images rm mcr.microsoft.com/mssql/server:2019-CU15-ubuntu-20.04
-	ctr images rm ${REGISTRY}/mssql/server:2019-CU15-ubuntu-20.04
-
-	ctr images pull --platform linux/${ARCH} docker.io/library/alpine:3.18.3
-	ctr images tag docker.io/library/alpine:3.18.3 ${REGISTRY}/library/alpine:3.18.3
-	ctr images push --platform linux/${ARCH} --plain-http ${REGISTRY}/library/alpine:3.18.3
-	ctr images rm docker.io/library/alpine:3.18.3
-	ctr images rm ${REGISTRY}/library/alpine:3.18.3
 
 	echo "Registry result"
 	curl -X GET ${REGISTRYURL}/v2/_catalog
@@ -344,17 +283,40 @@ if [ ! -f /usr/bin/kubeadm ]; then
 Environment="KUBELET_EXTRA_ARGS=--container-runtime=remote --runtime-request-timeout=15m --container-runtime-endpoint=unix:///run/containerd/containerd.sock"
 EOF
 
+	# Install Kubernetes from new or old
+	case ${KUBEBASEVER} in
+	"1.27" | "1.28")
+		OLDK8S=0
+		echo "New installation"
+		;;
+	*)
+		OLDK8S=1
+		echo "Old installation"
+		;;
+	esac
+
 	dpkg --no-pager -l kubectl
-	retval=$?
-	if [ ${retval} -ne 0 ]; then
-		curl --retry 10 --retry-delay 3 --retry-connrefused -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -
-		apt-add-repository  "deb http://apt.kubernetes.io/ kubernetes-xenial main"
-		apt update
+	retvalkubectl=$?
+	if [ ${retvalkubectl} -ne 0 ]; then
+		if [ $OLDK8S -eq 0 ]; then
+			apt -y install apt-transport-https ca-certificates curl
+			install -m 0755 -d /etc/apt/keyrings
+			curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.28/deb/Release.key | gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+			echo "deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v$KUBEBASEVER/deb/ /" | tee /etc/apt/sources.list.d/kubernetes.list
+		else
+			curl --retry 10 --retry-delay 3 --retry-connrefused -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -
+			apt-add-repository "deb http://apt.kubernetes.io/ kubernetes-xenial main"
+			apt update
+		fi
 	fi
 	if [ -z ${KUBECTLVER} ]; then
 		KUBEADMBASEVER=$(grep "KUBEBASEVER=" ./1-tools.sh | cut -d "=" -f2)
 		echo "Install kuberneates latest version"
-		KUBECTLVER=$(curl -s https://packages.cloud.google.com/apt/dists/kubernetes-xenial/main/binary-amd64/Packages | grep Version | awk '{print $2}' | sort -n -t "." -k 3 | uniq | grep ${KUBEADMBASEVER} | tail -1)
+		if [ $OLDK8S -eq 0 ]; then
+			KUBECTLVER=$(apt-cache madison kubectl | awk '{print $3}' | sort -n -t "." | grep ${KUBEBASEVER} | tail -1)
+		else
+			KUBECTLVER=$(curl -s https://packages.cloud.google.com/apt/dists/kubernetes-xenial/main/binary-amd64/Packages | grep Version | awk '{print $2}' | sort -n -t "." -k 3 | uniq | grep ${KUBEADMBASEVER} | tail -1)
+		fi
 	fi
 	echo "Kubernetes version: ${KUBECTLVER}"
 
@@ -454,7 +416,7 @@ EOF
 			#kubectl taint nodes --all node-role.kubernetes.io/master-
 			#kubectl taint nodes $(hostname)  node-role.kubernetes.io/master:NoSchedule-
 			kubectl taint nodes $(hostname) node-role.kubernetes.io/control-plane:NoSchedule-
-            kubectl label node $(hostname) node-role.kubernetes.io/master=master
+			kubectl label node $(hostname) node-role.kubernetes.io/master=master
 			kubectl label node $(hostname) node-role.kubernetes.io/worker=worker
 		fi
 	fi

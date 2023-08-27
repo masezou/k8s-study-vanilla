@@ -145,29 +145,60 @@ apt --allow-releaseinfo-change update
 apt -y upgrade
 #apt -y install git curl
 
-if [ -z ${KUBECTLVER} ]; then
-	echo "Install kubectl latest version"
-	KUBECTLVER=$(curl -s https://packages.cloud.google.com/apt/dists/kubernetes-xenial/main/binary-${ARCH}/Packages | grep Version | awk '{print $2}' | sort -n -t "." -k 3 | uniq | grep ${KUBEBASEVER} | tail -1)
-fi
-echo "Kubectl verson: ${KUBECTLVER}"
+# Install Kubernetes from new or old
+case ${KUBEBASEVER} in
+"1.27" | "1.28")
+	OLDK8S=0
+	echo "New installation"
+	;;
+*)
+	OLDK8S=1
+	echo "Old installation"
+	;;
+esac
 
 # Install kubectl
-if [ ! -f /usr/bin/kubectl ]; then
+echo -e "\e[32m Installing kubectl. \e[m"
+if type "kubectl" >/dev/null 2>&1; then
+	echo "kubectl was already installed"
+else
 	apt update
-	apt -y install apt-transport-https gnupg2 curl
-	curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -
-	echo "deb https://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee -a /etc/apt/sources.list.d/kubernetes.list
+	if [ $OLDK8S -eq 0 ]; then
+		apt -y install apt-transport-https ca-certificates curl
+		install -m 0755 -d /etc/apt/keyrings
+		curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.28/deb/Release.key | gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+		echo "deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v$KUBEBASEVER/deb/ /" | tee /etc/apt/sources.list.d/kubernetes.list
+		# Detect latest kubernetes version
+		if [ -z ${KUBECTLVER} ]; then
+			echo "Install kubectl latest version"
+			KUBECTLVER=$(apt-cache madison kubectl | awk '{print $3}' | sort -n -t "." | grep ${KUBEBASEVER} | tail -1)
+		fi
+	else
+		apt -y install apt-transport-https gnupg2 curl
+		curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -
+		if [ ! -f /etc/apt/sources.list.d/kubernetes.list ]; then
+			echo "deb https://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee -a /etc/apt/sources.list.d/kubernetes.list
+		fi
+		# Detect latest kubernetes version
+		if [ -z ${KUBECTLVER} ]; then
+			echo "Install kubectl latest version"
+			KUBECTLVER=$(curl -s https://packages.cloud.google.com/apt/dists/kubernetes-xenial/main/binary-${ARCH}/Packages | grep Version | awk '{print $2}' | sort -n -t "." -k 3 | uniq | grep ${KUBEBASEVER} | tail -1)
+		fi
+	fi
 	apt update
+	echo "Kubectl verson: ${KUBECTLVER}"
+
 	apt -y install -qy kubectl=${KUBECTLVER}
 	apt-mark hold kubectl
 	kubectl completion bash >/etc/profile.d/kubectl.sh
 	source /etc/profile.d/kubectl.sh
 	echo 'export KUBE_EDITOR=vi' >>~/.bashrc
-	if [ ! -f /usr/local/bin/kubectl-convert ]; then
-		curl --retry 10 --retry-delay 3 --retry-connrefused -sSOL "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/${ARCH}/kubectl-convert"
-		install -o root -g root -m 0755 kubectl-convert /usr/local/bin/kubectl-convert
-		rm ./kubectl-convert
-	fi
+fi
+
+if [ ! -f /usr/local/bin/kubectl-convert ]; then
+	curl --retry 10 --retry-delay 3 --retry-connrefused -sSOL "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/${ARCH}/kubectl-convert"
+	install -o root -g root -m 0755 kubectl-convert /usr/local/bin/kubectl-convert
+	rm ./kubectl-convert
 fi
 
 # Install etcd-client
