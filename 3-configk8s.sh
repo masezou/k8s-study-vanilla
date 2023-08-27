@@ -576,6 +576,7 @@ while [ "$(kubectl get deployment -n external-dns external-dns --output="jsonpat
 	sleep 30
 done
 kubectl get deployment -n external-dns external-dns
+apt -y install jq
 DNSDOMAINNAME=$(kubectl -n external-dns get deployments.apps --output="jsonpath={.items[*].spec.template.spec.containers }" | jq | grep rfc2136-zone | cut -d "=" -f 2 | cut -d "\"" -f 1)
 
 # Install CertManager
