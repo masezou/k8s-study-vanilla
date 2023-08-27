@@ -16,7 +16,7 @@ REGISTRYFE=1
 DASHBOARD=0
 KEYCLOAK=0
 GRAFANAMON=1
-KUBEVIRT=1
+KUBEVIRT=0
 
 # IF you have internal DNS, please comment out and set your own DNS server
 #FORWARDDNS=192.168.8.1
@@ -576,7 +576,6 @@ while [ "$(kubectl get deployment -n external-dns external-dns --output="jsonpat
 	sleep 30
 done
 kubectl get deployment -n external-dns external-dns
-apt -y install jq
 DNSDOMAINNAME=$(kubectl -n external-dns get deployments.apps --output="jsonpath={.items[*].spec.template.spec.containers }" | jq | grep rfc2136-zone | cut -d "=" -f 2 | cut -d "\"" -f 1)
 
 # Install CertManager
@@ -844,7 +843,7 @@ if [ ${ARCH} = amd64 ]; then
 			sed -i -e "s@pygrub PUx,@pygrub PUx,\n  /usr/libexec/qemu-kvm PUx, @" /etc/apparmor.d/usr.sbin.libvirtd
 			systemctl reload apparmor.service
 			#export VERSION=$(curl -s https://api.github.com/repos/kubevirt/kubevirt/releases | grep tag_name | grep -v -- '-rc' | sort -r | head -1 | awk -F': ' '{print $2}' | sed 's/,//' | xargs)
-			VERSION=v0.59.2
+			VERSION=v1.0.0
 			echo $VERSION
 			kubectl create -f https://github.com/kubevirt/kubevirt/releases/download/${VERSION}/kubevirt-operator.yaml
 			kubectl create -f https://github.com/kubevirt/kubevirt/releases/download/${VERSION}/kubevirt-cr.yaml
