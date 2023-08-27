@@ -168,6 +168,7 @@ else
 		install -m 0755 -d /etc/apt/keyrings
 		curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.28/deb/Release.key | gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
 		echo "deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v$KUBEBASEVER/deb/ /" | tee /etc/apt/sources.list.d/kubernetes.list
+        apt update
 		# Detect latest kubernetes version
 		if [ -z ${KUBECTLVER} ]; then
 			echo "Install kubectl latest version"
@@ -179,13 +180,13 @@ else
 		if [ ! -f /etc/apt/sources.list.d/kubernetes.list ]; then
 			echo "deb https://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee -a /etc/apt/sources.list.d/kubernetes.list
 		fi
+        apt update
 		# Detect latest kubernetes version
 		if [ -z ${KUBECTLVER} ]; then
 			echo "Install kubectl latest version"
 			KUBECTLVER=$(curl -s https://packages.cloud.google.com/apt/dists/kubernetes-xenial/main/binary-${ARCH}/Packages | grep Version | awk '{print $2}' | sort -n -t "." -k 3 | uniq | grep ${KUBEBASEVER} | tail -1)
 		fi
 	fi
-	apt update
 	echo "Kubectl verson: ${KUBECTLVER}"
 
 	apt -y install -qy kubectl=${KUBECTLVER}

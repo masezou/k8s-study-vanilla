@@ -303,6 +303,7 @@ EOF
 			install -m 0755 -d /etc/apt/keyrings
 			curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.28/deb/Release.key | gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
 			echo "deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v$KUBEBASEVER/deb/ /" | tee /etc/apt/sources.list.d/kubernetes.list
+            apt update
 		else
 			curl --retry 10 --retry-delay 3 --retry-connrefused -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -
 			apt-add-repository "deb http://apt.kubernetes.io/ kubernetes-xenial main"
