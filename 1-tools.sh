@@ -360,9 +360,12 @@ fi
 if [ $MSSQLCMD -eq 1 ]; then
 	if [ ! -f /opt/mssql-tools/bin/sqlcmd ]; then
 		if [ ${ARCH} = amd64 ]; then
-			curl https://packages.microsoft.com/keys/microsoft.asc | sudo apt-key add -
-			curl https://packages.microsoft.com/config/ubuntu/${UBUNTUVER}/prod.list | sudo tee /etc/apt/sources.list.d/msprod.list
-			apt update
+			if [ ! -f /etc/apt/sources.list.d/microsoft-prod.list ]; then
+				curl -OL "https://packages.microsoft.com/config/ubuntu/$(lsb_release -rs)/packages-microsoft-prod.deb"
+				dpkg -i packages-microsoft-prod.deb
+				rm packages-microsoft-prod.deb
+				apt update
+			fi
 			ACCEPT_EULA=Y apt -y install mssql-tools unixodbc-dev
 			cat <<'EOF' >/etc/profile.d/mssql.sh
 export PATH="$PATH:/opt/mssql-tools/bin"
@@ -375,12 +378,12 @@ fi
 if [ ${POWERSHELL} -eq 1 ]; then
 	if [ ${ARCH} = amd64 ]; then
 		if [ ! -f /usr/bin/pwsh ]; then
-			apt update
-			apt install -y wget apt-transport-https software-properties-common
-			wget -q "https://packages.microsoft.com/config/ubuntu/${UBUNTUVER}/packages-microsoft-prod.deb"
-			dpkg -i packages-microsoft-prod.deb
-			rm packages-microsoft-prod.deb
-			apt update
+			if [ ! -f /etc/apt/sources.list.d/microsoft-prod.list ]; then
+				curl -OL "https://packages.microsoft.com/config/ubuntu/$(lsb_release -rs)/packages-microsoft-prod.deb"
+				dpkg -i packages-microsoft-prod.deb
+				rm packages-microsoft-prod.deb
+				apt update
+			fi
 			apt install -y powershell
 		fi
 	fi
@@ -405,14 +408,12 @@ if [ ${DOCKER} -eq 1 ]; then
 			apt -y autoremove
 		fi
 		# Remove docker from Ubuntu
-		apt -y purge docker docker-engine docker.io containerd runc
+		for pkg in docker.io docker-doc docker-compose podman-docker containerd runc; do apt -y remove $pkg; done
 		apt -y upgrade
-		#apt -y install apt-transport-https ca-certificates curl gnupg-agent software-properties-common
-		#curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
-		#apt-key fingerprint 0EBFCD88
-		apt -y install ca-certificates curl gnupg lsb-release
-		mkdir -m 0755 -p /etc/apt/keyrings
+		apt -y install ca-certificates curl gnupg
+		install -m 0755 -d /etc/apt/keyrings
 		curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+		chmod a+r /etc/apt/keyrings/docker.gpg
 		cat <<EOF >/etc/apt/apt.conf.d/90_no_prompt
 APT {
     Get {
@@ -420,15 +421,6 @@ APT {
     };
 };
 EOF
-		#		if [ ${ARCH} = amd64 ]; then
-		#			add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu  $(lsb_release -cs)  stable"
-		#		elif [ ${ARCH} = arm64 ]; then
-		#			add-apt-repository "deb [arch=arm64] https://download.docker.com/linux/ubuntu  $(lsb_release -cs)  stable"
-		#		else
-		#			echo "${ARCH} platform is not supported"
-		#			exit 1
-		#		fi
-		#		apt -y install docker-ce-cli docker-ce
 		echo \
 			"deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \
   $(lsb_release -cs) stable" | tee /etc/apt/sources.list.d/docker.list >/dev/null
