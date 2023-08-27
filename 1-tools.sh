@@ -655,7 +655,7 @@ fi
 
 # Misc
 if [ ! -f /usr/lib/postgresql/12/bin/pgbench ]; then
-	apt -y install postgresql-client postgresql-contrib mysql-client-core jq apache2-utils ynx scsitools
+	apt -y install postgresql-client postgresql-contrib jq apache2-utils lynx scsitools
 	systemctl stop postgresql
 	systemctl disable postgresql
 	# I want to use only pgbench!
@@ -664,6 +664,13 @@ if [ ! -f /usr/lib/postgresql/12/bin/pgbench ]; then
 	apt -y autoremove
 	mv /tmp/pgbench /usr/lib/postgresql/12/bin/
 fi
+
+# Install mysql-shell
+curl -OL https://dev.mysql.com/get/mysql-apt-config_0.8.25-1_all.deb
+DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::=--force-confdef -o Dpkg::Options::=--force-confold -y install ./mysql-apt-config_0.8.25-1_all.deb
+rm mysql-apt-config_0.8.25-1_all.deb
+apt update
+apt -y install mysql-shell mysql-community-client
 
 # Installing golang
 if [ ! -f /usr/bin/go ]; then
