@@ -284,6 +284,7 @@ Environment="KUBELET_EXTRA_ARGS=--container-runtime=remote --runtime-request-tim
 EOF
 
 	# Install Kubernetes from new or old
+    KUBEBASEVER=$(grep "KUBEBASEVER=" ./1-tools.sh | cut -d "=" -f2)
 	case ${KUBEBASEVER} in
 	"1.27" | "1.28")
 		OLDK8S=0
@@ -311,12 +312,11 @@ EOF
 		fi
 	fi
 	if [ -z ${KUBECTLVER} ]; then
-		KUBEADMBASEVER=$(grep "KUBEBASEVER=" ./1-tools.sh | cut -d "=" -f2)
 		echo "Install kuberneates latest version"
 		if [ $OLDK8S -eq 0 ]; then
 			KUBECTLVER=$(apt-cache madison kubectl | awk '{print $3}' | sort -n -t "." | grep ${KUBEBASEVER} | tail -1)
 		else
-			KUBECTLVER=$(curl -s https://packages.cloud.google.com/apt/dists/kubernetes-xenial/main/binary-amd64/Packages | grep Version | awk '{print $2}' | sort -n -t "." -k 3 | uniq | grep ${KUBEADMBASEVER} | tail -1)
+			KUBECTLVER=$(curl -s https://packages.cloud.google.com/apt/dists/kubernetes-xenial/main/binary-amd64/Packages | grep Version | awk '{print $2}' | sort -n -t "." -k 3 | uniq | grep ${KUBEBASEVER} | tail -1)
 		fi
 	fi
 	echo "Kubernetes version: ${KUBECTLVER}"
