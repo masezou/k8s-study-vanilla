@@ -16,7 +16,7 @@ REGISTRYFE=1
 DASHBOARD=0
 KEYCLOAK=0
 GRAFANAMON=1
-KUBEVIRT=0
+KUBEVIRT=1
 
 # IF you have internal DNS, please comment out and set your own DNS server
 #FORWARDDNS=192.168.8.1
