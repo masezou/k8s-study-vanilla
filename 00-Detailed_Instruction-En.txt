@@ -51,7 +51,7 @@ Network
 Standard vSwitch and port group will worked. (Any switch will work!)
 
 VM Configuration
- OS: Ubuntu Server 20.04.5/22.04.2 x 1
+ OS: Ubuntu Server 22.04.3 x 1
  VM configuration
    CPU:  4vCPU above 
    RAM: 8GB above

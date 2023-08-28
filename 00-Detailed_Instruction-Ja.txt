@@ -1,5 +1,5 @@
 TL;DR
-vCenter/ESX上に4vCPU 16GB RAM 200GB HDDVMを作成してUbuntu 20.04.5/22.04.2 Server (amd64) をクリーンインストール。その後、以下を実行。
+vCenter/ESX上に4vCPU 16GB RAM 200GB HDDVMを作成してUbuntu 22.04.3 Server (amd64) をクリーンインストール。その後、以下を実行。
 
 sudo -i
 git clone https://github.com/masezou/k8s-study-vanilla --depth 1
@@ -51,7 +51,7 @@ vSphere
    vSphereのネットワークは、標準スイッチでも分散仮想スイッチでも構わない。
    
 VM構成
- OS: Ubuntu Server 20.04.5/22.04.2  1VM
+ OS: Ubuntu Server 22.04.3  1VM
  VM設定
    CPU:  4vCPU以上 
    RAM: 8GB以上
