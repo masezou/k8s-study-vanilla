@@ -2,7 +2,7 @@
 # Copyright (c) 2022 masezou. All rights reserved.
 #########################################################
 # Force Online Install
-#FORCE_ONLINE=1
+FORCE_ONLINE=1
 
 # namespace. namespace will be used with hostname
 WPNAMESPACE=blog1

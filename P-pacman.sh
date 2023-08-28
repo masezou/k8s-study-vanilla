@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 #########################################################
 # Force Online Install
-#FORCE_ONLINE=1
+FORCE_ONLINE=1
 
 NAMESPACE=pacman
 
