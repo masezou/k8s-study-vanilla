@@ -84,7 +84,7 @@ EOF
 	helm repo add bitnami https://charts.bitnami.com/bitnami
 	# https://artifacthub.io/packages/helm/bitnami/postgresql
 	if [ ${ONLINE} -eq 0 ]; then
-        POSGRESSHELMVER=12.9.0
+        POSGRESSHELMVER=12.10.0
         helm fetch bitnami/postgresql --version=${POSGRESSHELMVER}
         PGSQLCHART=$(ls postgresql-${POSGRESSHELMVER}.tgz)
 		helm install --create-namespace --namespace ${PGNAMESPACE} postgres-postgresql ${PGSQLCHART} --set global.postgresql.auth.postgresPassword="Password00!" --set global.postgresql.auth.username=admin --set global.postgresql.auth.password="Password00!" --set primary.service.type=LoadBalancer --set global.storageClass=${SC} --set global.imageRegistry=${REGISTRYURL} ${WALOP}
