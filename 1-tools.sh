@@ -542,7 +542,7 @@ EOF
 	fi
 	# Install Docker Compose
 	if [ ! -f /usr/local/bin/docker-compose ]; then
-		DOCKERCOMPOSEVER=2.15.1
+		DOCKERCOMPOSEVER=2.21.0
 		if [ ${ARCH} = amd64 ]; then
 			curl --retry 10 --retry-delay 3 --retry-connrefused -sSOL https://github.com/docker/compose/releases/download/v${DOCKERCOMPOSEVER}/docker-compose-linux-$(uname -i)
 			mv docker-compose-linux-$(uname -i) /usr/local/bin/docker-compose
