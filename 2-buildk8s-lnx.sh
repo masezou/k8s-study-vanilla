@@ -284,7 +284,7 @@ Environment="KUBELET_EXTRA_ARGS=--container-runtime=remote --runtime-request-tim
 EOF
 
 	# Install Kubernetes from new or old
-    KUBEBASEVER=$(grep "KUBEBASEVER=" ./1-tools.sh | cut -d "=" -f2)
+	KUBEBASEVER=$(grep "KUBEBASEVER=" ./1-tools.sh | cut -d "=" -f2)
 	case ${KUBEBASEVER} in
 	"1.27" | "1.28")
 		OLDK8S=0
@@ -304,10 +304,15 @@ EOF
 			install -m 0755 -d /etc/apt/keyrings
 			curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.28/deb/Release.key | gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
 			echo "deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v$KUBEBASEVER/deb/ /" | tee /etc/apt/sources.list.d/kubernetes.list
-            apt update
+			apt update
 		else
-			curl --retry 10 --retry-delay 3 --retry-connrefused -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -
-			apt-add-repository "deb http://apt.kubernetes.io/ kubernetes-xenial main"
+			if [ ! -f /etc/apt/keyrings/cloud.google.gpg ]; then
+				install -m 0755 -d /etc/apt/keyrings
+				curl -fsSL https://packages.cloud.google.com/apt/doc/apt-key.gpg | gpg --dearmor -o /etc/apt/keyrings/cloud.google.gpg
+			fi
+			if [ ! -f /etc/apt/sources.list.d/kubernetes.list ]; then
+				echo "deb [signed-by=/etc/apt/keyrings/cloud.google.gpg] h https://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee -a /etc/apt/sources.list.d/kubernetes.list
+			fi
 			apt update
 		fi
 	fi

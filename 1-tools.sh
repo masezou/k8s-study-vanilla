@@ -168,7 +168,7 @@ else
 		install -m 0755 -d /etc/apt/keyrings
 		curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.28/deb/Release.key | gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
 		echo "deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v$KUBEBASEVER/deb/ /" | tee /etc/apt/sources.list.d/kubernetes.list
-        apt update
+		apt update
 		# Detect latest kubernetes version
 		if [ -z ${KUBECTLVER} ]; then
 			echo "Install kubectl latest version"
@@ -176,11 +176,14 @@ else
 		fi
 	else
 		apt -y install apt-transport-https gnupg2 curl
-		curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -
-		if [ ! -f /etc/apt/sources.list.d/kubernetes.list ]; then
-			echo "deb https://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee -a /etc/apt/sources.list.d/kubernetes.list
+		if [ ! -f /etc/apt/keyrings/cloud.google.gpg ]; then
+			install -m 0755 -d /etc/apt/keyrings
+			curl -fsSL https://packages.cloud.google.com/apt/doc/apt-key.gpg | gpg --dearmor -o /etc/apt/keyrings/cloud.google.gpg
 		fi
-        apt update
+		if [ ! -f /etc/apt/sources.list.d/kubernetes.list ]; then
+			echo "deb [signed-by=/etc/apt/keyrings/cloud.google.gpg] h https://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee -a /etc/apt/sources.list.d/kubernetes.list
+		fi
+		apt update
 		# Detect latest kubernetes version
 		if [ -z ${KUBECTLVER} ]; then
 			echo "Install kubectl latest version"
@@ -647,8 +650,13 @@ if [ ${CLOUDUTILS} -eq 1 ]; then
 	if [ ! -f /usr/bin/gcloud ]; then
 		apt -y install ca-certificates apt-transport-https gnupg
 		apt update
-		echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] http://packages.cloud.google.com/apt cloud-sdk main" | tee -a /etc/apt/sources.list.d/google-cloud-sdk.list
-		curl --retry 10 --retry-delay 3 --retry-connrefused -sS https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key --keyring /usr/share/keyrings/cloud.google.gpg add -
+		if [ ! -f /etc/apt/keyrings/cloud.google.gpg ]; then
+			install -m 0755 -d /etc/apt/keyrings
+			curl -fsSL https://packages.cloud.google.com/apt/doc/apt-key.gpg | gpg --dearmor -o /etc/apt/keyrings/cloud.google.gpg
+		fi
+		if [ ! -f /etc/apt/sources.list.d/google-cloud-sdk.list ]; then
+			echo "deb [signed-by=/etc/apt/keyrings/cloud.google.gpg] http://packages.cloud.google.com/apt cloud-sdk main" | tee -a /etc/apt/sources.list.d/google-cloud-sdk.list
+		fi
 		apt -y update && apt -y install google-cloud-sdk
 	fi
 fi
