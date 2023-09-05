@@ -178,7 +178,7 @@ kubectl get deployment -n calico-system calico-kube-controllers
 
 # Installing Metallb
 echo "configure ${IPRANGE}"
-METALLBVER=0.13.9
+METALLBVER=0.13.11
 kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v${METALLBVER}/config/manifests/metallb-native.yaml
 sleep 2
 kubectl get deployment -n metallb-system controller
