@@ -215,9 +215,10 @@ kubectl apply -f https://raw.githubusercontent.com/kubernetes-sigs/vsphere-csi-d
 
 # Install CSI Driver
 # https://vsphere-csi-driver.sigs.k8s.io/driver-deployment/installation.html
+CLUSTERID=$(kubectl get namespace default -o jsonpath="{.metadata.uid}{'\n'}")
 cat <<EOF >/etc/kubernetes/csi-vsphere.conf
 [Global]
-cluster-id = "cluster-id"
+cluster-id = "${CLUSTERID}"
 cluster-distribution = "Ubuntu"
 [VirtualCenter "${VSPHERESERVERIP}"]
 insecure-flag = "true"
