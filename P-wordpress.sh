@@ -65,10 +65,15 @@ if [ ${retvalsvc} -ne 0 ]; then
 		echo "helm was already installed"
 	else
 		if [ ! -f /usr/local/bin/helm ]; then
-			curl -s -O https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3
-			bash ./get-helm-3
+			#curl -s -O https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3
+			#bash ./get-helm-3
+			#rm get-helm-3
+			curl https://baltocdn.com/helm/signing.asc | gpg --dearmor | tee /etc/apt/keyrings/helm.gpg >/dev/null
+			apt install apt-transport-https --yes
+			echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/helm.gpg] https://baltocdn.com/helm/stable/debian/ all main" | tee /etc/apt/sources.list.d/helm-stable-debian.list
+			apt update
+			apt -y install helm
 			helm version
-			rm get-helm-3
 			helm completion bash >/etc/bash_completion.d/helm
 			source /etc/bash_completion.d/helm
 			helm repo add bitnami https://charts.bitnami.com/bitnami
@@ -80,7 +85,7 @@ if [ ${retvalsvc} -ne 0 ]; then
 	helm repo add bitnami https://charts.bitnami.com/bitnami
 	helm repo update
 
-cat << EOF >values.yaml
+	cat <<EOF >values.yaml
 wordpressExtraConfigContent: |
   @ini_set( 'upload_max_size' , '1024M' );
   @ini_set( 'post_max_size', '1024M');
@@ -97,14 +102,14 @@ EOF
 
 	if [ ${ONLINE} -eq 0 ]; then
 		# helm search repo bitnami/wordpress  --version=14.0.9
-        WPHELMVER=17.1.6
+		WPHELMVER=17.1.6
 		helm fetch bitnami/wordpress --version=${WPHELMVER}
 		WPCHART=$(ls wordpress-${WPHELMVER}.tgz)
 		helm install wp-release ${WPCHART} --create-namespace --namespace ${WPNAMESPACE} --set global.storageClass=${SC} --set global.imageRegistry=${REGISTRY} --set wordpressUsername=bloguser --set wordpressPassword="Password00!" --set wordpressEmail=bloguser@${DNSDOMAINNAME} --set wordpressFirstName=John --set wordpressLastName=Doe --set wordpressBlogName=${WPNAMESPACE} --set mariadb.auth.rootPassword="Password00!" --set mariadb.auth.username=admin --set mariadb.auth.password="Password00!" -f values.yaml
 	else
 		helm install wp-release bitnami/wordpress --create-namespace --namespace ${WPNAMESPACE} --set global.storageClass=${SC} --set wordpressUsername=bloguser --set wordpressPassword="Password00!" --set wordpressEmail=bloguser@${DNSDOMAINNAME} --set wordpressFirstName=John --set wordpressLastName=Doe --set wordpressBlogName=${WPNAMESPACE} --set mariadb.auth.rootPassword="Password00!" --set mariadb.auth.username=admin --set mariadb.auth.password="Password00!" -f values.yaml
 	fi
-    mv values.yaml values-wp.yaml
+	mv values.yaml values-wp.yaml
 	sleep 5
 	kubectl get pod,pvc -n ${WPNAMESPACE}
 	echo "Initial sleep 30s"

@@ -56,10 +56,15 @@ if [ ${retvalsvc} -ne 0 ]; then
 		echo "helm was already installed"
 	else
 		if [ ! -f /usr/local/bin/helm ]; then
-			curl -s -O https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3
-			bash ./get-helm-3
+			#curl -s -O https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3
+			#bash ./get-helm-3
+			#rm get-helm-3
+			curl https://baltocdn.com/helm/signing.asc | gpg --dearmor | tee /etc/apt/keyrings/helm.gpg >/dev/null
+			apt install apt-transport-https --yes
+			echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/helm.gpg] https://baltocdn.com/helm/stable/debian/ all main" | tee /etc/apt/sources.list.d/helm-stable-debian.list
+			apt update
+			apt -y install helm
 			helm version
-			rm get-helm-3
 			helm completion bash >/etc/bash_completion.d/helm
 			source /etc/bash_completion.d/helm
 			helm repo add bitnami https://charts.bitnami.com/bitnami
@@ -84,14 +89,14 @@ EOF
 	helm repo add bitnami https://charts.bitnami.com/bitnami
 	# https://artifacthub.io/packages/helm/bitnami/postgresql
 	if [ ${ONLINE} -eq 0 ]; then
-        POSGRESSHELMVER=12.10.0
-        helm fetch bitnami/postgresql --version=${POSGRESSHELMVER}
-        PGSQLCHART=$(ls postgresql-${POSGRESSHELMVER}.tgz)
+		POSGRESSHELMVER=12.10.0
+		helm fetch bitnami/postgresql --version=${POSGRESSHELMVER}
+		PGSQLCHART=$(ls postgresql-${POSGRESSHELMVER}.tgz)
 		helm install --create-namespace --namespace ${PGNAMESPACE} postgres-postgresql ${PGSQLCHART} --set global.postgresql.auth.postgresPassword="Password00!" --set global.postgresql.auth.username=admin --set global.postgresql.auth.password="Password00!" --set primary.service.type=LoadBalancer --set global.storageClass=${SC} --set global.imageRegistry=${REGISTRYURL} ${WALOP}
 	else
 		helm install --create-namespace --namespace ${PGNAMESPACE} postgres bitnami/postgresql --set global.postgresql.auth.postgresPassword="Password00!" --set global.postgresql.auth.username=admin --set global.postgresql.auth.password="Password00!" --set primary.service.type=LoadBalancer --set global.storageClass=${SC} ${WALOP}
 	fi
-    mv values.yaml values-postgresql.yaml
+	mv values.yaml values-postgresql.yaml
 	sleep 5
 	kubectl -n ${PGNAMESPACE} get pod,pvc
 	while [ "$(kubectl -n ${PGNAMESPACE} get pod postgres-postgresql-0 --output="jsonpath={.status.containerStatuses[*].ready}" | cut -d' ' -f2)" != "true" ]; do
@@ -121,7 +126,7 @@ if [ ${retvalsvc} -ne 0 ]; then
 		#PGPASSWORD="$POSTGRES_PASSWORD" pgbench --host 127.0.0.1 -U postgres  -i pgbenchdb
 		#PGPASSWORD="$POSTGRES_PASSWORD" pgbench --host 127.0.0.1 -U postgres  -c 10 -t 1000  pgbenchdb
 
-        apt -y install unzip postgresql-client-common postgresql-client
+		apt -y install unzip postgresql-client-common postgresql-client
 		export POSTGRES_PASSWORD=$(kubectl get secret --namespace ${PGNAMESPACE} postgres-postgresql -o jsonpath="{.data.postgres-password}" | base64 --decode)
 		PGPASSWORD=${POSTGRES_PASSWORD} psql --host $EXTERNALIP -U postgres -d postgres -p 5432 -c "create database dvdrental"
 		wget https://www.postgresqltutorial.com/wp-content/uploads/2019/05/dvdrental.zip

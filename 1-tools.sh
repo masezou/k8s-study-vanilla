@@ -328,10 +328,15 @@ fi
 
 # Install Helm
 if [ ! -f /usr/local/bin/helm ]; then
-	curl -s -O https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3
-	bash ./get-helm-3
+	#curl -s -O https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3
+	#bash ./get-helm-3
+	#rm get-helm-3
+	curl https://baltocdn.com/helm/signing.asc | gpg --dearmor | tee /etc/apt/keyrings/helm.gpg >/dev/null
+	apt install apt-transport-https --yes
+	echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/helm.gpg] https://baltocdn.com/helm/stable/debian/ all main" | tee /etc/apt/sources.list.d/helm-stable-debian.list
+	apt update
+	apt -y install helm
 	helm version
-	rm get-helm-3
 	helm completion bash >/etc/bash_completion.d/helm
 	source /etc/bash_completion.d/helm
 	helm repo add bitnami https://charts.bitnami.com/bitnami
