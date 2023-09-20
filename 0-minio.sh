@@ -52,21 +52,8 @@ if [ ! -f /usr/share/doc/ubuntu-server/copyright ]; then
 	exit 255
 fi
 
-### ARCH Check ###
-PARCH=$(arch)
-if [ ${PARCH} = aarch64 ]; then
-	ARCH=arm64
-	echo ${ARCH}
-elif [ ${PARCH} = arm64 ]; then
-	ARCH=arm64
-	echo ${ARCH}
-elif [ ${PARCH} = x86_64 ]; then
-	ARCH=amd64
-	echo ${ARCH}
-else
-	echo "${ARCH} platform is not supported"
-	exit 1
-fi
+### ARCH ###
+ARCH=`dpkg --print-architecture`
 
 #### LOCALIP #########
 if [ -z ${FORCE_LOCALIP} ]; then

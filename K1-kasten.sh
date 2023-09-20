@@ -18,6 +18,12 @@ RBAC=1
 MULTICLUSTER=0
 
 #########################################################
+### ARCH Check ###
+ARCH=$(dpkg --print-architecture)
+if [ ${ARCH} != amd64 ]; then
+	echo -e "\e[31m ${ARCH} is not supported yet.\e[m"
+	exit 255
+fi
 
 ### Install command check ####
 if type "kubectl" >/dev/null 2>&1; then
