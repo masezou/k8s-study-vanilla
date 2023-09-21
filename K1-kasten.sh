@@ -22,6 +22,12 @@ MULTICLUSTER=0
 ARCH=$(dpkg --print-architecture)
 if [ ${ARCH} != amd64 ]; then
 	echo -e "\e[31m ${ARCH} is not supported yet.\e[m"
+	chmod -x K1-kasten.sh
+	chmod -x K2-kasten-storage.sh
+	chmod -x K3-kasten-vsphere.sh
+	chmod -x K4-kasten-blueprint.sh
+	chmod -x K5-kasten-local-rbac.sh
+	chmod -x K6-Kasten-multicluster.sh
 	exit 255
 fi
 
