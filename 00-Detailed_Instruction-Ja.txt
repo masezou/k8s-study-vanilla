@@ -36,7 +36,7 @@ vSphere CSIドライバーによって、vSphere 6.7 U3からサポートされ�
 --------
 要件
 vSphere
-  vSphere 7.0 U3 (1vCenterと１台のESXサーバ。データストアはなんでも構わない)
+  vSphere 7.0U3/8.0U1/8.0U2 (1vCenterと１台のESXサーバ。データストアはなんでも構わない)
   VMリソース 最低4vCPU 8-16GB RAM 200GB HDD
   vSphereクラスタやvSANはオプション（必須ではない。）
   vCenterなどに特別な設定は不要 (スクリプトが自動でやってくれる)
