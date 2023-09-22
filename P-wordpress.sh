@@ -99,7 +99,7 @@ EOF
 
 	if [ ${ONLINE} -eq 0 ]; then
 		# helm search repo bitnami/wordpress  --version=14.0.9
-		WPHELMVER=17.1.9
+		WPHELMVER=17.1.10
 		helm fetch bitnami/wordpress --version=${WPHELMVER}
 		WPCHART=$(ls wordpress-${WPHELMVER}.tgz)
 		helm install wp-release ${WPCHART} --create-namespace --namespace ${WPNAMESPACE} --set global.storageClass=${SC} --set global.imageRegistry=${REGISTRY} --set wordpressUsername=bloguser --set wordpressPassword="Password00!" --set wordpressEmail=bloguser@${DNSDOMAINNAME} --set wordpressFirstName=John --set wordpressLastName=Doe --set wordpressBlogName=${WPNAMESPACE} --set mariadb.auth.rootPassword="Password00!" --set mariadb.auth.username=admin --set mariadb.auth.password="Password00!" -f values.yaml
