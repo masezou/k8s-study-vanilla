@@ -177,8 +177,18 @@ EOF
 	CTRVER=$(containerd -v | cut -d " " -f3)
 	curl --retry 10 --retry-delay 3 --retry-connrefused -sS https://raw.githubusercontent.com/containerd/containerd/v${CTRVER}/contrib/autocomplete/ctr -o /etc/bash_completion.d/ctr
 
-	# install open-vm-tools-containerinfo
-	apt -y install open-vm-tools-containerinfo
+	# Exclude bridge in vmware tools
+	if [ -d /etc/vmware-tools ]; then
+		cat <<EOF >/etc/vmware-tools/tools.conf.tmp
+[guestinfo]
+exclude-nics=veth*,docker*,virbr*,br-*,lxc*,cilium_*
+EOF
+		cp /etc/vmware-tools/tools.conf /etc/vmware-tools/tools.conf.orig
+		cat /etc/vmware-tools/tools.conf.tmp /etc/vmware-tools/tools.conf.orig >/etc/vmware-tools/tools.conf
+		rm /etc/vmware-tools/tools.conf.tmp
+		apt -y install open-vm-tools-containerinfo
+		systemctl restart open-vm-tools.service
+	fi
 
 	# Install nerdctl (cmd version)
 	if [ ! -f /usr/local/bin/nerdctl ]; then
