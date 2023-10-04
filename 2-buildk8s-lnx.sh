@@ -70,7 +70,7 @@ if [ ! -f /usr/share/doc/ubuntu-server/copyright ]; then
 fi
 
 ### ARCH ###
-ARCH=`dpkg --print-architecture`
+ARCH=$(dpkg --print-architecture)
 
 #### LOCALIP #########
 if [ -z ${FORCE_LOCALIP} ]; then
@@ -176,6 +176,9 @@ EOF
 	fi
 	CTRVER=$(containerd -v | cut -d " " -f3)
 	curl --retry 10 --retry-delay 3 --retry-connrefused -sS https://raw.githubusercontent.com/containerd/containerd/v${CTRVER}/contrib/autocomplete/ctr -o /etc/bash_completion.d/ctr
+
+	# install open-vm-tools-containerinfo
+	apt -y install open-vm-tools-containerinfo
 
 	# Install nerdctl (cmd version)
 	if [ ! -f /usr/local/bin/nerdctl ]; then
