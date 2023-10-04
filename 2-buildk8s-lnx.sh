@@ -181,7 +181,7 @@ EOF
 	if [ -d /etc/vmware-tools ]; then
 		cat <<EOF >/etc/vmware-tools/tools.conf.tmp
 [guestinfo]
-exclude-nics=veth*,docker*,virbr*,br-*,lxc*,cilium_*
+exclude-nics=veth*,docker*,virbr*,br-*,lxc*,cilium_*,vxlan.calico*,cali*
 EOF
 		cp /etc/vmware-tools/tools.conf /etc/vmware-tools/tools.conf.orig
 		cat /etc/vmware-tools/tools.conf.tmp /etc/vmware-tools/tools.conf.orig >/etc/vmware-tools/tools.conf
