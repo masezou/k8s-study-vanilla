@@ -2,7 +2,13 @@
 echo -e "\e[32mStarting $0 ....\e[m"
 # Copyright (c) 2022 masezou. All rights reserved.
 
-KANISTERVER=$(kubectl -n kasten-io get deployments.apps catalog-svc -o json | grep kanister-tools | cut -d "/" -f 3 | cut -d ":" -f 2 | cut -d "-" -f 2 | cut -d "\"" -f 1)
+KANISTERVER=0.98.0
+
+##################################################
+
+if [ -z ${KANISTERVER} ]; then
+KANISTERVER=$(kubectl -n kasten-io get deployments.apps catalog-svc -o json | grep kanister-tools | cut -d "/" -f 2 | cut -d ":" -f 2 | cut -d "-" -f 2 | cut -d "\"" -f 1)
+fi
 
 echo "Kanister version: ${KANISTERVER}"
 
