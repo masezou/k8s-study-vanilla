@@ -85,7 +85,7 @@ helm repo update
 kubectl get volumesnapshotclass | grep longhorn
 retval4=$?
 if [ ${retval4} -eq 0 ]; then
-	kubectl annotate volumesnapshotclass longhorn \
+	kubectl annotate volumesnapshotclass longhorn-snapshot-vsc \
 		k10.kasten.io/is-snapshot-class=true
 
 	# snapshot-cleanup
