@@ -278,10 +278,10 @@ fi
 if [ ! -f /usr/bin/kubeadm ]; then
 	## for containerd
 	mkdir -p /etc/systemd/system/kubelet.service.d
-	cat <<EOF | sudo tee /etc/systemd/system/kubelet.service.d/0-containerd.conf
-[Service]
-Environment="KUBELET_EXTRA_ARGS=--container-runtime=remote --runtime-request-timeout=15m --container-runtime-endpoint=unix:///run/containerd/containerd.sock"
-EOF
+#	cat <<EOF | sudo tee /etc/systemd/system/kubelet.service.d/0-containerd.conf
+#[Service]
+#Environment="KUBELET_EXTRA_ARGS=--container-runtime=remote --runtime-request-timeout=15m --container-runtime-endpoint=unix:///run/containerd/containerd.sock"
+#EOF
 
 	# Install Kubernetes from new or old
 	KUBEBASEVER=$(grep "KUBEBASEVER=" ./1-tools.sh | cut -d "=" -f2)
@@ -412,6 +412,8 @@ apiVersion: kubelet.config.k8s.io/v1beta1
 kind: KubeletConfiguration
 cgroupDriver: "systemd"
 protectKernelDefaults: true
+containerRuntimeEndpoint: "unix:///run/containerd/containerd.sock"
+runtimeRequestTimeout: 15m
 EOF
 			kubeadm init --config k8sconfig.yaml
 			rm -rf k8sconfig.yaml
