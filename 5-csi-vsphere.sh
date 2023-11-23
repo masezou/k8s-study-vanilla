@@ -126,9 +126,9 @@ fi
 
 # kubernetes and vSphere version check
 if [ -z ${VSPHERECSI} ]; then
-	kubectl get node -o wide | grep v1.26 >/dev/null 2>&1 && VSPHERECSI=3.1.1
-	kubectl get node -o wide | grep v1.27 >/dev/null 2>&1 && VSPHERECSI=3.1.1
-	kubectl get node -o wide | grep v1.28 >/dev/null 2>&1 && VSPHERECSI=3.1.1
+	kubectl get node -o wide | grep v1.26 >/dev/null 2>&1 && VSPHERECSI=3.1.2
+	kubectl get node -o wide | grep v1.27 >/dev/null 2>&1 && VSPHERECSI=3.1.2
+	kubectl get node -o wide | grep v1.28 >/dev/null 2>&1 && VSPHERECSI=3.1.2
 fi
 
 # Configure vsphere-cloud-controller-manager
