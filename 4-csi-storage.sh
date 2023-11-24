@@ -116,15 +116,16 @@ if [ ${LONGHORN} -eq 1 ]; then
 		helm repo add longhorn https://charts.longhorn.io
 		helm repo update
 		kubectl create namespace longhorn-system
-		helm install longhorn longhorn/longhorn --namespace longhorn-system
+		WORKERCOUNT=$(kubectl get node | grep worker | wc -l)
+		helm install longhorn longhorn/longhorn --namespace longhorn-system --set persistence.defaultClassReplicaCount=$WORKERCOUNT
 		sleep 40
 		# Checking Longhorn boot up
 		kubectl -n longhorn-system wait pod -l app=longhorn-manager --for condition=Ready --timeout 360s
 		kubectl -n longhorn-system wait pod -l app=longhorn-conversion-webhook --for condition=Ready --timeout 360s
 		kubectl -n longhorn-system wait pod -l app=longhorn-driver-deployer --for condition=Ready --timeout 360s
 		kubectl -n longhorn-system wait pod -l app=longhorn-ui --for condition=Ready --timeout 360s
-        kubectl -n longhorn-system wait pod -l app=csi-provisioner --for condition=Ready --timeout 360s
-cat <<EOF | kubectl apply -f -
+		kubectl -n longhorn-system wait pod -l app=csi-provisioner --for condition=Ready --timeout 360s
+		cat <<EOF | kubectl apply -f -
 kind: VolumeSnapshotClass
 apiVersion: snapshot.storage.k8s.io/v1
 metadata:
