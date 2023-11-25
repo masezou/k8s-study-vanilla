@@ -853,13 +853,18 @@ if [ ${ARCH} = amd64 ]; then
 			rm virtctl
 			virtctl completion bash >/etc/bash_completion.d/virtctl
 			source /etc/bash_completion.d/virtctl
-			#CDI
+			# CDI
 			#export VERSION=$(curl -s https://api.github.com/repos/kubevirt/containerized-data-importer/releases/latest | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/')
 			VERSION=v1.58.0
 			kubectl create -f https://github.com/kubevirt/containerized-data-importer/releases/download/$VERSION/cdi-operator.yaml
 			kubectl create -f https://github.com/kubevirt/containerized-data-importer/releases/download/$VERSION/cdi-cr.yaml
 			kubectl -n cdi wait pod -l app\.kubernetes\.io\/component=storage --for condition=Ready
 			kubectl -n cdi get pod
+			# VirtVNC
+			wget -O virtvnc.yaml https://github.com/wavezhang/virtVNC/raw/master/k8s/virtvnc.yaml
+			sed -i -e "s/NodePort/LoadBalancer/g" virtvnc.yaml
+			kubectl create -f virtvnc.yaml
+			rm virtvnc.yaml
 		else
 			echo "Virtualization is not supported in this node."
 		fi
