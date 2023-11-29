@@ -54,6 +54,7 @@ SYFTVER=0.97.1
 ARCH=$(dpkg --print-architecture)
 curl -OL https://github.com/anchore/syft/releases/download/v$SYFTVER/syft_$SYFTVER_linux_$ARCH.deb
 dpkg -i syft_$SYFTVER_linux_$ARCH.deb
+syft completion bash > /etc/bash_completion.d/syft
 rm -rf syft_$SYFTVER_linux_$ARCH.deb
 
 curl -OL https://docs.kasten.io/latest/_downloads/497ec5fc54a10359551cd1b5f356da8f/sboms-$KASTENVER.tar.gz
