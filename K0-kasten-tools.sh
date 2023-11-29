@@ -49,6 +49,15 @@ rm -rf k10multicluster_${KASTENVER}_linux_${ARCH}.tar.gz
 chmod +x /usr/local/bin/k10multicluster
 k10multicluster completion bash >/etc/bash_completion.d/k10multicluster
 
+# SBOM
+SYFTVER=0.97.1
+ARCH=$(dpkg --print-architecture)
+curl -OL https://github.com/anchore/syft/releases/download/v$SYFTVER/syft_$SYFTVER_linux_$ARCH.deb
+dpkg -i syft_$SYFTVER_linux_$ARCH.deb
+rm -rf syft_$SYFTVER_linux_$ARCH.deb
+
+curl -OL https://docs.kasten.io/latest/_downloads/497ec5fc54a10359551cd1b5f356da8f/sboms-$KASTENVER.tar.gz
+
 # Install kanctl
 if type "go" >/dev/null 2>&1; then
 	echo "golang was already installed"
