@@ -669,9 +669,9 @@ if [ ! -f /usr/lib/postgresql/12/bin/pgbench ]; then
 fi
 
 # Install mysql-shell
-curl -OL https://dev.mysql.com/get/mysql-apt-config_0.8.26-1_all.deb
-DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::=--force-confdef -o Dpkg::Options::=--force-confold -y install ./mysql-apt-config_0.8.26-1_all.deb
-rm mysql-apt-config_0.8.26-1_all.deb
+curl -OL https://repo.mysql.com//mysql-apt-config_0.8.29-1_all.deb
+DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::=--force-confdef -o Dpkg::Options::=--force-confold -y install ./mysql-apt-config_0.8.29-1_all.deb
+rm mysql-apt-config_0.8.29-1_all.deb
 apt update
 apt -y install mysql-shell mysql-community-client
 
