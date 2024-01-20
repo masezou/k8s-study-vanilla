@@ -70,7 +70,7 @@ if [ ${retvalsvc} -ne 0 ]; then
 
 	helm repo add bitnami https://charts.bitnami.com/bitnami
 	if [ ${ONLINE} -eq 0 ]; then
-		MYSQLHELMVER=14.0.1
+		MYSQLHELMVER=15.2.0
 		helm fetch bitnami/mariadb --version=${MYSQLHELMVER}
 		MYSQLCHART=$(ls mariadb-${MYSQLHELMVER}.tgz)
 		helm install --create-namespace --namespace ${MYSQL_NAMESPACE} mariadb-release ${MYSQLCHART} --set auth.rootPassword="Password00!" --set auth.username=admin --set auth.password="Password00!" --set primary.service.type=LoadBalancer --set global.storageClass=${SC} --set global.imageRegistry=${REGISTRYURL}
