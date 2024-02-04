@@ -66,7 +66,7 @@ EOF
              fsGroup: 10001
           containers:
           - name: mssql
-            image: mcr.microsoft.com/mssql/server:2022-CU7-ubuntu-20.04
+            image: mcr.microsoft.com/mssql/server:2022-CU11-ubuntu-22.04
             ports:
              - containerPort: 1433
             env:
