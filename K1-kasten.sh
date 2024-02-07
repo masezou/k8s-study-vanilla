@@ -229,6 +229,7 @@ fi
 kubectl get node -o wide | grep v1.25 >/dev/null 2>&1 && KASTEN125=1
 kubectl get node -o wide | grep v1.26 >/dev/null 2>&1 && KASTEN125=1
 kubectl get node -o wide | grep v1.27 >/dev/null 2>&1 && KASTEN125=1
+kubectl get node -o wide | grep v1.28 >/dev/null 2>&1 && KASTEN125=1
 if [ $KASTEN125 -eq 1 ]; then
 	kubectl --namespace kasten-io create token k10-k10
 	desired_token_secret_name=k10-k10-token

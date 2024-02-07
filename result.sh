@@ -208,6 +208,9 @@ if [ ${HAS_KASTEN} -eq 0 ]; then
 	K10INGRESURL="${K10INGRESHOST}${K10INGRESPATH}"
 
 	kubectl get node -o wide | grep v1.25 >/dev/null 2>&1 && KASTEN125=1
+	kubectl get node -o wide | grep v1.26 >/dev/null 2>&1 && KASTEN125=1
+	kubectl get node -o wide | grep v1.27 >/dev/null 2>&1 && KASTEN125=1
+	kubectl get node -o wide | grep v1.28 >/dev/null 2>&1 && KASTEN125=1
 	if [ $KASTEN125 -eq 1 ]; then
 		desired_token_secret_name=k10-k10-token
 		kubectl get secret ${desired_token_secret_name} --namespace kasten-io -ojsonpath="{.data.token}" | base64 --decode >k10-k10.token
